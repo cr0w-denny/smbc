@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { ThemeProvider, CssBaseline, Box, Toolbar } from "@mui/material";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Import shared infrastructure
 import {
@@ -47,15 +48,15 @@ const featureFlags = [
 ];
 
 // Register MSW handlers from applets
-async function initializeMswHandlers() {
+async function initializeMswHandlers(): Promise<void> {
   try {
-    // Import MSW handlers from API client packages
+    // Import MSW handlers from API client packages (separate mocks exports)
     const [
       { handlers: userManagementHandlers },
       { handlers: productCatalogHandlers },
     ] = await Promise.all([
-      import("@smbc/user-management-client"),
-      import("@smbc/product-catalog-client"),
+      import("@smbc/user-management-client/mocks"),
+      import("@smbc/product-catalog-client/mocks"),
     ]);
 
 
@@ -170,19 +171,45 @@ function AppContent() {
 
 function AppWithMockToggle() {
   const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
+  const [mswReady, setMswReady] = React.useState(false);
 
   // Initialize MSW handlers when mocks are enabled
   React.useEffect(() => {
     if (mockEnabled) {
-      initializeMswHandlers();
+      initializeMswHandlers().then(() => {
+        setMswReady(true);
+      });
+    } else {
+      // Reset MSW state when mocks are disabled
+      setMswReady(false);
     }
   }, [mockEnabled]);
 
+  const actualMockState = mockEnabled && mswReady;
+  
+  // Debug logging
+  React.useEffect(() => {
+    console.log(`🔄 Mock state changed: mockEnabled=${mockEnabled}, mswReady=${mswReady}, actualMockState=${actualMockState}`);
+  }, [mockEnabled, mswReady, actualMockState]);
+
   return (
-    <SMBCQueryProvider enableMocks={mockEnabled}>
-      <AppContentWithQueryAccess />
+    <SMBCQueryProvider enableMocks={actualMockState}>
+      <AppContentWithCacheInvalidation />
     </SMBCQueryProvider>
   );
+}
+
+function AppContentWithCacheInvalidation() {
+  const queryClient = useQueryClient();
+  const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
+
+  // Clear all cached data when switching between mock and real data
+  React.useEffect(() => {
+    console.log(`🗑️ Clearing React Query cache due to mock toggle: ${mockEnabled}`);
+    queryClient.clear(); // Completely clear cache, not just invalidate
+  }, [mockEnabled, queryClient]);
+
+  return <AppContentWithQueryAccess />;
 }
 
 function AppWithThemeProvider() {

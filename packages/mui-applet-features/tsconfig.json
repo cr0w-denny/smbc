@@ -4,15 +4,16 @@
     "composite": true,
     "outDir": "dist",
     "rootDir": "src",
-    "noEmit": false
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "jsx": "react-jsx"
   },
   "include": ["src"],
   "exclude": ["dist", "node_modules"],
   "references": [
     { "path": "../design-tokens" },
-    { "path": "../shared-query-client" },
     { "path": "../mui-applet-core" },
-    { "path": "../mui-components" },
-    { "path": "../mui-applet-features" }
+    { "path": "../mui-components" }
   ]
 }

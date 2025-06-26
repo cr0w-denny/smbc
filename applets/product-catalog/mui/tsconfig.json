@@ -23,6 +23,12 @@
       "path": "../../../packages/mui-components"
     },
     {
+      "path": "../../../packages/mui-applet-features"
+    },
+    {
+      "path": "../../../packages/mui-applet-host"
+    },
+    {
       "path": "../api-client"
     }
   ],

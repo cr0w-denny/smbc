@@ -4,7 +4,7 @@ import {
   RolePermissionDashboard,
   usePersistedRoles,
   useAppletPermissions,
-  type AppletPermissionGroup,
+  type PermissionGroup,
 } from "@smbc/mui-applet-host";
 import { APPLETS, applets, roleConfig } from "../app.config";
 
@@ -34,7 +34,7 @@ export function RoleMapping() {
       availableRoles={availableRoles}
       selectedRoles={selectedRoles}
       onRoleToggle={toggleRole}
-      appletPermissions={appletPermissions as AppletPermissionGroup[]}
+      appletPermissions={appletPermissions as PermissionGroup[]}
       localStorageKey="roleMapping-selectedRoles"
     />
   );

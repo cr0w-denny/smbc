@@ -15,3 +15,20 @@ export * from "./useAppletPermissions";
 
 // Host utilities
 export * from "./host";
+
+// AutoFilter utilities for applets
+export {
+  createOperationSchema,
+  commonOperationSchemas,
+  smbcOperationSchemas,
+  extractFieldsFromOpenAPIOperation,
+  createFilterSpec,
+  useAutoFilter,
+  AutoFilter,
+} from "./autofilter";
+
+export type {
+  FilterFieldConfig,
+  FilterValues,
+  FilterSpec,
+} from "./autofilter";

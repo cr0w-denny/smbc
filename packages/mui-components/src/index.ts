@@ -14,63 +14,67 @@ export type { EmptyStateProps } from "./EmptyState";
 export { ApiDocsModal } from "./ApiDocsModal";
 export type { ApiDocsModalProps } from "./ApiDocsModal";
 
-export { RolePermissionDashboard } from "./RolePermissionDashboard";
-export type { 
-  RolePermissionDashboardProps,
-  User,
+// Pure UI components for role management
+export {
+  DashboardHeader,
+  CurrentUserInfo,
+  PermissionChip,
+  PermissionCard,
+  PermissionsGrid,
 } from "./RolePermissionDashboard";
-// Export Permission and AppletPermissionGroup with MUI compatibility
-export type { Permission, AppletPermissionGroup } from "./RolePermissionDashboard";
+
+export type {
+  User,
+  Permission,
+  PermissionGroup,
+} from "./RolePermissionDashboard";
 
 export { HostAppBar } from "./HostAppBar";
 export type { HostAppBarProps, CurrentAppletInfo } from "./HostAppBar";
 
 export { AppletDrawer, AppletNavigation } from "./AppletDrawer";
-export type { AppletDrawerProps, AppletNavigationProps, NavigationRoute } from "./AppletDrawer";
+export type {
+  AppletDrawerProps,
+  AppletNavigationProps,
+  NavigationRoute,
+} from "./AppletDrawer";
 
 // MUI-compatible version of useAppletPermissions (if it exists)
 // export { useAppletPermissions } from "./useAppletPermissionsMUI";
 
-// AutoFilter components and hooks
+// Filter components and types
 export {
-  AutoFilter,
-  AutoFilterFromOperation,
-  AutoFilterFromFields,
-} from "./AutoFilter";
-export { FilterField, FilterFieldGroup } from "./AutoFilter";
-export {
-  useAutoFilterFromOperation,
-  useAutoFilterFromFields,
-  filterFieldPresets,
-  createFilterField,
-} from "./AutoFilter";
-export {
-  useAutoFilterWithUrlFromOperation,
-  useAutoFilterWithUrlFromFields,
-  useUrlFilters,
-} from "./AutoFilter";
-export {
-  createOperationSchema,
-  commonOperationSchemas,
-  smbcOperationSchemas,
-  extractFieldsFromOpenAPIOperation,
-} from "./AutoFilter";
+  Filter,
+  FilterField,
+  FilterFieldGroup,
+  FilterContainer,
+} from "./Filter";
 
-// AutoFilter types
 export type {
   FilterFieldConfig,
   FilterValues,
-  AutoFilterConfig,
-  OpenAPIParameter,
-  UseAutoFilterParams,
-} from "./AutoFilter";
+  FilterSpec,
+  FilterProps,
+} from "./Filter";
 
-// App Shell components
-export { AppShell } from "./AppShell";
-export { TopNavShell } from "./TopNavShell";
-export { NavigationDrawer } from "./NavigationDrawer";
-export { UserMenu } from "./UserMenu";
+// Pure notification component (no state)
 export { NotificationMenu } from "./NotificationMenu";
 
 // Theme
-export { lightTheme, darkTheme, smbcTheme, getTheme } from "./theme";
+export { lightTheme } from "./theme/light";
+export { darkTheme } from "./theme/dark";
+
+// Import themes for use in getTheme
+import { lightTheme } from "./theme/light";
+import { darkTheme } from "./theme/dark";
+
+// Utility function to get theme by mode
+export const getTheme = (mode: "light" | "dark" = "light") => {
+  switch (mode) {
+    case "dark":
+      return darkTheme;
+    case "light":
+    default:
+      return lightTheme;
+  }
+};

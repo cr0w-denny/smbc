@@ -18,7 +18,11 @@ import {
 import { Add, Edit, Delete, Inventory } from "@mui/icons-material";
 import { LoadingTable, EmptyState, SearchInput } from "@smbc/mui-components";
 import { apiClient, type components } from "@smbc/product-catalog-client";
-import { AutoFilter, commonOperationSchemas } from "@smbc/mui-components";
+import {
+  commonOperationSchemas,
+  createFilterSpec,
+} from "@smbc/mui-applet-core";
+import { Filter } from "@smbc/mui-components";
 
 function AdvancedFilters() {
   // Create the operation schema that matches the Products_list API
@@ -61,18 +65,22 @@ function AdvancedFilters() {
     hideSort: true,
   };
 
+  // Create filter specification from the operation type
+  const filterSpec = createFilterSpec(productsListOperation, config);
+
   return (
-    <AutoFilter.fromOperation
-      operationType={productsListOperation}
+    <Filter
+      spec={{
+        ...filterSpec,
+        title: "Product Filters",
+        collapsible: true,
+        defaultCollapsed: false,
+        showFilterCount: true,
+      }}
       onFiltersChange={(filters) => {
         console.log("Filter values changed:", filters);
         // TODO: Apply filters to the product query
       }}
-      config={config}
-      collapsible={true}
-      defaultCollapsed={false}
-      showFilterCount={true}
-      title="Product Filters"
     />
   );
 }

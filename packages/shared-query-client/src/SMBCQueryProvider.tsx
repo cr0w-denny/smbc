@@ -7,6 +7,7 @@ import {
 } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import QueryClientManager from "./QueryClientManager";
+import { setupMswForSharedProvider, stopMswWorker } from "./msw-integration";
 
 export interface SMBCQueryContextValue {
   queryClient: QueryClient;
@@ -134,7 +135,6 @@ export function SMBCQueryProvider({
       if (!enableMocks) {
         // Stop MSW if it's running
         try {
-          const { stopMswWorker } = await import("./msw-integration.js");
           await stopMswWorker();
         } catch (error) {
           console.warn("Failed to stop MSW worker:", error);
@@ -146,11 +146,6 @@ export function SMBCQueryProvider({
 
       // Start MSW
       try {
-        // Dynamically import MSW setup to avoid bundling in production
-        // This will fail gracefully if @smbc/msw-utils is not available
-        const { setupMswForSharedProvider } = await import(
-          "./msw-integration.js"
-        );
         await setupMswForSharedProvider(apiConfig);
         setMswStatus("ready");
         setIsReady(true);
