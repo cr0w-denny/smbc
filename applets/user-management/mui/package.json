@@ -13,12 +13,12 @@
     }
   },
   "scripts": {
-    "build:libs": "vite build",
     "build": "vite build",
-    "dev:build": "vite build --watch",
+    "dev": "vite build --watch",
     "lint": "eslint src/**/*.{ts,tsx}",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "echo 'No tests configured'"
   },
   "dependencies": {
     "@smbc/mui-applet-core": "*",

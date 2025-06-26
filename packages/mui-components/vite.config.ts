@@ -1,8 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    dts({
+      include: ['src/**/*'],
+      exclude: ['src/**/*.test.*', 'src/**/*.stories.*'],
+      rollupTypes: true,
+      bundledPackages: ['@smbc/design-tokens', '@smbc/mui-applet-core']
+    })
+  ],
   build: {
     lib: {
       entry: 'src/index.ts',

@@ -9,7 +9,8 @@
     "dev": "npx tsp compile . --watch",
     "lint": "echo 'No linting configured for TypeSpec'",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf tsp-output",
+    "test": "echo 'No tests for API schemas'"
   },
   "dependencies": {
     "@typespec/compiler": "^0.55.0",

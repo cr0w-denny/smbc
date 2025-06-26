@@ -25,10 +25,12 @@
       "default": "./dist/js/tokens.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "style-dictionary build --config style-dictionary.config.js && tsc -b",
-    "dev": "style-dictionary build --config style-dictionary.config.js && tsc -b --watch",
+    "dev": "style-dictionary build --config style-dictionary.config.js && concurrently \"chokidar 'tokens/**/*.json' -c 'style-dictionary build --config style-dictionary.config.js'\" \"tsc -b --watch\"",
     "clean": "rm -rf dist tsconfig.tsbuildinfo src/tokens.generated.ts",
     "lint": "echo 'Lint: design-tokens'",
     "type-check": "tsc --noEmit",
@@ -36,6 +38,8 @@
     "tokens:watch": "style-dictionary build --watch"
   },
   "devDependencies": {
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.0",
     "style-dictionary": "^5.0.0",
     "typescript": "^5.8.3"
   }

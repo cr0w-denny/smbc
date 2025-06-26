@@ -1,8 +1,14 @@
 {
   "typography": {
     "fontFamily": {
-      "primary": { "value": "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", "type": "fontFamily" },
-      "monospace": { "value": "\"Roboto Mono\", \"Consolas\", \"Monaco\", monospace", "type": "fontFamily" }
+      "primary": {
+        "value": "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
+        "type": "fontFamily"
+      },
+      "monospace": {
+        "value": "\"Roboto Mono\", \"Consolas\", \"Monaco\", monospace",
+        "type": "fontFamily"
+      }
     },
     "fontSize": {
       "xs": { "value": "12", "type": "fontSize" },

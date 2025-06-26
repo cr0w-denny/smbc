@@ -9,10 +9,11 @@
     "build": "npm run generate:api && tsc",
     "generate:api": "openapi-typescript ../api/tsp-output/@typespec/openapi3/openapi.json -o src/generated/types.ts && npm run generate-mocks",
     "generate-mocks": "tsx ../../../scripts/mock-generation/cli.ts ../api/tsp-output/@typespec/openapi3/openapi.json src/mocks/index.ts --base-url '/api/v1' --package-name product-catalog",
-    "dev": "npm run generate && tsc --watch",
+    "dev": "npm run generate:api && tsc --watch",
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist src/generated src/mocks"
+    "clean": "rm -rf dist src/generated src/mocks",
+    "test": "echo 'No tests configured'"
   },
   "dependencies": {
     "@smbc/shared-query-client": "*"
