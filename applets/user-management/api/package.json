@@ -1,0 +1,32 @@
+{
+  "name": "@smbc/user-management-api",
+  "version": "1.1.1",
+  "description": "TypeSpec API definition for user management",
+  "main": "tsp-output/@typespec/openapi3/openapi.json",
+  "type": "module",
+  "scripts": {
+    "build:libs": "echo 'N/A - API package'",
+    "dev:api": "tsp compile . --watch",
+    "dev:libs": "echo 'N/A - API package'",
+    "dev:apps": "echo 'N/A - API package'",
+    "generate:api": "tsp compile .",
+    "generate:api:watch": "tsp compile . --watch",
+    "build": "tsp compile .",
+    "dev": "tsp compile . --watch",
+    "lint": "echo 'No linting configured for TypeSpec'",
+    "type-check": "echo 'No type checking for TypeSpec'",
+    "clean": "rm -rf tsp-output"
+  },
+  "dependencies": {
+    "@typespec/compiler": "^0.55.0",
+    "@typespec/http": "^0.55.0",
+    "@typespec/rest": "^0.55.0",
+    "@typespec/openapi3": "^0.55.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "files": [
+    "tsp-output/@typespec/openapi3/openapi.json"
+  ]
+}

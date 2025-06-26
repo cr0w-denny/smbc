@@ -1,0 +1,47 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "outDir": "dist",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "src/**/*",
+    "src/vite-env.d.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "../../packages/mui-components"
+    },
+    {
+      "path": "../../packages/mui-applet-core"
+    },
+    {
+      "path": "../../packages/mui-applet-host"
+    },
+    {
+      "path": "../../packages/shared-query-client"
+    },
+    {
+      "path": "../../applets/product-catalog/mui"
+    },
+    {
+      "path": "../../applets/user-management/mui"
+    }
+  ]
+}

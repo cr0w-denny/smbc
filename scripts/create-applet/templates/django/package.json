@@ -1,0 +1,21 @@
+{
+  "name": "@smbc/{{APPLET_NAME}}-django",
+  "version": "1.0.0",
+  "description": "{{APPLET_DESCRIPTION}} - Django Backend Implementation",
+  "scripts": {
+    "install": "echo 'Django backend package - see README for setup instructions'",
+    "start": "echo 'Use Django management commands to start the server'",
+    "test": "echo 'Use Django test commands'"
+  },
+  "keywords": [
+    "django",
+    "python",
+    "backend",
+    "{{APPLET_NAME}}",
+    "smbc"
+  ],
+  "files": [
+    "README.md",
+    "requirements.txt"
+  ]
+}

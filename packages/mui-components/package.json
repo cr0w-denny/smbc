@@ -1,0 +1,49 @@
+{
+  "name": "@smbc/mui-components",
+  "version": "1.0.0",
+  "description": "MUI components library for SMBC",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "vite build --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "lint": "echo 'Lint: mui-components'",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@smbc/design-tokens": "workspace:*",
+    "@smbc/mui-applet-core": "workspace:*",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/swagger-ui-react": "^4.18.0",
+    "@vitejs/plugin-react": "^4.6.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "peerDependencies": {
+    "@smbc/design-tokens": "workspace:*",
+    "@smbc/mui-applet-core": "workspace:*",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@mui/material": "^7.0.0",
+    "@mui/icons-material": "^7.0.0",
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
+    "@tanstack/react-query": "^5.0.0",
+    "msw": "^2.0.0",
+    "swagger-ui-react": "^5.25.0"
+  }
+}

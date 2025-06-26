@@ -1,0 +1,42 @@
+{
+  "name": "@smbc/design-tokens",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Framework-agnostic design tokens for SMBC applications (colors, spacing, typography, etc.)",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./css": {
+      "import": "./dist/css/tokens.css",
+      "default": "./dist/css/tokens.css"
+    },
+    "./scss": {
+      "import": "./dist/scss/_tokens.scss",
+      "default": "./dist/scss/_tokens.scss"
+    },
+    "./js": {
+      "import": "./dist/js/tokens.js",
+      "default": "./dist/js/tokens.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "style-dictionary build --config style-dictionary.config.js && tsc -b",
+    "dev": "style-dictionary build --config style-dictionary.config.js && tsc -b --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo src/tokens.generated.ts",
+    "lint": "echo 'Lint: design-tokens'",
+    "type-check": "tsc --noEmit",
+    "tokens:build": "style-dictionary build --config style-dictionary.config.js",
+    "tokens:watch": "style-dictionary build --watch"
+  },
+  "devDependencies": {
+    "style-dictionary": "^5.0.0",
+    "typescript": "^5.8.3"
+  }
+}

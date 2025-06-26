@@ -1,0 +1,26 @@
+{
+  "name": "@smbc/product-catalog-api",
+  "version": "1.1.0",
+  "description": "TypeSpec API definition for product catalog",
+  "main": "tsp-output/@typespec/openapi3/openapi.json",
+  "type": "module",
+  "scripts": {
+    "build": "npx tsp compile .",
+    "dev": "npx tsp compile . --watch",
+    "lint": "echo 'No linting configured for TypeSpec'",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@typespec/compiler": "^0.55.0",
+    "@typespec/http": "^0.55.0",
+    "@typespec/rest": "^0.55.0",
+    "@typespec/openapi3": "^0.55.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "files": [
+    "tsp-output/@typespec/openapi3/openapi.json"
+  ]
+}

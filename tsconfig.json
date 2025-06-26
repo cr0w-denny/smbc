@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@smbc/*": ["packages/*/src"]
+    }
+  },
+  "include": [],
+  "exclude": ["node_modules", "dist", "**/dist", "**/node_modules"],
+  "references": [
+    { "path": "packages/design-tokens" },
+    { "path": "packages/shared-query-client" },
+    { "path": "packages/mui-applet-core" },
+    { "path": "packages/mui-components" },
+    { "path": "packages/mui-applet-host" },
+    { "path": "apps/mui-host-dev" }
+  ]
+}

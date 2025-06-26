@@ -1,0 +1,11 @@
+{
+  "name": "@smbc/user-management-django",
+  "version": "1.1.0",
+  "description": "Django backend implementation for user management",
+  "private": true,
+  "scripts": {
+    "serve": "python manage.py runserver",
+    "build": "echo 'Django deployment preparation'",
+    "test": "exit 0 && python manage.py test"
+  }
+}

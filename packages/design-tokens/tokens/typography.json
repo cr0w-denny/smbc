@@ -1,0 +1,32 @@
+{
+  "typography": {
+    "fontFamily": {
+      "primary": { "value": "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", "type": "fontFamily" },
+      "monospace": { "value": "\"Roboto Mono\", \"Consolas\", \"Monaco\", monospace", "type": "fontFamily" }
+    },
+    "fontSize": {
+      "xs": { "value": "12", "type": "fontSize" },
+      "sm": { "value": "14", "type": "fontSize" },
+      "base": { "value": "16", "type": "fontSize" },
+      "lg": { "value": "18", "type": "fontSize" },
+      "xl": { "value": "20", "type": "fontSize" },
+      "2xl": { "value": "24", "type": "fontSize" },
+      "3xl": { "value": "30", "type": "fontSize" },
+      "4xl": { "value": "36", "type": "fontSize" },
+      "5xl": { "value": "48", "type": "fontSize" },
+      "6xl": { "value": "60", "type": "fontSize" }
+    },
+    "fontWeight": {
+      "light": { "value": "300", "type": "fontWeight" },
+      "normal": { "value": "400", "type": "fontWeight" },
+      "medium": { "value": "500", "type": "fontWeight" },
+      "semibold": { "value": "600", "type": "fontWeight" },
+      "bold": { "value": "700", "type": "fontWeight" }
+    },
+    "lineHeight": {
+      "tight": { "value": "1.25", "type": "lineHeight" },
+      "normal": { "value": "1.5", "type": "lineHeight" },
+      "relaxed": { "value": "1.75", "type": "lineHeight" }
+    }
+  }
+}
