@@ -39,6 +39,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "isAdmin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

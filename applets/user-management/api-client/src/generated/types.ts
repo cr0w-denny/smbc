@@ -101,6 +101,7 @@ export interface operations {
                 page?: number;
                 pageSize?: number;
                 search?: string;
+                isAdmin?: string;
             };
             header?: never;
             path?: never;

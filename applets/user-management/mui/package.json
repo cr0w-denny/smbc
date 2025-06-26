@@ -21,11 +21,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@smbc/mui-applet-core": "workspace:*",
-    "@smbc/mui-components": "workspace:*",
-    "@smbc/shared-query-client": "workspace:*",
-    "@smbc/user-management-api": "workspace:*",
-    "@smbc/user-management-client": "workspace:*"
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/shared-query-client": "*",
+    "@smbc/user-management-api": "*",
+    "@smbc/user-management-client": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

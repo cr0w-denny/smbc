@@ -21,8 +21,8 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@smbc/design-tokens": "workspace:*",
-    "@smbc/mui-applet-core": "workspace:*",
+    "@smbc/design-tokens": "*",
+    "@smbc/mui-applet-core": "*",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -34,8 +34,8 @@
     "vite": "^6.3.5"
   },
   "peerDependencies": {
-    "@smbc/design-tokens": "workspace:*",
-    "@smbc/mui-applet-core": "workspace:*",
+    "@smbc/design-tokens": "*",
+    "@smbc/mui-applet-core": "*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "@mui/material": "^7.0.0",

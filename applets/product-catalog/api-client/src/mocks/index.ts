@@ -117,27 +117,40 @@ export const handlers = [
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
     const search = url.searchParams.get('search');
+    const category = url.searchParams.get('category');
     
     // Generate dataset
     const totalItems = faker.number.int(mockConfig.dataSetSize);
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, totalItems);
+    const allItems = Array.from({ length: totalItems }, () => generateProduct());
     
-    const items = Array.from({ length: endIndex - startIndex }, () => generateProduct());
+    // Apply filters
+    let filteredItems = allItems;
     
     // Apply search filter if provided
-    const filteredItems = search 
-      ? items.filter(item => JSON.stringify(item).toLowerCase().includes(search.toLowerCase()))
-      : items;
+    if (search) {
+      filteredItems = filteredItems.filter(item => 
+        JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    // Apply filters for query parameters that match entity fields
+    if (category !== null) {
+      filteredItems = filteredItems.filter(item => {
+        return item.category?.toString().toLowerCase().includes(category.toLowerCase());
+      });
+    }
+    
+    // Apply pagination to filtered results
+    const total = filteredItems.length;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, total);
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
     return HttpResponse.json({
-      products: filteredItems,
-      pagination: {
-        page,
-        pageSize,
-        total: totalItems,
-        totalPages: Math.ceil(totalItems / pageSize)
-      }
+      products: paginatedItems,
+      total,
+      page,
+      pageSize
     });
   }),
 

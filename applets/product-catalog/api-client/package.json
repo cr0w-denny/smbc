@@ -15,7 +15,7 @@
     "clean": "rm -rf dist src/generated src/mocks"
   },
   "dependencies": {
-    "@smbc/shared-query-client": "workspace:*"
+    "@smbc/shared-query-client": "*"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

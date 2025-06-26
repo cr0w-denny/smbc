@@ -25,12 +25,12 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@smbc/design-tokens": "workspace:*",
+    "@smbc/design-tokens": "*",
     "@types/react": "^18.0.0",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
-    "@smbc/design-tokens": "workspace:*",
+    "@smbc/design-tokens": "*",
     "react": "^18.0.0"
   }
 }

@@ -77,7 +77,8 @@ interface Users {
   list(
     @query page?: int32 = 1,
     @query pageSize?: int32 = 10,
-    @query search?: string
+    @query search?: string,
+    @query isAdmin?: string
   ): UserList | ErrorResponse;
 
   /**

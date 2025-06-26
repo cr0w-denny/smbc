@@ -4,22 +4,24 @@
   "description": "SMBC Monorepo - Next Generation Architecture",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.12.3+sha512.467df2c586056165580ad6dfb54ceaad94c5a30f80893ebdec5a44c5aa73c205ae4a5bb9d5ed6bb84ea7c249ece786642bbb49d06a307df218d03da41c317417",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "applets/*/*"
+  ],
   "scripts": {
-    "build": "pnpm run -r build",
-    "dev": "pnpm run -r dev",
-    "clean": "pnpm run -r clean",
-    "lint": "pnpm run -r lint",
-    "type-check": "pnpm run -r type-check",
+    "build": "npm run build --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "generate-mocks": "tsx scripts/mock-generation/cli.ts",
     "create-applet": "tsx scripts/create-applet/cli.ts"
   },
-  "pnpm": {
-    "overrides": {
-      "prismjs": "1.29.0"
-    }
+  "overrides": {
+    "prismjs": "1.29.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.0",

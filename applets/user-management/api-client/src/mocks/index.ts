@@ -120,27 +120,44 @@ export const handlers = [
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
     const search = url.searchParams.get('search');
+    const isAdmin = url.searchParams.get('isAdmin');
     
     // Generate dataset
     const totalItems = faker.number.int(mockConfig.dataSetSize);
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, totalItems);
+    const allItems = Array.from({ length: totalItems }, () => generateUser());
     
-    const items = Array.from({ length: endIndex - startIndex }, () => generateUser());
+    // Apply filters
+    let filteredItems = allItems;
     
     // Apply search filter if provided
-    const filteredItems = search 
-      ? items.filter(item => JSON.stringify(item).toLowerCase().includes(search.toLowerCase()))
-      : items;
+    if (search) {
+      filteredItems = filteredItems.filter(item => 
+        JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    // Apply filters for query parameters that match entity fields
+    if (isAdmin !== null) {
+      filteredItems = filteredItems.filter(item => {
+        if (isAdmin === 'true' || isAdmin === 'false') {
+          return item.isAdmin === (isAdmin === 'true');
+        }
+        // Handle other boolean representations
+        return false;
+      });
+    }
+    
+    // Apply pagination to filtered results
+    const total = filteredItems.length;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, total);
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
     return HttpResponse.json({
-      users: filteredItems,
-      pagination: {
-        page,
-        pageSize,
-        total: totalItems,
-        totalPages: Math.ceil(totalItems / pageSize)
-      }
+      users: paginatedItems,
+      total,
+      page,
+      pageSize
     });
   }),
 

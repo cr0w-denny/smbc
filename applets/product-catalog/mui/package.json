@@ -21,11 +21,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@smbc/mui-applet-core": "workspace:*",
-    "@smbc/mui-components": "workspace:*",
-    "@smbc/shared-query-client": "workspace:*",
-    "@smbc/product-catalog-api": "workspace:*",
-    "@smbc/product-catalog-client": "workspace:*"
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/shared-query-client": "*",
+    "@smbc/product-catalog-api": "*",
+    "@smbc/product-catalog-client": "*"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

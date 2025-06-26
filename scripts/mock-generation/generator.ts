@@ -133,6 +133,47 @@ ${properties}
   })`;
         } else {
           // List endpoint
+          // Extract query parameters from operation
+          const queryParams = operation.parameters?.filter((p: any) => p.in === 'query') || [];
+          const queryParamExtraction = queryParams
+            .map((param: any) => `    const ${param.name} = url.searchParams.get('${param.name}');`)
+            .join('\n');
+          
+          // Build filter logic for non-pagination parameters
+          const filterParams = queryParams.filter((p: any) => 
+            p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search'
+          );
+          
+          const filterLogic = filterParams.length > 0 ? `
+    // Apply filters for query parameters that match entity fields
+    ${filterParams.map((param: any) => {
+      // Check if this parameter name matches a field in the entity schema
+      const field = analysis.properties.find(prop => prop.name === param.name);
+      if (field) {
+        // Check if the field is a boolean type
+        const isBooleanField = field.type === 'boolean';
+        
+        if (isBooleanField) {
+          return `if (${param.name} !== null) {
+      filteredItems = filteredItems.filter(item => {
+        if (${param.name} === 'true' || ${param.name} === 'false') {
+          return item.${param.name} === (${param.name} === 'true');
+        }
+        // Handle other boolean representations
+        return false;
+      });
+    }`;
+        } else {
+          return `if (${param.name} !== null) {
+      filteredItems = filteredItems.filter(item => {
+        return item.${param.name}?.toString().toLowerCase().includes(${param.name}.toLowerCase());
+      });
+    }`;
+        }
+      }
+      return '';
+    }).filter(Boolean).join('\n    ')}` : '';
+          
           return `  // ${method.toUpperCase()} ${path} - List ${entitySegment}
   http.get(\`\${mockConfig.baseUrl}${path}\`, async ({ request }) => {
     await delay();
@@ -141,27 +182,36 @@ ${properties}
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
     const search = url.searchParams.get('search');
+${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search')
+  .map((param: any) => `    const ${param.name} = url.searchParams.get('${param.name}');`)
+  .join('\n')}
     
     // Generate dataset
     const totalItems = faker.number.int(mockConfig.dataSetSize);
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, totalItems);
+    const allItems = Array.from({ length: totalItems }, () => ${mockFunctionName}());
     
-    const items = Array.from({ length: endIndex - startIndex }, () => ${mockFunctionName}());
+    // Apply filters
+    let filteredItems = allItems;
     
     // Apply search filter if provided
-    const filteredItems = search 
-      ? items.filter(item => JSON.stringify(item).toLowerCase().includes(search.toLowerCase()))
-      : items;
+    if (search) {
+      filteredItems = filteredItems.filter(item => 
+        JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    ${filterLogic}
+    
+    // Apply pagination to filtered results
+    const total = filteredItems.length;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, total);
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
     return HttpResponse.json({
-      ${entitySegment}: filteredItems,
-      pagination: {
-        page,
-        pageSize,
-        total: totalItems,
-        totalPages: Math.ceil(totalItems / pageSize)
-      }
+      ${entitySegment}: paginatedItems,
+      total,
+      page,
+      pageSize
     });
   })`;
         }

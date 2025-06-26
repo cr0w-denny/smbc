@@ -21,9 +21,9 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@smbc/mui-applet-core": "workspace:*",
-    "@smbc/mui-components": "workspace:*",
-    "@smbc/shared-query-client": "workspace:*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/shared-query-client": "*",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/swagger-ui-react": "^5.18.0",
@@ -32,9 +32,9 @@
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
-    "@smbc/mui-applet-core": "workspace:*",
-    "@smbc/mui-components": "workspace:*",
-    "@smbc/shared-query-client": "workspace:*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/shared-query-client": "*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "@mui/material": "^7.0.0",
