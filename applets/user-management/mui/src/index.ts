@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { FilterableUserTable } from "./components/FilterableUserTable";
+import { UserTable } from "./components/UserTable";
 import { UserProfile } from "./components/UserProfile";
 import { UserManagementApplet } from "./components/UserManagementApplet";
 import { USER_MANAGEMENT_PERMISSIONS } from "./permissions";
@@ -7,7 +7,7 @@ import spec from "@smbc/user-management-api";
 
 // Individual route components for custom usage
 const UserManagementRoute: FC = () => {
-  return React.createElement(FilterableUserTable);
+  return React.createElement(UserTable);
 };
 
 const UserProfileRoute: FC = () => {

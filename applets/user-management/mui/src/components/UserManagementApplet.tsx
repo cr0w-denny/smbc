@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Box } from '@mui/material';
 import { AppletNavigation } from '@smbc/mui-components';
 import { useHashNavigation } from '@smbc/applet-core';
-import { FilterableUserTable } from './FilterableUserTable';
+import { UserTable } from './UserTable';
 import { UserProfile } from './UserProfile';
 
 export interface UserManagementAppletProps {
@@ -39,7 +39,7 @@ export const UserManagementApplet: FC<UserManagementAppletProps> = ({
         return <UserProfile />;
       case '/':
       default:
-        return <FilterableUserTable userType={userType} permissionContext={permissionContext} />;
+        return <UserTable userType={userType} permissionContext={permissionContext} />;
     }
   };
 

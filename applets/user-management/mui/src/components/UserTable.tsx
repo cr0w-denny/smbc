@@ -21,63 +21,109 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { Edit, Delete, Add, Search } from "@mui/icons-material";
+import { Edit, Delete, Add } from "@mui/icons-material";
+import {
+  Filter,
+  type FilterSpec,
+  type FilterValues,
+} from "@smbc/mui-components";
+import { useHashQueryParams } from "@smbc/applet-core";
 import { apiClient, type components } from "@smbc/user-management-client";
 import { USER_MANAGEMENT_PERMISSIONS } from "../permissions";
 import { usePermissions } from "@smbc/applet-core";
 
 type User = components["schemas"]["User"];
 
-export interface UserTableWithApiProps {
-  /** Whether to show the create button */
-  showCreate?: boolean;
-  /** Whether to show edit/delete actions */
-  showActions?: boolean;
-  /** Whether to show search */
-  showSearch?: boolean;
-  /** Whether to show pagination */
-  showPagination?: boolean;
-  /** Initial page size */
-  initialPageSize?: number;
-  /** Custom handlers - if provided, will override default API calls */
-  onEdit?: (user: User) => void;
-  onDelete?: (userId: string) => void;
-  onCreate?: () => void;
-  /** Filter parameters for external filtering */
-  searchQuery?: string;
-  emailFilter?: string;
-  statusFilter?: "active" | "inactive" | "pending";
-  departmentFilter?: string;
+interface FilterData {
+  search: string;
+  email?: string;
+  status?: "active" | "inactive";
+  sortBy: "name" | "email" | "createdAt";
+  sortOrder: "asc" | "desc";
+}
+
+const defaultFilterState: FilterData = {
+  search: "",
+  email: undefined,
+  status: undefined,
+  sortBy: "name",
+  sortOrder: "asc",
+};
+
+// Filter configuration using the existing Filter component
+const userFilterSpec: FilterSpec = {
+  fields: [
+    {
+      name: "search",
+      type: "search",
+      label: "Search users...",
+      placeholder: "Search users...",
+      fullWidth: true,
+    },
+    {
+      name: "email",
+      type: "text",
+      label: "Email Filter",
+      placeholder: "Filter by email...",
+    },
+    {
+      name: "status",
+      type: "select",
+      label: "Status",
+      options: [
+        { label: "All Statuses", value: "" },
+        { label: "Active", value: "active" },
+        { label: "Inactive", value: "inactive" },
+      ],
+    },
+    {
+      name: "sortBy",
+      type: "select",
+      label: "Sort By",
+      options: [
+        { label: "Name", value: "name" },
+        { label: "Email", value: "email" },
+        { label: "Created Date", value: "createdAt" },
+      ],
+      defaultValue: "name",
+    },
+    {
+      name: "sortOrder",
+      type: "select",
+      label: "Sort Order",
+      options: [
+        { label: "Ascending", value: "asc" },
+        { label: "Descending", value: "desc" },
+      ],
+      defaultValue: "asc",
+    },
+  ],
+  initialValues: defaultFilterState,
+  title: "User Filters",
+  collapsible: true,
+  defaultCollapsed: false,
+  showClearButton: true,
+  showFilterCount: true,
+  debounceMs: 300,
+};
+
+export interface UserTableProps {
+  /** Type of users to display */
   userType?: "all" | "admins" | "non-admins";
   /** Permission context for role-based access control */
   permissionContext?: string;
-  sortBy?: "name" | "email" | "createdAt";
-  sortOrder?: "asc" | "desc";
 }
 
-export function UserTableWithApi({
-  showCreate = true,
-  showActions = true,
-  showSearch = true,
-  showPagination = true,
-  initialPageSize = 10,
-  onEdit,
-  onDelete,
-  onCreate,
-  searchQuery,
-  emailFilter,
-  statusFilter,
-  departmentFilter,
+export function UserTable({
   userType = "all",
   permissionContext = "user-management",
-  sortBy: externalSortBy,
-  sortOrder: externalSortOrder,
-}: UserTableWithApiProps) {
-  // Permission-based access control - roles are not used for access decisions
-  const { hasPermission } = usePermissions();
+}: UserTableProps) {
+  // Filter state managed via URL params
+  const [filters, setFilters] = useHashQueryParams(defaultFilterState);
+
+  // Component state
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(initialPageSize);
-  const [internalSearch, setInternalSearch] = useState("");
+  const [pageSize, setPageSize] = useState(10);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
@@ -85,12 +131,10 @@ export function UserTableWithApi({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
-  // Use external search query if provided, otherwise use internal search
-  const effectiveSearch =
-    searchQuery !== undefined ? searchQuery : internalSearch;
+  // Permission-based access control
+  const { hasPermission } = usePermissions();
 
-  // API config is handled by the host app
-  // API queries and mutations using openapi-react-query
+  // API queries and mutations
   const {
     data: usersData,
     isLoading,
@@ -100,7 +144,7 @@ export function UserTableWithApi({
       query: {
         page: page + 1,
         pageSize,
-        ...(effectiveSearch && { search: effectiveSearch }),
+        ...(filters.search && { search: filters.search }),
         ...(userType === "admins" && { isAdmin: "true" }),
         ...(userType === "non-admins" && { isAdmin: "false" }),
       },
@@ -111,56 +155,46 @@ export function UserTableWithApi({
   const updateUserMutation = apiClient.useMutation("patch", "/users/{id}");
   const deleteUserMutation = apiClient.useMutation("delete", "/users/{id}");
 
-  // Permission checks for dynamic UI - applet only cares about permissions, not roles
+  // Permission checks
   const canCreateUsers = hasPermission(
     permissionContext,
-    USER_MANAGEMENT_PERMISSIONS.CREATE_USERS.id,
+    USER_MANAGEMENT_PERMISSIONS.CREATE_USERS,
   );
   const canEditUsers = hasPermission(
     permissionContext,
-    USER_MANAGEMENT_PERMISSIONS.EDIT_USERS.id,
+    USER_MANAGEMENT_PERMISSIONS.EDIT_USERS,
   );
   const canDeleteUsers = hasPermission(
     permissionContext,
-    USER_MANAGEMENT_PERMISSIONS.DELETE_USERS.id,
+    USER_MANAGEMENT_PERMISSIONS.DELETE_USERS,
   );
 
-  // Apply client-side filtering for unsupported API filters
+  // Apply client-side filtering and sorting
   const filteredUsers = React.useMemo(() => {
     let users: User[] = usersData?.users || [];
 
     // Apply email filter
-    if (emailFilter) {
+    if (filters.email) {
       users = users.filter((user) =>
-        user.email.toLowerCase().includes(emailFilter.toLowerCase()),
+        user.email.toLowerCase().includes(filters.email!.toLowerCase()),
       );
     }
 
     // Apply status filter
-    if (statusFilter) {
+    if (filters.status) {
       users = users.filter((user) => {
-        if (statusFilter === "active") return user.isActive;
-        if (statusFilter === "inactive") return !user.isActive;
-        // For 'pending', we could check a field if it existed
+        if (filters.status === "active") return user.isActive;
+        if (filters.status === "inactive") return !user.isActive;
         return true;
       });
     }
 
-    // Apply department filter (Note: User type doesn't have department field)
-    if (departmentFilter) {
-      // For demo, we'll filter based on lastName as a proxy for department
-      users = users.filter((user) =>
-        user.lastName.toLowerCase().includes(departmentFilter.toLowerCase()),
-      );
-    }
-
     // Apply sorting
-    if (externalSortBy) {
+    if (filters.sortBy) {
       users = [...users].sort((a, b) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let aValue: any, bValue: any;
 
-        switch (externalSortBy) {
+        switch (filters.sortBy) {
           case "name":
             aValue = `${a.firstName} ${a.lastName}`.toLowerCase();
             bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
@@ -177,8 +211,8 @@ export function UserTableWithApi({
             return 0;
         }
 
-        if (aValue < bValue) return externalSortOrder === "desc" ? 1 : -1;
-        if (aValue > bValue) return externalSortOrder === "desc" ? -1 : 1;
+        if (aValue < bValue) return filters.sortOrder === "desc" ? 1 : -1;
+        if (aValue > bValue) return filters.sortOrder === "desc" ? -1 : 1;
         return 0;
       });
     }
@@ -186,22 +220,30 @@ export function UserTableWithApi({
     return users;
   }, [
     usersData?.users,
-    emailFilter,
-    statusFilter,
-    departmentFilter,
-    externalSortBy,
-    externalSortOrder,
+    filters.email,
+    filters.status,
+    filters.sortBy,
+    filters.sortOrder,
   ]);
 
   const users = filteredUsers;
   const totalCount = usersData?.total || 0;
 
-  // Access control is purely permission-based
-  // Roles are an implementation detail for permission assignment
-
   // Calculate dynamic column count for loading/empty states
-  const hasActionColumn = showActions && (canEditUsers || canDeleteUsers);
-  const columnCount = hasActionColumn ? 5 : 4;
+  const hasActionColumn = canEditUsers || canDeleteUsers;
+  const columnCount = hasActionColumn ? 6 : 5;
+
+  // Handle filter changes
+  const handleFiltersChange = (newFilters: FilterValues) => {
+    const filterData: FilterData = {
+      search: newFilters.search || "",
+      email: newFilters.email || undefined,
+      status: newFilters.status as "active" | "inactive" | undefined,
+      sortBy: newFilters.sortBy || "name",
+      sortOrder: newFilters.sortOrder || "asc",
+    };
+    setFilters(filterData);
+  };
 
   // Handle pagination
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -217,23 +259,14 @@ export function UserTableWithApi({
 
   // Handle actions
   const handleEdit = (user: User) => {
-    if (onEdit) {
-      onEdit(user);
-    } else {
-      // Default behavior: open edit dialog
-      setUserToEdit(user);
-      setEditUserStatus(user.isActive);
-      setEditDialogOpen(true);
-    }
+    setUserToEdit(user);
+    setEditUserStatus(user.isActive);
+    setEditDialogOpen(true);
   };
 
   const handleDeleteClick = (userId: string) => {
-    if (onDelete) {
-      onDelete(userId);
-    } else {
-      setUserToDelete(userId);
-      setDeleteDialogOpen(true);
-    }
+    setUserToDelete(userId);
+    setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = () => {
@@ -247,11 +280,7 @@ export function UserTableWithApi({
   };
 
   const handleCreate = () => {
-    if (onCreate) {
-      onCreate();
-    } else {
-      setCreateDialogOpen(true);
-    }
+    setCreateDialogOpen(true);
   };
 
   const handleCreateSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -294,6 +323,14 @@ export function UserTableWithApi({
 
   return (
     <Box>
+      {/* Filters */}
+      <Filter
+        spec={userFilterSpec}
+        values={filters}
+        onFiltersChange={handleFiltersChange}
+      />
+
+      {/* Action Bar */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -301,25 +338,7 @@ export function UserTableWithApi({
         mb={2}
       >
         <Box display="flex" gap={2} alignItems="center">
-          {showSearch && (
-            <TextField
-              size="small"
-              placeholder="Search users..."
-              value={effectiveSearch}
-              onChange={(e) => {
-                if (searchQuery === undefined) {
-                  setInternalSearch(e.target.value);
-                }
-              }}
-              disabled={searchQuery !== undefined} // Disable if controlled externally
-              InputProps={{
-                startAdornment: (
-                  <Search sx={{ color: "action.active", mr: 1 }} />
-                ),
-              }}
-            />
-          )}
-          {showCreate && canCreateUsers && (
+          {canCreateUsers && (
             <Button
               variant="contained"
               startIcon={<Add />}
@@ -332,6 +351,7 @@ export function UserTableWithApi({
         </Box>
       </Box>
 
+      {/* Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -341,9 +361,7 @@ export function UserTableWithApi({
               <TableCell>Status</TableCell>
               <TableCell>Created</TableCell>
               <TableCell>Is Admin</TableCell>
-              {showActions && (canEditUsers || canDeleteUsers) && (
-                <TableCell align="right">Actions</TableCell>
-              )}
+              {hasActionColumn && <TableCell align="right">Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -383,14 +401,14 @@ export function UserTableWithApi({
                       size="small"
                     />
                   </TableCell>
-                  {showActions && (canEditUsers || canDeleteUsers) && (
+                  {hasActionColumn && (
                     <TableCell align="right">
                       {canEditUsers && (
                         <IconButton
                           onClick={() => handleEdit(user)}
                           disabled={isLoading || updateUserMutation.isPending}
                           size="small"
-                          title={onEdit ? "Edit" : "Toggle Status"}
+                          title="Edit User"
                         >
                           <Edit />
                         </IconButton>
@@ -401,6 +419,7 @@ export function UserTableWithApi({
                           disabled={isLoading || deleteUserMutation.isPending}
                           size="small"
                           color="error"
+                          title="Delete User"
                         >
                           <Delete />
                         </IconButton>
@@ -414,17 +433,16 @@ export function UserTableWithApi({
         </Table>
       </TableContainer>
 
-      {showPagination && (
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          component="div"
-          count={totalCount}
-          rowsPerPage={pageSize}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      )}
+      {/* Pagination */}
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        component="div"
+        count={totalCount}
+        rowsPerPage={pageSize}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
 
       {/* Create User Dialog */}
       <Dialog
