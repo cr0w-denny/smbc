@@ -83,7 +83,7 @@ export const getSemanticShadow = (
   return semantic?.shadow?.[mode]?.[size];
 };
 
-// Legacy compatibility helpers
+// Utility helpers
 export const getColor = (path: string): string | undefined => {
   const keys = path.split(".");
   let current: any = colors;

@@ -5,7 +5,7 @@ import { UserManagementApplet } from './components/UserManagementApplet';
 import { USER_MANAGEMENT_PERMISSIONS } from './permissions';
 import spec from '@smbc/user-management-api';
 
-// Individual route components for legacy/custom usage
+// Individual route components for custom usage
 const UserManagementRoute: FC = () => {
   return React.createElement(FilterableUserTable);
 };

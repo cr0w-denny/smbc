@@ -24,7 +24,7 @@ export function createApiClient(config: ApiClientConfig) {
     fetch: fetchClient,
     query: queryClient,
     
-    // Legacy compatibility - expose individual hooks for easier migration
+    // Expose individual hooks for convenience
     useQuery: queryClient.useQuery,
     useMutation: queryClient.useMutation,
     useInfiniteQuery: queryClient.useInfiniteQuery,

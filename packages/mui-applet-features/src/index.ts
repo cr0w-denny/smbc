@@ -46,4 +46,28 @@ export type {
 } from "./AutoFilter";
 
 // App Shell Feature (stateful components)
-export { AppShell, TopNavShell, NavigationDrawer, UserMenu } from "./AppShell";
+export {
+  ConnectedAppShell,
+  AppShellProvider,
+  useAppShell,
+} from "./AppShell";
+
+export type {
+  AppShellConfig,
+  UserAction,
+  NotificationAction,
+  AppShellFeatureProps,
+} from "./AppShell";
+
+// Navigation Feature (stateful components)
+export {
+  NavigationProvider,
+  useNavigationContext,
+  ConnectedNavigationDrawer,
+} from "./Navigation";
+
+export type {
+  NavigationItemData as AppletNavigationItemData,
+  NavigationProviderProps,
+  NavigationContextValue,
+} from "./Navigation";

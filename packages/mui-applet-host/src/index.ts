@@ -20,9 +20,8 @@ export {
 
 // Re-export pure MUI components
 export {
-  HostAppBar,
+  DevHostAppBar,
   AppletDrawer,
-  NotificationMenu,
   ApiDocsModal,
   lightTheme,
   darkTheme,
@@ -46,10 +45,12 @@ export {
   smbcOperationSchemas,
   extractFieldsFromOpenAPIOperation,
   // App Shell components
-  AppShell,
-  TopNavShell,
-  NavigationDrawer,
-  UserMenu,
+  ConnectedAppShell as AppShell,
+  AppShellProvider,
+  useAppShell,
+  // Navigation components
+  NavigationProvider,
+  ConnectedNavigationDrawer as NavigationDrawer,
 } from "@smbc/mui-applet-features";
 
 // Re-export types

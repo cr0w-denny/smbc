@@ -4,7 +4,7 @@ import { {{APPLET_PASCAL_CASE}}Detail } from './components/{{APPLET_PASCAL_CASE}
 import { {{APPLET_PASCAL_CASE}}Applet } from './components/{{APPLET_PASCAL_CASE}}Applet';
 import { {{APPLET_UPPER_CASE}}_PERMISSIONS } from './permissions';
 
-// Individual route components for legacy/custom usage
+// Individual route components for custom usage
 const {{APPLET_PASCAL_CASE}}ListRoute: FC = () => {
   return React.createElement({{APPLET_PASCAL_CASE}}List);
 };

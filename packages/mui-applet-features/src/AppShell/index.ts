@@ -1,5 +1,13 @@
-// Stateful App Shell components
-export { AppShell } from './AppShell';
-export { TopNavShell } from './TopNavShell';
-export { NavigationDrawer } from './NavigationDrawer';
-export { UserMenu } from './UserMenu';
+/**
+ * Stateful AppShell components with business logic
+ */
+
+export { ConnectedAppShell } from './ConnectedAppShell';
+export { AppShellProvider, useAppShell } from './AppShellProvider';
+
+export type {
+  AppShellConfig,
+  UserAction,
+  NotificationAction,
+  AppShellFeatureProps,
+} from './types';

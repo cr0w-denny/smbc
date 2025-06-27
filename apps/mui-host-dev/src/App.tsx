@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 // Import shared infrastructure
 import {
   ApiDocsModal,
-  HostAppBar,
+  DevHostAppBar,
   FeatureFlagProvider,
   useFeatureFlag,
   useFeatureFlagToggle,
@@ -127,7 +127,7 @@ function Navigation() {
 
   return (
     <>
-      <HostAppBar
+      <DevHostAppBar
         currentAppletInfo={currentAppletInfo}
         isDarkMode={isDarkMode}
         onDarkModeToggle={toggleDarkMode}

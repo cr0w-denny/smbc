@@ -31,9 +31,9 @@ export interface CurrentAppletInfo {
 }
 
 /**
- * Props for the HostAppBar component
+ * Props for the DevHostAppBar component
  */
-export interface HostAppBarProps {
+export interface DevHostAppBarProps {
   /** Current applet information for API docs button */
   currentAppletInfo?: CurrentAppletInfo | null;
   /** Whether dark mode is enabled */
@@ -55,12 +55,14 @@ export interface HostAppBarProps {
 }
 
 /**
- * A reusable host application bar component that provides common navigation controls
+ * A development/host application bar component that provides development-specific controls
  * including dark mode toggle, mock data toggle, and API documentation access.
+ * 
+ * This component is specifically designed for development environments and host applications.
  * 
  * @example
  * ```tsx
- * <HostAppBar
+ * <DevHostAppBar
  *   currentAppletInfo={currentAppletInfo}
  *   isDarkMode={isDarkMode}
  *   onDarkModeToggle={toggleDarkMode}
@@ -71,7 +73,7 @@ export interface HostAppBarProps {
  * />
  * ```
  */
-export function HostAppBar({
+export function DevHostAppBar({
   currentAppletInfo,
   isDarkMode,
   onDarkModeToggle,
@@ -81,7 +83,7 @@ export function HostAppBar({
   drawerWidth = 240,
   children,
   sx,
-}: HostAppBarProps) {
+}: DevHostAppBarProps) {
   return (
     <AppBar
       position="fixed"

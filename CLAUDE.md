@@ -12,6 +12,9 @@
   - For TypeScript type issues: Update the TypeSpec API definitions
   - For other generated content: Find and update the source template or generator
 
+## Project Philosophy
+- There is no legacy. Don't keep things around for backwards compatibility. This is version zero.
+
 ## Script Conventions
 
 ### Standard Scripts (Every package should have)

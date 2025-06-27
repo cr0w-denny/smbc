@@ -29,8 +29,8 @@ export type {
   PermissionGroup,
 } from "./RolePermissionDashboard";
 
-export { HostAppBar } from "./HostAppBar";
-export type { HostAppBarProps, CurrentAppletInfo } from "./HostAppBar";
+export { DevHostAppBar } from "./DevHostAppBar";
+export type { DevHostAppBarProps, CurrentAppletInfo } from "./DevHostAppBar";
 
 export { AppletDrawer, AppletNavigation } from "./AppletDrawer";
 export type {
@@ -57,8 +57,33 @@ export type {
   FilterProps,
 } from "./Filter";
 
-// Pure notification component (no state)
-export { NotificationMenu } from "./NotificationMenu";
+// Navigation components and types (pure UI)
+export {
+  NavigationDrawer,
+  NavigationList,
+  NavigationItem,
+} from "./Navigation";
+
+export type {
+  NavigationItemData,
+  NavigationItemProps,
+  NavigationListProps,
+  NavigationDrawerProps,
+} from "./Navigation";
+
+// AppShell components and types (pure UI)
+export {
+  AppShell,
+  AppToolbar,
+  AppMainContent,
+} from "./AppShell";
+
+export type {
+  AppShellProps,
+  AppToolbarProps,
+  AppMainContentProps,
+} from "./AppShell";
+
 
 // Theme
 export { lightTheme } from "./theme/light";
