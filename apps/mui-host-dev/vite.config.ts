@@ -135,6 +135,9 @@ export default defineConfig(({ mode }) => {
         "@tanstack/react-query",
         "@tanstack/react-query-devtools",
         "swagger-ui-react",
+      ],
+      // Exclude MSW mocks from optimization - they contain TypeScript files
+      exclude: [
         "@smbc/user-management-client/mocks",
         "@smbc/product-catalog-client/mocks",
       ],

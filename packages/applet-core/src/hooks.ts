@@ -20,9 +20,19 @@ export const usePermissions = () => {
 /**
  * Custom hook for hash-based navigation with query parameter support
  * Provides clean URLs like #/path?param=value instead of #?route=path&param=value
+ * 
+ * @param mountPath Optional mount path for scoped navigation within applets
+ * @returns Object with currentPath and navigateTo function
+ * 
+ * @example
+ * // Global navigation (for host system)
+ * const { currentPath, navigateTo } = useHashNavigation();
+ * 
+ * // Scoped navigation (for applets)
+ * const { currentPath, navigateTo } = useHashNavigation("/user-management");
  */
-export function useHashNavigation() {
-  const [currentPath, setCurrentPath] = useState(() => {
+export function useHashNavigation(mountPath?: string) {
+  const [globalPath, setGlobalPath] = useState(() => {
     // Extract path from hash (e.g., "#/user-management?param=value" -> "/user-management")
     const hash = window.location.hash;
     if (!hash || hash === "#") return "/";
@@ -32,10 +42,10 @@ export function useHashNavigation() {
     return queryIndex >= 0 ? hashContent.slice(0, queryIndex) : hashContent;
   });
 
-  const navigateTo = useCallback((path: string) => {
+  const globalNavigateTo = useCallback((path: string) => {
     // Navigate to the new path, resetting any existing query parameters
     window.location.hash = path;
-    setCurrentPath(path);
+    setGlobalPath(path);
   }, []);
 
   // Listen for hash changes
@@ -43,7 +53,7 @@ export function useHashNavigation() {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (!hash || hash === "#") {
-        setCurrentPath("/");
+        setGlobalPath("/");
         return;
       }
 
@@ -51,14 +61,31 @@ export function useHashNavigation() {
       const queryIndex = hashContent.indexOf("?");
       const path =
         queryIndex >= 0 ? hashContent.slice(0, queryIndex) : hashContent;
-      setCurrentPath(path);
+      setGlobalPath(path);
     };
 
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  return { currentPath, navigateTo };
+  // If mountPath is provided, return scoped navigation
+  if (mountPath) {
+    const currentPath = globalPath.startsWith(mountPath) 
+      ? globalPath.slice(mountPath.length) || '/'
+      : '/';
+    
+    const navigateTo = useCallback((relativePath: string) => {
+      const fullPath = relativePath === '/' 
+        ? mountPath 
+        : `${mountPath}${relativePath}`;
+      globalNavigateTo(fullPath);
+    }, [mountPath, globalNavigateTo]);
+    
+    return { currentPath, navigateTo };
+  }
+
+  // Default: return global navigation
+  return { currentPath: globalPath, navigateTo: globalNavigateTo };
 }
 
 /**
@@ -173,30 +200,6 @@ export function useHashQueryParams<T extends Record<string, any>>(
   return [params, updateParams];
 }
 
-
-// Hook for sidebar management (simplified - components should manage their own state)
-export const useSidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return {
-    isOpen,
-    toggle: () => setIsOpen(!isOpen),
-    open: () => setIsOpen(true),
-    close: () => setIsOpen(false),
-  };
-};
-
-// Hook for notifications (simplified - returns empty state since not implemented)
-export const useNotifications = () => {
-  return {
-    notifications: [],
-    unreadCount: 0,
-    addNotification: () => console.warn("Notifications not implemented"),
-    removeNotification: () => console.warn("Notifications not implemented"),
-    markAsRead: () => console.warn("Notifications not implemented"),
-    clearAll: () => console.warn("Notifications not implemented"),
-  };
-};
 
 // Hook for user management
 export const useUser = () => {

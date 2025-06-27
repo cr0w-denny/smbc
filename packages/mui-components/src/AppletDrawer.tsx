@@ -10,6 +10,8 @@ import {
   Typography,
   Toolbar,
   Chip,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { Dashboard as DashboardIcon } from '@mui/icons-material';
 
@@ -34,6 +36,8 @@ export interface AppletNavigationProps {
   onNavigate: (path: string) => void;
   /** Array of navigation routes */
   routes: NavigationRoute[];
+  /** Navigation style mode */
+  mode?: 'list' | 'tabs';
   /** Whether to show debug info (applet count chip) */
   showDebugInfo?: boolean;
   /** Number of total applets for debug display */
@@ -48,6 +52,7 @@ export function AppletNavigation({
   currentPath,
   onNavigate,
   routes,
+  mode = 'list',
   showDebugInfo = false,
   totalApplets = 0,
 }: AppletNavigationProps) {
@@ -55,6 +60,34 @@ export function AppletNavigation({
     onNavigate(path);
   };
 
+  if (mode === 'tabs') {
+    const currentIndex = routes.findIndex(route => route.path === currentPath);
+    const tabValue = currentIndex === -1 ? 0 : currentIndex;
+
+    return (
+      <Tabs
+        value={tabValue}
+        onChange={(_, newValue) => {
+          const route = routes[newValue];
+          if (route) {
+            handleNavigation(route.path);
+          }
+        }}
+        aria-label="navigation tabs"
+      >
+        {routes.map((route) => (
+          <Tab
+            key={route.path}
+            label={route.label}
+            id={`nav-tab-${route.path}`}
+            aria-controls={`nav-tabpanel-${route.path}`}
+          />
+        ))}
+      </Tabs>
+    );
+  }
+
+  // Default list mode
   return (
     <List>
       {routes.map((route) => {

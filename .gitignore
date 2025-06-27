@@ -4,3 +4,4 @@ dist
 .turbo
 storybook-static
 .env*.local
+*.tsbuildinfo
