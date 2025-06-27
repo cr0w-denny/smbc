@@ -15,6 +15,8 @@ export interface FilterFieldGroupProps {
   direction?: 'row' | 'column';
   spacing?: number;
   wrap?: boolean;
+  /** Whether to disable debouncing in individual field components (let parent handle it) */
+  disableDebounce?: boolean;
 }
 
 export const FilterFieldGroup: React.FC<FilterFieldGroupProps> = ({
@@ -25,6 +27,7 @@ export const FilterFieldGroup: React.FC<FilterFieldGroupProps> = ({
   direction = 'row',
   spacing = 2,
   wrap = true,
+  disableDebounce = false,
 }) => {
   return (
     <Box
@@ -48,6 +51,7 @@ export const FilterFieldGroup: React.FC<FilterFieldGroupProps> = ({
             value={values[field.name]}
             onChange={onChange}
             error={errors[field.name]}
+            disableDebounce={disableDebounce}
           />
         </Box>
       ))}

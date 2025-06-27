@@ -50,17 +50,46 @@ export function Filter({
     controlledValues || initialValues
   );
 
+  // For controlled mode, we need separate local values for immediate UI feedback
+  const [localValues, setLocalValues] = useState<FilterValues>(
+    controlledValues || initialValues
+  );
+
   const isControlled = controlledValues !== undefined;
-  const currentValues = isControlled ? controlledValues : internalValues;
+  
+  // Sync controlled values to local values when they change externally
+  React.useEffect(() => {
+    if (isControlled && controlledValues) {
+      setLocalValues(controlledValues);
+    }
+  }, [controlledValues, isControlled]);
+
+  // For display purposes, use local values in controlled mode, internal values in uncontrolled
+  const displayValues = isControlled ? localValues : internalValues;
+  
+  // For filter count calculation, use the controlled values or internal values
+  const activeFilterValues = isControlled ? controlledValues : internalValues;
 
   // Debounced filter change handler
   const debounceRef = React.useRef<ReturnType<typeof setTimeout>>();
   
+  // Cleanup debounce timer on unmount
+  React.useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+  
   const handleFieldChange = useCallback((name: string, value: any) => {
-    const newValues = { ...currentValues, [name]: value };
+    const newDisplayValues = { ...displayValues, [name]: value };
     
-    if (!isControlled) {
-      setInternalValues(newValues);
+    // Always update local/display values immediately for responsive UI
+    if (isControlled) {
+      setLocalValues(newDisplayValues);
+    } else {
+      setInternalValues(newDisplayValues);
     }
 
     // Debounce the onChange callback
@@ -70,7 +99,7 @@ export function Filter({
     
     debounceRef.current = setTimeout(() => {
       // Clean empty values before calling onChange
-      const cleaned = Object.entries(newValues).reduce((acc, [key, val]) => {
+      const cleaned = Object.entries(newDisplayValues).reduce((acc, [key, val]) => {
         if (val !== null && val !== undefined && val !== '') {
           acc[key] = val;
         }
@@ -79,21 +108,28 @@ export function Filter({
       
       onFiltersChange(cleaned);
     }, debounceMs);
-  }, [currentValues, isControlled, onFiltersChange, debounceMs]);
+  }, [displayValues, isControlled, onFiltersChange, debounceMs]);
 
   const handleClearFilters = useCallback(() => {
     const clearedValues = {};
     
-    if (!isControlled) {
+    // Clear both local and internal values
+    if (isControlled) {
+      setLocalValues(clearedValues);
+    } else {
       setInternalValues(clearedValues);
     }
     
+    // Clear the debounce timer and immediately call onFiltersChange
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
     onFiltersChange(clearedValues);
   }, [isControlled, onFiltersChange]);
 
-  // Count active filters
+  // Count active filters using the controlled values or internal values (not display values)
   const activeFilterCount = useMemo(() => {
-    return Object.entries(currentValues).filter(([key, value]) => {
+    return Object.entries(activeFilterValues || {}).filter(([key, value]) => {
       const field = fields.find(f => f.name === key);
       if (!field || field.type === 'hidden') return false;
       
@@ -102,7 +138,7 @@ export function Filter({
              value !== '' && 
              value !== field.defaultValue;
     }).length;
-  }, [currentValues, fields]);
+  }, [activeFilterValues, fields]);
 
   if (!visible || fields.length === 0) {
     return null;
@@ -123,11 +159,12 @@ export function Filter({
     >
       <FilterFieldGroup
         fields={visibleFields}
-        values={currentValues}
+        values={displayValues}
         onChange={handleFieldChange}
         spacing={2}
         direction="row"
         wrap={true}
+        disableDebounce={true}
       />
     </FilterContainer>
   );

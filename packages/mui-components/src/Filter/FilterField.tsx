@@ -22,6 +22,8 @@ export interface FilterFieldProps {
   value: any;
   onChange: (name: string, value: any) => void;
   error?: string;
+  /** Whether to disable debouncing in individual field components (let parent handle it) */
+  disableDebounce?: boolean;
 }
 
 export const FilterField: React.FC<FilterFieldProps> = ({
@@ -29,6 +31,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   value,
   onChange,
   error,
+  disableDebounce = false,
 }) => {
   const handleChange = (newValue: any) => {
     onChange(field.name, newValue);
@@ -57,6 +60,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             disabled={field.disabled}
             size={field.size}
             fullWidth={field.fullWidth}
+            debounceMs={disableDebounce ? 0 : 300}
           />
           {error && <FormHelperText error>{error}</FormHelperText>}
         </Box>
