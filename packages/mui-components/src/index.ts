@@ -14,20 +14,15 @@ export type { EmptyStateProps } from "./EmptyState";
 export { ApiDocsModal } from "./ApiDocsModal";
 export type { ApiDocsModalProps } from "./ApiDocsModal";
 
-// Pure UI components for role management
 export {
   DashboardHeader,
   CurrentUserInfo,
   PermissionChip,
   PermissionCard,
   PermissionsGrid,
-} from "./RolePermissionDashboard";
+} from "./RoleManagement";
 
-export type {
-  User,
-  Permission,
-  PermissionGroup,
-} from "./RolePermissionDashboard";
+export type { User, Permission, PermissionGroup } from "./RoleManagement";
 
 export { DevHostAppBar } from "./DevHostAppBar";
 export type { DevHostAppBarProps, CurrentAppletInfo } from "./DevHostAppBar";
@@ -38,9 +33,6 @@ export type {
   AppletNavigationProps,
   NavigationRoute,
 } from "./AppletDrawer";
-
-// MUI-compatible version of useAppletPermissions (if it exists)
-// export { useAppletPermissions } from "./useAppletPermissionsMUI";
 
 // Filter components and types
 export {
@@ -58,11 +50,7 @@ export type {
 } from "./Filter";
 
 // Navigation components and types (pure UI)
-export {
-  NavigationDrawer,
-  NavigationList,
-  NavigationItem,
-} from "./Navigation";
+export { NavigationDrawer, NavigationList, NavigationItem } from "./Navigation";
 
 export type {
   NavigationItemData,
@@ -71,12 +59,7 @@ export type {
   NavigationDrawerProps,
 } from "./Navigation";
 
-// AppShell components and types (pure UI)
-export {
-  AppShell,
-  AppToolbar,
-  AppMainContent,
-} from "./AppShell";
+export { AppShell, AppToolbar, AppMainContent } from "./AppShell";
 
 export type {
   AppShellProps,
@@ -84,16 +67,10 @@ export type {
   AppMainContentProps,
 } from "./AppShell";
 
-
-// Theme
 export { lightTheme } from "./theme/light";
 export { darkTheme } from "./theme/dark";
-
-// Import themes for use in getTheme
 import { lightTheme } from "./theme/light";
 import { darkTheme } from "./theme/dark";
-
-// Utility function to get theme by mode
 export const getTheme = (mode: "light" | "dark" = "light") => {
   switch (mode) {
     case "dark":

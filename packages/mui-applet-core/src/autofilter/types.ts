@@ -1,24 +1,13 @@
 /**
- * Filter types for AutoFilter system
+ * MUI-specific AutoFilter types
+ * Re-exports framework-agnostic types from applet-core
  */
 
-import type { FilterFieldConfig as BaseFilterFieldConfig, FilterValues as BaseFilterValues } from '@smbc/mui-components';
-
-// Extended version with business logic properties
-export interface FilterFieldConfig extends BaseFilterFieldConfig {
-  // Business logic properties (used by AutoFilter features)
-  debounceMs?: number;
-  validation?: {
-    min?: number;
-    max?: number;
-    pattern?: string;
-    custom?: (value: any) => string | null;
-  };
-}
-
-export interface FilterValues extends BaseFilterValues {}
-
-export interface FilterSpec {
-  fields: FilterFieldConfig[];
-  initialValues: FilterValues;
-}
+// Re-export all the framework-agnostic types from applet-core
+export type {
+  OpenAPIParameter,
+  AutoFilterConfig,
+  UseAutoFilterParams,
+  FilterFieldConfig,
+  FilterValues,
+} from "@smbc/applet-core";

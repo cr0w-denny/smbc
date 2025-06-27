@@ -9,8 +9,7 @@
     "dev:apps": "vite",
     "generate:api": "echo 'N/A - Application package'",
     "generate:api:watch": "echo 'N/A - Application package'",
-    "build": "tsc && vite build",
-    "build:static": "tsc && vite build --mode hash",
+    "build": "vite build",
     "dev": "vite",
     "dev:hash": "vite --mode hash",
     "preview": "vite preview",
@@ -26,7 +25,7 @@
     "@smbc/mui-components": "*",
     "@smbc/product-catalog-client": "*",
     "@smbc/product-catalog-mui": "*",
-    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
     "@smbc/mui-applet-host": "*",
     "@smbc/shared-query-client": "*",
     "@smbc/user-management-client": "*",
@@ -36,8 +35,7 @@
     "msw": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "swagger-ui-react": "^5.25.2",
-    "valibot": "^0.24.0"
+    "swagger-ui-react": "^5.25.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",

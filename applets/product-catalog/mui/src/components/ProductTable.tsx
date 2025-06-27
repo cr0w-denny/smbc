@@ -18,10 +18,7 @@ import {
 import { Add, Edit, Delete, Inventory } from "@mui/icons-material";
 import { LoadingTable, EmptyState, SearchInput } from "@smbc/mui-components";
 import { apiClient, type components } from "@smbc/product-catalog-client";
-import {
-  commonOperationSchemas,
-  createFilterSpec,
-} from "@smbc/mui-applet-core";
+import { commonOperationSchemas, createFilterSpec } from "@smbc/applet-core";
 import { Filter } from "@smbc/mui-components";
 
 function AdvancedFilters() {

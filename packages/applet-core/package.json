@@ -1,0 +1,36 @@
+{
+  "name": "@smbc/applet-core",
+  "version": "1.0.0",
+  "description": "Framework-agnostic core utilities for SMBC applets",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./host": {
+      "types": "./dist/host.d.ts",
+      "import": "./dist/host.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "lint": "echo 'Lint: applet-core'",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@smbc/design-tokens": "*",
+    "@types/react": "^18.0.0",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "@smbc/design-tokens": "*",
+    "react": "^18.0.0"
+  }
+}

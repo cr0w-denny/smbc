@@ -1,7 +1,7 @@
 {
   "name": "@smbc/mui-applet-core",
   "version": "1.0.0",
-  "description": "Core utilities and components for SMBC MUI applets",
+  "description": "MUI-specific stateful applet components for SMBC applications",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -10,13 +10,11 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./host": {
-      "types": "./dist/host.d.ts",
-      "import": "./dist/host.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b --watch",
@@ -24,13 +22,28 @@
     "lint": "echo 'Lint: mui-applet-core'",
     "type-check": "tsc --noEmit"
   },
+  "dependencies": {
+    "@smbc/mui-components": "*"
+  },
   "devDependencies": {
     "@smbc/design-tokens": "*",
+    "@smbc/applet-core": "*",
+    "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
+    "@mui/icons-material": "^7.0.0",
+    "@mui/material": "^7.0.0",
     "@smbc/design-tokens": "*",
-    "react": "^18.0.0"
+    "@smbc/applet-core": "*",
+    "@smbc/mui-components": "*",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   }
 }

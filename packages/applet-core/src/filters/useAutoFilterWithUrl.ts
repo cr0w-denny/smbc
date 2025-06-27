@@ -4,9 +4,9 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import { FilterValues, FilterFieldConfig, AutoFilterConfig } from './types';
-import { useAutoFilterFromOperation, useAutoFilterFromFields } from './useAutoFilter';
-import { cleanFilterValues } from './utils';
+import type { FilterFieldConfig, FilterValues } from '../autofilter/types';
+import type { AutoFilterConfig } from '../openapi/types';
+import { cleanFilterValues } from '../openapi/utils';
 
 // Note: This would normally import from @smbc/mui-applet-core
 // But since this is a shared component, we'll make it optional
@@ -17,7 +17,7 @@ type UseHashQueryParamsHook = <T extends Record<string, any>>(
 interface UseAutoFilterWithUrlOptions<TDefaults extends FilterValues = FilterValues> {
   /** Default values for the URL parameters */
   defaultValues?: TDefaults;
-  /** Hook for managing hash query parameters (from @smbc/mui-applet-core) */
+  /** Hook for managing hash query parameters (from @smbc/applet-core) */
   useHashQueryParams?: UseHashQueryParamsHook;
   /** Configuration for the filter behavior */
   config?: AutoFilterConfig;
@@ -28,29 +28,14 @@ interface UseAutoFilterWithUrlOptions<TDefaults extends FilterValues = FilterVal
 }
 
 /**
- * Use AutoFilter with URL synchronization from operation types
+ * Use filter with URL synchronization
+ * This is the core implementation that can be used by UI-specific implementations
  */
-export function useAutoFilterWithUrlFromOperation<
-  TOperation = any,
-  TDefaults extends FilterValues = FilterValues
->(
-  operationType: TOperation,
+export function useAutoFilterWithUrl<TDefaults extends FilterValues = FilterValues>(
+  fields: FilterFieldConfig[],
+  initialValues: FilterValues,
   options: UseAutoFilterWithUrlOptions<TDefaults> = {}
 ) {
-  const { fields, initialValues } = useAutoFilterFromOperation(operationType, options.config);
-  
-  return useAutoFilterWithUrlCore(fields, initialValues, options);
-}
-
-/**
- * Use AutoFilter with URL synchronization from manual field definitions
- */
-export function useAutoFilterWithUrlFromFields<TDefaults extends FilterValues = FilterValues>(
-  fieldConfigs: FilterFieldConfig[],
-  options: UseAutoFilterWithUrlOptions<TDefaults> = {}
-) {
-  const { fields, initialValues } = useAutoFilterFromFields(fieldConfigs, options.config);
-  
   return useAutoFilterWithUrlCore(fields, initialValues, options);
 }
 

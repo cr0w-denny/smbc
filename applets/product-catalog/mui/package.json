@@ -13,7 +13,6 @@
     }
   },
   "scripts": {
-    "build:libs": "vite build",
     "build": "vite build",
     "dev:build": "vite build --watch",
     "lint": "eslint src/**/*.{ts,tsx}",
@@ -21,7 +20,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
     "@smbc/shared-query-client": "*",
     "@smbc/product-catalog-api": "*",

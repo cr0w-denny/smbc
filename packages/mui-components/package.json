@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@smbc/design-tokens": "*",
-    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -42,7 +42,7 @@
     "@mui/icons-material": "^7.0.0",
     "@mui/material": "^7.0.0",
     "@smbc/design-tokens": "*",
-    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
     "@tanstack/react-query": "^5.0.0",
     "msw": "^2.0.0",
     "react": "^18.0.0",

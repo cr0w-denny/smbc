@@ -2,7 +2,7 @@
  * Stateful Navigation types - extends pure UI types with business logic
  */
 
-import type { NavigationItem } from '@smbc/mui-applet-core';
+import type { NavigationItem } from "@smbc/applet-core";
 
 // Use the NavigationItem from mui-applet-core directly
 export type NavigationItemData = NavigationItem;

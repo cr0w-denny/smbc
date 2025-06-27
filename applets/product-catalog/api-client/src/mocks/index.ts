@@ -201,7 +201,9 @@ export const handlers = [
 // Apply custom overrides if available
 async function loadCustomOverrides() {
   try {
-    const customModule = await import('./custom.js');
+    // Dynamic import that won't be analyzed by TypeScript
+    const customPath = './custom.js';
+    const customModule = await import(/* @vite-ignore */ customPath);
     if (customModule.customHandlers) {
       // Prepend custom handlers so they take precedence
       handlers.unshift(...customModule.customHandlers);

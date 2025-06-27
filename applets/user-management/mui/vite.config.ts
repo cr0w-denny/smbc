@@ -25,6 +25,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: getSMBCExternals('full', [
+        '@smbc/applet-core',
         '@smbc/mui-components',
         '@smbc/mui-applet-core',
         '@smbc/shared-query-client',

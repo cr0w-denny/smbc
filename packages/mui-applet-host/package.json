@@ -23,9 +23,9 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
-    "@smbc/mui-applet-features": "*",
+    "@smbc/mui-applet-core": "*",
     "@smbc/shared-query-client": "*",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -41,9 +41,9 @@
     "@faker-js/faker": "^8.0.0",
     "@mui/icons-material": "^7.0.0",
     "@mui/material": "^7.0.0",
-    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
-    "@smbc/mui-applet-features": "*",
+    "@smbc/mui-applet-core": "*",
     "@smbc/shared-query-client": "*",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",

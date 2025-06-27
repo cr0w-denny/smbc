@@ -2,11 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2020",
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "outDir": "dist",
@@ -16,14 +12,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "src/**/*",
-    "src/vite-env.d.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ],
+  "include": ["src/**/*", "src/vite-env.d.ts"],
+  "exclude": ["dist", "node_modules"],
   "references": [
     {
       "path": "../../packages/mui-components"
@@ -42,6 +32,8 @@
     },
     {
       "path": "../../applets/user-management/mui"
-    }
+    },
+    { "path": "../../applets/product-catalog/api-client" },
+    { "path": "../../applets/user-management/api-client" }
   ]
 }

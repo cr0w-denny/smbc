@@ -11,7 +11,7 @@ import {
 } from '@smbc/mui-components';
 import { useAutoFilterFromOperation, useAutoFilterFromFields } from './useAutoFilter';
 import { AutoFilterConfig } from './types';
-import { cleanFilterValues, validateFilterValues } from './utils';
+import { cleanFilterValues, validateFilterValues } from '@smbc/applet-core';
 
 interface AutoFilterProps {
   /** Called when filter values change */

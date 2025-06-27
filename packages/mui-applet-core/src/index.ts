@@ -1,34 +1,53 @@
-export * from "./AppContext";
-export * from "./hooks";
-export * from "./permissions";
-export * from "./types";
-
-// Feature flags
-export * from "./FeatureFlagProvider";
-
-// Routing
-export * from "./AppletRouter";
-
-// Role management hooks
-export * from "./usePersistedRoles";
-export * from "./useAppletPermissions";
-
-// Host utilities
-export * from "./host";
-
-// AutoFilter utilities for applets
-export {
-  createOperationSchema,
-  commonOperationSchemas,
-  smbcOperationSchemas,
-  extractFieldsFromOpenAPIOperation,
-  createFilterSpec,
-  useAutoFilter,
-  AutoFilter,
-} from "./autofilter";
+// Role Management
+export { RoleManagement, useLocalStoragePersistence } from "./RoleManagement";
 
 export type {
-  FilterFieldConfig,
-  FilterValues,
-  FilterSpec,
-} from "./autofilter";
+  RoleManagementProps,
+  User,
+  Permission,
+  PermissionGroup,
+} from "./RoleManagement";
+
+// AutoFilter
+export {
+  AutoFilter,
+  AutoFilterFromOperation,
+  AutoFilterFromFields,
+} from "./AutoFilter";
+
+export {
+  useAutoFilterFromOperation,
+  useAutoFilterFromFields,
+  filterFieldPresets,
+  createFilterField,
+} from "./AutoFilter";
+
+// AutoFilter types
+export type {
+  AutoFilterConfig,
+  OpenAPIParameter,
+  UseAutoFilterParams,
+} from "./AutoFilter";
+
+// App Shell
+export { ConnectedAppShell, AppShellProvider, useAppShell } from "./AppShell";
+
+export type {
+  AppShellConfig,
+  UserAction,
+  NotificationAction,
+  AppShellFeatureProps,
+} from "./AppShell";
+
+// Navigation
+export {
+  NavigationProvider,
+  useNavigationContext,
+  ConnectedNavigationDrawer,
+} from "./Navigation";
+
+export type {
+  NavigationItemData as AppletNavigationItemData,
+  NavigationProviderProps,
+  NavigationContextValue,
+} from "./Navigation";

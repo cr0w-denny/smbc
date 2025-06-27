@@ -1,26 +1,9 @@
 import { FC, useState, useEffect, useCallback } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
+import { Box } from '@mui/material';
+import { AppletNavigation } from '@smbc/mui-components';
 import { FilterableUserTable } from './FilterableUserTable';
 import { UserProfile } from './UserProfile';
-
-interface Route {
-  path: string;
-  label: string;
-  component: FC<any>;
-}
-
-const routes: Route[] = [
-  {
-    path: '/',
-    label: 'User Management',
-    component: FilterableUserTable,
-  },
-  {
-    path: '/profile',
-    label: 'User Profile',
-    component: UserProfile,
-  },
-];
+import { People as PeopleIcon, Person as PersonIcon } from '@mui/icons-material';
 
 export interface UserManagementAppletProps {
   mountPath: string;
@@ -30,7 +13,22 @@ export interface UserManagementAppletProps {
   permissionContext?: string;
 }
 
-function useAppletNavigation(mountPath: string) {
+// Navigation configuration
+const navigationRoutes = [
+  {
+    path: '/',
+    label: 'User Management',
+    icon: PeopleIcon,
+  },
+  {
+    path: '/profile',
+    label: 'User Profile', 
+    icon: PersonIcon,
+  },
+];
+
+// Simple hook for standalone navigation (no complex context dependencies)
+function useStandaloneNavigation(mountPath: string) {
   const [currentRoute, setCurrentRoute] = useState(() => {
     const hash = window.location.hash;
     if (!hash.startsWith('#' + mountPath)) {
@@ -43,7 +41,7 @@ function useAppletNavigation(mountPath: string) {
     return path || '/';
   });
 
-  const navigateToRoute = useCallback((route: string) => {
+  const navigate = useCallback((route: string) => {
     const newHash = '#' + mountPath + (route === '/' ? '' : route);
     window.location.hash = newHash;
   }, [mountPath]);
@@ -53,7 +51,7 @@ function useAppletNavigation(mountPath: string) {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (!hash.startsWith('#' + mountPath)) {
-        return; // This hash change doesn't affect this applet
+        return;
       }
       
       const subPath = hash.substring(('#' + mountPath).length);
@@ -66,45 +64,42 @@ function useAppletNavigation(mountPath: string) {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [mountPath]);
 
-  return { currentRoute, navigateToRoute };
+  return { currentRoute, navigate };
 }
 
-export const UserManagementApplet: FC<UserManagementAppletProps> = ({ mountPath, userType = 'all', permissionContext = "user-management" }) => {
-  const { currentRoute, navigateToRoute } = useAppletNavigation(mountPath);
+export const UserManagementApplet: FC<UserManagementAppletProps> = ({ 
+  mountPath,
+  userType = 'all', 
+  permissionContext = "user-management" 
+}) => {
+  const { currentRoute, navigate } = useStandaloneNavigation(mountPath);
   
-  const currentRouteConfig = routes.find(route => route.path === currentRoute) || routes[0];
-  const CurrentComponent = currentRouteConfig.component;
-  
-  const currentIndex = routes.findIndex(route => route.path === currentRoute);
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    const selectedRoute = routes[newValue];
-    if (selectedRoute) {
-      navigateToRoute(selectedRoute.path);
+  // Simple route rendering
+  const renderCurrentRoute = () => {
+    switch (currentRoute) {
+      case '/profile':
+        return <UserProfile />;
+      case '/':
+      default:
+        return <FilterableUserTable userType={userType} permissionContext={permissionContext} />;
     }
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Navigation */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-        <Tabs 
-          value={currentIndex === -1 ? 0 : currentIndex} 
-          onChange={handleTabChange}
-          aria-label="user management navigation"
-        >
-          {routes.map((route, index) => (
-            <Tab 
-              key={route.path} 
-              label={route.label} 
-              id={`user-mgmt-tab-${index}`}
-              aria-controls={`user-mgmt-tabpanel-${index}`}
-            />
-          ))}
-        </Tabs>
+        <AppletNavigation
+          currentPath={currentRoute}
+          onNavigate={navigate}
+          routes={navigationRoutes}
+        />
       </Box>
-      <CurrentComponent 
-        {...(currentRouteConfig.component === FilterableUserTable && { userType, permissionContext })}
-      />
+      
+      {/* Route content */}
+      <Box sx={{ flex: 1 }}>
+        {renderCurrentRoute()}
+      </Box>
     </Box>
   );
 };

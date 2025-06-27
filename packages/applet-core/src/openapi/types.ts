@@ -1,14 +1,14 @@
 /**
- * Types for the AutoFilter component system
+ * Framework-agnostic types for OpenAPI and filter utilities
  */
 
 // OpenAPI parameter schema types
 export interface OpenAPIParameter {
   name: string;
-  in: 'query' | 'path' | 'header';
+  in: "query" | "path" | "header";
   required?: boolean;
   schema: {
-    type: 'string' | 'integer' | 'number' | 'boolean' | 'array';
+    type: "string" | "integer" | "number" | "boolean" | "array";
     format?: string;
     enum?: string[];
     default?: any;
@@ -20,11 +20,7 @@ export interface OpenAPIParameter {
   description?: string;
 }
 
-// Import and re-export from mui-applet-core (extended version with business logic)
-import type { FilterFieldConfig, FilterValues } from '@smbc/mui-applet-core';
-export type { FilterFieldConfig, FilterValues };
-
-// Configuration for the entire filter component  
+// Configuration for filter behavior (framework-agnostic)
 export interface AutoFilterConfig {
   /** Fields to include in the filter (defaults to all query parameters) */
   includeFields?: string[];
@@ -34,7 +30,7 @@ export interface AutoFilterConfig {
   fieldOverrides?: Record<string, Partial<FilterFieldConfig>>;
   /** Layout configuration */
   layout?: {
-    direction?: 'row' | 'column';
+    direction?: "row" | "column";
     spacing?: number;
     wrap?: boolean;
     maxFieldsPerRow?: number;
@@ -50,3 +46,6 @@ export interface UseAutoFilterParams {
   initialValues: FilterValues;
   errors: Record<string, string>;
 }
+
+// Re-import the filter types that are already in applet-core
+import type { FilterFieldConfig, FilterValues } from "../autofilter/types";

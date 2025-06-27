@@ -2,14 +2,10 @@
 // SMBC MUI Host - Type Definitions
 // =============================================================================
 
-import { ComponentType, ReactNode } from 'react';
+import { ComponentType, ReactNode } from "react";
 
 // Re-export core types
-export type {
-  RoleConfig,
-  User,
-  FeatureFlagConfig,
-} from '@smbc/mui-applet-core';
+export type { RoleConfig, User, FeatureFlagConfig } from "@smbc/applet-core";
 
 // =============================================================================
 // Config File Types
@@ -27,7 +23,7 @@ export interface HostConfig {
   roles: string[];
   app?: {
     name?: string;
-    theme?: 'light' | 'dark' | 'auto';
+    theme?: "light" | "dark" | "auto";
     logo?: string;
     version?: string;
   };
@@ -59,7 +55,7 @@ export interface AppletProviderProps {
   };
   permissions?: Record<string, string[]>;
   features?: Record<string, boolean>;
-  theme?: 'light' | 'dark' | 'auto';
+  theme?: "light" | "dark" | "auto";
 }
 
 export interface AppletRouteProps {

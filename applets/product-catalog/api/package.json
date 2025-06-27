@@ -5,8 +5,8 @@
   "main": "tsp-output/@typespec/openapi3/openapi.json",
   "type": "module",
   "scripts": {
-    "build": "npx tsp compile .",
-    "dev": "npx tsp compile . --watch",
+    "build": "tsp compile .",
+    "dev": "tsp compile . --watch",
     "lint": "echo 'No linting configured for TypeSpec'",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf tsp-output",

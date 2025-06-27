@@ -1,11 +1,12 @@
-import { useUser, useApp } from "@smbc/mui-applet-host";
-import { useRoleManagement } from "@smbc/mui-applet-host";
 import {
-  RolePermissionDashboard,
+  useUser,
+  useApp,
+  useRoleManagement,
   usePersistedRoles,
   useAppletPermissions,
-  type PermissionGroup,
-} from "@smbc/mui-applet-host";
+} from "@smbc/applet-core";
+import { RoleManagement } from "@smbc/mui-applet-core";
+import type { PermissionGroup } from "@smbc/mui-components";
 import { APPLETS, applets, roleConfig } from "../app.config";
 
 export function RoleMapping() {
@@ -29,7 +30,7 @@ export function RoleMapping() {
   });
 
   return (
-    <RolePermissionDashboard
+    <RoleManagement
       user={user || undefined}
       availableRoles={availableRoles}
       selectedRoles={selectedRoles}

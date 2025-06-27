@@ -1,7 +1,7 @@
 // Consolidated App Configuration
 
 import { ComponentType } from "react";
-import { RoleConfig } from "@smbc/mui-applet-core";
+import { RoleConfig } from "@smbc/applet-core";
 import {
   People as PeopleIcon,
   Inventory as InventoryIcon,
@@ -10,6 +10,20 @@ import {
 // Import applets directly
 import userManagementApplet from "@smbc/user-management-mui";
 import productCatalogApplet from "@smbc/product-catalog-mui";
+
+// Create properly bound components that preserve context
+const UserManagementStandardComponent = () =>
+  userManagementApplet.component({
+    mountPath: "/user-management",
+    userType: "non-admins",
+  });
+
+const AdminUsersComponent = () =>
+  userManagementApplet.component({
+    mountPath: "/admin/users",
+    userType: "admins",
+    permissionContext: "admin-users",
+  });
 
 // =============================================================================
 // HOST APPLICATION ROLES
@@ -155,11 +169,7 @@ export const APPLETS: HostAppletDefinition[] = [
       {
         path: "/user-management",
         label: "User Management",
-        component: () =>
-          userManagementApplet.component({
-            mountPath: "/user-management",
-            userType: "non-admins",
-          }),
+        component: UserManagementStandardComponent,
         icon: PeopleIcon,
         requiredPermissions: [userManagementApplet.permissions.VIEW_USERS.id],
       },
@@ -176,12 +186,7 @@ export const APPLETS: HostAppletDefinition[] = [
       {
         path: "/admin/users",
         label: "Admin Users",
-        component: () =>
-          userManagementApplet.component({
-            mountPath: "/admin/users",
-            userType: "admins",
-            permissionContext: "admin-users",
-          }),
+        component: AdminUsersComponent,
         icon: PeopleIcon,
         requiredPermissions: [userManagementApplet.permissions.MANAGE_ROLES.id],
       },

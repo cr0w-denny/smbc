@@ -24,7 +24,7 @@ import {
 import { Edit, Delete, Add, Search } from "@mui/icons-material";
 import { apiClient, type components } from "@smbc/user-management-client";
 import { USER_MANAGEMENT_PERMISSIONS } from "../permissions";
-import { usePermissions } from "@smbc/mui-applet-core";
+import { usePermissions } from "@smbc/applet-core";
 
 type User = components["schemas"]["User"];
 
@@ -48,7 +48,7 @@ export interface UserTableWithApiProps {
   emailFilter?: string;
   statusFilter?: "active" | "inactive" | "pending";
   departmentFilter?: string;
-  userType?: 'all' | 'admins' | 'non-admins';
+  userType?: "all" | "admins" | "non-admins";
   /** Permission context for role-based access control */
   permissionContext?: string;
   sortBy?: "name" | "email" | "createdAt";
@@ -68,7 +68,7 @@ export function UserTableWithApi({
   emailFilter,
   statusFilter,
   departmentFilter,
-  userType = 'all',
+  userType = "all",
   permissionContext = "user-management",
   sortBy: externalSortBy,
   sortOrder: externalSortOrder,
@@ -101,8 +101,8 @@ export function UserTableWithApi({
         page: page + 1,
         pageSize,
         ...(effectiveSearch && { search: effectiveSearch }),
-        ...(userType === 'admins' && { isAdmin: 'true' }),
-        ...(userType === 'non-admins' && { isAdmin: 'false' }),
+        ...(userType === "admins" && { isAdmin: "true" }),
+        ...(userType === "non-admins" && { isAdmin: "false" }),
       },
     },
   });

@@ -2,13 +2,13 @@
 // SMBC MUI Host - Applet Route Component
 // =============================================================================
 
-import { Suspense } from 'react';
-import { useApp } from '@smbc/mui-applet-core';
-import { AppletRouteProps } from './types';
+import { Suspense } from "react";
+import { useApp } from "@smbc/applet-core";
+import { AppletRouteProps } from "./types";
 
 /**
  * AppletRoute - Component for mounting applets in existing routing systems
- * 
+ *
  * This component allows existing apps to mount SMBC applets at specific routes
  * without requiring them to adopt the full SMBC app shell or navigation.
  */
@@ -19,15 +19,15 @@ export function AppletRoute({
 }: AppletRouteProps) {
   const { state } = useApp();
   const appletRegistry = state.appletRegistry || {};
-  
+
   const applet = appletRegistry?.[appletId];
-  
+
   if (!applet) {
     if (Fallback) {
       return <Fallback />;
     }
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
+      <div style={{ padding: "20px", textAlign: "center" }}>
         <h2>Applet Not Found</h2>
         <p>The applet "{appletId}" could not be loaded.</p>
         <p>Make sure it's properly configured in your AppletProvider.</p>
@@ -61,7 +61,7 @@ export function useAppletRoute(appletId: string) {
   const { state } = useApp();
   const appletRegistry = state.appletRegistry || {};
   const applet = appletRegistry?.[appletId];
-  
+
   return {
     applet,
     isLoaded: !!applet,

@@ -13,7 +13,7 @@ import {
   createInitialValues,
   validateFilterValues,
   generateLabel,
-} from './utils';
+} from '@smbc/applet-core';
 
 /**
  * Extract filter configuration from TypeScript operation types

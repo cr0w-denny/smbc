@@ -11,8 +11,8 @@
   "references": [
     { "path": "../design-tokens" },
     { "path": "../shared-query-client" },
+    { "path": "../applet-core" },
     { "path": "../mui-applet-core" },
-    { "path": "../mui-components" },
-    { "path": "../mui-applet-features" }
+    { "path": "../mui-components" }
   ]
 }

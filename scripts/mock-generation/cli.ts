@@ -59,7 +59,9 @@ function generateMockFile(options: GenerateOptions) {
       console.log(`     - ${analysis.properties.length} properties`);
       console.log(`     - ${analysis.relationships.length} relationships`);
       console.log(
-        `     - Patterns: ${analysis.patterns.map((p: any) => p.type).join(", ")}`,
+        `     - Patterns: ${analysis.patterns
+          .map((p: any) => p.type)
+          .join(", ")}`,
       );
     }
   }
@@ -179,7 +181,9 @@ import { faker } from '@faker-js/faker';`;
       const props = analysis.properties
         .map(
           (p: any) =>
-            `//   ${p.name}: ${p.type}${p.format ? ` (${p.format})` : ""} - ${p.semanticType}${p.isRequired ? " [required]" : ""}`,
+            `//   ${p.name}: ${p.type}${p.format ? ` (${p.format})` : ""} - ${
+              p.semanticType
+            }${p.isRequired ? " [required]" : ""}`,
         )
         .join("\n");
 
@@ -239,7 +243,9 @@ ${handlers.join(",\n\n")},
 // Apply custom overrides if available
 async function loadCustomOverrides() {
   try {
-    const customModule = await import('./custom.js');
+    // Dynamic import that won't be analyzed by TypeScript
+    const customPath = './custom.js';
+    const customModule = await import(/* @vite-ignore */ customPath);
     if (customModule.customHandlers) {
       // Prepend custom handlers so they take precedence
       handlers.unshift(...customModule.customHandlers);
@@ -268,6 +274,35 @@ export default handlers;
 
   // Write the enhanced mock file
   fs.writeFileSync(output, mockFileContent);
+
+  // Create dummy custom.ts file if it doesn't exist
+  const customFilePath = path.join(outputDir, "custom.ts");
+  if (!fs.existsSync(customFilePath)) {
+    const customFileContent = `// Custom mock overrides
+// This file is optional and can be used to override or extend generated mocks
+//
+// Example usage:
+// export const customHandlers = [
+//   // Add your custom MSW handlers here
+// ];
+//
+// export function updateConfig(config) {
+//   // Modify configuration if needed
+//   return {
+//     ...config,
+//     // your custom config overrides
+//   };
+// }
+
+// Currently no custom overrides - this is a placeholder file
+export const customHandlers: any[] = [];
+export function updateConfig(config: any) {
+  return config;
+}
+`;
+    fs.writeFileSync(customFilePath, customFileContent);
+    console.log(`📄 Created dummy custom.ts at: ${customFilePath}`);
+  }
 
   console.log(`✅ Mocks generated at: ${output}`);
   console.log(`📈 Generated ${handlers.length} handlers from schema analysis`);

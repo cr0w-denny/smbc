@@ -2,7 +2,8 @@
  * Utilities for extracting and parsing OpenAPI parameters
  */
 
-import { OpenAPIParameter, FilterFieldConfig, FilterValues } from './types';
+import { OpenAPIParameter } from './types';
+import type { FilterFieldConfig, FilterValues } from '../autofilter/types';
 
 /**
  * Extract query parameters from an OpenAPI operation

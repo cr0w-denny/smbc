@@ -6,9 +6,9 @@ import {
   type User,
   type PermissionGroup,
 } from "@smbc/mui-components";
-import { useLocalStoragePersistence } from "./useLocalStoragePersistence";
+import { useLocalStoragePersistence } from "@smbc/applet-core";
 
-export interface RoleManagementFeatureProps {
+export interface RoleManagementProps {
   /** Current user information */
   user?: User;
   /** Available roles that can be selected */
@@ -41,7 +41,7 @@ export interface RoleManagementFeatureProps {
  * - Optional localStorage persistence for role selection
  * - Customizable applet groupings with icons
  */
-export function RoleManagementFeature({
+export function RoleManagement({
   user,
   availableRoles,
   selectedRoles,
@@ -51,7 +51,7 @@ export function RoleManagementFeature({
   showUserInfo = true,
   persistRoles = true,
   localStorageKey = "roleManagement-selectedRoles",
-}: RoleManagementFeatureProps) {
+}: RoleManagementProps) {
   useLocalStoragePersistence({
     selectedRoles,
     persistRoles,
