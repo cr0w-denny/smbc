@@ -156,12 +156,15 @@ export const handlers = [
       );
     }
     
-    // Apply filters for query parameters that match entity fields
+    // Apply filters using OpenAPI extension metadata
     if (category !== null) {
       filteredItems = filteredItems.filter(item => {
         return item.category?.toString().toLowerCase().includes(category.toLowerCase());
       });
     }
+    
+    // Apply sorting (only if sortBy parameter exists)
+    
     
     // Apply pagination to filtered results
     const total = filteredItems.length;

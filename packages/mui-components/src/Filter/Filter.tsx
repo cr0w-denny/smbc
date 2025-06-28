@@ -112,7 +112,7 @@ export function Filter({
       
       onFiltersChange(cleaned);
     }, debounceMs);
-  }, [displayValues, isControlled, onFiltersChange, debounceMs]);
+  }, [fields, isControlled, onFiltersChange, debounceMs]);
 
   const handleClearFilters = useCallback(() => {
     // Build cleared values, preserving default values for text fields

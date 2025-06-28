@@ -4,6 +4,10 @@
 
 import { AppletConfig } from "./types";
 
+// =============================================================================
+// APPLET CONFIGURATION UTILITIES
+// =============================================================================
+
 /**
  * Normalize applet configuration
  */

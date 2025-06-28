@@ -1,15 +1,27 @@
 import {
+  HostAppletDefinition,
   useUser,
   useApp,
   useRoleManagement,
   usePersistedRoles,
   useAppletPermissions,
+  type RoleConfig,
 } from "@smbc/applet-core";
 import { RoleManagement } from "@smbc/mui-applet-core";
 import type { PermissionGroup } from "@smbc/mui-components";
-import { APPLETS, applets, roleConfig } from "../app.config";
 
-export function RoleMapping() {
+interface RoleMappingProps {
+  hostApplets: HostAppletDefinition[];
+  originalApplets: any[];
+  roleConfig: RoleConfig;
+  storageKey?: string;
+}
+
+export function RoleMapping({
+  hostApplets,
+  roleConfig,
+  storageKey = "roleMapping-selectedRoles",
+}: RoleMappingProps) {
   const { userRoles } = useRoleManagement();
   const { user, availableRoles, setRoles } = useUser();
   const { roleUtils } = useApp();
@@ -17,13 +29,12 @@ export function RoleMapping() {
   const { selectedRoles, toggleRole } = usePersistedRoles({
     userRoles,
     availableRoles,
-    storageKey: "roleMapping-selectedRoles",
+    storageKey,
     onRolesChange: setRoles,
   });
 
   const appletPermissions = useAppletPermissions({
-    hostApplets: APPLETS,
-    originalApplets: applets,
+    hostApplets,
     roleConfig,
     selectedRoles,
     hasPermission: roleUtils.hasPermission,
@@ -36,7 +47,7 @@ export function RoleMapping() {
       selectedRoles={selectedRoles}
       onRoleToggle={toggleRole}
       appletPermissions={appletPermissions as PermissionGroup[]}
-      localStorageKey="roleMapping-selectedRoles"
+      localStorageKey={storageKey}
     />
   );
 }

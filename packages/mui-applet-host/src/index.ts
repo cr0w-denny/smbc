@@ -4,3 +4,6 @@ export * from "./AppletRoute";
 export * from "./types";
 export * from "./config";
 export * from "./utils";
+export * from "./AppletSystem";
+export * from "./RoleMapping";
+export * from "./AppletHost";

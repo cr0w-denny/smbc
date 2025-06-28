@@ -57,8 +57,6 @@ export interface RoleConfiguration {
 export interface UseAppletPermissionsProps {
   /** Host applet configurations */
   hostApplets: HostAppletConfig[];
-  /** Original applets with permission definitions */
-  originalApplets: OriginalApplet[];
   /** Role configuration with permission mappings */
   roleConfig: RoleConfiguration;
   /** Currently selected roles */
@@ -95,36 +93,17 @@ export function formatPermissionName(name: string): string {
  */
 export function useAppletPermissions({
   hostApplets,
-  originalApplets,
   roleConfig,
   selectedRoles,
   hasPermission,
 }: UseAppletPermissionsProps): AppletPermissionGroup[] {
   return React.useMemo(() => {
     return hostApplets.map((hostApplet) => {
-      // Get the original applet from the config
-      const originalApplet = originalApplets.find((applet) => {
-        // Check if this applet has any permissions that match this host applet's permission mappings
-        if (!applet.permissions) return false;
-
-        // Look for permission mappings in roleConfig for this hostApplet.id
-        const permissionMappings = roleConfig.permissionMappings?.[hostApplet.id];
-        if (!permissionMappings) return false;
-
-        // Check if any of the applet's permission IDs match the permission mappings
-        const appletPermissionIds = Object.values(applet.permissions).map(
-          (p: any) => p.id,
-        );
-        const mappingPermissionIds = Object.keys(permissionMappings);
-
-        return appletPermissionIds.some((id) =>
-          mappingPermissionIds.includes(id),
-        );
-      });
-
-      if (!originalApplet || !originalApplet.permissions) {
+      // Get permission mappings for this host applet
+      const permissionMappings = roleConfig.permissionMappings?.[hostApplet.id];
+      if (!permissionMappings) {
         console.warn(
-          `No applet with permissions found for host applet: ${hostApplet.id}`,
+          `No permission mappings found for host applet: ${hostApplet.id}`,
         );
         return null;
       }
@@ -134,14 +113,17 @@ export function useAppletPermissions({
         return hasPermission(selectedRoles, appletId, permissionId);
       };
 
-      // Convert permissions object to array of permission checks
-      const permissionChecks = Object.entries(originalApplet.permissions).map(
-        ([key, permission]) => ({
-          key,
-          label: formatPermissionName(permission.name),
-          hasAccess: hasAnyRolePermission(hostApplet.id, permission.id),
-        }),
-      );
+      // Convert permission mappings to permission checks
+      const permissionChecks = Object.keys(permissionMappings).map((permissionId) => {
+        // Extract permission name from ID (e.g., "user-management:view-users" -> "View Users")
+        const permissionName = permissionId.split(':').pop() || permissionId;
+        
+        return {
+          key: permissionId,
+          label: formatPermissionName(permissionName),
+          hasAccess: hasAnyRolePermission(hostApplet.id, permissionId),
+        };
+      });
 
       return {
         id: hostApplet.id,
@@ -152,5 +134,5 @@ export function useAppletPermissions({
     }).filter(
       (applet): applet is NonNullable<typeof applet> => applet !== null,
     );
-  }, [hostApplets, originalApplets, roleConfig, selectedRoles, hasPermission]);
+  }, [hostApplets, roleConfig, selectedRoles, hasPermission]);
 }

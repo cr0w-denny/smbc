@@ -72,7 +72,7 @@ export function useDataView<T extends Record<string, any>>(
       api.endpoint, 
       queryParams
     ];
-  }, [api.endpoint, pagination.page, pagination.pageSize, filters]);
+  }, [api.endpoint, pagination.page, pagination.pageSize, filters, config.options?.apiParams]);
 
   // API Query - This will need to be implemented based on the specific API client
   // For now, we'll create a placeholder that can be overridden
@@ -82,6 +82,7 @@ export function useDataView<T extends Record<string, any>>(
         page: pagination.page + 1,
         pageSize: pagination.pageSize,
         ...filters,
+        ...(config.options?.apiParams || {}),
       },
     },
   };
@@ -301,7 +302,7 @@ export function useDataView<T extends Record<string, any>>(
         onFiltersChange: setFilters,
         ...rendererOptions,
       });
-  }, [renderer, filterSpec, filters, setFilters, rendererOptions]);
+  }, [renderer, filterSpec, setFilters, rendererOptions]); // Removed filters from dependencies
 
   const CreateFormComponent = useMemo(() => {
     const createForm = forms?.create;

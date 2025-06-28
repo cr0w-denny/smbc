@@ -121,7 +121,7 @@ export interface ProductTableProps {
   categoryFilter?: string;
 }
 
-export function ProductTable({
+export function Applet({
   showCreate = true,
   showActions = true,
   showSearch = true,

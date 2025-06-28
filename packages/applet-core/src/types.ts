@@ -88,6 +88,25 @@ export interface Applet<
   };
 }
 
+// Host applet types for mounting applets in host applications
+export interface HostAppletRoute {
+  path: string;
+  label: string;
+  component: any;
+  icon?: any;
+  requiredPermissions?: string[];
+}
+
+export interface HostAppletDefinition {
+  id: string;
+  label: string;
+  routes: HostAppletRoute[];
+  apiSpec?: {
+    name: string;
+    spec: any;
+  };
+}
+
 // Utility functions for role management
 export const createRoleUtilities = (
   roles: string[],

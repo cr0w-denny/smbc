@@ -298,8 +298,8 @@ function getAll${schemaName}s(): any[] {
       return '';
     }).filter(Boolean).join('\n    ')}
     
-    // Apply sorting (sortBy and sortOrder already declared above)
-    if (sortBy && filteredItems.length > 0) {
+    // Apply sorting (only if sortBy parameter exists)
+    ${queryParams.some(p => p.name === 'sortBy') ? `if (sortBy && filteredItems.length > 0) {
       filteredItems.sort((a, b) => {
         const aVal = a[sortBy];
         const bVal = b[sortBy];
@@ -318,7 +318,7 @@ function getAll${schemaName}s(): any[] {
           return sortOrder === 'desc' ? -comparison : comparison;
         }
       });
-    }` : '';
+    }` : ''}` : '';
           
           return `  // ${method.toUpperCase()} ${path} - List ${entitySegment}
   http.get(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ request }) => {

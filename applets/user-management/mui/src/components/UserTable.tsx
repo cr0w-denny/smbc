@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Chip } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { usePermissions } from "@smbc/applet-core";
@@ -33,7 +34,7 @@ export function UserTable({
     USER_MANAGEMENT_PERMISSIONS.DELETE_USERS,
   );
 
-  const config: MuiDataViewAppletConfig<User> = {
+  const config: MuiDataViewAppletConfig<User> = useMemo(() => ({
     // API configuration
     api: {
       endpoint: "/users",
@@ -142,11 +143,12 @@ export function UserTable({
           type: "select",
           label: "Sort By",
           options: [
-            { label: "Name", value: "name" },
+            { label: "First Name", value: "firstName" },
+            { label: "Last Name", value: "lastName" },
             { label: "Email", value: "email" },
             { label: "Created Date", value: "createdAt" },
           ],
-          defaultValue: "name",
+          defaultValue: "firstName",
         },
         {
           name: "sortOrder",
@@ -163,7 +165,7 @@ export function UserTable({
         search: "",
         email: undefined,
         status: undefined,
-        sortBy: "name",
+        sortBy: "firstName",
         sortOrder: "asc",
       },
       title: "User Filters",
@@ -275,7 +277,7 @@ export function UserTable({
         ...(userType === "non-admins" && { isAdmin: "false" }),
       },
     },
-  };
+  }), [canCreate, canEdit, canDelete, userType]);
 
   const handleSuccess = (action: 'create' | 'edit' | 'delete', item?: any) => {
     console.log(`Success: ${action}`, item);

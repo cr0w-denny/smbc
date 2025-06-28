@@ -1,18 +1,7 @@
 import React, { useEffect } from "react";
-import { ThemeProvider, CssBaseline, Box, Toolbar } from "@mui/material";
+import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useQueryClient } from "@tanstack/react-query";
-
-import {
-  registerMswHandlers,
-  SMBCQueryProvider,
-} from "@smbc/shared-query-client";
-import {
-  ApiDocsModal,
-  DevHostAppBar,
-  lightTheme,
-  darkTheme,
-} from "@smbc/mui-components";
 import {
   AppProvider,
   FeatureFlagProvider,
@@ -20,18 +9,21 @@ import {
   useFeatureFlag,
   useFeatureFlagToggle,
 } from "@smbc/applet-core";
-
-// Import applet system components
-import { AppletDrawer, AppletRoutes } from "./components/AppletSystem";
+import { AppletHost } from "@smbc/mui-applet-host";
+import { getCurrentApplet } from "@smbc/applet-core";
+import {
+  ApiDocsModal,
+  DevHostAppBar,
+  lightTheme,
+  darkTheme,
+} from "@smbc/mui-components";
+import {
+  registerMswHandlers,
+  SMBCQueryProvider,
+} from "@smbc/shared-query-client";
 
 // Import configuration
-import {
-  APP_CONSTANTS,
-  APPLETS,
-  demoUser,
-  getCurrentApplet,
-  roleConfig,
-} from "./app.config";
+import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
 
 // Feature flag configuration
 const featureFlags = [
@@ -90,7 +82,13 @@ function AppContentWithQueryAccess() {
     <>
       <Box sx={{ display: "flex" }}>
         <Navigation />
-        <AppContent />
+        <AppletHost
+          applets={APPLETS}
+          constants={APP_CONSTANTS}
+          roleConfig={roleConfig}
+          permissionMapping={{ "admin-users": "user-management" }}
+          title={APP_CONSTANTS.appName}
+        />
       </Box>
       <ReactQueryDevtools initialIsOpen={false} />
     </>
@@ -106,15 +104,14 @@ function Navigation() {
 
   // Get current path to determine which applet is active
   const { currentPath } = useHashNavigation();
-  const currentAppletInfo = getCurrentApplet(currentPath);
+  const currentAppletInfo = getCurrentApplet(currentPath, APPLETS);
 
   // Debug logging
   React.useEffect(() => {
     console.log("📍 Current path:", currentPath);
     console.log("🔍 Current applet info:", currentAppletInfo);
-    if (currentAppletInfo?.originalApplet) {
-      console.log("📄 Original applet:", currentAppletInfo.originalApplet);
-      console.log("🗂️ API Spec:", currentAppletInfo.originalApplet.apiSpec);
+    if (currentAppletInfo?.apiSpec) {
+      console.log("🗂️ API Spec:", currentAppletInfo.apiSpec);
     }
   }, [currentPath, currentAppletInfo]);
 
@@ -143,35 +140,17 @@ function Navigation() {
         drawerWidth={APP_CONSTANTS.drawerWidth}
       />
 
-      <AppletDrawer />
-
       {/* API Documentation Modal */}
-      {currentAppletInfo && currentAppletInfo.originalApplet && (
+      {currentAppletInfo && currentAppletInfo.apiSpec && (
         <ApiDocsModal
           open={apiDocsOpen}
           onClose={handleApiDocsClose}
-          appletName={currentAppletInfo.hostApplet.label}
-          apiSpec={currentAppletInfo.originalApplet.apiSpec.spec}
+          appletName={currentAppletInfo.label}
+          apiSpec={currentAppletInfo.apiSpec.spec}
           isDarkMode={isDarkMode}
         />
       )}
     </>
-  );
-}
-
-function AppContent() {
-  return (
-    <Box
-      component="main"
-      sx={{
-        flexGrow: 1,
-        p: 3,
-        width: `calc(100% - ${APP_CONSTANTS.drawerWidth}px)`,
-      }}
-    >
-      <Toolbar />
-      <AppletRoutes />
-    </Box>
   );
 }
 

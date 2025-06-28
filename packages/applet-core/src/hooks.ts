@@ -130,35 +130,38 @@ export function useHashQueryParams<T extends Record<string, any>>(
 
   const updateParams = useCallback(
     (updates: Partial<T>) => {
-      const newParams = { ...params, ...updates };
-      setParams(newParams);
+      setParams(currentParams => {
+        const newParams = { ...currentParams, ...updates };
 
-      // Update the hash with new query parameters, preserving the path
-      const currentHash = window.location.hash;
-      const queryIndex = currentHash.indexOf("?");
-      const path =
-        queryIndex >= 0
-          ? currentHash.slice(1, queryIndex)
-          : currentHash.slice(1) || "/";
+        // Update the hash with new query parameters, preserving the path
+        const currentHash = window.location.hash;
+        const queryIndex = currentHash.indexOf("?");
+        const path =
+          queryIndex >= 0
+            ? currentHash.slice(1, queryIndex)
+            : currentHash.slice(1) || "/";
 
-      // Build new query string - only include values that differ from defaults
-      const urlParams = new URLSearchParams();
-      for (const [key, value] of Object.entries(newParams)) {
-        if (
-          value !== undefined &&
-          value !== null &&
-          value !== "" &&
-          value !== defaultValues[key as keyof T]
-        ) {
-          urlParams.set(key, String(value));
+        // Build new query string - only include values that differ from defaults
+        const urlParams = new URLSearchParams();
+        for (const [key, value] of Object.entries(newParams)) {
+          if (
+            value !== undefined &&
+            value !== null &&
+            value !== "" &&
+            value !== defaultValues[key as keyof T]
+          ) {
+            urlParams.set(key, String(value));
+          }
         }
-      }
 
-      const queryString = urlParams.toString();
-      const newHash = queryString ? `${path}?${queryString}` : path;
-      window.location.hash = newHash;
+        const queryString = urlParams.toString();
+        const newHash = queryString ? `${path}?${queryString}` : path;
+        window.location.hash = newHash;
+
+        return newParams;
+      });
     },
-    [params],
+    [defaultValues],
   );
 
   // Listen for hash changes to sync state

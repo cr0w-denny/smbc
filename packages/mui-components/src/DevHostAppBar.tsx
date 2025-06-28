@@ -20,13 +20,9 @@ import {
  * Represents current applet information for API documentation
  */
 export interface CurrentAppletInfo {
-  hostApplet: {
-    label: string;
-  };
-  originalApplet: {
-    apiSpec: {
-      spec: any;
-    };
+  label: string;
+  apiSpec?: {
+    spec: any;
   };
 }
 
@@ -100,7 +96,7 @@ export function DevHostAppBar({
           {/* API Docs button - only show when in an applet and callback is provided */}
           {currentAppletInfo && onApiDocsOpen && (
             <Tooltip
-              title={`View ${currentAppletInfo.hostApplet.label} API Documentation`}
+              title={`View ${currentAppletInfo.label} API Documentation`}
             >
               <Button
                 color="inherit"

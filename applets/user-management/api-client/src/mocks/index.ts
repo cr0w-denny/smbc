@@ -184,7 +184,7 @@ export const handlers = [
       });
     }
     
-    // Apply sorting (sortBy and sortOrder already declared above)
+    // Apply sorting (only if sortBy parameter exists)
     if (sortBy && filteredItems.length > 0) {
       filteredItems.sort((a, b) => {
         const aVal = a[sortBy];

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   TextField,
   InputAdornment,
@@ -67,22 +67,22 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         clearTimeout(debounceRef.current);
       }
     };
-  }, [localValue, debounceMs, onChange, value]);
+  }, [localValue, debounceMs]); // Removed onChange and value to prevent unnecessary re-renders
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setLocalValue(event.target.value);
-  };
+  }, []);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setLocalValue('');
     onChange('');
-  };
+  }, [onChange]);
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       handleClear();
     }
-  };
+  }, [handleClear]);
 
   return (
     <Box>

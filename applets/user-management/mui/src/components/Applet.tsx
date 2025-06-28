@@ -5,7 +5,7 @@ import { useHashNavigation } from '@smbc/applet-core';
 import { UserTable } from './UserTable';
 import { UserProfile } from './UserProfile';
 
-export interface UserManagementAppletProps {
+export interface AppletProps {
   mountPath: string;
   /** Type of users to display */
   userType?: 'all' | 'admins' | 'non-admins';
@@ -25,7 +25,7 @@ const navigationRoutes = [
   },
 ];
 
-export const UserManagementApplet: FC<UserManagementAppletProps> = ({ 
+export const Applet: FC<AppletProps> = ({ 
   mountPath,
   userType = 'all', 
   permissionContext = "user-management" 

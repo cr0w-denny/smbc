@@ -15,6 +15,7 @@ export * from "./useAppletPermissions";
 
 // Host utilities
 export * from "./host";
+export * from "./permission-helpers";
 
 // AutoFilter utilities for applets
 export {

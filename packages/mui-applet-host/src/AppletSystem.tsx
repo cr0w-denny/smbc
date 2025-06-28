@@ -10,21 +10,32 @@ import {
   usePermissionFilteredRoutes,
   useRoleManagement,
 } from "@smbc/applet-core";
-import { RoleMapping } from "./RoleMapping";
-import { APP_CONSTANTS, APPLETS, getAllRoutes } from "../app.config";
+import { getAllRoutes, HostAppletDefinition } from "@smbc/applet-core";
 
-function useAppletRoutes(): NavigationRoute[] {
+interface AppletSystemProps {
+  applets: HostAppletDefinition[];
+  appConstants: {
+    drawerWidth: number;
+    appName: string;
+  };
+  dashboardComponent?: React.ComponentType;
+  title?: string;
+  permissionMapping?: Record<string, string>;
+}
+
+function useAppletRoutes(
+  applets: HostAppletDefinition[], 
+  permissionMapping: Record<string, string> = {}
+): NavigationRoute[] {
   const { hasAnyPermission, userRoles } = useRoleManagement();
-  const appletRoutes = getAllRoutes();
+  const appletRoutes = getAllRoutes(applets);
 
   const filteredAppletRoutes = usePermissionFilteredRoutes({
     routes: appletRoutes,
-    applets: APPLETS,
+    applets,
     hasAnyPermission,
     userRoles,
-    permissionMapping: {
-      "admin-users": "user-management", // admin-users uses user-management permissions
-    },
+    permissionMapping,
   });
 
   // Convert HostAppletRoute to NavigationRoute (they have the same structure)
@@ -50,42 +61,47 @@ function useAppletRoutes(): NavigationRoute[] {
   );
 }
 
-export function AppletDrawer() {
+export function AppletDrawer({ 
+  applets, 
+  appConstants, 
+  title,
+  permissionMapping = {}
+}: AppletSystemProps) {
   const { currentPath, navigateTo } = useHashNavigation();
-  const routes = useAppletRoutes();
+  const routes = useAppletRoutes(applets, permissionMapping);
 
   return (
     <BaseAppletDrawer
-      title="SMBC Applet Host"
-      width={APP_CONSTANTS.drawerWidth}
+      title={title || appConstants.appName}
+      width={appConstants.drawerWidth}
       currentPath={currentPath}
       onNavigate={navigateTo}
       routes={routes}
       showDebugInfo={true}
-      totalApplets={APPLETS.length}
+      totalApplets={applets.length}
     />
   );
 }
 
-export function AppletRoutes() {
+export function AppletRoutes({ 
+  applets, 
+  dashboardComponent,
+  permissionMapping = {}
+}: AppletSystemProps) {
   const { currentPath } = useHashNavigation();
   const { hasAnyPermission } = useRoleManagement();
-  const allRoutes = getAllRoutes();
+  const allRoutes = getAllRoutes(applets);
+
+  const DashboardComponent = dashboardComponent || (() => <div>Dashboard</div>);
 
   return (
     <AppletRouter
       currentPath={currentPath}
       routes={allRoutes}
-      applets={APPLETS}
+      applets={applets}
       hasAnyPermission={hasAnyPermission}
-      dashboardComponent={AppletDashboard}
-      permissionMapping={{
-        "admin-users": "user-management", // admin-users uses user-management permissions
-      }}
+      dashboardComponent={DashboardComponent}
+      permissionMapping={permissionMapping}
     />
   );
-}
-
-function AppletDashboard() {
-  return <RoleMapping />;
 }
