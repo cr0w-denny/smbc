@@ -66,6 +66,34 @@ export class MockGenerator {
     return this.schemaAnalyses.get(schemaName);
   }
 
+  private extractMockMetadata(param: any): { type: string; field?: string; strategy?: string; fields?: string[] } | null {
+    // Check for OpenAPI extensions in the parameter
+    if (param['x-mock-filter']) {
+      return {
+        type: 'mockFilter',
+        field: param['x-mock-filter'].field,
+        strategy: param['x-mock-filter'].strategy
+      };
+    }
+    
+    if (param['x-mock-search']) {
+      return {
+        type: 'mockSearch',
+        fields: param['x-mock-search'].fields
+      };
+    }
+    
+    if (param['x-mock-sort']) {
+      return { type: 'mockSort' };
+    }
+    
+    if (param['x-mock-pagination']) {
+      return { type: 'mockPagination' };
+    }
+    
+    return null;
+  }
+
   public generateMockFunction(schemaName: string): string {
     const analysis = this.schemaAnalyses.get(schemaName);
     if (!analysis) {
@@ -77,17 +105,44 @@ export class MockGenerator {
       return `    ${prop.name}: ${prop.fakerMethod},`;
     }).join('\n');
 
-    return `// Mock generator for ${schemaName}
+    return `// Persistent data store for ${schemaName}
+let ${schemaName.toLowerCase()}DataStore: Map<string, any> = new Map();
+let ${schemaName.toLowerCase()}DataInitialized = false;
+
+// Mock generator for ${schemaName}
 function ${functionName}(overrides = {}) {
   return {
 ${properties}
     ...overrides
   };
+}
+
+// Initialize data store with consistent data
+function initialize${schemaName}DataStore() {
+  if (${schemaName.toLowerCase()}DataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, (_, index) => ${functionName}({ id: String(index + 1) }));
+  
+  items.forEach(item => {
+    ${schemaName.toLowerCase()}DataStore.set(String(item.id), item);
+  });
+  
+  ${schemaName.toLowerCase()}DataInitialized = true;
+}
+
+// Get all ${schemaName.toLowerCase()}s from the data store
+function getAll${schemaName}s(): any[] {
+  initialize${schemaName}DataStore();
+  return Array.from(${schemaName.toLowerCase()}DataStore.values());
 }`;
   }
 
   public generateHandlersForOperation(path: string, method: string, operation: any): string {
     const operationId = operation.operationId || `${method}${path.replace(/[^a-zA-Z0-9]/g, '')}`;
+    
+    // Convert OpenAPI path format {id} to MSW format :id
+    const mswPath = path.replace(/\{([^}]+)\}/g, ':$1');
     
     // Detect the main entity from the path
     const pathSegments = path.split('/').filter(Boolean);
@@ -95,7 +150,7 @@ ${properties}
     
     if (!entitySegment) {
       return `  // ${method.toUpperCase()} ${path}
-  http.${method}(\`\${mockConfig.baseUrl}${path}\`, async () => {
+  http.${method}(\`\${mockConfig.baseUrl}${mswPath}\`, async () => {
     await delay();
     return HttpResponse.json({ message: 'Operation completed' });
   })`;
@@ -106,7 +161,7 @@ ${properties}
 
     if (!analysis) {
       return `  // ${method.toUpperCase()} ${path}
-  http.${method}(\`\${mockConfig.baseUrl}${path}\`, async () => {
+  http.${method}(\`\${mockConfig.baseUrl}${mswPath}\`, async () => {
     await delay();
     return HttpResponse.json({ message: 'Operation completed' });
   })`;
@@ -119,7 +174,7 @@ ${properties}
         if (path.includes('{')) {
           // Single item endpoint
           return `  // ${method.toUpperCase()} ${path} - Get single ${entityName.toLowerCase()}
-  http.get(\`\${mockConfig.baseUrl}${path}\`, async () => {
+  http.get(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ params }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -129,28 +184,98 @@ ${properties}
       );
     }
 
-    return HttpResponse.json(${mockFunctionName}());
+    const entityId = params.id as string;
+    const item = ${entityName.toLowerCase()}DataStore.get(entityId);
+    
+    if (!item) {
+      return HttpResponse.json(
+        { error: 'Not found', message: '${entityName} not found' },
+        { status: 404 }
+      );
+    }
+
+    return HttpResponse.json(item);
   })`;
         } else {
           // List endpoint
           // Extract query parameters from operation
           const queryParams = operation.parameters?.filter((p: any) => p.in === 'query') || [];
           const queryParamExtraction = queryParams
-            .map((param: any) => `    const ${param.name} = url.searchParams.get('${param.name}');`)
+            .map((param: any) => {
+              if (param.name === 'sortOrder') {
+                return `    const ${param.name} = url.searchParams.get('${param.name}') || 'asc';`;
+              }
+              return `    const ${param.name} = url.searchParams.get('${param.name}');`;
+            })
             .join('\n');
           
           // Build filter logic for non-pagination parameters
           const filterParams = queryParams.filter((p: any) => 
-            p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search'
+            p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search' && p.name !== 'sortBy' && p.name !== 'sortOrder'
           );
           
           const filterLogic = filterParams.length > 0 ? `
-    // Apply filters for query parameters that match entity fields
+    // Apply filters using OpenAPI extension metadata
     ${filterParams.map((param: any) => {
-      // Check if this parameter name matches a field in the entity schema
+      // Extract mock metadata from OpenAPI extensions
+      const mockConfig = this.extractMockMetadata(param);
+      
+      if (mockConfig?.type === 'mockSort') {
+        return ''; // Sorting is handled separately
+      }
+      
+      if (mockConfig?.type === 'mockPagination') {
+        return ''; // Pagination is handled separately
+      }
+      
+      if (mockConfig?.type === 'mockSearch') {
+        const searchFields = mockConfig.fields || ['id'];
+        return `if (${param.name} !== null) {
+      filteredItems = filteredItems.filter(item => {
+        const searchableFields = [${searchFields.map(f => `item.${f}`).join(', ')}];
+        return searchableFields.some(field => 
+          field && field.toString().toLowerCase().includes(${param.name}.toLowerCase())
+        );
+      });
+    }`;
+      }
+      
+      if (mockConfig?.type === 'mockFilter') {
+        const field = mockConfig.field || param.name;
+        const strategy = mockConfig.strategy || 'exact';
+        
+        switch (strategy) {
+          case 'boolean-inverse':
+            return `if (${param.name} !== null) {
+      filteredItems = filteredItems.filter(item => {
+        const fieldValue = item.${field};
+        return (${param.name} === 'active' && fieldValue) || (${param.name} === 'inactive' && !fieldValue);
+      });
+    }`;
+          
+          case 'partial-match':
+            return `if (${param.name} !== null) {
+      filteredItems = filteredItems.filter(item => 
+        item.${field} && item.${field}.toString().toLowerCase().includes(${param.name}.toLowerCase())
+      );
+    }`;
+          
+          case 'exact':
+          default:
+            return `if (${param.name} !== null) {
+      filteredItems = filteredItems.filter(item => {
+        if (${param.name} === 'true' || ${param.name} === 'false') {
+          return item.${field} === (${param.name} === 'true');
+        }
+        return item.${field}?.toString() === ${param.name};
+      });
+    }`;
+        }
+      }
+      
+      // Fallback to field matching for parameters without metadata
       const field = analysis.properties.find(prop => prop.name === param.name);
       if (field) {
-        // Check if the field is a boolean type
         const isBooleanField = field.type === 'boolean';
         
         if (isBooleanField) {
@@ -159,7 +284,6 @@ ${properties}
         if (${param.name} === 'true' || ${param.name} === 'false') {
           return item.${param.name} === (${param.name} === 'true');
         }
-        // Handle other boolean representations
         return false;
       });
     }`;
@@ -172,10 +296,32 @@ ${properties}
         }
       }
       return '';
-    }).filter(Boolean).join('\n    ')}` : '';
+    }).filter(Boolean).join('\n    ')}
+    
+    // Apply sorting (sortBy and sortOrder already declared above)
+    if (sortBy && filteredItems.length > 0) {
+      filteredItems.sort((a, b) => {
+        const aVal = a[sortBy];
+        const bVal = b[sortBy];
+        
+        // Handle different data types
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          const comparison = aVal.localeCompare(bVal);
+          return sortOrder === 'desc' ? -comparison : comparison;
+        } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortOrder === 'desc' ? bVal - aVal : aVal - bVal;
+        } else if (aVal instanceof Date && bVal instanceof Date) {
+          return sortOrder === 'desc' ? bVal.getTime() - aVal.getTime() : aVal.getTime() - bVal.getTime();
+        } else {
+          // Fallback to string comparison
+          const comparison = String(aVal).localeCompare(String(bVal));
+          return sortOrder === 'desc' ? -comparison : comparison;
+        }
+      });
+    }` : '';
           
           return `  // ${method.toUpperCase()} ${path} - List ${entitySegment}
-  http.get(\`\${mockConfig.baseUrl}${path}\`, async ({ request }) => {
+  http.get(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ request }) => {
     await delay();
     
     const url = new URL(request.url);
@@ -186,9 +332,8 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
   .map((param: any) => `    const ${param.name} = url.searchParams.get('${param.name}');`)
   .join('\n')}
     
-    // Generate dataset
-    const totalItems = faker.number.int(mockConfig.dataSetSize);
-    const allItems = Array.from({ length: totalItems }, () => ${mockFunctionName}());
+    // Get dataset from persistent store
+    const allItems = getAll${entityName}s();
     
     // Apply filters
     let filteredItems = allItems;
@@ -218,7 +363,7 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
 
       case 'post':
         return `  // ${method.toUpperCase()} ${path} - Create ${entityName.toLowerCase()}
-  http.post(\`\${mockConfig.baseUrl}${path}\`, async ({ request }) => {
+  http.post(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ request }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -228,7 +373,7 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
       );
     }
 
-    const requestBody = await request.json();
+    const requestBody = await request.json() as Record<string, any>;
     const created${entityName} = ${mockFunctionName}(requestBody || {});
     
     return HttpResponse.json(created${entityName}, { status: 201 });
@@ -237,7 +382,7 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
       case 'put':
       case 'patch':
         return `  // ${method.toUpperCase()} ${path} - Update ${entityName.toLowerCase()}
-  http.${method}(\`\${mockConfig.baseUrl}${path}\`, async ({ request }) => {
+  http.${method}(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ request, params }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -247,15 +392,28 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
       );
     }
 
-    const requestBody = await request.json();
-    const updated${entityName} = ${mockFunctionName}(requestBody || {});
+    const requestBody = await request.json() as Record<string, any>;
+    const entityId = params.id as string;
+    
+    // Get existing item from store
+    const existingItem = ${entityName.toLowerCase()}DataStore.get(entityId);
+    if (!existingItem) {
+      return HttpResponse.json(
+        { error: 'Not found', message: '${entityName} not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Update item in store
+    const updated${entityName} = { ...existingItem, ...requestBody, id: entityId };
+    ${entityName.toLowerCase()}DataStore.set(entityId, updated${entityName});
     
     return HttpResponse.json(updated${entityName});
   })`;
 
       case 'delete':
         return `  // ${method.toUpperCase()} ${path} - Delete ${entityName.toLowerCase()}
-  http.delete(\`\${mockConfig.baseUrl}${path}\`, async () => {
+  http.delete(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ params }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -265,12 +423,25 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
       );
     }
 
-    return HttpResponse.json({ message: '${entityName} deleted successfully' });
+    const entityId = params.id as string;
+    
+    // Check if item exists
+    if (!${entityName.toLowerCase()}DataStore.has(entityId)) {
+      return HttpResponse.json(
+        { error: 'Not found', message: '${entityName} not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Remove from store
+    ${entityName.toLowerCase()}DataStore.delete(entityId);
+    
+    return HttpResponse.json({ message: \`${entityName} \${entityId} deleted successfully\` });
   })`;
 
       default:
         return `  // ${method.toUpperCase()} ${path}
-  http.${method}(\`\${mockConfig.baseUrl}${path}\`, async () => {
+  http.${method}(\`\${mockConfig.baseUrl}${mswPath}\`, async () => {
     await delay();
     return HttpResponse.json({ message: 'Operation completed' });
   })`;

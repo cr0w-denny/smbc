@@ -1,8 +1,11 @@
 import "@typespec/http";
 import "@typespec/rest";
+import "@typespec/openapi";
+import "../../../packages/typespec-core/query.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;
+using TypeSpec.OpenAPI;
 
 /**
  * User Management API
@@ -49,6 +52,15 @@ model UpdateUserRequest {
 }
 
 /**
+ * User-specific filter parameters for list endpoint
+ */
+alias UserFilterParams = {
+  @query @extension("x-mock-filter", { field: "isAdmin", strategy: "exact" }) isAdmin?: string;
+  @query @extension("x-mock-filter", { field: "email", strategy: "partial-match" }) email?: string;
+  @query @extension("x-mock-filter", { field: "isActive", strategy: "boolean-inverse" }) status?: "active" | "inactive";
+};
+
+/**
  * Paginated list of users
  */
 model UserList {
@@ -74,12 +86,7 @@ interface Users {
    * Get all users with pagination
    */
   @get
-  list(
-    @query page?: int32 = 1,
-    @query pageSize?: int32 = 10,
-    @query search?: string,
-    @query isAdmin?: string
-  ): UserList | ErrorResponse;
+  list(...BaseListParams, ...UserFilterParams): UserList | ErrorResponse;
 
   /**
    * Create a new user

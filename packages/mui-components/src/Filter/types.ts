@@ -2,26 +2,9 @@
  * Core filter types
  */
 
-export interface FilterFieldConfig {
-  name: string;
-  label: string;
-  type: 'text' | 'search' | 'select' | 'number' | 'boolean' | 'checkbox' | 'hidden';
-  placeholder?: string;
-  options?: Array<{ label: string; value: any }>;
-  defaultValue?: any;
-  required?: boolean;
-  disabled?: boolean;
-  hidden?: boolean;
-  fullWidth?: boolean;
-  size?: 'small' | 'medium';
-  // Simple validation properties
-  min?: number;
-  max?: number;
-}
+import type { FilterFieldConfig, FilterValues } from '@smbc/react-dataview';
 
-export interface FilterValues {
-  [key: string]: any;
-}
+export type { FilterFieldConfig, FilterValues };
 
 export interface FilterSpec {
   /** Array of field configurations */

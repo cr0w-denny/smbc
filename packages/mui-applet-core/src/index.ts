@@ -51,3 +51,11 @@ export type {
   NavigationProviderProps,
   NavigationContextValue,
 } from "./Navigation";
+
+// DataView
+export { MuiDataViewApplet } from "./DataView/DataViewApplet";
+
+export type {
+  MuiDataViewAppletConfig,
+  MuiDataViewAppletProps,
+} from "./DataView/DataViewApplet";

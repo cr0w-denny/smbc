@@ -80,3 +80,6 @@ export const getTheme = (mode: "light" | "dark" = "light") => {
       return lightTheme;
   }
 };
+
+// DataView renderer for MUI
+export { MuiDataView } from "./MuiDataView";

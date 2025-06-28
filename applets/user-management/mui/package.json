@@ -23,6 +23,7 @@
   "dependencies": {
     "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
+    "@smbc/react-dataview": "*",
     "@smbc/shared-query-client": "*",
     "@smbc/user-management-api": "*",
     "@smbc/user-management-client": "*"

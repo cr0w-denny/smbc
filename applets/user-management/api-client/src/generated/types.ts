@@ -100,8 +100,12 @@ export interface operations {
             query?: {
                 page?: number;
                 pageSize?: number;
+                sortBy?: string;
+                sortOrder?: "asc" | "desc";
                 search?: string;
                 isAdmin?: string;
+                email?: string;
+                status?: "active" | "inactive";
             };
             header?: never;
             path?: never;

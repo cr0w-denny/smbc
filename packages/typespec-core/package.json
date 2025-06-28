@@ -1,0 +1,13 @@
+{
+  "name": "@smbc/typespec-core",
+  "version": "1.0.0",
+  "description": "Core TypeSpec models and patterns for SMBC APIs",
+  "files": ["*.tsp"],
+  "tspMain": "./main.tsp",
+  "devDependencies": {
+    "@typespec/compiler": "^0.60.0",
+    "@typespec/http": "^0.60.0",
+    "@typespec/rest": "^0.60.0",
+    "@typespec/openapi": "^0.60.0"
+  }
+}

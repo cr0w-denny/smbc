@@ -89,6 +89,10 @@ function delay(ms?: number) {
 // =============================================================================
 // MOCK DATA GENERATORS
 // =============================================================================
+// Persistent data store for Product
+let productDataStore: Map<string, any> = new Map();
+let productDataInitialized = false;
+
 // Mock generator for Product
 function generateProduct(overrides = {}) {
   return {
@@ -105,6 +109,26 @@ function generateProduct(overrides = {}) {
   };
 }
 
+// Initialize data store with consistent data
+function initializeProductDataStore() {
+  if (productDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, (_, index) => generateProduct({ id: String(index + 1) }));
+  
+  items.forEach(item => {
+    productDataStore.set(String(item.id), item);
+  });
+  
+  productDataInitialized = true;
+}
+
+// Get all products from the data store
+function getAllProducts(): any[] {
+  initializeProductDataStore();
+  return Array.from(productDataStore.values());
+}
+
 // =============================================================================
 // REQUEST HANDLERS
 // =============================================================================
@@ -119,9 +143,8 @@ export const handlers = [
     const search = url.searchParams.get('search');
     const category = url.searchParams.get('category');
     
-    // Generate dataset
-    const totalItems = faker.number.int(mockConfig.dataSetSize);
-    const allItems = Array.from({ length: totalItems }, () => generateProduct());
+    // Get dataset from persistent store
+    const allItems = getAllProducts();
     
     // Apply filters
     let filteredItems = allItems;
@@ -165,14 +188,14 @@ export const handlers = [
       );
     }
 
-    const requestBody = await request.json();
+    const requestBody = await request.json() as Record<string, any>;
     const createdProduct = generateProduct(requestBody || {});
     
     return HttpResponse.json(createdProduct, { status: 201 });
   }),
 
   // GET /products/{id} - Get single product
-  http.get(`${mockConfig.baseUrl}/products/{id}`, async () => {
+  http.get(`${mockConfig.baseUrl}/products/:id`, async ({ params }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -182,7 +205,17 @@ export const handlers = [
       );
     }
 
-    return HttpResponse.json(generateProduct());
+    const entityId = params.id as string;
+    const item = productDataStore.get(entityId);
+    
+    if (!item) {
+      return HttpResponse.json(
+        { error: 'Not found', message: 'Product not found' },
+        { status: 404 }
+      );
+    }
+
+    return HttpResponse.json(item);
   }),
 
   // Health check endpoint

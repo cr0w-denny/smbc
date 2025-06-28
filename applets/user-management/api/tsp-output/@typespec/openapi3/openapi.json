@@ -19,8 +19,10 @@
             "schema": {
               "type": "integer",
               "format": "int32",
+              "x-mock-pagination": true,
               "default": 1
-            }
+            },
+            "x-mock-pagination": true
           },
           {
             "name": "pageSize",
@@ -29,15 +31,56 @@
             "schema": {
               "type": "integer",
               "format": "int32",
-              "default": 10
-            }
+              "x-mock-pagination": true,
+              "default": 20
+            },
+            "x-mock-pagination": true
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "x-mock-sort": true
+            },
+            "x-mock-sort": true
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "x-mock-sort": true,
+              "default": "asc"
+            },
+            "x-mock-sort": true
           },
           {
             "name": "search",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "x-mock-search": {
+                "fields": [
+                  "email",
+                  "firstName",
+                  "lastName"
+                ]
+              }
+            },
+            "x-mock-search": {
+              "fields": [
+                "email",
+                "firstName",
+                "lastName"
+              ]
             }
           },
           {
@@ -45,7 +88,51 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "x-mock-filter": {
+                "field": "isAdmin",
+                "strategy": "exact"
+              }
+            },
+            "x-mock-filter": {
+              "field": "isAdmin",
+              "strategy": "exact"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "x-mock-filter": {
+                "field": "email",
+                "strategy": "partial-match"
+              }
+            },
+            "x-mock-filter": {
+              "field": "email",
+              "strategy": "partial-match"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ],
+              "x-mock-filter": {
+                "field": "isActive",
+                "strategy": "boolean-inverse"
+              }
+            },
+            "x-mock-filter": {
+              "field": "isActive",
+              "strategy": "boolean-inverse"
             }
           }
         ],

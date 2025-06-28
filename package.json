@@ -30,6 +30,7 @@
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
     "validate": "npm run type-check && npm run lint && npm run test",
+    "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
     "generate-mocks": "tsx scripts/mock-generation/cli.ts",
     "create-applet": "tsx scripts/create-applet/cli.ts",
     "reset": "rm package-lock.json && rimraf --glob ./**/node_modules && npm run clean && ./scripts/reset.sh"

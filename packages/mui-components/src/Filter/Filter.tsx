@@ -98,9 +98,13 @@ export function Filter({
     }
     
     debounceRef.current = setTimeout(() => {
-      // Clean empty values before calling onChange
+      // Clean empty values before calling onChange, but preserve empty strings for text/search fields
+      // so that useHashQueryParams can properly handle them (and remove from URL if they match defaults)
       const cleaned = Object.entries(newDisplayValues).reduce((acc, [key, val]) => {
-        if (val !== null && val !== undefined && val !== '') {
+        const field = fields.find(f => f.name === key);
+        const isTextualField = field && ['text', 'search', 'email'].includes(field.type);
+        
+        if (val !== null && val !== undefined && (val !== '' || isTextualField)) {
           acc[key] = val;
         }
         return acc;
@@ -111,7 +115,17 @@ export function Filter({
   }, [displayValues, isControlled, onFiltersChange, debounceMs]);
 
   const handleClearFilters = useCallback(() => {
-    const clearedValues = {};
+    // Build cleared values, preserving default values for text fields
+    const clearedValues = fields.reduce((acc, field) => {
+      const isTextualField = ['text', 'search', 'email'].includes(field.type);
+      if (isTextualField && field.defaultValue !== undefined) {
+        acc[field.name] = field.defaultValue;
+      } else if (isTextualField) {
+        acc[field.name] = ''; // Default to empty string for text fields
+      }
+      // For other field types, omit them entirely (they'll use their defaults)
+      return acc;
+    }, {} as FilterValues);
     
     // Clear both local and internal values
     if (isControlled) {
@@ -125,7 +139,7 @@ export function Filter({
       clearTimeout(debounceRef.current);
     }
     onFiltersChange(clearedValues);
-  }, [isControlled, onFiltersChange]);
+  }, [fields, isControlled, onFiltersChange]);
 
   // Count active filters using the controlled values or internal values (not display values)
   const activeFilterCount = useMemo(() => {

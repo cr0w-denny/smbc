@@ -93,6 +93,10 @@ function delay(ms?: number) {
 // =============================================================================
 // MOCK DATA GENERATORS
 // =============================================================================
+// Persistent data store for User
+let userDataStore: Map<string, any> = new Map();
+let userDataInitialized = false;
+
 // Mock generator for User
 function generateUser(overrides = {}) {
   return {
@@ -108,6 +112,26 @@ function generateUser(overrides = {}) {
   };
 }
 
+// Initialize data store with consistent data
+function initializeUserDataStore() {
+  if (userDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, (_, index) => generateUser({ id: String(index + 1) }));
+  
+  items.forEach(item => {
+    userDataStore.set(String(item.id), item);
+  });
+  
+  userDataInitialized = true;
+}
+
+// Get all users from the data store
+function getAllUsers(): any[] {
+  initializeUserDataStore();
+  return Array.from(userDataStore.values());
+}
+
 // =============================================================================
 // REQUEST HANDLERS
 // =============================================================================
@@ -120,11 +144,14 @@ export const handlers = [
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
     const search = url.searchParams.get('search');
+    const sortBy = url.searchParams.get('sortBy');
+    const sortOrder = url.searchParams.get('sortOrder');
     const isAdmin = url.searchParams.get('isAdmin');
+    const email = url.searchParams.get('email');
+    const status = url.searchParams.get('status');
     
-    // Generate dataset
-    const totalItems = faker.number.int(mockConfig.dataSetSize);
-    const allItems = Array.from({ length: totalItems }, () => generateUser());
+    // Get dataset from persistent store
+    const allItems = getAllUsers();
     
     // Apply filters
     let filteredItems = allItems;
@@ -136,14 +163,46 @@ export const handlers = [
       );
     }
     
-    // Apply filters for query parameters that match entity fields
+    // Apply filters using OpenAPI extension metadata
     if (isAdmin !== null) {
       filteredItems = filteredItems.filter(item => {
         if (isAdmin === 'true' || isAdmin === 'false') {
           return item.isAdmin === (isAdmin === 'true');
         }
-        // Handle other boolean representations
-        return false;
+        return item.isAdmin?.toString() === isAdmin;
+      });
+    }
+    if (email !== null) {
+      filteredItems = filteredItems.filter(item => 
+        item.email && item.email.toString().toLowerCase().includes(email.toLowerCase())
+      );
+    }
+    if (status !== null) {
+      filteredItems = filteredItems.filter(item => {
+        const fieldValue = item.isActive;
+        return (status === 'active' && fieldValue) || (status === 'inactive' && !fieldValue);
+      });
+    }
+    
+    // Apply sorting (sortBy and sortOrder already declared above)
+    if (sortBy && filteredItems.length > 0) {
+      filteredItems.sort((a, b) => {
+        const aVal = a[sortBy];
+        const bVal = b[sortBy];
+        
+        // Handle different data types
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          const comparison = aVal.localeCompare(bVal);
+          return sortOrder === 'desc' ? -comparison : comparison;
+        } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortOrder === 'desc' ? bVal - aVal : aVal - bVal;
+        } else if (aVal instanceof Date && bVal instanceof Date) {
+          return sortOrder === 'desc' ? bVal.getTime() - aVal.getTime() : aVal.getTime() - bVal.getTime();
+        } else {
+          // Fallback to string comparison
+          const comparison = String(aVal).localeCompare(String(bVal));
+          return sortOrder === 'desc' ? -comparison : comparison;
+        }
       });
     }
     
@@ -172,14 +231,14 @@ export const handlers = [
       );
     }
 
-    const requestBody = await request.json();
+    const requestBody = await request.json() as Record<string, any>;
     const createdUser = generateUser(requestBody || {});
     
     return HttpResponse.json(createdUser, { status: 201 });
   }),
 
   // GET /users/{id} - Get single user
-  http.get(`${mockConfig.baseUrl}/users/{id}`, async () => {
+  http.get(`${mockConfig.baseUrl}/users/:id`, async ({ params }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -189,11 +248,21 @@ export const handlers = [
       );
     }
 
-    return HttpResponse.json(generateUser());
+    const entityId = params.id as string;
+    const item = userDataStore.get(entityId);
+    
+    if (!item) {
+      return HttpResponse.json(
+        { error: 'Not found', message: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    return HttpResponse.json(item);
   }),
 
   // PATCH /users/{id} - Update user
-  http.patch(`${mockConfig.baseUrl}/users/{id}`, async ({ request }) => {
+  http.patch(`${mockConfig.baseUrl}/users/:id`, async ({ request, params }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -203,14 +272,27 @@ export const handlers = [
       );
     }
 
-    const requestBody = await request.json();
-    const updatedUser = generateUser(requestBody || {});
+    const requestBody = await request.json() as Record<string, any>;
+    const entityId = params.id as string;
+    
+    // Get existing item from store
+    const existingItem = userDataStore.get(entityId);
+    if (!existingItem) {
+      return HttpResponse.json(
+        { error: 'Not found', message: 'User not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Update item in store
+    const updatedUser = { ...existingItem, ...requestBody, id: entityId };
+    userDataStore.set(entityId, updatedUser);
     
     return HttpResponse.json(updatedUser);
   }),
 
   // DELETE /users/{id} - Delete user
-  http.delete(`${mockConfig.baseUrl}/users/{id}`, async () => {
+  http.delete(`${mockConfig.baseUrl}/users/:id`, async ({ params }) => {
     await delay();
     
     if (faker.number.float() < mockConfig.errorRate) {
@@ -220,7 +302,20 @@ export const handlers = [
       );
     }
 
-    return HttpResponse.json({ message: 'User deleted successfully' });
+    const entityId = params.id as string;
+    
+    // Check if item exists
+    if (!userDataStore.has(entityId)) {
+      return HttpResponse.json(
+        { error: 'Not found', message: 'User not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Remove from store
+    userDataStore.delete(entityId);
+    
+    return HttpResponse.json({ message: `User ${entityId} deleted successfully` });
   }),
 
   // Health check endpoint
