@@ -19,6 +19,8 @@ export interface FilterFieldConfig {
   max?: number;
   // Business logic properties (used by AutoFilter features)
   debounceMs?: number;
+  /** Exclude this field from the active filter count */
+  excludeFromCount?: boolean;
   validation?: {
     min?: number;
     max?: number;

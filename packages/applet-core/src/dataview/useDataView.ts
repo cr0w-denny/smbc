@@ -37,6 +37,9 @@ export function useDataView<T extends Record<string, any>>(
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<T | null>(null);
 
+  // Transform filters if needed
+  const transformedFilters = options?.transformFilters ? options.transformFilters(filters) : filters;
+
   // API Query - This will need to be implemented based on the specific API client
   // For now, we'll create a placeholder that can be overridden
   const {
@@ -48,7 +51,8 @@ export function useDataView<T extends Record<string, any>>(
       query: {
         page: pagination.page + 1,
         pageSize: pagination.pageSize,
-        ...filters,
+        ...transformedFilters,
+        ...(options?.apiParams || {}),
       },
     },
   }) || { data: null, isLoading: false, error: null };

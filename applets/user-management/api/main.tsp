@@ -23,14 +23,48 @@ namespace UserManagementAPI;
  * A user in the system
  */
 model User {
+  @extension("x-mock-data", { faker: "string.uuid" })
   id: string;
+  
+  @extension("x-mock-data", { faker: "internet.email", unique: true })
   email: string;
+  
+  @extension("x-mock-data", { faker: "person.firstName" })
   firstName: string;
+  
+  @extension("x-mock-data", { faker: "person.lastName" })
   lastName: string;
+  
+  @extension("x-mock-data", { relative: "-30d to now" })
   createdAt: utcDateTime;
+  
+  @extension("x-mock-data", { relative: "-7d to now" })
   updatedAt: utcDateTime;
+  
+  @extension("x-mock-data", { faker: "datatype.boolean", weight: 0.9 })
   isActive: boolean;
+  
+  @extension("x-mock-data", { faker: "datatype.boolean", weight: 0.1 })
   isAdmin: boolean; 
+}
+
+/**
+ * Summary view of a user
+ */
+model UserSummary {
+  id: string;
+  name: string;
+  email: string;
+  status: "active" | "inactive";
+}
+
+/**
+ * Detailed view of a user with computed fields
+ */
+model UserDetailed {
+  ...User;
+  fullName: string;
+  memberSince: string;
 }
 
 /**
@@ -58,6 +92,7 @@ alias UserFilterParams = {
   @query @extension("x-mock-filter", { field: "isAdmin", strategy: "exact" }) isAdmin?: string;
   @query @extension("x-mock-filter", { field: "email", strategy: "partial-match" }) email?: string;
   @query @extension("x-mock-filter", { field: "isActive", strategy: "boolean-inverse" }) status?: "active" | "inactive";
+  @query format?: "summary" | "detailed";
 };
 
 /**
@@ -86,6 +121,14 @@ interface Users {
    * Get all users with pagination
    */
   @get
+  @extension("x-mock-response", {
+    case: "format",
+    when: {
+      "summary": "UserSummary",
+      "detailed": "UserDetailed"
+    },
+    default: "User"
+  })
   list(...BaseListParams, ...UserFilterParams): UserList | ErrorResponse;
 
   /**

@@ -134,6 +134,18 @@
               "field": "isActive",
               "strategy": "boolean-inverse"
             }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "summary",
+                "detailed"
+              ]
+            }
           }
         ],
         "responses": {
@@ -157,6 +169,14 @@
               }
             }
           }
+        },
+        "x-mock-response": {
+          "case": "format",
+          "when": {
+            "summary": "UserSummary",
+            "detailed": "UserDetailed"
+          },
+          "default": "User"
         }
       },
       "post": {
@@ -381,33 +401,137 @@
         ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "string.uuid"
+            }
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "internet.email",
+              "unique": true
+            }
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.firstName"
+            }
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.lastName"
+            }
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-mock-data": {
+              "relative": "-30d to now"
+            }
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-mock-data": {
+              "relative": "-7d to now"
+            }
           },
           "isActive": {
-            "type": "boolean"
+            "type": "boolean",
+            "x-mock-data": {
+              "faker": "datatype.boolean",
+              "weight": 0.9
+            }
           },
           "isAdmin": {
-            "type": "boolean"
+            "type": "boolean",
+            "x-mock-data": {
+              "faker": "datatype.boolean",
+              "weight": 0.1
+            }
           }
         },
         "description": "A user in the system"
+      },
+      "UserDetailed": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "createdAt",
+          "updatedAt",
+          "isActive",
+          "isAdmin",
+          "fullName",
+          "memberSince"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "string.uuid"
+            }
+          },
+          "email": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "internet.email",
+              "unique": true
+            }
+          },
+          "firstName": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.firstName"
+            }
+          },
+          "lastName": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.lastName"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-mock-data": {
+              "relative": "-30d to now"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-mock-data": {
+              "relative": "-7d to now"
+            }
+          },
+          "isActive": {
+            "type": "boolean",
+            "x-mock-data": {
+              "faker": "datatype.boolean",
+              "weight": 0.9
+            }
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "x-mock-data": {
+              "faker": "datatype.boolean",
+              "weight": 0.1
+            }
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "memberSince": {
+            "type": "string"
+          }
+        },
+        "description": "Detailed view of a user with computed fields"
       },
       "UserList": {
         "type": "object",
@@ -438,6 +562,34 @@
           }
         },
         "description": "Paginated list of users"
+      },
+      "UserSummary": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "description": "Summary view of a user"
       }
     }
   },

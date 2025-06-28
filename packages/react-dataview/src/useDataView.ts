@@ -5,6 +5,10 @@ import type { DataViewConfig, DataViewResult } from "./types";
 export interface UseDataViewOptions {
   /** Custom hook for managing filter state (e.g., URL-synced filters) */
   useFilterState?: (defaultFilters: any) => [any, (filters: any) => void];
+  /** Transform filter values for query keys and API requests */
+  transformFilters?: (filters: any) => any;
+  /** Function to determine which columns to show based on current filters */
+  getActiveColumns?: (columns: any[], filters: any) => any[];
   /** Optional notification handlers for user feedback */
   onSuccess?: (action: 'create' | 'edit' | 'delete', item?: any) => void;
   onError?: (action: 'create' | 'edit' | 'delete', error: any, item?: any) => void;
@@ -56,6 +60,19 @@ export function useDataView<T extends Record<string, any>>(
   const responseRowCount = api.responseRowCount || ((response: any) => response?.total || response?.count || responseRow(response).length);
   const optimisticResponse = api.optimisticResponse || ((_originalResponse: any, newRows: any[]) => newRows);
 
+  // Transform filters for consistent query keys and API requests
+  const transformedFilters = useMemo(() => {
+    return options.transformFilters ? options.transformFilters(filters) : filters;
+  }, [filters, options.transformFilters]);
+
+  // Dynamic columns based on filters or other conditions
+  const activeColumns = useMemo(() => {
+    if (options.getActiveColumns) {
+      return options.getActiveColumns(columns, filters);
+    }
+    return columns;
+  }, [columns, filters, options.getActiveColumns]);
+
   // Current query key for optimistic updates - must match openapi-react-query format
   const currentQueryKey = useMemo(() => {
     const queryParams = {
@@ -63,7 +80,7 @@ export function useDataView<T extends Record<string, any>>(
         query: {
           page: pagination.page + 1,
           pageSize: pagination.pageSize,
-          ...filters,
+          ...transformedFilters,
         },
       },
     };
@@ -72,7 +89,7 @@ export function useDataView<T extends Record<string, any>>(
       api.endpoint, 
       queryParams
     ];
-  }, [api.endpoint, pagination.page, pagination.pageSize, filters, config.options?.apiParams]);
+  }, [api.endpoint, pagination.page, pagination.pageSize, transformedFilters, config.options?.apiParams]);
 
   // API Query - This will need to be implemented based on the specific API client
   // For now, we'll create a placeholder that can be overridden
@@ -81,7 +98,7 @@ export function useDataView<T extends Record<string, any>>(
       query: {
         page: pagination.page + 1,
         pageSize: pagination.pageSize,
-        ...filters,
+        ...transformedFilters,
         ...(config.options?.apiParams || {}),
       },
     },
@@ -279,7 +296,7 @@ export function useDataView<T extends Record<string, any>>(
     return () =>
       React.createElement(Component, {
         data,
-        columns: renderer.mapColumns ? renderer.mapColumns(columns) : columns,
+        columns: renderer.mapColumns ? renderer.mapColumns(activeColumns) : activeColumns,
         actions,
         isLoading,
         error,
@@ -290,7 +307,7 @@ export function useDataView<T extends Record<string, any>>(
         },
         ...rendererOptions,
       });
-  }, [renderer, data, columns, actions, isLoading, error, selectedIds, rendererOptions]);
+  }, [renderer, data, activeColumns, actions, isLoading, error, selectedIds, rendererOptions]);
 
   const FilterComponent = useMemo(() => {
     if (!filterSpec) return () => null;

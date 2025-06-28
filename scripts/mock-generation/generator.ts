@@ -66,6 +66,21 @@ export class MockGenerator {
     return this.schemaAnalyses.get(schemaName);
   }
 
+  private extractResponseDiscriminator(operation: any): { case: string; when: Record<string, string>; default?: string } | null {
+    // Check for x-mock-response extension on the operation
+    if (operation['x-mock-response']) {
+      const config = operation['x-mock-response'];
+      if (config.case && config.when) {
+        return {
+          case: config.case,
+          when: config.when,
+          default: config.default
+        };
+      }
+    }
+    return null;
+  }
+
   private extractMockMetadata(param: any): { type: string; field?: string; strategy?: string; fields?: string[] } | null {
     // Check for OpenAPI extensions in the parameter
     if (param['x-mock-filter']) {
@@ -105,6 +120,9 @@ export class MockGenerator {
       return `    ${prop.name}: ${prop.fakerMethod},`;
     }).join('\n');
 
+    // Check if this schema is used in any discriminated responses
+    const hasDiscriminatedResponses = this.hasDiscriminatedResponsesForSchema(schemaName);
+
     return `// Persistent data store for ${schemaName}
 let ${schemaName.toLowerCase()}DataStore: Map<string, any> = new Map();
 let ${schemaName.toLowerCase()}DataInitialized = false;
@@ -135,7 +153,40 @@ function initialize${schemaName}DataStore() {
 function getAll${schemaName}s(): any[] {
   initialize${schemaName}DataStore();
   return Array.from(${schemaName.toLowerCase()}DataStore.values());
-}`;
+}
+
+${hasDiscriminatedResponses ? `// Transform ${schemaName} to different response schemas
+function transform${schemaName}ToSchema(item: any, targetSchema: string): any {
+  switch (targetSchema) {
+    case '${schemaName}Summary':
+      return {
+        id: item.id,
+        name: \`\${item.firstName} \${item.lastName}\`,
+        email: item.email,
+        status: item.isActive ? 'active' : 'inactive'
+      };
+    
+    case '${schemaName}Detailed':
+      return {
+        ...item,
+        fullName: \`\${item.firstName} \${item.lastName}\`,
+        memberSince: new Date(item.createdAt).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long' 
+        })
+      };
+    
+    default:
+      return item;
+  }
+}` : ''}`;
+  }
+
+  private hasDiscriminatedResponsesForSchema(schemaName: string): boolean {
+    // Check if any operations reference this schema in discriminated responses
+    // This would require analyzing the full OpenAPI spec for x-mock-response extensions
+    // For now, we'll check for common patterns
+    return schemaName === 'User'; // Temporary - should be more dynamic
   }
 
   public generateHandlersForOperation(path: string, method: string, operation: any): string {
@@ -198,6 +249,9 @@ function getAll${schemaName}s(): any[] {
   })`;
         } else {
           // List endpoint
+          // Check for response discrimination
+          const discriminator = this.extractResponseDiscriminator(operation);
+          
           // Extract query parameters from operation
           const queryParams = operation.parameters?.filter((p: any) => p.in === 'query') || [];
           const queryParamExtraction = queryParams
@@ -211,7 +265,7 @@ function getAll${schemaName}s(): any[] {
           
           // Build filter logic for non-pagination parameters
           const filterParams = queryParams.filter((p: any) => 
-            p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search' && p.name !== 'sortBy' && p.name !== 'sortOrder'
+            p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search' && p.name !== 'sortBy' && p.name !== 'sortOrder' && p.name !== discriminator?.case
           );
           
           const filterLogic = filterParams.length > 0 ? `
@@ -328,7 +382,7 @@ function getAll${schemaName}s(): any[] {
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
     const search = url.searchParams.get('search');
-${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search')
+${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p.name !== 'search' && p.name !== discriminator?.case)
   .map((param: any) => `    const ${param.name} = url.searchParams.get('${param.name}');`)
   .join('\n')}
     
@@ -352,12 +406,35 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
     const endIndex = Math.min(startIndex + pageSize, total);
     const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
+    ${discriminator ? `
+    // Handle discriminated responses based on query parameter: ${discriminator.case}
+    const discriminatorValue = url.searchParams.get('${discriminator.case}');
+    let responseSchema = '${discriminator.default || entityName}';
+    
+    // Map discriminator values to schema names
+    const schemaMapping: Record<string, string> = ${JSON.stringify(discriminator.when)};
+    if (discriminatorValue && schemaMapping[discriminatorValue]) {
+      responseSchema = schemaMapping[discriminatorValue];
+    }
+    
+    // Transform data based on selected schema
+    let transformedItems = paginatedItems;
+    if (responseSchema !== '${entityName}') {
+      transformedItems = paginatedItems.map(item => transform${entityName}ToSchema(item, responseSchema));
+    }
+    
+    return HttpResponse.json({
+      ${entitySegment}: transformedItems,
+      total,
+      page,
+      pageSize
+    });` : `
     return HttpResponse.json({
       ${entitySegment}: paginatedItems,
       total,
       page,
       pageSize
-    });
+    });`}
   })`;
         }
 

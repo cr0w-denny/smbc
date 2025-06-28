@@ -70,7 +70,7 @@ export function UserTable({
       displayName: (user) => `${user.firstName} ${user.lastName}`,
     },
 
-    // Table columns
+    // Table columns - all available columns
     columns: [
       {
         key: "name",
@@ -109,6 +109,25 @@ export function UserTable({
             size="small"
           />
         ),
+      },
+      // Additional columns for detailed view
+      {
+        key: "updatedAt",
+        label: "Last Updated",
+        render: (user) => new Date(user.updatedAt).toLocaleDateString(),
+      },
+      {
+        key: "fullName",
+        label: "Full Name",
+        render: (user) => (user as any).fullName || `${user.firstName} ${user.lastName}`,
+      },
+      {
+        key: "memberSince",
+        label: "Member Since",
+        render: (user) => (user as any).memberSince || new Date(user.createdAt).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long' 
+        }),
       },
     ],
 
@@ -149,6 +168,7 @@ export function UserTable({
             { label: "Created Date", value: "createdAt" },
           ],
           defaultValue: "firstName",
+          excludeFromCount: true,
         },
         {
           name: "sortOrder",
@@ -159,6 +179,13 @@ export function UserTable({
             { label: "Descending", value: "desc" },
           ],
           defaultValue: "asc",
+          excludeFromCount: true,
+        },
+        {
+          name: "format",
+          type: "checkbox",
+          label: "Show Details",
+          defaultValue: false,
         },
       ],
       initialValues: {
@@ -167,6 +194,7 @@ export function UserTable({
         status: undefined,
         sortBy: "firstName",
         sortOrder: "asc",
+        format: false,
       },
       title: "User Filters",
       collapsible: true,
@@ -275,6 +303,33 @@ export function UserTable({
       apiParams: {
         ...(userType === "admins" && { isAdmin: "true" }),
         ...(userType === "non-admins" && { isAdmin: "false" }),
+      },
+      // Transform filter values for the API
+      transformFilters: (filters: any) => {
+        const transformed = { ...filters };
+        
+        // Transform checkbox format to API format parameter
+        if (transformed.format === true) {
+          transformed.format = "detailed";
+        } else if (transformed.format === false) {
+          delete transformed.format; // Don't send format=false
+        }
+        
+        return transformed;
+      },
+      // Function to determine which columns to show based on filters
+      getActiveColumns: (columns: any[], filters: any) => {
+        // Default columns (summary view)
+        const defaultColumns = ["name", "email", "isActive", "createdAt", "isAdmin"];
+        
+        // Additional columns for detailed view
+        const detailedColumns = ["name", "email", "isActive", "createdAt", "isAdmin", "updatedAt", "fullName", "memberSince"];
+        
+        // Show detailed columns when format filter is true (which gets transformed to "detailed")
+        const showDetailed = filters.format === true;
+        const activeColumnKeys = showDetailed ? detailedColumns : defaultColumns;
+        
+        return columns.filter(col => activeColumnKeys.includes(col.key));
       },
     },
   }), [canCreate, canEdit, canDelete, userType]);

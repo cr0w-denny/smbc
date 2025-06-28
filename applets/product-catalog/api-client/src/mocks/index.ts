@@ -129,6 +129,8 @@ function getAllProducts(): any[] {
   return Array.from(productDataStore.values());
 }
 
+
+
 // =============================================================================
 // REQUEST HANDLERS
 // =============================================================================
@@ -172,6 +174,7 @@ export const handlers = [
     const endIndex = Math.min(startIndex + pageSize, total);
     const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
+    
     return HttpResponse.json({
       products: paginatedItems,
       total,

@@ -76,6 +76,21 @@ export interface components {
             isActive: boolean;
             isAdmin: boolean;
         };
+        /** @description Detailed view of a user with computed fields */
+        UserDetailed: {
+            id: string;
+            email: string;
+            firstName: string;
+            lastName: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            isActive: boolean;
+            isAdmin: boolean;
+            fullName: string;
+            memberSince: string;
+        };
         /** @description Paginated list of users */
         UserList: {
             users: components["schemas"]["User"][];
@@ -85,6 +100,14 @@ export interface components {
             page: number;
             /** Format: int32 */
             pageSize: number;
+        };
+        /** @description Summary view of a user */
+        UserSummary: {
+            id: string;
+            name: string;
+            email: string;
+            /** @enum {string} */
+            status: "active" | "inactive";
         };
     };
     responses: never;
@@ -106,6 +129,7 @@ export interface operations {
                 isAdmin?: string;
                 email?: string;
                 status?: "active" | "inactive";
+                format?: "summary" | "detailed";
             };
             header?: never;
             path?: never;

@@ -61,6 +61,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   // Layer 1: Data management
   const dataView = useDataView(baseConfigWithoutActions, {
     useFilterState: useUrlSyncedFilters,
+    transformFilters: config.options?.transformFilters,
+    getActiveColumns: config.options?.getActiveColumns,
     onSuccess,
     onError,
   });
@@ -80,11 +82,16 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     }
   }));
 
-  // Custom TableComponent that uses the processed actions
+  // Custom TableComponent that uses the processed actions and dynamic columns
   const TableComponentWithActions = React.useMemo(() => {
+    // Get the active columns from the dataView's internal logic
+    const activeColumns = config.options?.getActiveColumns 
+      ? config.options.getActiveColumns(config.columns, dataView.filters)
+      : config.columns;
+      
     return () => React.createElement(MuiDataView.TableComponent, {
       data: dataView.data,
-      columns: config.columns,
+      columns: activeColumns,
       actions: processedActions || [],
       isLoading: dataView.isLoading,
       error: dataView.error,
@@ -94,7 +101,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         onSelectionChange: dataView.selection.setSelectedIds,
       },
     });
-  }, [dataView.data, config.columns, processedActions, dataView.isLoading, dataView.error, dataView.selection]);
+  }, [dataView.data, dataView.filters, config.columns, config.options?.getActiveColumns, processedActions, dataView.isLoading, dataView.error, dataView.selection]);
 
   return (
     <div className={className} style={style}>

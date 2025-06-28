@@ -88,6 +88,8 @@ export interface DataViewFilterFieldConfig {
   fullWidth?: boolean;
   size?: 'small' | 'medium';
   debounceMs?: number;
+  /** Exclude this field from the active filter count */
+  excludeFromCount?: boolean;
 }
 
 // Filter specification for DataView

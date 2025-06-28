@@ -90,7 +90,15 @@ export class SchemaAnalyzer {
 
   private analyzeProperty(name: string, schema: any, isRequired: boolean): PropertyAnalysis {
     const semanticType = this.detectSemanticType(name, schema);
-    const fakerMethod = this.mapToFakerMethod(semanticType, schema);
+    
+    // Check for x-mock-data extension first
+    let fakerMethod: string;
+    if (schema['x-mock-data']) {
+      fakerMethod = this.generateFakerMethodFromExtension(schema['x-mock-data'], schema);
+    } else {
+      fakerMethod = this.mapToFakerMethod(semanticType, schema);
+    }
+    
     const constraints = this.extractPropertyConstraints(schema);
 
     return {
@@ -177,6 +185,76 @@ export class SchemaAnalyzer {
     if (lowerName.includes('rating') || lowerName.includes('score')) return 'score';
     
     return 'generic';
+  }
+
+  private generateFakerMethodFromExtension(mockData: any, schema: any): string {
+    // Handle boolean with weight first (before general faker method)
+    if (schema.type === 'boolean' && mockData.weight !== undefined) {
+      return `faker.datatype.boolean({ probability: ${mockData.weight} })`;
+    }
+    
+    // Handle direct faker method
+    if (mockData.faker) {
+      // Parse the faker method path (e.g., "person.firstName")
+      const parts = mockData.faker.split('.');
+      let fakerCall = 'faker';
+      for (const part of parts) {
+        fakerCall += `.${part}`;
+      }
+      fakerCall += '()';
+      
+      // Add unique constraint if specified
+      if (mockData.unique) {
+        return `faker.helpers.unique(() => ${fakerCall})`;
+      }
+      
+      return fakerCall;
+    }
+    
+    // Handle numeric ranges
+    if (schema.type === 'integer' || schema.type === 'number') {
+      const min = mockData.min ?? schema.minimum ?? 0;
+      const max = mockData.max ?? schema.maximum ?? 100;
+      
+      if (schema.type === 'integer') {
+        return `faker.number.int({ min: ${min}, max: ${max} })`;
+      } else {
+        const fractionDigits = mockData.fractionDigits ?? 2;
+        return `faker.number.float({ min: ${min}, max: ${max}, fractionDigits: ${fractionDigits} })`;
+      }
+    }
+    
+    // Handle patterns
+    if (mockData.pattern) {
+      return `faker.helpers.fromRegExp('${mockData.pattern}')`;
+    }
+    
+    // Handle examples array
+    if (mockData.examples && Array.isArray(mockData.examples)) {
+      const examples = mockData.examples.map((e: any) => `"${e}"`).join(', ');
+      return `faker.helpers.arrayElement([${examples}])`;
+    }
+    
+    // Handle relative dates
+    if (mockData.relative && (schema.format === 'date-time' || schema.format === 'date')) {
+      // Parse relative date string like "-30d to now" or "-7d to now"
+      const match = mockData.relative.match(/^-(\d+)d\s+to\s+now$/);
+      if (match) {
+        const days = parseInt(match[1], 10);
+        return `faker.date.recent({ days: ${days} }).toISOString()`;
+      }
+      // Default fallback
+      return `faker.date.recent({ days: 30 }).toISOString()`;
+    }
+    
+    // Handle image dimensions
+    if (mockData.dimensions && mockData.faker?.includes('image')) {
+      const { width, height } = mockData.dimensions;
+      return `faker.image.url({ width: ${width}, height: ${height} })`;
+    }
+    
+    // Fallback to semantic detection
+    return this.mapToFakerMethod(this.detectSemanticType(schema.title || 'generic', schema), schema);
   }
 
   private mapToFakerMethod(semanticType: SemanticType, schema: any): string {

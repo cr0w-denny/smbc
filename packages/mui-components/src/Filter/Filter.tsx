@@ -67,8 +67,7 @@ export function Filter({
   // For display purposes, use local values in controlled mode, internal values in uncontrolled
   const displayValues = isControlled ? localValues : internalValues;
   
-  // For filter count calculation, use the controlled values or internal values
-  const activeFilterValues = isControlled ? controlledValues : internalValues;
+  // Note: We use displayValues for filter count calculation to get immediate UI feedback
 
   // Debounced filter change handler
   const debounceRef = React.useRef<ReturnType<typeof setTimeout>>();
@@ -141,18 +140,18 @@ export function Filter({
     onFiltersChange(clearedValues);
   }, [fields, isControlled, onFiltersChange]);
 
-  // Count active filters using the controlled values or internal values (not display values)
+  // Count active filters using the display values for immediate UI feedback
   const activeFilterCount = useMemo(() => {
-    return Object.entries(activeFilterValues || {}).filter(([key, value]) => {
+    return Object.entries(displayValues || {}).filter(([key, value]) => {
       const field = fields.find(f => f.name === key);
-      if (!field || field.type === 'hidden') return false;
+      if (!field || field.type === 'hidden' || field.excludeFromCount) return false;
       
       return value !== undefined && 
              value !== null && 
              value !== '' && 
              value !== field.defaultValue;
     }).length;
-  }, [activeFilterValues, fields]);
+  }, [displayValues, fields]);
 
   if (!visible || fields.length === 0) {
     return null;

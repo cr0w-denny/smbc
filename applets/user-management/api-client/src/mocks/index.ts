@@ -82,11 +82,33 @@ function delay(ms?: number) {
 // Relationships:
 //   No relationships detected
 
+// Schema: UserDetailed
+//   id: string - id [required]
+//   email: string - email [required]
+//   firstName: string - firstName [required]
+//   lastName: string - lastName [required]
+//   createdAt: string (date-time) - timestamp [required]
+//   updatedAt: string (date-time) - timestamp [required]
+//   isActive: boolean - isActive [required]
+//   isAdmin: boolean - flag [required]
+//   fullName: string - fullName [required]
+//   memberSince: string - generic [required]
+// Relationships:
+//   No relationships detected
+
 // Schema: UserList
 //   users: array - generic [required]
 //   total: integer (int32) - amount [required]
 //   page: integer (int32) - generic [required]
 //   pageSize: integer (int32) - generic [required]
+// Relationships:
+//   No relationships detected
+
+// Schema: UserSummary
+//   id: string - id [required]
+//   name: string - fullName [required]
+//   email: string - email [required]
+//   status: string - status [required]
 // Relationships:
 //   No relationships detected
 
@@ -100,14 +122,14 @@ let userDataInitialized = false;
 // Mock generator for User
 function generateUser(overrides = {}) {
   return {
-    id: faker.number.int({ min: 1, max: 100000 }),
-    email: faker.internet.email(),
+    id: faker.string.uuid(),
+    email: faker.helpers.unique(() => faker.internet.email()),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
-    createdAt: faker.date.recent().toISOString(),
-    updatedAt: faker.date.recent().toISOString(),
-    isActive: faker.datatype.boolean(),
-    isAdmin: faker.datatype.boolean(),
+    createdAt: faker.date.recent({ days: 30 }).toISOString(),
+    updatedAt: faker.date.recent({ days: 7 }).toISOString(),
+    isActive: faker.datatype.boolean({ probability: 0.9 }),
+    isAdmin: faker.datatype.boolean({ probability: 0.1 }),
     ...overrides
   };
 }
@@ -130,6 +152,32 @@ function initializeUserDataStore() {
 function getAllUsers(): any[] {
   initializeUserDataStore();
   return Array.from(userDataStore.values());
+}
+
+// Transform User to different response schemas
+function transformUserToSchema(item: any, targetSchema: string): any {
+  switch (targetSchema) {
+    case 'UserSummary':
+      return {
+        id: item.id,
+        name: `${item.firstName} ${item.lastName}`,
+        email: item.email,
+        status: item.isActive ? 'active' : 'inactive'
+      };
+    
+    case 'UserDetailed':
+      return {
+        ...item,
+        fullName: `${item.firstName} ${item.lastName}`,
+        memberSince: new Date(item.createdAt).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long' 
+        })
+      };
+    
+    default:
+      return item;
+  }
 }
 
 // =============================================================================
@@ -212,8 +260,25 @@ export const handlers = [
     const endIndex = Math.min(startIndex + pageSize, total);
     const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
+    
+    // Handle discriminated responses based on query parameter: format
+    const discriminatorValue = url.searchParams.get('format');
+    let responseSchema = 'User';
+    
+    // Map discriminator values to schema names
+    const schemaMapping: Record<string, string> = {"summary":"UserSummary","detailed":"UserDetailed"};
+    if (discriminatorValue && schemaMapping[discriminatorValue]) {
+      responseSchema = schemaMapping[discriminatorValue];
+    }
+    
+    // Transform data based on selected schema
+    let transformedItems = paginatedItems;
+    if (responseSchema !== 'User') {
+      transformedItems = paginatedItems.map(item => transformUserToSchema(item, responseSchema));
+    }
+    
     return HttpResponse.json({
-      users: paginatedItems,
+      users: transformedItems,
       total,
       page,
       pageSize
