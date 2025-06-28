@@ -1,64 +1,64 @@
-import { FC } from 'react';
-import { Box } from '@mui/material';
-import { AppletNavigation } from '@smbc/mui-components';
-import { useHashNavigation } from '@smbc/applet-core';
-import { UserTable } from './UserTable';
-import { UserProfile } from './UserProfile';
+import { FC } from "react";
+import { Box } from "@mui/material";
+import { AppletNavigation } from "@smbc/mui-components";
+import { useHashNavigation } from "@smbc/applet-core";
+import { UserTable } from "./UserTable";
+import { UserProfile } from "./UserProfile";
 
 export interface AppletProps {
   mountPath: string;
   /** Type of users to display */
-  userType?: 'all' | 'admins' | 'non-admins';
+  userType?: "all" | "admins" | "non-admins";
   /** Permission context for role-based access control */
   permissionContext?: string;
 }
 
-// Navigation configuration - no icons needed for tabs mode
-const navigationRoutes = [
-  {
-    path: '/',
-    label: 'User Management',
-  },
-  {
-    path: '/profile',
-    label: 'User Profile',
-  },
-];
-
-export const Applet: FC<AppletProps> = ({ 
+export const Applet: FC<AppletProps> = ({
   mountPath,
-  userType = 'all', 
-  permissionContext = "user-management" 
+  userType = "all",
+  permissionContext = "user-management",
 }) => {
   const { currentPath, navigateTo } = useHashNavigation(mountPath);
-  
+
   // Simple route rendering
   const renderCurrentRoute = () => {
     switch (currentPath) {
-      case '/profile':
+      case "/profile":
         return <UserProfile />;
-      case '/':
+      case "/":
       default:
-        return <UserTable userType={userType} permissionContext={permissionContext} />;
+        return (
+          <UserTable
+            userType={userType}
+            permissionContext={permissionContext}
+          />
+        );
     }
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Navigation - using tabs mode */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <AppletNavigation
           currentPath={currentPath}
           onNavigate={navigateTo}
-          routes={navigationRoutes}
+          routes={[
+            {
+              path: "/",
+              label: "User Management",
+            },
+            {
+              path: "/profile",
+              label: "User Profile",
+            },
+          ]}
           mode="tabs"
         />
       </Box>
-      
+
       {/* Route content */}
-      <Box sx={{ flex: 1 }}>
-        {renderCurrentRoute()}
-      </Box>
+      <Box sx={{ flex: 1 }}>{renderCurrentRoute()}</Box>
     </Box>
   );
 };

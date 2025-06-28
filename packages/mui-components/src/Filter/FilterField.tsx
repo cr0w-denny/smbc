@@ -44,7 +44,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
   const commonProps = {
     disabled: field.disabled,
-    size: field.size || 'medium',
+    size: field.size || 'small',
     fullWidth: field.fullWidth,
     error: !!error,
   };
@@ -68,16 +68,23 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case 'select':
       return (
-        <FormControl {...commonProps}>
-          <InputLabel>{field.label}</InputLabel>
+        <FormControl {...commonProps} sx={{ minWidth: 120 }}>
+          <InputLabel shrink={true}>{field.label}</InputLabel>
           <Select
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             label={field.label}
+            displayEmpty
+            notched
+            renderValue={(selected) => {
+              if (selected === '') {
+                const emptyOption = field.options?.find(opt => opt.value === '');
+                return emptyOption?.label || 'None';
+              }
+              const option = field.options?.find(opt => opt.value === selected);
+              return option?.label || selected;
+            }}
           >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
             {field.options?.map((option) => (
               <MenuItem key={option.value} value={option.value}>
                 {option.label}
