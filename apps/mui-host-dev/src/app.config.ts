@@ -21,7 +21,7 @@ export const demoUser = {
   id: "1",
   email: "staff@smbc.com",
   name: "Demo Staff",
-  roles: ["Staff"],
+  roles: ["Admin"],
   preferences: {
     theme: "light" as const,
     language: "en",

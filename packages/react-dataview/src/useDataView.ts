@@ -24,11 +24,16 @@ export function useDataView<T extends Record<string, any>>(
     columns,
     renderer,
     filters: filterSpec,
-    actions = [],
+    actions: actionConfig = {},
     pagination: paginationConfig = { enabled: true, defaultPageSize: 10 },
     forms,
     options: rendererOptions = {},
   } = config;
+
+  // Extract different action types
+  const rowActions = actionConfig.row || [];
+  const bulkActions = actionConfig.bulk || [];
+  const globalActions = actionConfig.global || [];
   
   // Get the shared query client
   const { queryClient } = useSMBCQuery();
@@ -297,7 +302,7 @@ export function useDataView<T extends Record<string, any>>(
       React.createElement(Component, {
         data,
         columns: renderer.mapColumns ? renderer.mapColumns(activeColumns) : activeColumns,
-        actions,
+        actions: rowActions,
         isLoading,
         error,
         selection: {
@@ -307,7 +312,7 @@ export function useDataView<T extends Record<string, any>>(
         },
         ...rendererOptions,
       });
-  }, [renderer, data, activeColumns, actions, isLoading, error, selectedIds, rendererOptions]);
+  }, [renderer, data, activeColumns, rowActions, isLoading, error, selectedIds, rendererOptions]);
 
   const FilterComponent = useMemo(() => {
     if (!filterSpec) return () => null;
@@ -410,6 +415,13 @@ export function useDataView<T extends Record<string, any>>(
       selectedIds,
       setSelectedIds,
       selectedItems,
+    },
+
+    // Actions
+    actions: {
+      row: rowActions,
+      bulk: bulkActions,
+      global: globalActions,
     },
   };
 }

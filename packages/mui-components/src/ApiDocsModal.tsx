@@ -135,6 +135,12 @@ export function ApiDocsModal({
               "& .servers-title": {
                 display: "none",
               },
+              "& .opblock-tag": {
+                paddingRight: "5px !important",
+              },
+              "& section.models h4": {
+                paddingRight: "10px !important",
+              },
               "& .scheme-container": {
                 padding: "0 0 10px",
               },
@@ -145,11 +151,17 @@ export function ApiDocsModal({
                 margin: "0",
                 padding: "0",
               },
+              "& section.models.is-open": {
+                margin: "0 !important",
+              },
               "& section.models .model-container": {
-                margin: "10px",
+                margin: "10px !important",
               },
               "& section.models .model-container .model-box": {
                 padding: "0 4px",
+              },
+              "& .wrapper:last-child": {
+                paddingBottom: "20px",
               },
               ...(isDarkMode && {
                 filter: "invert(1) hue-rotate(180deg)",

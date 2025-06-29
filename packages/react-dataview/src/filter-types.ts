@@ -14,6 +14,7 @@ export interface FilterFieldConfig {
   hidden?: boolean;
   fullWidth?: boolean;
   size?: 'small' | 'medium';
+  minWidth?: number | string;
   // Simple validation properties
   min?: number;
   max?: number;

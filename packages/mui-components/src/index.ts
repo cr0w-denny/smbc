@@ -83,3 +83,7 @@ export const getTheme = (mode: "light" | "dark" = "light") => {
 
 // DataView renderer for MUI
 export { MuiDataView } from "./MuiDataView";
+
+// Action bar component
+export { ActionBar } from "./ActionBar";
+export type { ActionBarProps } from "./ActionBar";

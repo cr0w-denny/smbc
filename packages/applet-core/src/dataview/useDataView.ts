@@ -11,11 +11,16 @@ export function useDataView<T extends Record<string, any>>(
     columns,
     renderer,
     filters: filterSpec,
-    actions = [],
+    actions: actionConfig = {},
     pagination: paginationConfig = { enabled: true, defaultPageSize: 10 },
     forms,
     options = {},
   } = config;
+
+  // Extract different action types
+  const rowActions = actionConfig.row || [];
+  const bulkActions = actionConfig.bulk || [];
+  const globalActions = actionConfig.global || [];
 
   // Filter state (URL-synced)
   const defaultFilters = filterSpec?.initialValues || {};
@@ -141,7 +146,7 @@ export function useDataView<T extends Record<string, any>>(
       React.createElement(Component, {
         data,
         columns: renderer.mapColumns ? renderer.mapColumns(columns) : columns,
-        actions,
+        actions: rowActions,
         isLoading,
         error,
         selection: {
@@ -151,7 +156,7 @@ export function useDataView<T extends Record<string, any>>(
         },
         ...options,
       });
-  }, [renderer, data, columns, actions, isLoading, error, selectedIds, options]);
+  }, [renderer, data, columns, rowActions, isLoading, error, selectedIds, options]);
 
   const FilterComponent = useMemo(() => {
     if (!filterSpec) return () => null;
@@ -254,6 +259,13 @@ export function useDataView<T extends Record<string, any>>(
       selectedIds,
       setSelectedIds,
       selectedItems,
+    },
+
+    // Actions
+    actions: {
+      row: rowActions,
+      bulk: bulkActions,
+      global: globalActions,
     },
   };
 }

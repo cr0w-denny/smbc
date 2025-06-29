@@ -1,7 +1,7 @@
 {
   "name": "@smbc/user-management-mui",
   "version": "1.1.0",
-  "description": "Production-ready Material-UI React components for user management",
+  "description": "User management applet for MUI hosts",
   "main": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "type": "module",

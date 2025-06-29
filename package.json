@@ -20,7 +20,7 @@
     "dev:components": "npm run dev -w packages/mui-components -w packages/mui-applet-core -w packages/mui-applet-host",
     "dev:host": "npm run dev -w apps/mui-host-dev",
     "dev:api-clients": "npm run dev -w 'applets/*/api-client'",
-    "dev:mui-packages": "npm run dev -w 'applets/*/mui'",
+    "dev:mui-packages": "npm run dev -w applets/user-management/mui -w applets/product-catalog/mui",
     "dev:simple": "npm run dev --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",

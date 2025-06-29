@@ -124,7 +124,7 @@ function MuiDataTable<T extends Record<string, any>>({
                     .map((action) => (
                       <IconButton
                         key={action.key}
-                        onClick={() => action.onClick(item)}
+                        onClick={() => action.onClick?.(item)}
                         disabled={action.disabled?.(item)}
                         color={action.color}
                         size="small"

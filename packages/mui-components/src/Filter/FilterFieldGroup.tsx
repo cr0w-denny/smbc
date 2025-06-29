@@ -36,13 +36,15 @@ export const FilterFieldGroup: React.FC<FilterFieldGroupProps> = ({
         flexDirection: direction,
         gap: spacing,
         flexWrap: wrap ? 'wrap' : 'nowrap',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
       }}
     >
       {fields.map((field) => (
         <Box
           key={field.name}
           sx={{
-            minWidth: direction === 'row' ? 200 : 'auto',
+            minWidth: field.minWidth || 'auto',
             flex: field.fullWidth ? '1 1 auto' : '0 0 auto',
           }}
         >

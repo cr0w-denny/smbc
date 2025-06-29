@@ -37,15 +37,44 @@ export interface DataColumn<T> {
 }
 
 // Table action definition
-export interface DataAction<T> {
+// Base action interface
+export interface BaseAction {
   key: string;
   label: string;
   icon?: React.ComponentType;
   color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
-  onClick: (item: T) => void;
+}
+
+// Row-level action (appears in each table row)
+export interface RowAction<T> extends BaseAction {
+  type: "row";
+  onClick?: (item: T) => void;
   disabled?: (item: T) => boolean;
   hidden?: (item: T) => boolean;
 }
+
+// Bulk action (appears in action bar when rows are selected)
+export interface BulkAction<T> extends BaseAction {
+  type: "bulk";
+  onClick?: (items: T[]) => void;
+  disabled?: (items: T[]) => boolean;
+  hidden?: (items: T[]) => boolean;
+  // If true, action is hidden when it doesn't apply to ALL selected rows
+  requiresAllRows?: boolean;
+  // Function to check if action applies to a specific row
+  appliesTo?: (item: T) => boolean;
+}
+
+// Global action (appears in action bar, always visible)
+export interface GlobalAction extends BaseAction {
+  type: "global";
+  onClick?: () => void;
+  disabled?: () => boolean;
+  hidden?: () => boolean;
+}
+
+// Union type for all actions
+export type DataAction<T> = RowAction<T> | BulkAction<T> | GlobalAction;
 
 // Pagination configuration
 export interface PaginationConfig {
@@ -109,7 +138,7 @@ export interface DataViewFilterSpec {
 export interface DataViewTableProps<T> {
   data: T[];
   columns: DataColumn<T>[];
-  actions?: DataAction<T>[];
+  actions?: RowAction<T>[];
   isLoading?: boolean;
   error?: Error | null;
   onRowClick?: (item: T) => void;
@@ -179,7 +208,11 @@ export interface DataViewConfig<T> {
   // Optional
   filters?: DataViewFilterSpec;
   permissions?: DataViewPermissions;
-  actions?: DataAction<T>[];
+  actions?: {
+    row?: RowAction<T>[];
+    bulk?: BulkAction<T>[];
+    global?: GlobalAction[];
+  };
   pagination?: PaginationConfig;
   forms?: {
     create?: FormConfig<Partial<T>>;
@@ -244,5 +277,12 @@ export interface DataViewResult<T> {
     selectedIds: (string | number)[];
     setSelectedIds: (ids: (string | number)[]) => void;
     selectedItems: T[];
+  };
+
+  // Actions
+  actions: {
+    row: RowAction<T>[];
+    bulk: BulkAction<T>[];
+    global: GlobalAction[];
   };
 }

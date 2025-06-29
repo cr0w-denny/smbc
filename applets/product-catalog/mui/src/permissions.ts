@@ -1,7 +1,9 @@
-// Product Catalog Applet Permissions
 import { definePermissions } from "@smbc/applet-core";
 
-export const PRODUCT_CATALOG_PERMISSIONS = definePermissions(
+/**
+ * Product Catalog Applet Permissions
+ */
+export default definePermissions(
   "product-catalog",
   {
     VIEW_PRODUCTS: "Can view product listings",

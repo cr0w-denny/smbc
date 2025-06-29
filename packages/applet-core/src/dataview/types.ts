@@ -34,16 +34,17 @@ export interface DataColumn<T> {
   width?: number | string;
 }
 
-// Table action definition
-export interface DataAction<T> {
-  key: string;
-  label: string;
-  icon?: React.ComponentType;
-  color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
-  onClick: (item: T) => void;
-  disabled?: (item: T) => boolean;
-  hidden?: (item: T) => boolean;
-}
+// Import action types for use in this file
+import type {
+  RowAction,
+} from "@smbc/react-dataview";
+
+// Re-export action types from react-dataview
+export type {
+  RowAction,
+  BulkAction,
+  GlobalAction,
+} from "@smbc/react-dataview";
 
 // Pagination configuration
 export interface PaginationConfig {
@@ -90,7 +91,7 @@ export interface DataView<T> {
 export interface DataViewTableProps<T> {
   data: T[];
   columns: DataColumn<T>[];
-  actions?: DataAction<T>[];
+  actions?: RowAction<T>[];
   isLoading?: boolean;
   error?: Error | null;
   onRowClick?: (item: T) => void;
@@ -164,81 +165,5 @@ export interface DataViewPaginationProps {
   showFirstLast?: boolean;
 }
 
-// Main configuration interface
-export interface DataViewConfig<T> {
-  // Required
-  api: DataViewApiConfig;
-  schema: DataSchema<T>;
-  columns: DataColumn<T>[];
-  renderer: DataView<T>;
-
-  // Optional
-  filters?: DataViewFilterSpec;
-  permissions?: DataViewPermissions;
-  actions?: DataAction<T>[];
-  pagination?: PaginationConfig;
-  forms?: {
-    create?: FormConfig<Partial<T>>;
-    edit?: FormConfig<T>;
-  };
-  options?: Record<string, any>; // Renderer-specific options
-}
-
-// Return type from useDataView hook
-export interface DataViewResult<T> {
-  // Data
-  data: T[];
-  isLoading: boolean;
-  error: Error | null;
-  total: number;
-
-  // Filters
-  filters: any;
-  setFilters: (filters: any) => void;
-
-  // Pagination
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-  };
-  setPagination: (pagination: { page?: number; pageSize?: number }) => void;
-
-  // Mutations
-  createMutation: any; // Will be typed based on API client
-  updateMutation: any;
-  deleteMutation: any;
-
-  // Components (pre-configured with data and handlers)
-  TableComponent: React.ComponentType<{}>;
-  FilterComponent: React.ComponentType<{}>;
-  CreateFormComponent: React.ComponentType<{}>;
-  EditFormComponent: React.ComponentType<{ item: T }>;
-
-  // Actions
-  handleCreate: () => void;
-  handleEdit: (item: T) => void;
-  handleDelete: (item: T) => void;
-  handleCreateSubmit: (data: Partial<T>) => Promise<void>;
-  handleEditSubmit: (data: T) => Promise<void>;
-  handleDeleteConfirm: () => Promise<void>;
-
-  // Dialog states
-  createDialogOpen: boolean;
-  setCreateDialogOpen: (open: boolean) => void;
-  editDialogOpen: boolean;
-  setEditDialogOpen: (open: boolean) => void;
-  deleteDialogOpen: boolean;
-  setDeleteDialogOpen: (open: boolean) => void;
-  editingItem: T | null;
-  setEditingItem: (item: T | null) => void;
-  deletingItem: T | null;
-  setDeletingItem: (item: T | null) => void;
-
-  // Selection
-  selection: {
-    selectedIds: (string | number)[];
-    setSelectedIds: (ids: (string | number)[]) => void;
-    selectedItems: T[];
-  };
-}
+// Re-export from react-dataview for convenience
+export type { DataViewConfig, DataViewResult } from "@smbc/react-dataview";

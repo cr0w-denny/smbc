@@ -1,8 +1,9 @@
 import React from "react";
 import { useDataView, type DataViewConfig } from "@smbc/react-dataview";
 import { useHashQueryParams, usePermissions, type PermissionDefinition } from "@smbc/applet-core";
-import { MuiDataView } from "@smbc/mui-components";
+import { MuiDataView, ActionBar } from "@smbc/mui-components";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
 
 // MUI-specific configuration that uses PermissionDefinition objects directly
 export interface MuiDataViewAppletConfig<T> extends Omit<DataViewConfig<T>, "permissions" | "renderer"> {
@@ -55,7 +56,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     ...config,
     renderer: MuiDataView,
     permissions: undefined, // react-dataview doesn't handle permissions
-    actions: [], // Empty actions initially
+    actions: {}, // Empty actions initially
   };
 
   // Layer 1: Data management
@@ -67,8 +68,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     onError,
   });
 
-  // Layer 2: Process actions to connect them to dataView handlers
-  const processedActions = config.actions?.map(action => ({
+  // Layer 2: Process row actions to connect them to dataView handlers
+  const processedRowActions = config.actions?.row?.map(action => ({
     ...action,
     onClick: (item: T) => {
       if (action.key === 'edit') {
@@ -80,9 +81,49 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         action.onClick?.(item);
       }
     }
-  }));
+  })) || [];
 
-  // Custom TableComponent that uses the processed actions and dynamic columns
+  // Layer 2: Process bulk actions
+  const processedBulkActions = config.actions?.bulk?.map(action => ({
+    ...action,
+    onClick: (items: T[]) => {
+      // Handle bulk operations
+      if (action.key === 'bulk-delete') {
+        // TODO: Implement bulk delete
+        console.log('Bulk delete:', items);
+      } else {
+        // Call the original onClick if it exists
+        action.onClick?.(items);
+      }
+    }
+  })) || [];
+
+  // Layer 2: Process global actions
+  const processedGlobalActions = config.actions?.global?.map(action => ({
+    ...action,
+    onClick: () => {
+      if (action.key === 'create') {
+        dataView.handleCreate();
+      } else {
+        // Call the original onClick if it exists
+        action.onClick?.();
+      }
+    }
+  })) || [];
+
+  // Add default create action if create permission exists and no global create action is defined
+  if (canCreate && !processedGlobalActions.some(action => action.key === 'create')) {
+    processedGlobalActions.push({
+      type: 'global',
+      key: 'create',
+      label: 'Create New',
+      icon: AddIcon,
+      color: 'primary' as const,
+      onClick: dataView.handleCreate,
+    });
+  }
+
+  // Custom TableComponent that uses the processed row actions and dynamic columns
   const TableComponentWithActions = React.useMemo(() => {
     // Get the active columns from the dataView's internal logic
     const activeColumns = config.options?.getActiveColumns 
@@ -92,7 +133,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     return () => React.createElement(MuiDataView.TableComponent, {
       data: dataView.data,
       columns: activeColumns,
-      actions: processedActions || [],
+      actions: processedRowActions,
       isLoading: dataView.isLoading,
       error: dataView.error,
       selection: {
@@ -101,25 +142,23 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         onSelectionChange: dataView.selection.setSelectedIds,
       },
     });
-  }, [dataView.data, dataView.filters, config.columns, config.options?.getActiveColumns, processedActions, dataView.isLoading, dataView.error, dataView.selection]);
+  }, [dataView.data, dataView.filters, config.columns, config.options?.getActiveColumns, processedRowActions, dataView.isLoading, dataView.error, dataView.selection]);
 
   return (
     <div className={className} style={style}>
       {/* Layer 3: MUI rendering */}
       <dataView.FilterComponent />
       
-      {/* Layer 2 + 3: Permission-aware action bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <div />
-        {canCreate && (
-          <MuiDataView.CreateButtonComponent 
-            onClick={dataView.handleCreate}
-            label="Create New"
-          />
-        )}
-      </div>
+      {/* Layer 2 + 3: Enhanced action bar with bulk/global actions */}
+      <ActionBar
+        globalActions={processedGlobalActions}
+        bulkActions={processedBulkActions}
+        selectedItems={dataView.selection.selectedItems}
+        totalItems={dataView.data.length}
+        onClearSelection={() => dataView.selection.setSelectedIds([])}
+      />
 
-      {/* Layer 3: MUI table rendering with processed actions */}
+      {/* Layer 3: MUI table rendering with processed row actions */}
       <TableComponentWithActions />
 
       {/* Layer 3: MUI form dialogs */}
