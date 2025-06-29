@@ -172,13 +172,21 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     config.actions?.bulk?.map((action) => ({
       ...action,
       onClick: (items: T[]) => {
-        // Handle bulk operations
-        if (action.key === "bulk-delete") {
-          // TODO: Implement bulk delete
-          console.log("Bulk delete:", items);
-        } else {
-          // Call the original onClick if it exists
-          action.onClick?.(items);
+        // Handle bulk operations - pass mutations to the action handler
+        if (typeof action.onClick === 'function') {
+          // Check if the action expects mutations (for User Management and similar)
+          const originalOnClick = action.onClick;
+          try {
+            // Try calling with mutations first (for new-style bulk actions)
+            return originalOnClick(items, {
+              updateMutation: dataView.updateMutation,
+              deleteMutation: dataView.deleteMutation,
+              createMutation: dataView.createMutation,
+            });
+          } catch (error) {
+            // Fallback to original call (for simple bulk actions that don't need mutations)
+            return originalOnClick(items);
+          }
         }
       },
     })) || [];

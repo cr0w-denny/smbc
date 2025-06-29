@@ -57,7 +57,7 @@ export interface RowAction<T> extends BaseAction {
 // Bulk action (appears in action bar when rows are selected)
 export interface BulkAction<T> extends BaseAction {
   type: "bulk";
-  onClick?: (items: T[]) => void;
+  onClick?: (items: T[], mutations?: any) => void;
   disabled?: (items: T[]) => boolean;
   hidden?: (items: T[]) => boolean;
   // If true, action is hidden when it doesn't apply to ALL selected rows
@@ -290,6 +290,7 @@ export interface DataViewResult<T> {
     selectedIds: (string | number)[];
     setSelectedIds: (ids: (string | number)[]) => void;
     selectedItems: T[];
+    clearSelection: () => void;
   };
 
   // Actions

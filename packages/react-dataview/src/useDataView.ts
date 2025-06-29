@@ -89,6 +89,11 @@ export function useDataView<T extends Record<string, any>>(
   // Selection state (optional)
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
 
+  // Helper to clear selection
+  const clearSelection = useCallback(() => {
+    setSelectedIds([]);
+  }, []);
+
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -534,6 +539,7 @@ export function useDataView<T extends Record<string, any>>(
       selectedIds,
       setSelectedIds,
       selectedItems,
+      clearSelection,
     },
 
     // Actions

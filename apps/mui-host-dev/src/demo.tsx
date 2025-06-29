@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Task as TaskIcon,
   Edit as EditIcon,
@@ -37,7 +38,7 @@ let mockTasks = generateMockTasks(75);
 let taskIdCounter = mockTasks.length + 1;
 
 // Mock API client with working filters and CRUD operations
-const createTasksApiClient = () => {
+const createTasksApiClient = (dataVersion: number) => {
   const applyFilters = (tasks: any[], filters: any = {}) => {
     let filtered = [...tasks];
 
@@ -145,11 +146,30 @@ const createTasksApiClient = () => {
   return { useQuery, useMutation };
 };
 
+// Hook to manage the API client with state
+const useTasksApiClient = () => {
+  // Add state to trigger re-renders when data changes
+  const [dataVersion, setDataVersion] = React.useState(0);
+
+  // Listen for data changes
+  React.useEffect(() => {
+    const handleDataChange = () => {
+      setDataVersion((prev) => prev + 1);
+    };
+
+    window.addEventListener("mockDataChanged", handleDataChange);
+    return () =>
+      window.removeEventListener("mockDataChanged", handleDataChange);
+  }, []);
+
+  return React.useMemo(() => createTasksApiClient(dataVersion), [dataVersion]);
+};
+
 // Simple DataViewApplet configuration - no custom components needed
-const taskConfig: MuiDataViewAppletConfig<any> = {
+const createTaskConfig = (apiClient: any): MuiDataViewAppletConfig<any> => ({
   api: {
     endpoint: "/api/tasks",
-    client: createTasksApiClient(),
+    client: apiClient,
     responseRow: (response: any) => response?.data || [],
     responseRowCount: (response: any) => response?.total || 0,
     optimisticResponse: (originalResponse: any, newRows: any[]) => ({
@@ -263,15 +283,20 @@ const taskConfig: MuiDataViewAppletConfig<any> = {
         label: "Mark Complete",
         color: "success",
         appliesTo: (task) => task.status !== "completed",
-        onClick: (tasks) => {
-          // Mark selected tasks as completed
-          tasks.forEach((task) => {
+        onClick: async (tasks) => {
+          // Update each task's status to completed
+          for (const task of tasks) {
             const taskIndex = mockTasks.findIndex((t) => t.id === task.id);
             if (taskIndex !== -1) {
-              mockTasks[taskIndex].status = "completed";
+              mockTasks[taskIndex] = {
+                ...mockTasks[taskIndex],
+                status: "completed",
+              };
             }
-          });
-          console.log(`Marked ${tasks.length} tasks as completed`);
+          }
+          console.log(`✅ Marked ${tasks.length} tasks as completed`);
+          // Force a re-render by triggering a state change
+          window.dispatchEvent(new CustomEvent("mockDataChanged"));
         },
       },
       {
@@ -279,15 +304,21 @@ const taskConfig: MuiDataViewAppletConfig<any> = {
         key: "assign-priority",
         label: "Set High Priority",
         color: "warning",
-        onClick: (tasks) => {
-          // Set selected tasks to high priority
-          tasks.forEach((task) => {
+        appliesTo: (task) => task.priority !== "high",
+        onClick: async (tasks) => {
+          // Update each task's priority to high
+          for (const task of tasks) {
             const taskIndex = mockTasks.findIndex((t) => t.id === task.id);
             if (taskIndex !== -1) {
-              mockTasks[taskIndex].priority = "high";
+              mockTasks[taskIndex] = {
+                ...mockTasks[taskIndex],
+                priority: "high",
+              };
             }
-          });
-          console.log(`Set ${tasks.length} tasks to high priority`);
+          }
+          console.log(`🔥 Set ${tasks.length} tasks to high priority`);
+          // Force a re-render by triggering a state change
+          window.dispatchEvent(new CustomEvent("mockDataChanged"));
         },
       },
       {
@@ -295,13 +326,18 @@ const taskConfig: MuiDataViewAppletConfig<any> = {
         key: "delete-selected",
         label: "Delete Selected",
         color: "error",
-        onClick: (tasks) => {
+        onClick: async (tasks) => {
           // Delete selected tasks
           const idsToDelete = tasks.map((t) => t.id);
-          mockTasks = mockTasks.filter(
-            (task) => !idsToDelete.includes(task.id),
+          const originalLength = mockTasks.length;
+          mockTasks.splice(
+            0,
+            mockTasks.length,
+            ...mockTasks.filter((task) => !idsToDelete.includes(task.id)),
           );
-          console.log(`Deleted ${tasks.length} tasks`);
+          console.log(`🗑️ Deleted ${originalLength - mockTasks.length} tasks`);
+          // Force a re-render by triggering a state change
+          window.dispatchEvent(new CustomEvent("mockDataChanged"));
         },
       },
     ],
@@ -379,10 +415,20 @@ const taskConfig: MuiDataViewAppletConfig<any> = {
   },
   activity: {
     enabled: true,
-    entityType: 'task',
+    entityType: "task",
     labelGenerator: (item: any) => item.title,
     // No URL generator for demo tasks since there's no detail view
   },
+});
+
+// Component that uses the hook to create the API client and config
+const TasksDemo = () => {
+  const apiClient = useTasksApiClient();
+  const config = createTaskConfig(apiClient);
+  
+  return (
+    <MuiDataViewApplet config={config} permissionContext="tasks-demo" />
+  );
 };
 
 const apiSpec = {
@@ -435,9 +481,7 @@ export default {
     {
       path: "/tasks",
       label: "Tasks",
-      component: () => (
-        <MuiDataViewApplet config={taskConfig} permissionContext="tasks-demo" />
-      ),
+      component: TasksDemo,
       icon: TaskIcon,
       requiredPermissions: [], // No permissions required for demo
     },

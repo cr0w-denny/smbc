@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Snackbar, Alert, AlertTitle, IconButton, Paper, Box, Typography, Chip } from '@mui/material';
+import { Snackbar, IconButton, Paper, Box, Typography, Chip } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import { useActivity } from '@smbc/react-dataview';
 import type { ActivityItem } from '@smbc/react-dataview';

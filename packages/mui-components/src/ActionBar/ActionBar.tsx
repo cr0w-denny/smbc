@@ -100,7 +100,18 @@ export function ActionBar<T>({
                   size="small"
                   color={action.color}
                   startIcon={action.icon ? <action.icon /> : undefined}
-                  onClick={() => action.onClick?.(selectedItems)}
+                  onClick={async () => {
+                    try {
+                      await action.onClick?.(selectedItems);
+                      // Only clear selection for destructive operations (delete)
+                      if (action.key.includes('delete')) {
+                        onClearSelection();
+                      }
+                    } catch (error) {
+                      console.error('Bulk action failed:', error);
+                      // Don't clear selection on error so user can retry
+                    }
+                  }}
                   disabled={action.disabled?.(selectedItems)}
                 >
                   {action.label}
