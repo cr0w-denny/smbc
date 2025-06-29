@@ -29,7 +29,7 @@ alias SortParams = {
  * Use by spreading into operation parameters
  */
 alias SearchParams = {
-  @query @extension("x-mock-search", { fields: ["email", "firstName", "lastName"] }) search?: string;
+  @query @extension("x-mock-search", #{ fields: #["email", "firstName", "lastName"] }) search?: string;
 };
 
 /**

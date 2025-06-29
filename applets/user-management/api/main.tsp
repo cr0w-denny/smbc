@@ -12,7 +12,7 @@ using TypeSpec.OpenAPI;
  * 
  * This API provides endpoints for managing users in the system.
  */
-@service({
+@service(#{
   title: "User Management API",
 })
 @server("https://api.smbc.com/api/v1", "Production server")
@@ -23,28 +23,28 @@ namespace UserManagementAPI;
  * A user in the system
  */
 model User {
-  @extension("x-mock-data", { faker: "string.uuid" })
+  @extension("x-mock-data", #{ faker: "string.uuid" })
   id: string;
   
-  @extension("x-mock-data", { faker: "internet.email", unique: true })
+  @extension("x-mock-data", #{ faker: "internet.email", unique: true })
   email: string;
   
-  @extension("x-mock-data", { faker: "person.firstName" })
+  @extension("x-mock-data", #{ faker: "person.firstName" })
   firstName: string;
   
-  @extension("x-mock-data", { faker: "person.lastName" })
+  @extension("x-mock-data", #{ faker: "person.lastName" })
   lastName: string;
   
-  @extension("x-mock-data", { relative: "-30d to now" })
+  @extension("x-mock-data", #{ relative: "-30d to now" })
   createdAt: utcDateTime;
   
-  @extension("x-mock-data", { relative: "-7d to now" })
+  @extension("x-mock-data", #{ relative: "-7d to now" })
   updatedAt: utcDateTime;
   
-  @extension("x-mock-data", { faker: "datatype.boolean", weight: 0.9 })
+  @extension("x-mock-data", #{ faker: "datatype.boolean", weight: 0.9 })
   isActive: boolean;
   
-  @extension("x-mock-data", { faker: "datatype.boolean", weight: 0.1 })
+  @extension("x-mock-data", #{ faker: "datatype.boolean", weight: 0.1 })
   isAdmin: boolean; 
 }
 
@@ -89,9 +89,9 @@ model UpdateUserRequest {
  * User-specific filter parameters for list endpoint
  */
 alias UserFilterParams = {
-  @query @extension("x-mock-filter", { field: "isAdmin", strategy: "exact" }) isAdmin?: string;
-  @query @extension("x-mock-filter", { field: "email", strategy: "partial-match" }) email?: string;
-  @query @extension("x-mock-filter", { field: "isActive", strategy: "boolean-inverse" }) status?: "active" | "inactive";
+  @query @extension("x-mock-filter", #{ field: "isAdmin", strategy: "exact" }) isAdmin?: string;
+  @query @extension("x-mock-filter", #{ field: "email", strategy: "partial-match" }) email?: string;
+  @query @extension("x-mock-filter", #{ field: "isActive", strategy: "boolean-inverse" }) status?: "active" | "inactive";
   @query format?: "summary" | "detailed";
 };
 
@@ -121,11 +121,11 @@ interface Users {
    * Get all users with pagination
    */
   @get
-  @extension("x-mock-response", {
+  @extension("x-mock-response", #{
     case: "format",
-    when: {
-      "summary": "UserSummary",
-      "detailed": "UserDetailed"
+    when: #{
+      summary: "UserSummary",
+      detailed: "UserDetailed"
     },
     default: "User"
   })
@@ -147,7 +147,7 @@ interface Users {
   /**
    * Update a user
    */
-  @patch
+  @patch(#{ implicitOptionality: true })
   @route("/{id}")
   update(@path id: string, @body user: UpdateUserRequest): User | ErrorResponse;
 

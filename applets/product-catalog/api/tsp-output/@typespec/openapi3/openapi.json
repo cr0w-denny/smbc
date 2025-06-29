@@ -19,7 +19,8 @@
               "type": "integer",
               "format": "int32",
               "default": 1
-            }
+            },
+            "explode": false
           },
           {
             "name": "pageSize",
@@ -29,7 +30,8 @@
               "type": "integer",
               "format": "int32",
               "default": 10
-            }
+            },
+            "explode": false
           },
           {
             "name": "category",
@@ -37,7 +39,8 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "explode": false
           },
           {
             "name": "search",
@@ -45,7 +48,8 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "explode": false
           }
         ],
         "responses": {

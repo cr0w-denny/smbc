@@ -22,7 +22,8 @@
               "x-mock-pagination": true,
               "default": 1
             },
-            "x-mock-pagination": true
+            "x-mock-pagination": true,
+            "explode": false
           },
           {
             "name": "pageSize",
@@ -34,7 +35,8 @@
               "x-mock-pagination": true,
               "default": 20
             },
-            "x-mock-pagination": true
+            "x-mock-pagination": true,
+            "explode": false
           },
           {
             "name": "sortBy",
@@ -44,7 +46,8 @@
               "type": "string",
               "x-mock-sort": true
             },
-            "x-mock-sort": true
+            "x-mock-sort": true,
+            "explode": false
           },
           {
             "name": "sortOrder",
@@ -59,7 +62,8 @@
               "x-mock-sort": true,
               "default": "asc"
             },
-            "x-mock-sort": true
+            "x-mock-sort": true,
+            "explode": false
           },
           {
             "name": "search",
@@ -81,7 +85,8 @@
                 "firstName",
                 "lastName"
               ]
-            }
+            },
+            "explode": false
           },
           {
             "name": "isAdmin",
@@ -97,7 +102,8 @@
             "x-mock-filter": {
               "field": "isAdmin",
               "strategy": "exact"
-            }
+            },
+            "explode": false
           },
           {
             "name": "email",
@@ -113,7 +119,8 @@
             "x-mock-filter": {
               "field": "email",
               "strategy": "partial-match"
-            }
+            },
+            "explode": false
           },
           {
             "name": "status",
@@ -133,7 +140,8 @@
             "x-mock-filter": {
               "field": "isActive",
               "strategy": "boolean-inverse"
-            }
+            },
+            "explode": false
           },
           {
             "name": "format",
@@ -145,7 +153,8 @@
                 "summary",
                 "detailed"
               ]
-            }
+            },
+            "explode": false
           }
         ],
         "responses": {

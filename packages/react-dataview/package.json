@@ -18,10 +18,8 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": "^18.0.0"
-  },
-  "dependencies": {
-    "@smbc/shared-query-client": "workspace:*"
+    "react": "^18.0.0",
+    "@smbc/shared-query-client": "*"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

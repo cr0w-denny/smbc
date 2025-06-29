@@ -7,7 +7,7 @@ using TypeSpec.Rest;
 /**
  * Product Catalog API
  */
-@service({
+@service(#{
   title: "Product Catalog API",
 })
 @server("https://api.smbc.com/api/v1", "Production server")
