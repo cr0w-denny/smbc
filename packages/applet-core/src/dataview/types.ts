@@ -79,7 +79,7 @@ export interface DataView<T> {
   TableComponent: React.ComponentType<DataViewTableProps<T>>;
   FilterComponent: React.ComponentType<DataViewFilterProps>;
   FormComponent: React.ComponentType<DataViewFormProps<T>>;
-  PaginationComponent?: React.ComponentType<DataViewPaginationProps>;
+  PaginationComponent: React.ComponentType<DataViewPaginationProps>;
 
   // Transform functions for renderer-specific formats
   mapColumns?: (columns: DataColumn<T>[]) => any;

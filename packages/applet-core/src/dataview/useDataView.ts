@@ -204,6 +204,21 @@ export function useDataView<T extends Record<string, any>>(
       });
   }, [renderer, forms?.edit, handleEditSubmit, updateMutation.isPending, options]);
 
+  const PaginationComponent = useMemo(() => {
+    if (!paginationConfig.enabled) return () => null;
+    
+    return () =>
+      React.createElement(renderer.PaginationComponent, {
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        total,
+        onPageChange: (page: number) => setPagination({ page }),
+        onPageSizeChange: (pageSize: number) => setPagination({ pageSize, page: 0 }),
+        pageSizeOptions: paginationConfig.pageSizeOptions,
+        ...options,
+      });
+  }, [renderer, pagination.page, pagination.pageSize, total, setPagination, paginationConfig, options]);
+
   return {
     // Data
     data,
@@ -233,6 +248,7 @@ export function useDataView<T extends Record<string, any>>(
     FilterComponent,
     CreateFormComponent,
     EditFormComponent,
+    PaginationComponent,
 
     // Actions
     handleCreate,

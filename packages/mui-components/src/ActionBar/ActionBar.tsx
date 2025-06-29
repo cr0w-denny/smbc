@@ -5,6 +5,7 @@ import {
   Typography,
   Chip,
   Divider,
+  useTheme,
 } from "@mui/material";
 import { BulkAction, GlobalAction } from "@smbc/react-dataview";
 
@@ -23,7 +24,7 @@ export interface ActionBarProps<T> {
 
 /**
  * ActionBar component with left/right sections for actions
- * 
+ *
  * Left side: Bulk actions (when rows selected) + selection info
  * Right side: Global actions (always visible)
  */
@@ -34,12 +35,13 @@ export function ActionBar<T>({
   totalItems,
   onClearSelection,
 }: ActionBarProps<T>) {
+  const theme = useTheme();
   const hasSelection = selectedItems.length > 0;
 
   // Filter bulk actions based on selection and applicability
   const availableBulkActions = bulkActions.filter((action) => {
     if (action.hidden?.(selectedItems)) return false;
-    
+
     if (action.appliesTo) {
       if (action.requiresAllRows) {
         // Only show if action applies to ALL selected items
@@ -49,13 +51,13 @@ export function ActionBar<T>({
         return selectedItems.some((item) => action.appliesTo!(item));
       }
     }
-    
+
     return true;
   });
 
   // Filter global actions
   const availableGlobalActions = globalActions.filter(
-    (action) => !action.hidden?.()
+    (action) => !action.hidden?.(),
   );
 
   return (
@@ -63,7 +65,8 @@ export function ActionBar<T>({
       sx={{
         px: { sm: 2 },
         py: 1,
-        backgroundColor: hasSelection ? "action.selected" : "background.paper",
+        backgroundColor:
+          theme.palette.mode === "light" ? "#fff7" : "background.paper",
         borderBottom: 1,
         borderColor: "divider",
       }}

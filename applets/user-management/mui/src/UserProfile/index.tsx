@@ -1,5 +1,6 @@
 import { FC } from 'react';
-import { Box, Card, CardContent, Typography, Avatar, Chip, Skeleton, Alert } from '@mui/material';
+import { Box, Card, CardContent, Typography, Avatar, Chip, Skeleton, Alert, IconButton } from '@mui/material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { apiClient, type components } from "@smbc/user-management-client";
 
 type User = components["schemas"]["User"];
@@ -9,6 +10,8 @@ export interface UserProfileProps {
   userId?: string;
   /** Optional user data to display directly (skips API call) */
   user?: User;
+  /** Callback to navigate back to the user list */
+  onBack?: () => void;
 }
 
 /**
@@ -26,7 +29,7 @@ export interface UserProfileProps {
  * <UserProfile />
  * ```
  */
-export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser }) => {
+export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, onBack }) => {
   // Use React Query to fetch user data if not provided
   const { data: fetchedUser, isLoading, error } = apiClient.useQuery(
     'get', 
@@ -90,6 +93,27 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser }
 
   return (
     <Box sx={{ p: 3 }}>
+      {onBack && (
+        <Box 
+          sx={{ 
+            mb: 2, 
+            display: 'flex', 
+            alignItems: 'center',
+            cursor: 'pointer',
+            '&:hover': {
+              opacity: 0.7
+            }
+          }}
+          onClick={onBack}
+        >
+          <IconButton sx={{ mr: 1, p: 0.5 }}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="body2" color="text.secondary">
+            Back to User List
+          </Typography>
+        </Box>
+      )}
       <Card sx={{ maxWidth: 600, mx: 'auto' }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

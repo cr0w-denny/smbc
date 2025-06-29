@@ -1,5 +1,5 @@
 import { UserManager } from "./UserManager";
-import { UserProfile } from "./UserProfile";
+import { UserAnalytics } from "./UserAnalytics";
 import { Applet } from "./Applet";
 import permissions from "./permissions";
 import spec from "@smbc/user-management-api";
@@ -30,9 +30,9 @@ export default {
       component: UserManager,
     },
     {
-      path: "/profile",
-      label: "User Profile",
-      component: UserProfile,
+      path: "/analytics",
+      label: "Analytics",
+      component: UserAnalytics,
     },
   ],
 

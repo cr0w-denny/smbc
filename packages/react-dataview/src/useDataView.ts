@@ -5,6 +5,8 @@ import type { DataViewConfig, DataViewResult } from "./types";
 export interface UseDataViewOptions {
   /** Custom hook for managing filter state (e.g., URL-synced filters) */
   useFilterState?: (defaultFilters: any) => [any, (filters: any) => void];
+  /** Custom hook for managing pagination state (e.g., URL-synced pagination) */
+  usePaginationState?: (defaultPagination: any) => [any, (pagination: any) => void];
   /** Transform filter values for query keys and API requests */
   transformFilters?: (filters: any) => any;
   /** Function to determine which columns to show based on current filters */
@@ -44,11 +46,13 @@ export function useDataView<T extends Record<string, any>>(
   const useFilterStateHook = options.useFilterState || useState;
   const [filters, setFilters] = useFilterStateHook(defaultFilters);
 
-  // Pagination state
-  const [pagination, setPaginationState] = useState({
+  // Pagination state (either custom hook or local state)
+  const defaultPagination = {
     page: 0,
     pageSize: paginationConfig.defaultPageSize || 10,
-  });
+  };
+  const usePaginationStateHook = options.usePaginationState || useState;
+  const [pagination, setPaginationState] = usePaginationStateHook(defaultPagination);
 
   // Selection state (optional)
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -228,11 +232,11 @@ export function useDataView<T extends Record<string, any>>(
 
   // Helper to update pagination
   const setPagination = useCallback((updates: { page?: number; pageSize?: number }) => {
-    setPaginationState(prev => ({
+    setPaginationState((prev: any) => ({
       ...prev,
       ...updates,
     }));
-  }, []);
+  }, [setPaginationState]);
 
   // Action handlers
   const handleCreate = useCallback(() => {
@@ -360,6 +364,21 @@ export function useDataView<T extends Record<string, any>>(
       });
   }, [renderer, forms?.edit, handleEditSubmit, updateMutation.isPending, rendererOptions]);
 
+  const PaginationComponent = useMemo(() => {
+    if (!paginationConfig.enabled) return () => null;
+    
+    return () =>
+      React.createElement(renderer.PaginationComponent, {
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        total,
+        onPageChange: (page: number) => setPagination({ page }),
+        onPageSizeChange: (pageSize: number) => setPagination({ pageSize, page: 0 }),
+        pageSizeOptions: paginationConfig.pageSizeOptions,
+        ...rendererOptions,
+      });
+  }, [renderer, pagination.page, pagination.pageSize, total, setPagination, paginationConfig, rendererOptions]);
+
   return {
     // Data
     data,
@@ -389,6 +408,7 @@ export function useDataView<T extends Record<string, any>>(
     FilterComponent,
     CreateFormComponent,
     EditFormComponent,
+    PaginationComponent,
 
     // Actions
     handleCreate,

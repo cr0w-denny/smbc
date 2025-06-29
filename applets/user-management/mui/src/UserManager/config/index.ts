@@ -19,6 +19,9 @@ export interface UserManagerConfigOptions {
     canEdit: boolean;
     canDelete: boolean;
   };
+  handlers?: {
+    onViewUser?: (user: User) => void;
+  };
 }
 
 /**
@@ -27,6 +30,7 @@ export interface UserManagerConfigOptions {
 export function createUserManagerConfig({
   userType,
   permissions,
+  handlers,
 }: UserManagerConfigOptions): MuiDataViewAppletConfig<User> {
   const columns = createColumnsConfig();
 
@@ -48,7 +52,7 @@ export function createUserManagerConfig({
       row: createActionsConfig({
         canEdit: permissions.canEdit,
         canDelete: permissions.canDelete,
-      }),
+      }, handlers),
       bulk: createBulkActionsConfig({
         canEdit: permissions.canEdit,
         canDelete: permissions.canDelete,

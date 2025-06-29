@@ -189,7 +189,7 @@ export interface DataView<T> {
   FilterComponent: React.ComponentType<DataViewFilterProps>;
   FormComponent: React.ComponentType<DataViewFormProps<T>>;
   CreateButtonComponent: React.ComponentType<DataViewCreateButtonProps>;
-  PaginationComponent?: React.ComponentType<DataViewPaginationProps>;
+  PaginationComponent: React.ComponentType<DataViewPaginationProps>;
   
   // Transform functions for renderer-specific formats
   mapColumns?: (columns: DataColumn<T>[]) => any;
@@ -251,6 +251,7 @@ export interface DataViewResult<T> {
   FilterComponent: React.ComponentType<{}>;
   CreateFormComponent: React.ComponentType<{}>;
   EditFormComponent: React.ComponentType<{ item: T }>;
+  PaginationComponent: React.ComponentType<{}>;
   
   // Actions
   handleCreate: () => void;

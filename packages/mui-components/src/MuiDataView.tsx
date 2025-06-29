@@ -118,7 +118,7 @@ function MuiDataTable<T extends Record<string, any>>({
                 </TableCell>
               ))}
               {actions.length > 0 && (
-                <TableCell align="right">
+                <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                   {actions
                     .filter((action) => !action.hidden?.(item))
                     .map((action) => (

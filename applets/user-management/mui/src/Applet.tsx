@@ -1,9 +1,10 @@
-import { FC } from "react";
+import { FC, useRef } from "react";
 import { Box } from "@mui/material";
 import { AppletNavigation } from "@smbc/mui-components";
 import { useHashNavigation } from "@smbc/applet-core";
 import { UserManager } from "./UserManager";
 import { UserProfile } from "./UserProfile";
+import { UserAnalytics } from "./UserAnalytics";
 
 export interface AppletProps {
   /** The mount path for the applet routing */
@@ -40,20 +41,45 @@ export const Applet: FC<AppletProps> = ({
   permissionContext = "user-management",
 }) => {
   const { currentPath, navigateTo } = useHashNavigation(mountPath);
+  
+  // Store the previous URL (including query params) when navigating to profile
+  const previousUrlRef = useRef<string | null>(null);
 
   /**
    * Renders the current route component based on the current path
    */
   const renderCurrentRoute = () => {
+    // Check for profile route with ID
+    if (currentPath.startsWith("/profile/")) {
+      const userId = currentPath.replace("/profile/", "");
+      return <UserProfile 
+        userId={userId} 
+        onBack={() => {
+          // If we have a stored previous URL, restore it; otherwise go to root
+          if (previousUrlRef.current) {
+            window.location.hash = previousUrlRef.current;
+            previousUrlRef.current = null;
+          } else {
+            navigateTo("/");
+          }
+        }} 
+      />;
+    }
+    
     switch (currentPath) {
-      case "/profile":
-        return <UserProfile />;
+      case "/analytics":
+        return <UserAnalytics />;
       case "/":
       default:
         return (
           <UserManager
             userType={userType}
             permissionContext={permissionContext}
+            onViewUser={(userId) => {
+              // Store current URL (including query params) before navigating
+              previousUrlRef.current = window.location.hash;
+              navigateTo(`/profile/${userId}`);
+            }}
           />
         );
     }
@@ -72,8 +98,8 @@ export const Applet: FC<AppletProps> = ({
               label: "User Management",
             },
             {
-              path: "/profile",
-              label: "User Profile",
+              path: "/analytics",
+              label: "Analytics",
             },
           ]}
           mode="tabs"
