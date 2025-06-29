@@ -12,6 +12,7 @@ import {
 // Import applets directly
 import userManagementApplet from "@smbc/user-management-mui";
 import productCatalogApplet from "@smbc/product-catalog-mui";
+import demoTasksApplet from "./demo";
 
 // =============================================================================
 // DEMO USER CONFIGURATION
@@ -173,4 +174,5 @@ export const APPLETS: HostAppletDefinition[] = [
       requiredPermissions: [productCatalogApplet.permissions.VIEW_PRODUCTS.id],
     })),
   },
+  demoTasksApplet,
 ];

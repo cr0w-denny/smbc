@@ -21,6 +21,10 @@ import {
   TextField,
   FormControlLabel,
   Switch,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { Filter } from "./Filter";
 import type {
@@ -81,7 +85,9 @@ function MuiDataTable<T extends Record<string, any>>({
               </TableCell>
             )}
             {columns.map((column) => (
-              <TableCell key={column.key}>{column.label}</TableCell>
+              <TableCell key={column.key} sx={(column as any).sx}>
+                {column.label}
+              </TableCell>
             ))}
             {actions.length > 0 && <TableCell align="right">Actions</TableCell>}
           </TableRow>
@@ -113,12 +119,12 @@ function MuiDataTable<T extends Record<string, any>>({
                 </TableCell>
               )}
               {columns.map((column) => (
-                <TableCell key={column.key}>
+                <TableCell key={column.key} sx={(column as any).sx}>
                   {column.render ? column.render(item) : item[column.key]}
                 </TableCell>
               ))}
               {actions.length > 0 && (
-                <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                   {actions
                     .filter((action) => !action.hidden?.(item))
                     .map((action) => (
@@ -192,16 +198,61 @@ function MuiDataForm<T extends Record<string, any>>({
                   control={
                     <Switch
                       checked={!!formData[field.name]}
-                      onChange={(e) => handleFieldChange(field.name, e.target.checked)}
+                      onChange={(e) =>
+                        handleFieldChange(field.name, e.target.checked)
+                      }
                       disabled={isSubmitting}
                     />
                   }
                   label={field.label}
-                  sx={{ display: 'block', mt: 2, mb: 1 }}
+                  sx={{ display: "block", mt: 2, mb: 1 }}
                 />
               );
             }
-            
+
+            if (field.type === "select") {
+              return (
+                <FormControl
+                  key={field.name}
+                  fullWidth
+                  margin="normal"
+                  required={field.required}
+                  size="medium"
+                  sx={{
+                    "& .MuiInputLabel-root": {
+                      transform: "translate(14px, 10px) scale(1)",
+                    },
+                    "& .MuiInputLabel-shrink": {
+                      transform: "translate(14px, -9px) scale(0.75)",
+                    },
+                  }}
+                >
+                  <InputLabel>{field.label}</InputLabel>
+                  <Select
+                    value={formData[field.name] || ""}
+                    label={field.label}
+                    onChange={(e) =>
+                      handleFieldChange(field.name, e.target.value)
+                    }
+                    disabled={isSubmitting}
+                    size="medium"
+                    sx={{
+                      "& .MuiSelect-select": {
+                        paddingTop: "8.5px",
+                        paddingBottom: "11.5px",
+                      },
+                    }}
+                  >
+                    {(field as any).options?.map((option: any) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              );
+            }
+
             return (
               <TextField
                 key={field.name}
@@ -212,14 +263,38 @@ function MuiDataForm<T extends Record<string, any>>({
                     ? "email"
                     : field.type === "number"
                       ? "number"
-                      : "text"
+                      : field.type === "date"
+                        ? "date"
+                        : "text"
                 }
                 required={field.required}
                 fullWidth
                 margin="normal"
+                size="medium"
                 value={formData[field.name] || ""}
                 onChange={(e) => handleFieldChange(field.name, e.target.value)}
                 disabled={isSubmitting}
+                slotProps={{
+                  inputLabel:
+                    field.type === "date" ? { shrink: true } : undefined,
+                }}
+                sx={{
+                  "& .MuiInputLabel-root": {
+                    transform: "translate(14px, 10px) scale(1)",
+                  },
+                  "& .MuiInputLabel-shrink": {
+                    transform: "translate(14px, -9px) scale(0.75)",
+                  },
+                  ...(field.type === "date" && {
+                    "& input[type=date]": {
+                      colorScheme: "dark light",
+                    },
+                    "& input[type=date]::-webkit-calendar-picker-indicator": {
+                      filter: "invert(var(--mui-palette-mode-dark, 0))",
+                      cursor: "pointer",
+                    },
+                  }),
+                }}
               />
             );
           })}
@@ -272,11 +347,7 @@ function MuiCreateButton({
   disabled = false,
 }: DataViewCreateButtonProps) {
   return (
-    <Button 
-      variant="contained" 
-      onClick={onClick} 
-      disabled={disabled}
-    >
+    <Button variant="contained" onClick={onClick} disabled={disabled}>
       {label}
     </Button>
   );

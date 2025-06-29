@@ -197,6 +197,9 @@ export const handlers = [
     const requestBody = await request.json() as Record<string, any>;
     const createdProduct = generateProduct(requestBody || {});
     
+    // Add to persistent store so it appears in subsequent GET requests
+    productDataStore.set(String(createdProduct.id), createdProduct);
+    
     return HttpResponse.json(createdProduct, { status: 201 });
   }),
 

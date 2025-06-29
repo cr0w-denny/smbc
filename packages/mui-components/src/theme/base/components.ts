@@ -76,6 +76,31 @@ export const createBaseComponents = (
         },
       },
     },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderRadius: 8,
+            borderColor:
+              getSemanticColor("border.secondary", mode) ||
+              (theme.palette.mode === "dark"
+                ? "rgba(255, 255, 255, 0.23)"
+                : "rgba(0, 0, 0, 0.23)"),
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor:
+              getSemanticColor("border.focus", mode) ||
+              theme.palette.primary.main,
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor:
+              getSemanticColor("border.focus", mode) ||
+              theme.palette.primary.main,
+            borderWidth: 2,
+          },
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: {

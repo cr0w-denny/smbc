@@ -299,6 +299,9 @@ export const handlers = [
     const requestBody = await request.json() as Record<string, any>;
     const createdUser = generateUser(requestBody || {});
     
+    // Add to persistent store so it appears in subsequent GET requests
+    userDataStore.set(String(createdUser.id), createdUser);
+    
     return HttpResponse.json(createdUser, { status: 201 });
   }),
 

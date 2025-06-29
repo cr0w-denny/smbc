@@ -34,6 +34,7 @@ export interface DataColumn<T> {
   filterable?: boolean;
   render?: (item: T) => React.ReactNode;
   width?: number | string;
+  sx?: any; // MUI sx prop for styling (kept generic to avoid framework coupling)
 }
 
 // Table action definition
@@ -219,6 +220,17 @@ export interface DataViewConfig<T> {
     edit?: FormConfig<T>;
   };
   options?: Record<string, any>; // Renderer-specific options
+  /** Configuration for activity tracking and notifications */
+  activity?: {
+    /** Entity type name for activity tracking (e.g., 'user', 'task') */
+    entityType?: string;
+    /** Function to generate a label for an item in activities */
+    labelGenerator?: (item: T) => string;
+    /** Function to generate URLs for viewing items */
+    urlGenerator?: (item: T) => string;
+    /** Whether to track activities for this DataView */
+    enabled?: boolean;
+  };
 }
 
 // Return type from useDataView hook

@@ -453,6 +453,9 @@ ${queryParams.filter((p: any) => p.name !== 'page' && p.name !== 'pageSize' && p
     const requestBody = await request.json() as Record<string, any>;
     const created${entityName} = ${mockFunctionName}(requestBody || {});
     
+    // Add to persistent store so it appears in subsequent GET requests
+    ${entityName.toLowerCase()}DataStore.set(String(created${entityName}.id), created${entityName});
+    
     return HttpResponse.json(created${entityName}, { status: 201 });
   })`;
 

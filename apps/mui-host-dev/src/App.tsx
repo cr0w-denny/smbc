@@ -14,6 +14,7 @@ import { getCurrentApplet } from "@smbc/applet-core";
 import {
   ApiDocsModal,
   DevHostAppBar,
+  ActivitySnackbar,
   lightTheme,
   darkTheme,
 } from "@smbc/mui-components";
@@ -21,6 +22,7 @@ import {
   registerMswHandlers,
   SMBCQueryProvider,
 } from "@smbc/shared-query-client";
+import { ActivityProvider } from "@smbc/react-dataview";
 
 // Import configuration
 import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
@@ -78,6 +80,11 @@ console.log(
 );
 
 function AppContentWithQueryAccess() {
+  const handleNavigate = (url: string) => {
+    // Simple navigation for the demo - just use hash navigation
+    window.location.hash = url;
+  };
+
   return (
     <>
       <Box sx={{ display: "flex" }}>
@@ -91,6 +98,7 @@ function AppContentWithQueryAccess() {
         />
       </Box>
       <ReactQueryDevtools initialIsOpen={false} />
+      <ActivitySnackbar onNavigate={handleNavigate} />
     </>
   );
 }
@@ -128,6 +136,11 @@ function Navigation() {
     setApiDocsOpen(false);
   };
 
+  const handleNavigate = (url: string) => {
+    // Simple navigation for the demo - just use hash navigation
+    window.location.hash = url;
+  };
+
   return (
     <>
       <DevHostAppBar
@@ -137,6 +150,7 @@ function Navigation() {
         mockEnabled={mockEnabled}
         onMockToggle={toggleMockData}
         onApiDocsOpen={handleApiDocsOpen}
+        onNavigate={handleNavigate}
         drawerWidth={APP_CONSTANTS.drawerWidth}
       />
 
@@ -241,7 +255,9 @@ export function App() {
         }
       }}
     >
-      <AppWithThemeProvider />
+      <ActivityProvider>
+        <AppWithThemeProvider />
+      </ActivityProvider>
     </FeatureFlagProvider>
   );
 }

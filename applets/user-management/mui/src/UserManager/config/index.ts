@@ -49,10 +49,13 @@ export function createUserManagerConfig({
 
     // Actions
     actions: {
-      row: createActionsConfig({
-        canEdit: permissions.canEdit,
-        canDelete: permissions.canDelete,
-      }, handlers),
+      row: createActionsConfig(
+        {
+          canEdit: permissions.canEdit,
+          canDelete: permissions.canDelete,
+        },
+        handlers,
+      ),
       bulk: createBulkActionsConfig({
         canEdit: permissions.canEdit,
         canDelete: permissions.canDelete,
@@ -68,7 +71,7 @@ export function createUserManagerConfig({
       canEdit: permissions.canEdit,
     }),
 
-    // Permissions  
+    // Permissions
     permissions: undefined, // No longer needed since we removed the permissions re-export
 
     // Pagination
@@ -83,6 +86,14 @@ export function createUserManagerConfig({
       apiParams: createApiConfig(userType).apiParams,
       transformFilters,
       getActiveColumns,
+    },
+
+    // Activity tracking
+    activity: {
+      enabled: true,
+      entityType: "user",
+      labelGenerator: (user: User) => `${user.firstName} ${user.lastName}`,
+      urlGenerator: (user: User) => `#/user-management/profile/${user.id}`,
     },
   };
 }

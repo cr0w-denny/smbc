@@ -15,6 +15,7 @@ import {
   LightMode as LightModeIcon,
   DarkMode as DarkModeIcon,
 } from '@mui/icons-material';
+import { ActivityNotifications } from './ActivityNotifications';
 
 /**
  * Represents current applet information for API documentation
@@ -42,6 +43,8 @@ export interface DevHostAppBarProps {
   onMockToggle: (enabled: boolean) => void;
   /** Function to handle API docs opening */
   onApiDocsOpen?: () => void;
+  /** Function to handle navigation (for activity notifications) */
+  onNavigate?: (url: string) => void;
   /** Width of the drawer for calculating AppBar width */
   drawerWidth?: number;
   /** Additional content to render in the toolbar */
@@ -76,6 +79,7 @@ export function DevHostAppBar({
   mockEnabled,
   onMockToggle,
   onApiDocsOpen,
+  onNavigate,
   drawerWidth = 240,
   children,
   sx,
@@ -113,6 +117,9 @@ export function DevHostAppBar({
               </Button>
             </Tooltip>
           )}
+
+          {/* Activity Notifications */}
+          <ActivityNotifications onNavigate={onNavigate} />
 
           {/* Dark Mode Toggle */}
           <Tooltip title="Toggle dark mode">

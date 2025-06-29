@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useSMBCQuery } from "@smbc/shared-query-client";
 import type { DataViewConfig, DataViewResult } from "./types";
+import { useActivity } from "./activity";
 
 export interface UseDataViewOptions {
   /** Custom hook for managing filter state (e.g., URL-synced filters) */
@@ -30,6 +31,7 @@ export function useDataView<T extends Record<string, any>>(
     pagination: paginationConfig = { enabled: true, defaultPageSize: 10 },
     forms,
     options: rendererOptions = {},
+    activity: activityConfig,
   } = config;
 
   // Extract different action types
@@ -39,6 +41,36 @@ export function useDataView<T extends Record<string, any>>(
   
   // Get the shared query client
   const { queryClient } = useSMBCQuery();
+
+  // Activity tracking (optional)
+  let activityContext;
+  try {
+    activityContext = useActivity();
+  } catch {
+    // ActivityProvider not found, activities disabled
+    activityContext = null;
+  }
+  
+  // Helper function to emit activities
+  const emitActivity = useCallback((
+    type: 'create' | 'update' | 'delete',
+    item: T
+  ) => {
+    if (!activityConfig?.enabled || !activityContext) return;
+    
+    const entityType = activityConfig.entityType || 'item';
+    const label = activityConfig.labelGenerator 
+      ? activityConfig.labelGenerator(item)
+      : (typeof schema.displayName === 'function' ? schema.displayName(item) : `${entityType} ${item[schema.primaryKey]}`);
+    const url = activityConfig.urlGenerator ? activityConfig.urlGenerator(item) : undefined;
+    
+    activityContext.addActivity({
+      type,
+      entityType,
+      label,
+      url,
+    });
+  }, [activityConfig, activityContext, schema]);
 
 
   // Filter state (either custom hook or local state)
@@ -124,16 +156,79 @@ export function useDataView<T extends Record<string, any>>(
 
   // Mutations with optimistic updates
   const createMutation = api.client.useMutation?.("post", api.endpoint, {
+    onMutate: async (variables: any) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: currentQueryKey });
+
+      // Snapshot the previous value
+      const previousData = queryClient.getQueryData(currentQueryKey);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(currentQueryKey, (old: any) => {
+        if (!old) return old;
+        
+        const currentRows = responseRow(old);
+        
+        // Create optimistic item with temporary ID
+        const optimisticItem = {
+          ...variables.body,
+          [schema.primaryKey]: `temp-${Date.now()}`, // Temporary ID for optimistic update
+          createdAt: new Date().toISOString(),
+        };
+        
+        // Add to beginning of array (most recent first)
+        const updatedRows = [optimisticItem, ...currentRows];
+        
+        // Use optimisticResponse if provided, otherwise create a simple response
+        if (optimisticResponse) {
+          return optimisticResponse(old, updatedRows);
+        } else {
+          // Fallback: assume simple array response
+          return updatedRows;
+        }
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousData };
+    },
+    onError: (error: any, _variables: any, context: any) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousData) {
+        queryClient.setQueryData(currentQueryKey, context.previousData);
+      }
+      options.onError?.('create', error);
+    },
     onSuccess: (newItem: any) => {
       options.onSuccess?.('create', newItem);
-      // Invalidate to refresh and show the new item in proper sort order
+      emitActivity('create', newItem);
+      
+      // Update the optimistic item with the real server response
+      queryClient.setQueryData(currentQueryKey, (old: any) => {
+        if (!old) return old;
+        
+        const currentRows = responseRow(old);
+        
+        // Replace the temporary item with the real one from server
+        const updatedRows = currentRows.map((item: any) => {
+          // Find the temporary item and replace it
+          if (typeof item[schema.primaryKey] === 'string' && item[schema.primaryKey].startsWith('temp-')) {
+            return { ...newItem }; // Use server response
+          }
+          return item;
+        });
+        
+        if (optimisticResponse) {
+          return optimisticResponse(old, updatedRows);
+        } else {
+          return updatedRows;
+        }
+      });
+      
+      // Also invalidate to ensure we're in sync with server
       queryClient.invalidateQueries({
         queryKey: ["get", api.endpoint],
         exact: false,
       });
-    },
-    onError: (error: any) => {
-      options.onError?.('create', error);
     }
   }) || {
     mutate: () => {},
@@ -176,6 +271,7 @@ export function useDataView<T extends Record<string, any>>(
     },
     onSuccess: (_data: any, variables: any) => {
       options.onSuccess?.('edit', variables.body);
+      emitActivity('update', variables.body);
       // Still invalidate to ensure consistency with server
       queryClient.invalidateQueries({
         queryKey: ["get", api.endpoint],
@@ -219,6 +315,9 @@ export function useDataView<T extends Record<string, any>>(
     },
     onSuccess: (_data: any, _variables: any, context: any) => {
       options.onSuccess?.('delete', context?.deletedItem);
+      if (context?.deletedItem) {
+        emitActivity('delete', context.deletedItem);
+      }
       // Still invalidate to ensure consistency with server
       queryClient.invalidateQueries({
         queryKey: ["get", api.endpoint],

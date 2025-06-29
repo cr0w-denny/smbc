@@ -1,7 +1,6 @@
 import React from "react";
 import { useDataView, type DataViewConfig } from "@smbc/react-dataview";
 import {
-  useHashQueryParams,
   usePermissions,
   type PermissionDefinition,
 } from "@smbc/applet-core";
@@ -39,6 +38,16 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
     error: any,
     item?: any,
   ) => void;
+  /** Optional initial state from URL or external source */
+  initialState?: {
+    filters?: Record<string, any>;
+    pagination?: { page: number; pageSize: number };
+  };
+  /** Optional callback for state changes (for URL sync) */
+  onStateChange?: (state: {
+    filters: Record<string, any>;
+    pagination: { page: number; pageSize: number };
+  }) => void;
 }
 
 /**
@@ -79,6 +88,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   permissionContext = "default",
   onSuccess,
   onError,
+  initialState,
+  onStateChange,
 }: MuiDataViewAppletProps<T>) {
   const { hasPermission } = usePermissions();
 
@@ -87,35 +98,6 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     ? hasPermission(permissionContext, config.permissions.create)
     : false;
 
-  // Layer 2: SMBC business logic - URL-based state management for filters + pagination
-  const defaultUrlState = {
-    // Filters
-    ...config.filters?.initialValues,
-    // Pagination
-    page: 0,
-    pageSize: config.pagination?.defaultPageSize || 10,
-  };
-
-  const [urlState, setUrlState] = useHashQueryParams(defaultUrlState);
-
-  // Layer 2: Unified state object that bridges SMBC URL state to Layer 1 hooks
-  const dataViewState = {
-    filters: Object.fromEntries(
-      Object.entries(urlState).filter(
-        ([key]) => !["page", "pageSize"].includes(key),
-      ),
-    ),
-    pagination: {
-      page: urlState.page ?? 0,
-      pageSize: urlState.pageSize ?? (config.pagination?.defaultPageSize || 10),
-    },
-    updateFilters: (newFilters: any) => {
-      setUrlState({ ...urlState, ...newFilters });
-    },
-    updatePagination: (newPagination: any) => {
-      setUrlState({ ...urlState, ...newPagination });
-    },
-  };
 
   // Layer 1: Prepare config for framework-agnostic data management
   // Strip out Layer 2 concepts (SMBC permissions, actions) before passing to Layer 1
@@ -126,45 +108,48 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     actions: {}, // Layer 2 will process and filter actions based on permissions
   };
 
+  // Layer 2: State management - either custom (for URL sync) or let useDataView handle it
+  const useCustomState = onStateChange && !initialState;
+  const customFilterState = React.useState(config.filters?.initialValues || {});
+  const customPaginationState = React.useState({
+    page: 0,
+    pageSize: config.pagination?.defaultPageSize || 10,
+  });
+
+  // Inject URL state after component initializes (if initial state provided)
+  React.useEffect(() => {
+    if (initialState?.filters && customFilterState[1]) {
+      customFilterState[1](initialState.filters);
+    }
+  }, [initialState?.filters]);
+
+  React.useEffect(() => {
+    if (initialState?.pagination && customPaginationState[1]) {
+      customPaginationState[1](initialState.pagination);
+    }
+  }, [initialState?.pagination]);
+
+  // Notify wrapper of state changes
+  React.useEffect(() => {
+    if (onStateChange && useCustomState) {
+      onStateChange({
+        filters: customFilterState[0],
+        pagination: customPaginationState[0],
+      });
+    }
+  }, [customFilterState[0], customPaginationState[0], onStateChange, useCustomState]);
+
   // Layer 1: Framework-agnostic data management (API calls, state, mutations)
   const dataView = useDataView(baseConfigWithoutActions, {
-    useFilterState: () => [dataViewState.filters, dataViewState.updateFilters],
-    usePaginationState: () => [
-      dataViewState.pagination,
-      dataViewState.updatePagination,
-    ],
+    // Use custom state hooks only when doing URL sync without initial state override
+    useFilterState: useCustomState ? () => customFilterState : undefined,
+    usePaginationState: useCustomState ? () => customPaginationState : undefined,
     transformFilters: config.options?.transformFilters,
     getActiveColumns: config.options?.getActiveColumns,
     onSuccess,
     onError,
   });
 
-  // Layer 2: Override pagination component to use our state management
-  const PaginationComponentWithState = React.useMemo(() => {
-    if (!config.pagination?.enabled) return () => null;
-
-    return () =>
-      React.createElement(MuiDataView.PaginationComponent, {
-        page: dataViewState.pagination.page,
-        pageSize: dataViewState.pagination.pageSize,
-        total: dataView.total,
-        onPageChange: (page: number) =>
-          dataViewState.updatePagination({ ...dataViewState.pagination, page }),
-        onPageSizeChange: (pageSize: number) =>
-          dataViewState.updatePagination({
-            ...dataViewState.pagination,
-            pageSize,
-            page: 0,
-          }),
-        pageSizeOptions: config.pagination?.pageSizeOptions,
-      });
-  }, [
-    dataViewState.pagination.page,
-    dataViewState.pagination.pageSize,
-    dataView.total,
-    dataViewState.updatePagination,
-    config.pagination,
-  ]);
 
   // Layer 2: SMBC business logic - process row actions with permission filtering and connect to Layer 1 handlers
   const processedRowActions =
@@ -275,8 +260,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       {/* Layer 3: MUI table rendering with Layer 2 processed row actions */}
       <TableComponentWithActions />
 
-      {/* Layer 3: MUI pagination rendering with state */}
-      <PaginationComponentWithState />
+      {/* Layer 3: MUI pagination rendering */}
+      {config.pagination?.enabled && <dataView.PaginationComponent />}
 
       {/* Layer 3: MUI form dialog rendering */}
       {dataView.createDialogOpen && <dataView.CreateFormComponent />}

@@ -87,3 +87,11 @@ export { MuiDataView } from "./MuiDataView";
 // Action bar component
 export { ActionBar } from "./ActionBar";
 export type { ActionBarProps } from "./ActionBar";
+
+// Activity notifications component
+export { ActivityNotifications } from "./ActivityNotifications";
+export type { ActivityNotificationsProps } from "./ActivityNotifications";
+
+// Activity snackbar component
+export { ActivitySnackbar } from "./ActivitySnackbar";
+export type { ActivitySnackbarProps } from "./ActivitySnackbar";
