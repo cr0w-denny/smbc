@@ -2,6 +2,9 @@ import React, { useState, useMemo, useCallback } from "react";
 import { useSMBCQuery } from "@smbc/shared-query-client";
 import type { DataViewConfig, DataViewResult } from "./types";
 import { useActivity } from "./activity";
+import { SimpleTransactionManager } from "./transaction/TransactionManager";
+import type { TransactionConfig, TransactionOperation, OperationTrigger } from "./transaction/types";
+import { TransactionRegistry } from "./transaction/TransactionRegistry";
 
 export interface UseDataViewOptions {
   /** Custom hook for managing filter state (e.g., URL-synced filters) */
@@ -15,6 +18,8 @@ export interface UseDataViewOptions {
   /** Optional notification handlers for user feedback */
   onSuccess?: (action: 'create' | 'edit' | 'delete', item?: any) => void;
   onError?: (action: 'create' | 'edit' | 'delete', error: any, item?: any) => void;
+  /** Transaction configuration for batch operations */
+  transaction?: TransactionConfig;
 }
 
 export function useDataView<T extends Record<string, any>>(
@@ -50,6 +55,26 @@ export function useDataView<T extends Record<string, any>>(
     // ActivityProvider not found, activities disabled
     activityContext = null;
   }
+
+  // No need for transaction context - we'll register directly with global registry
+
+  // Transaction manager (optional) - use useState to keep it stable across re-renders
+  const [transactionManager] = useState(() => {
+    if (!options.transaction?.enabled) return null;
+    
+    const defaultConfig: TransactionConfig = {
+      enabled: true,
+      mode: 'immediate',
+      autoCommit: true,
+      requireConfirmation: false,
+      showPendingIndicator: false,
+      showReviewUI: false,
+    };
+    
+    console.log('🔧 Creating new transaction manager with config:', options.transaction);
+    return new SimpleTransactionManager<T>({ ...defaultConfig, ...options.transaction });
+  });
+  
   
   // Helper function to emit activities
   const emitActivity = useCallback((
@@ -136,6 +161,55 @@ export function useDataView<T extends Record<string, any>>(
       queryParams
     ];
   }, [api.endpoint, pagination.page, pagination.pageSize, transformedFilters, config.options?.apiParams]);
+
+  // Register transaction manager directly with global registry
+  React.useEffect(() => {
+    if (transactionManager) {
+      const managerId = `dataview_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      TransactionRegistry.register(managerId, transactionManager);
+      
+      // Store snapshot for rollback when transaction starts
+      let transactionSnapshot: any = null;
+      
+      const handleTransactionStart = () => {
+        // Only capture snapshot if we don't have one yet
+        if (!transactionSnapshot) {
+          transactionSnapshot = queryClient.getQueryData(currentQueryKey);
+          console.log('📸 Captured transaction snapshot for rollback');
+        }
+      };
+      
+      const handleTransactionCancelled = () => {
+        // Rollback optimistic updates by restoring the snapshot
+        console.log('🔄 Transaction cancelled, rolling back...', { hasSnapshot: !!transactionSnapshot });
+        if (transactionSnapshot) {
+          console.log('⏪ Restoring snapshot to cache');
+          queryClient.setQueryData(currentQueryKey, transactionSnapshot);
+          transactionSnapshot = null;
+        } else {
+          console.log('❌ No snapshot found for rollback');
+        }
+      };
+      
+      const handleTransactionComplete = () => {
+        // Clear snapshot on successful commit since changes are now permanent
+        console.log('✅ Transaction completed, clearing snapshot');
+        transactionSnapshot = null;
+      };
+      
+      // Listen to transaction events for rollback
+      transactionManager.on('onTransactionStart', handleTransactionStart);
+      transactionManager.on('onTransactionCancelled', handleTransactionCancelled);
+      transactionManager.on('onTransactionComplete', handleTransactionComplete);
+      
+      return () => {
+        TransactionRegistry.unregister(managerId);
+        transactionManager.off('onTransactionStart', handleTransactionStart);
+        transactionManager.off('onTransactionCancelled', handleTransactionCancelled);
+        transactionManager.off('onTransactionComplete', handleTransactionComplete);
+      };
+    }
+  }, [transactionManager, queryClient, currentQueryKey]);
 
   // API Query - This will need to be implemented based on the specific API client
   // For now, we'll create a placeholder that can be overridden
@@ -229,11 +303,13 @@ export function useDataView<T extends Record<string, any>>(
         }
       });
       
-      // Also invalidate to ensure we're in sync with server
-      queryClient.invalidateQueries({
-        queryKey: ["get", api.endpoint],
-        exact: false,
-      });
+      // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
+      if (!transactionManager) {
+        queryClient.invalidateQueries({
+          queryKey: ["get", api.endpoint],
+          exact: false,
+        });
+      }
     }
   }) || {
     mutate: () => {},
@@ -277,11 +353,13 @@ export function useDataView<T extends Record<string, any>>(
     onSuccess: (_data: any, variables: any) => {
       options.onSuccess?.('edit', variables.body);
       emitActivity('update', variables.body);
-      // Still invalidate to ensure consistency with server
-      queryClient.invalidateQueries({
-        queryKey: ["get", api.endpoint],
-        exact: false,
-      });
+      // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
+      if (!transactionManager) {
+        queryClient.invalidateQueries({
+          queryKey: ["get", api.endpoint],
+          exact: false,
+        });
+      }
     }
   }) || {
     mutate: () => {},
@@ -323,16 +401,110 @@ export function useDataView<T extends Record<string, any>>(
       if (context?.deletedItem) {
         emitActivity('delete', context.deletedItem);
       }
-      // Still invalidate to ensure consistency with server
-      queryClient.invalidateQueries({
-        queryKey: ["get", api.endpoint],
-        exact: false,
-      });
+      // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
+      if (!transactionManager) {
+        queryClient.invalidateQueries({
+          queryKey: ["get", api.endpoint],
+          exact: false,
+        });
+      }
     }
   }) || {
     mutate: () => {},
     isPending: false,
   };
+
+  // Helper function to add operations to transaction
+  const addTransactionOperation = useCallback(async (
+    type: 'create' | 'update' | 'delete',
+    entity: T,
+    mutation: () => Promise<any>,
+    trigger: OperationTrigger = 'user-edit',
+    changedFields?: string[]
+  ) => {
+    if (!transactionManager) {
+      // No transaction manager, execute immediately
+      return mutation();
+    }
+
+    // Start transaction if this is the first operation (captures snapshot for rollback)
+    if (!transactionManager.hasOperations()) {
+      console.log('🚀 Starting new transaction');
+      transactionManager.begin();
+    }
+
+    // Automatically perform optimistic update when queuing operation
+    // This ensures the UI updates immediately while the operation is pending
+    console.log('🔍 Checking current query data before optimistic update');
+    const previousData = queryClient.getQueryData(currentQueryKey);
+    console.log('📊 Current query data:', previousData);
+    
+    queryClient.setQueryData(currentQueryKey, (old: any) => {
+      console.log('🔄 Performing optimistic update', { type, old, entity });
+      if (!old) {
+        console.log('❌ No old data found for optimistic update');
+        return old;
+      }
+      
+      const currentRows = responseRow(old);
+      const primaryKey = schema.primaryKey;
+      console.log('📋 Current rows:', currentRows.length, 'Primary key:', primaryKey);
+      let updatedRows: T[];
+
+      if (type === 'create') {
+        // Add new item to beginning of array
+        const optimisticItem = {
+          ...entity,
+          [primaryKey]: entity[primaryKey] || `temp-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+        };
+        updatedRows = [optimisticItem, ...currentRows];
+        console.log('➕ Added new item, total rows:', updatedRows.length);
+      } else if (type === 'update') {
+        // Update existing item
+        updatedRows = currentRows.map((item: T) => 
+          item[primaryKey] === entity[primaryKey] 
+            ? { ...item, ...entity }
+            : item
+        );
+        console.log('✏️ Updated item with ID:', entity[primaryKey]);
+      } else if (type === 'delete') {
+        // Remove item
+        updatedRows = currentRows.filter((item: T) => 
+          item[primaryKey] !== entity[primaryKey]
+        );
+        console.log('🗑️ Removed item with ID:', entity[primaryKey], 'Remaining rows:', updatedRows.length);
+      } else {
+        updatedRows = currentRows;
+      }
+
+      const result = optimisticResponse ? optimisticResponse(old, updatedRows) : updatedRows;
+      console.log('✅ Optimistic update result:', result);
+      return result;
+    });
+
+    const entityType = activityConfig?.entityType || 'item';
+    const label = activityConfig?.labelGenerator 
+      ? activityConfig.labelGenerator(entity)
+      : `${type} ${entityType}`;
+
+    // Store original data for rollback
+    const originalItem = previousData ? responseRow(previousData).find((item: T) => item[schema.primaryKey] === entity[schema.primaryKey]) : undefined;
+
+    const operation: Omit<TransactionOperation<T>, 'id' | 'timestamp'> = {
+      type,
+      trigger,
+      entity,
+      entityId: entity[schema.primaryKey],
+      originalData: originalItem,
+      changedFields,
+      label,
+      mutation,
+      color: type === 'create' ? 'success' : type === 'update' ? 'primary' : 'error',
+    };
+
+    return transactionManager.addOperation(operation);
+  }, [transactionManager, activityConfig, schema, queryClient, currentQueryKey, responseRow, optimisticResponse]);
 
   // Helper to update pagination
   const setPagination = useCallback((updates: { page?: number; pageSize?: number }) => {
@@ -358,44 +530,69 @@ export function useDataView<T extends Record<string, any>>(
   }, []);
 
   const handleCreateSubmit = useCallback(async (data: Partial<T>) => {
+    const tempEntity = { ...data, [schema.primaryKey]: `temp_${Date.now()}` } as T;
+    
     try {
-      await createMutation.mutate({ body: data });
+      await addTransactionOperation(
+        'create',
+        tempEntity,
+        () => createMutation.mutate({ body: data }),
+        'user-edit'
+      );
       setCreateDialogOpen(false);
     } catch (error) {
       // Error is handled by mutation onError callback
     }
-  }, [createMutation]);
+  }, [createMutation, addTransactionOperation, schema.primaryKey]);
 
   const handleEditSubmit = useCallback(async (data: T) => {
     if (!editingItem) return;
     const primaryKey = schema.primaryKey;
+    
+    // Create the updated entity with the original item's primary key
+    const updatedEntity = {
+      ...editingItem,
+      ...data,
+      [primaryKey]: editingItem[primaryKey], // Ensure primary key is preserved
+    };
+    
     try {
-      await updateMutation.mutate({
-        params: { path: { id: editingItem[primaryKey] } },
-        body: data,
-      });
+      await addTransactionOperation(
+        'update',
+        updatedEntity,
+        () => updateMutation.mutate({
+          params: { path: { id: editingItem[primaryKey] } },
+          body: data,
+        }),
+        'user-edit'
+      );
       setEditDialogOpen(false);
       setEditingItem(null);
     } catch (error) {
       // Error is handled by mutation onError callback
       // Keep dialog open so user can retry
     }
-  }, [updateMutation, editingItem, schema.primaryKey]);
+  }, [updateMutation, editingItem, schema.primaryKey, addTransactionOperation]);
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletingItem) return;
     const primaryKey = schema.primaryKey;
     try {
-      await deleteMutation.mutate({
-        params: { path: { id: deletingItem[primaryKey] } },
-      });
+      await addTransactionOperation(
+        'delete',
+        deletingItem,
+        () => deleteMutation.mutate({
+          params: { path: { id: deletingItem[primaryKey] } },
+        }),
+        'user-edit'
+      );
       setDeleteDialogOpen(false);
       setDeletingItem(null);
     } catch (error) {
       // Error is handled by mutation onError callback
       // Keep dialog open so user can retry
     }
-  }, [deleteMutation, deletingItem, schema.primaryKey]);
+  }, [deleteMutation, deletingItem, schema.primaryKey, addTransactionOperation]);
 
   // Selection helpers
   const selectedItems = useMemo(() => {
@@ -548,5 +745,9 @@ export function useDataView<T extends Record<string, any>>(
       bulk: bulkActions,
       global: globalActions,
     },
+
+    // Transaction system
+    transaction: transactionManager,
+    addTransactionOperation,
   };
 }

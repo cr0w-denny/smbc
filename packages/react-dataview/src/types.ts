@@ -233,6 +233,10 @@ export interface DataViewConfig<T> {
   };
 }
 
+// Import and re-export transaction types
+import type { TransactionManager, TransactionOperation, OperationTrigger } from './transaction/types';
+export type { TransactionManager, TransactionOperation, OperationTrigger };
+
 // Return type from useDataView hook
 export interface DataViewResult<T> {
   // Data
@@ -299,4 +303,14 @@ export interface DataViewResult<T> {
     bulk: BulkAction<T>[];
     global: GlobalAction[];
   };
+
+  // Transaction system
+  transaction: TransactionManager<T> | null;
+  addTransactionOperation: (
+    type: 'create' | 'update' | 'delete',
+    entity: T,
+    mutation: () => Promise<any>,
+    trigger?: OperationTrigger,
+    changedFields?: string[]
+  ) => any;
 }

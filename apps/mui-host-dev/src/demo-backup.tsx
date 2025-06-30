@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Task as TaskIcon,
   Edit as EditIcon,
@@ -7,14 +8,13 @@ import {
   MuiDataViewApplet,
   type MuiDataViewAppletConfig,
 } from "@smbc/mui-applet-core";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { faker } from "@faker-js/faker";
 
 // =============================================================================
 // BASIC DATAVIEW EXAMPLE - Configuration Only, No Custom Components
 // =============================================================================
 
-// Generate mock data for the demo
+// Generate realistic mock data using faker
 const generateMockTasks = (count: number = 50) => {
   const statuses = ["pending", "in-progress", "completed"];
   const priorities = ["low", "medium", "high"];
@@ -31,94 +31,145 @@ const generateMockTasks = (count: number = 50) => {
   }));
 };
 
-// Generate static mock data that will be used as the "source of truth"
-const mockTasks = generateMockTasks(75);
+// Generate a larger dataset to demonstrate pagination
+let mockTasks = generateMockTasks(75);
 
-// Create a simple React Query client for the demo
+// In-memory state management for demo purposes
+let taskIdCounter = mockTasks.length + 1;
+
+// Mock API client with working filters and CRUD operations  
 const createTasksApiClient = () => {
-  // Real useQuery that uses React Query cache with a mock query function
-  const mockUseQuery = (method: string, endpoint: string, params: any) => {
-    const queryKey = [method, endpoint, params];
-    
-    // Calculate initial data for this specific query
-    const filters = params?.params?.query || {};
-    const page = filters.page || 1;
-    const pageSize = filters.pageSize || 10;
+  const applyFilters = (tasks: any[], filters: any = {}) => {
+    let filtered = [...tasks];
 
-    // Apply simple filtering to get initial data
-    let filteredTasks = mockTasks;
+    // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      filteredTasks = mockTasks.filter(
+      filtered = filtered.filter(
         (task) =>
           task.title.toLowerCase().includes(searchLower) ||
-          task.assignee.toLowerCase().includes(searchLower),
-      );
-    }
-    if (filters.status) {
-      filteredTasks = filteredTasks.filter(
-        (task) => task.status === filters.status,
-      );
-    }
-    if (filters.priority) {
-      filteredTasks = filteredTasks.filter(
-        (task) => task.priority === filters.priority,
+          task.assignee.toLowerCase().includes(searchLower) ||
+          task.description.toLowerCase().includes(searchLower),
       );
     }
 
+    // Status filter
+    if (filters.status && filters.status !== "") {
+      filtered = filtered.filter((task) => task.status === filters.status);
+    }
+
+    // Priority filter
+    if (filters.priority && filters.priority !== "") {
+      filtered = filtered.filter((task) => task.priority === filters.priority);
+    }
+
+    return filtered;
+  };
+
+  const useQuery = (_method: string, _endpoint: string, params: any) => {
+    const filters = params?.params?.query || {};
+    const page = (filters.page || 1) - 1; // Convert to 0-based
+    const pageSize = filters.pageSize || 10;
+
+    // Apply filters
+    const filteredTasks = applyFilters(mockTasks, filters);
+
     // Apply pagination
-    const startIndex = (page - 1) * pageSize;
+    const startIndex = page * pageSize;
     const paginatedTasks = filteredTasks.slice(
       startIndex,
       startIndex + pageSize,
     );
 
-    const initialData = {
+    // Simulate API response structure
+    const response = {
       data: paginatedTasks,
       total: filteredTasks.length,
-      page,
+      page: page + 1,
       pageSize,
     };
-    
-    return useQuery({
-      queryKey,
-      queryFn: async () => {
-        // This won't run immediately since we have initialData
-        // But it's here for consistency and future refetches
-        return initialData;
-      },
-      initialData, // Pre-populate the cache with mock data
-      staleTime: Infinity, // Keep data fresh so optimistic updates work
-    });
+
+    return {
+      data: response,
+      isLoading: false,
+      error: null,
+    };
   };
 
-  // Real useMutation that uses React Query
-  const mockUseMutation = (
-    _method: string,
+  const useMutation = (
+    method: string,
     _endpoint: string,
     options: any = {},
   ) => {
-    return useMutation({
-      mutationFn: async (variables: any) => {
-        // Just resolve immediately - optimistic updates handle the UI
-        return Promise.resolve(variables);
-      },
-      ...options,
-    });
+    const mutate = (variables: any) => {
+      try {
+        if (method === "post") {
+          // Create new task
+          const newTask = {
+            id: taskIdCounter++,
+            ...variables.body,
+            createdAt: new Date().toISOString(),
+          };
+          mockTasks.unshift(newTask);
+          options.onSuccess?.(newTask);
+        } else if (method === "patch") {
+          // Update existing task
+          const taskId = variables.params?.path?.id;
+          const taskIndex = mockTasks.findIndex((t) => t.id === taskId);
+          if (taskIndex !== -1) {
+            mockTasks[taskIndex] = {
+              ...mockTasks[taskIndex],
+              ...variables.body,
+            };
+            options.onSuccess?.(mockTasks[taskIndex]);
+          }
+        } else if (method === "delete") {
+          // Delete task
+          const taskId = variables.params?.path?.id;
+          const taskIndex = mockTasks.findIndex((t) => t.id === taskId);
+          if (taskIndex !== -1) {
+            const deletedTask = mockTasks.splice(taskIndex, 1)[0];
+            options.onSuccess?.(deletedTask);
+          }
+        }
+      } catch (error) {
+        options.onError?.(error);
+      }
+    };
+
+    return {
+      mutate,
+      isPending: false,
+    };
   };
 
-  return {
-    useQuery: mockUseQuery,
-    useMutation: mockUseMutation,
-  };
+  return { useQuery, useMutation };
 };
 
-const createTaskConfig = (
-  apiClient: ReturnType<typeof createTasksApiClient>,
-): MuiDataViewAppletConfig<any> => ({
+// Hook to manage the API client with state
+const useTasksApiClient = () => {
+  // Add state to trigger re-renders when data changes
+  const [dataVersion, setDataVersion] = React.useState(0);
+
+  // Listen for data changes
+  React.useEffect(() => {
+    const handleDataChange = () => {
+      setDataVersion((prev) => prev + 1);
+    };
+
+    window.addEventListener("mockDataChanged", handleDataChange);
+    return () =>
+      window.removeEventListener("mockDataChanged", handleDataChange);
+  }, []);
+
+  return React.useMemo(() => createTasksApiClient(), [dataVersion]);
+};
+
+// Simple DataViewApplet configuration - no custom components needed
+const createTaskConfig = (apiClient: any): MuiDataViewAppletConfig<any> => ({
   api: {
-    client: apiClient,
     endpoint: "/api/tasks",
+    client: apiClient,
     responseRow: (response: any) => response?.data || [],
     responseRowCount: (response: any) => response?.total || 0,
     optimisticResponse: (originalResponse: any, newRows: any[]) => ({
@@ -130,7 +181,6 @@ const createTaskConfig = (
   schema: {
     fields: [
       { name: "title", type: "string", label: "Title", required: true },
-      { name: "description", type: "string", label: "Description" },
       {
         name: "status",
         type: "select",
@@ -234,26 +284,40 @@ const createTaskConfig = (
         color: "success",
         appliesTo: (task) => task.status !== "completed",
         onClick: async (tasks, context) => {
-          console.log("🔥 Mark Complete bulk action called:", {
-            tasks: tasks.length,
-            context: !!context,
-          });
-
-          // Queue transaction operations
+          console.log('🔥 Mark Complete bulk action called:', { tasks: tasks.length, context: !!context });
+          console.log('📋 Context has addTransactionOperation:', !!context?.addTransactionOperation);
+          
+          // Optimistically update the data immediately (visible to user)
+          for (const task of tasks) {
+            const taskIndex = mockTasks.findIndex((t) => t.id === task.id);
+            if (taskIndex !== -1) {
+              mockTasks[taskIndex] = {
+                ...mockTasks[taskIndex],
+                status: "completed",
+              };
+            }
+          }
+          console.log(`✅ Marked ${tasks.length} tasks as completed (optimistic)`);
+          window.dispatchEvent(new CustomEvent("mockDataChanged"));
+          
+          // Queue transaction operations for rollback capability
           if (context?.addTransactionOperation) {
-            console.log("📝 Adding transaction operations...");
+            console.log('📝 Adding transaction operations...');
             for (const task of tasks) {
               context.addTransactionOperation(
-                "update",
-                { ...task, status: "completed" },
-                () => Promise.resolve({ status: "completed" }), // Simple mock mutation
-                "bulk-action",
-                ["status"],
+                'update',
+                task,
+                () => context.updateMutation.mutate({
+                  params: { path: { id: task.id } },
+                  body: { status: "completed" }
+                }),
+                'bulk-action',
+                ['status']
               );
             }
-            console.log("✅ Added transaction operations");
+            console.log('✅ Added transaction operations');
           } else {
-            console.log("❌ No addTransactionOperation function available");
+            console.log('❌ No addTransactionOperation function available');
           }
         },
       },
@@ -264,15 +328,31 @@ const createTaskConfig = (
         color: "warning",
         appliesTo: (task) => task.priority !== "high",
         onClick: async (tasks, context) => {
-          // Queue transaction operations
+          // Optimistically update the data immediately (visible to user)
+          for (const task of tasks) {
+            const taskIndex = mockTasks.findIndex((t) => t.id === task.id);
+            if (taskIndex !== -1) {
+              mockTasks[taskIndex] = {
+                ...mockTasks[taskIndex],
+                priority: "high",
+              };
+            }
+          }
+          console.log(`🔥 Set ${tasks.length} tasks to high priority (optimistic)`);
+          window.dispatchEvent(new CustomEvent("mockDataChanged"));
+          
+          // Queue transaction operations for rollback capability
           if (context?.addTransactionOperation) {
             for (const task of tasks) {
               context.addTransactionOperation(
-                "update",
-                { ...task, priority: "high" },
-                () => Promise.resolve({ priority: "high" }), // Simple mock mutation
-                "bulk-action",
-                ["priority"],
+                'update',
+                task,
+                () => context.updateMutation.mutate({
+                  params: { path: { id: task.id } },
+                  body: { priority: "high" }
+                }),
+                'bulk-action',
+                ['priority']
               );
             }
           }
@@ -284,14 +364,28 @@ const createTaskConfig = (
         label: "Delete Selected",
         color: "error",
         onClick: async (tasks, context) => {
-          // Queue transaction operations
+
+          // Optimistically delete the data immediately (visible to user)
+          const idsToDelete = tasks.map((t) => t.id);
+          const originalLength = mockTasks.length;
+          mockTasks.splice(
+            0,
+            mockTasks.length,
+            ...mockTasks.filter((task) => !idsToDelete.includes(task.id)),
+          );
+          console.log(`🗑️ Deleted ${originalLength - mockTasks.length} tasks (optimistic)`);
+          window.dispatchEvent(new CustomEvent("mockDataChanged"));
+          
+          // Queue transaction operations for rollback capability
           if (context?.addTransactionOperation) {
             for (const task of tasks) {
               context.addTransactionOperation(
-                "delete",
+                'delete',
                 task,
-                () => Promise.resolve({}), // Simple mock mutation
-                "bulk-action",
+                () => context.deleteMutation.mutate({
+                  params: { path: { id: task.id } }
+                }),
+                'bulk-action'
               );
             }
           }
@@ -299,13 +393,7 @@ const createTaskConfig = (
       },
     ],
     global: [
-      {
-        type: "global",
-        key: "create",
-        label: "Create Task",
-        color: "primary",
-        icon: TaskIcon,
-      },
+      { type: "global", key: "create", label: "Add Task", color: "primary" },
     ],
   },
   forms: {
@@ -386,22 +474,22 @@ const createTaskConfig = (
 
 // Component that uses the hook to create the API client and config
 const TasksDemo = () => {
-  const apiClient = createTasksApiClient();
+  const apiClient = useTasksApiClient();
   const config = createTaskConfig(apiClient);
-
+  
   return (
-    <MuiDataViewApplet
-      config={config}
+    <MuiDataViewApplet 
+      config={config} 
       permissionContext="tasks-demo"
       options={{
         transaction: {
           enabled: true,
-          mode: "user-controlled",
+          mode: 'user-controlled',
           autoCommit: false,
           requireConfirmation: true,
           showPendingIndicator: true,
           showReviewUI: true,
-        },
+        }
       }}
     />
   );
@@ -409,21 +497,57 @@ const TasksDemo = () => {
 
 const apiSpec = {
   name: "Tasks Demo API",
-  baseUrl: "",
-  spec: {},
+  spec: {
+    openapi: "3.0.0",
+    info: {
+      title: "Tasks Demo API",
+      version: "1.0.0",
+      description: "Dummy API for basic DataViewApplet example",
+    },
+    paths: {
+      "/api/tasks": {
+        get: {
+          summary: "Get tasks",
+          responses: {
+            "200": {
+              description: "List of tasks",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "number" },
+                        title: { type: "string" },
+                        status: { type: "string" },
+                        priority: { type: "string" },
+                        assignee: { type: "string" },
+                        dueDate: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 export default {
-  id: "demo-tasks",
-  label: "Demo Tasks",
+  id: "tasks-demo",
+  label: "Tasks (Basic Example)",
   apiSpec,
   routes: [
     {
-      path: "/demo",
-      label: "Demo Tasks",
+      path: "/tasks",
+      label: "Tasks",
       component: TasksDemo,
       icon: TaskIcon,
-      requiredPermissions: [],
+      requiredPermissions: [], // No permissions required for demo
     },
   ],
 };

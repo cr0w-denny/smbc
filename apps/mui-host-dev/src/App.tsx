@@ -22,7 +22,7 @@ import {
   registerMswHandlers,
   SMBCQueryProvider,
 } from "@smbc/shared-query-client";
-import { ActivityProvider } from "@smbc/react-dataview";
+import { ActivityProvider, TransactionProvider } from "@smbc/react-dataview";
 
 // Import configuration
 import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
@@ -256,7 +256,9 @@ export function App() {
       }}
     >
       <ActivityProvider>
-        <AppWithThemeProvider />
+        <TransactionProvider>
+          <AppWithThemeProvider />
+        </TransactionProvider>
       </ActivityProvider>
     </FeatureFlagProvider>
   );

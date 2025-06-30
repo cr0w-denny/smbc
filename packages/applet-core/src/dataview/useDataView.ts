@@ -275,6 +275,7 @@ export function useDataView<T extends Record<string, any>>(
       selectedIds,
       setSelectedIds,
       selectedItems,
+      clearSelection: () => setSelectedIds([]),
     },
 
     // Actions
@@ -283,5 +284,9 @@ export function useDataView<T extends Record<string, any>>(
       bulk: bulkActions,
       global: globalActions,
     },
+
+    // Transaction system (not implemented in applet-core)
+    transaction: null,
+    addTransactionOperation: () => {},
   };
 }

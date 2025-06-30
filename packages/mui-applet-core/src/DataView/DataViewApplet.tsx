@@ -1,5 +1,5 @@
 import React from "react";
-import { useDataView, type DataViewConfig } from "@smbc/react-dataview";
+import { useDataView, type DataViewConfig, type UseDataViewOptions } from "@smbc/react-dataview";
 import {
   usePermissions,
   type PermissionDefinition,
@@ -48,6 +48,8 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
     filters: Record<string, any>;
     pagination: { page: number; pageSize: number };
   }) => void;
+  /** Optional useDataView options */
+  options?: UseDataViewOptions;
 }
 
 /**
@@ -90,6 +92,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   onError,
   initialState,
   onStateChange,
+  options,
 }: MuiDataViewAppletProps<T>) {
   const { hasPermission } = usePermissions();
 
@@ -148,6 +151,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     getActiveColumns: config.options?.getActiveColumns,
     onSuccess,
     onError,
+    // Merge in any additional options passed to the applet
+    ...options,
   });
 
 
@@ -172,19 +177,20 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     config.actions?.bulk?.map((action) => ({
       ...action,
       onClick: (items: T[]) => {
-        // Handle bulk operations - pass mutations to the action handler
+        // Handle bulk operations - pass mutations and transaction support to the action handler
         if (typeof action.onClick === 'function') {
-          // Check if the action expects mutations (for User Management and similar)
           const originalOnClick = action.onClick;
           try {
-            // Try calling with mutations first (for new-style bulk actions)
+            // Call with mutations and transaction support
             return originalOnClick(items, {
               updateMutation: dataView.updateMutation,
               deleteMutation: dataView.deleteMutation,
               createMutation: dataView.createMutation,
+              transaction: dataView.transaction,
+              addTransactionOperation: dataView.addTransactionOperation,
             });
           } catch (error) {
-            // Fallback to original call (for simple bulk actions that don't need mutations)
+            // Fallback to original call
             return originalOnClick(items);
           }
         }
@@ -276,7 +282,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       {dataView.editDialogOpen && dataView.editingItem && (
         <dataView.EditFormComponent item={dataView.editingItem} />
       )}
-      {dataView.deleteDialogOpen && dataView.deletingItem && (
+      {dataView.deleteDialogOpen && dataView.deletingItem && !dataView.transaction && (
         <Dialog
           open={dataView.deleteDialogOpen}
           onClose={() => dataView.setDeleteDialogOpen(false)}
