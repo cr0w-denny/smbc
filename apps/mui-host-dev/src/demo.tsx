@@ -409,6 +409,7 @@ const createTaskConfig = (
         key: "delete-selected",
         label: "Delete Selected",
         color: "error",
+        appliesTo: (task) => task.__pendingState !== 'deleted',
         onClick: async (tasks, context) => {
           // Queue transaction operations
           if (context?.addTransactionOperation) {

@@ -193,24 +193,31 @@ export function useDataView<T extends Record<string, any>>(
       };
       
       const handleTransactionCancelled = () => {
-        // Clear all pending states instead of full rollback
-        console.log('🔄 Transaction cancelled, clearing pending states...');
-        queryClient.setQueryData(currentQueryKey, (old: any) => {
-          if (!old) return old;
-          
-          const currentRows = responseRow(old);
-          // Remove items that were pending creation and clear pending states from others
-          const clearedRows = currentRows
-            .filter((item: any) => item.__pendingState !== 'added') // Remove pending adds
-            .map((item: any) => {
-              // Remove pending state metadata
-              const { __pendingState, __pendingOperationId, ...cleanItem } = item;
-              return cleanItem;
-            });
-          
-          console.log('✅ Cleared pending states, rows:', clearedRows.length);
-          return optimisticResponse ? optimisticResponse(old, clearedRows) : clearedRows;
-        });
+        console.log('🔄 Transaction cancelled, restoring from snapshot...');
+        if (transactionSnapshot) {
+          // Restore the original snapshot data
+          console.log('📸 Restoring from transaction snapshot');
+          queryClient.setQueryData(currentQueryKey, transactionSnapshot);
+        } else {
+          // Fallback: Clear pending states if no snapshot available
+          console.log('⚠️ No snapshot available, clearing pending states...');
+          queryClient.setQueryData(currentQueryKey, (old: any) => {
+            if (!old) return old;
+            
+            const currentRows = responseRow(old);
+            // Remove items that were pending creation and clear pending states from others
+            const clearedRows = currentRows
+              .filter((item: any) => item.__pendingState !== 'added') // Remove pending adds
+              .map((item: any) => {
+                // Remove pending state metadata
+                const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                return cleanItem;
+              });
+            
+            console.log('✅ Cleared pending states, rows:', clearedRows.length);
+            return optimisticResponse ? optimisticResponse(old, clearedRows) : clearedRows;
+          });
+        }
         transactionSnapshot = null;
       };
       
