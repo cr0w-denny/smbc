@@ -26,8 +26,10 @@ export class TemplateMockGenerator {
   private templateEngine: TemplateEngine;
   private config: Required<TemplateConfig>;
   private schemaAnalyses: Map<string, SchemaAnalysis> = new Map();
+  private spec: any;
 
   constructor(spec: any, config: TemplateConfig = {}) {
+    this.spec = spec;
     this.analyzer = new SchemaAnalyzer(spec);
     this.templateEngine = new TemplateEngine();
     this.config = {
@@ -61,6 +63,9 @@ export class TemplateMockGenerator {
   }
 
   private buildTemplateContext(): TemplateContext {
+    const schemas = this.buildSchemaContexts();
+    const usesDateFormatting = this.checkUsesDateFormatting(schemas);
+    
     return {
       apiName: this.extractApiName(),
       timestamp: new Date().toISOString(),
@@ -70,7 +75,8 @@ export class TemplateMockGenerator {
         : this.config.delay,
       errorRate: this.config.errorRate,
       dataSetSize: this.config.dataSetSize,
-      schemas: this.buildSchemaContexts(),
+      usesDateFormatting,
+      schemas,
       operations: this.buildOperationContexts(),
     };
   }
@@ -80,6 +86,14 @@ export class TemplateMockGenerator {
     return spec.info?.title || 'Generated API';
   }
 
+  private checkUsesDateFormatting(schemas: SchemaContext[]): boolean {
+    return schemas.some(schema => 
+      schema.properties.some(prop => 
+        prop.fakerMethod.includes('format(')
+      )
+    );
+  }
+
   private buildSchemaContexts(): SchemaContext[] {
     const contexts: SchemaContext[] = [];
     
@@ -87,15 +101,15 @@ export class TemplateMockGenerator {
       contexts.push({
         name: schemaName,
         lowerName: schemaName.toLowerCase(),
-        primaryKey: this.findPrimaryKey(analysis),
+        primaryKey: this.findPrimaryKey(analysis) || undefined,
         properties: analysis.properties.map(prop => ({
           name: prop.name,
           type: prop.type,
           fakerMethod: prop.fakerMethod,
-          isRequired: prop.required,
+          isRequired: prop.isRequired,
         })),
         hasDiscriminatedResponses: this.hasDiscriminatedResponsesForSchema(schemaName),
-        // TODO: Add discriminated schemas mapping
+        discriminatedSchemas: this.getDiscriminatedSchemasForSchema(schemaName),
       });
     }
     
@@ -228,7 +242,7 @@ export class TemplateMockGenerator {
 
   private extractFilters(operation: any, queryParams: QueryParamContext[]): FilterContext[] {
     const nonSpecialParams = queryParams.filter(p => 
-      !['page', 'pageSize', 'search', 'sortBy', 'sortOrder'].includes(p.name)
+      !['page', 'pageSize', 'search', 'sortBy', 'sortOrder', 'format'].includes(p.name)
     );
     
     return nonSpecialParams.map(param => {
@@ -315,18 +329,127 @@ export class TemplateMockGenerator {
     };
   }
 
-  private findPrimaryKey(analysis: SchemaAnalysis): string {
+  private findPrimaryKey(analysis: SchemaAnalysis): string | undefined {
     // Look for common primary key patterns
     const idField = analysis.properties.find(p => 
       p.name === 'id' || p.name === 'Id' || p.name === 'ID'
     );
     
-    return idField?.name || 'id';
+    return idField?.name;
   }
 
-  private hasDiscriminatedResponsesForSchema(_schemaName: string): boolean {
-    // TODO: Implement proper detection based on spec analysis
+  private hasDiscriminatedResponsesForSchema(schemaName: string): boolean {
+    // Check if any operation has discriminated responses that include this schema
+    for (const [, pathItem] of Object.entries(this.spec.paths || {})) {
+      for (const [, operation] of Object.entries(pathItem || {})) {
+        if (typeof operation === 'object' && operation && operation['x-mock-response']) {
+          const discriminator = operation['x-mock-response'];
+          if (discriminator.when && Object.values(discriminator.when).includes(schemaName)) {
+            return true;
+          }
+          if (discriminator.default === schemaName) {
+            return true;
+          }
+        }
+      }
+    }
     return false;
+  }
+
+  private getDiscriminatedSchemasForSchema(schemaName: string): any[] {
+    const schemas: any[] = [];
+    
+    // Find operations that use this schema as the base
+    for (const [, pathItem] of Object.entries(this.spec.paths || {})) {
+      for (const [, operation] of Object.entries(pathItem || {})) {
+        if (typeof operation === 'object' && operation && operation['x-mock-response']) {
+          const discriminator = operation['x-mock-response'];
+          if (discriminator.default === schemaName && discriminator.when) {
+            // Generate mapping for each discriminated schema
+            for (const [, targetSchema] of Object.entries(discriminator.when)) {
+              schemas.push({
+                name: targetSchema,
+                mapping: this.generateSchemaMapping(schemaName, targetSchema as string)
+              });
+            }
+          }
+        }
+      }
+    }
+    
+    return schemas;
+  }
+
+  private generateSchemaMapping(sourceSchema: string, targetSchema: string): any[] {
+    const sourceSchemaSpec = this.spec.components?.schemas?.[sourceSchema];
+    const targetSchemaSpec = this.spec.components?.schemas?.[targetSchema];
+    
+    if (!sourceSchemaSpec || !targetSchemaSpec) {
+      return [];
+    }
+    
+    const mapping: any[] = [];
+    const sourceProps = sourceSchemaSpec.properties || {};
+    const targetProps = targetSchemaSpec.properties || {};
+    
+    // Map each target property to source properties
+    for (const [targetProp, targetPropSpec] of Object.entries(targetProps)) {
+      // Skip properties that have their own x-mock-data (let them generate independently)
+      if (targetPropSpec && typeof targetPropSpec === 'object' && targetPropSpec['x-mock-data']) {
+        continue;
+      }
+      
+      if (sourceProps[targetProp]) {
+        // Direct mapping
+        mapping.push({
+          source: targetProp,
+          target: targetProp
+        });
+      } else {
+        // Custom mapping based on property semantics
+        const customMapping = this.getCustomMapping(targetProp, sourceProps);
+        if (customMapping) {
+          mapping.push({
+            source: customMapping.source,
+            target: targetProp,
+            transform: customMapping.transform
+          });
+        }
+      }
+    }
+    
+    return mapping;
+  }
+
+  private getCustomMapping(targetProp: string, sourceProps: any): { source: string; transform?: string } | null {
+    // Handle common mapping patterns
+    switch (targetProp) {
+      case 'name':
+        if (sourceProps.firstName && sourceProps.lastName) {
+          return { source: 'firstName', transform: '`${item.firstName} ${item.lastName}`' };
+        }
+        if (sourceProps.fullName) {
+          return { source: 'fullName' };
+        }
+        break;
+      case 'status':
+        if (sourceProps.isActive) {
+          return { source: 'isActive', transform: 'item.isActive ? "active" : "inactive"' };
+        }
+        break;
+      case 'fullName':
+        if (sourceProps.firstName && sourceProps.lastName) {
+          return { source: 'firstName', transform: '`${item.firstName} ${item.lastName}`' };
+        }
+        break;
+      case 'memberSince':
+        if (sourceProps.createdAt) {
+          return { source: 'createdAt' };
+        }
+        break;
+    }
+    
+    return null;
   }
 
   private capitalize(str: string): string {

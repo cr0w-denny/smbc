@@ -33,7 +33,7 @@
     "clean-code:dry": "./scripts/clean-code.ts --dry-run --verbose",
     "validate": "npm run type-check && npm run lint && npm run test",
     "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
-    "generate-mocks": "tsx scripts/mock-generation/cli.ts",
+    "generate": "./scripts/mock-generation/generate.ts",
     "create-applet": "tsx scripts/create-applet/cli.ts",
     "reset": "rm package-lock.json && rimraf --glob ./**/node_modules && npm run clean && ./scripts/reset.sh"
   },
@@ -52,6 +52,7 @@
     "@vitejs/plugin-react": "^4.6.0",
     "chalk": "^5.3.0",
     "commander": "^11.0.0",
+    "date-fns": "^4.1.0",
     "fs-extra": "^11.1.1",
     "glob": "^11.0.3",
     "handlebars": "^4.7.8",

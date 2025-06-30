@@ -89,6 +89,7 @@ export interface components {
             isActive: boolean;
             isAdmin: boolean;
             fullName: string;
+            /** Format: date-time */
             memberSince: string;
         };
         /** @description Paginated list of users */

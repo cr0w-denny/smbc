@@ -10,6 +10,7 @@ export interface TemplateContext {
   delay: { min: number; max: number };
   errorRate: number;
   dataSetSize: { min: number; max: number };
+  usesDateFormatting: boolean;
   schemas: SchemaContext[];
   operations: OperationContext[];
 }
@@ -17,7 +18,7 @@ export interface TemplateContext {
 export interface SchemaContext {
   name: string;
   lowerName: string;
-  primaryKey: string;
+  primaryKey?: string;
   properties: PropertyContext[];
   hasDiscriminatedResponses: boolean;
   discriminatedSchemas?: DiscriminatedSchemaContext[];

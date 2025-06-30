@@ -2,7 +2,9 @@
     
     // Extract query parameters
 {{#each queryParams}}
+{{#unless (eq name ../discriminator.case)}}
     const {{name}} = {{#if isNumber}}parseInt({{/if}}url.searchParams.get('{{name}}'){{#if defaultValue}} || '{{defaultValue}}'{{/if}}{{#if isNumber}}){{/if}};
+{{/unless}}
 {{/each}}
     
     // Get dataset from persistent store
@@ -14,7 +16,7 @@
 {{#if hasSearch}}
     // Apply search filter
     if (search) {
-      filteredItems = filteredItems.filter(item => 
+      filteredItems = filteredItems.filter((item: any) => 
 {{#if searchConfig.fields}}
         [{{#each searchConfig.fields}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}]
           .some(field => item[field]?.toString().toLowerCase().includes(search.toLowerCase()))
@@ -28,30 +30,33 @@
 {{#each filters}}
     // Apply {{name}} filter
     if ({{name}} !== null) {
-      filteredItems = filteredItems.filter(item => {
-{{#if config.strategy}}
-  {{#eq config.strategy "boolean-inverse"}}
+      filteredItems = filteredItems.filter((item: any) => {
+{{#if config}}
+        {{!-- Boolean inverse strategy: map 'active'/'inactive' to true/false --}}
+        {{#if (eq config.strategy "boolean-inverse")}}
         const fieldValue = item.{{config.field}};
         return ({{name}} === 'active' && fieldValue) || ({{name}} === 'inactive' && !fieldValue);
-  {{/eq}}
-  {{#eq config.strategy "partial-match"}}
-        return item.{{config.field}}?.toString().toLowerCase().includes({{name}}.toLowerCase());
-  {{/eq}}
-  {{#eq config.strategy "exact"}}
+        {{else}}
+        {{!-- Exact match strategy: direct comparison --}}
+        {{#if (eq config.strategy "exact")}}
         if ({{name}} === 'true' || {{name}} === 'false') {
           return item.{{config.field}} === ({{name}} === 'true');
         }
         return item.{{config.field}}?.toString() === {{name}};
-  {{/eq}}
+        {{else}}
+        {{!-- Partial match strategy (default): substring match --}}
+        return item.{{config.field}}?.toString().toLowerCase().includes({{name}}.toLowerCase());
+        {{/if}}
+        {{/if}}
 {{else}}
-  {{#if isBooleanField}}
+{{#if isBooleanField}}
         if ({{name}} === 'true' || {{name}} === 'false') {
           return item.{{name}} === ({{name}} === 'true');
         }
         return false;
-  {{else}}
+{{else}}
         return item.{{name}}?.toString().toLowerCase().includes({{name}}.toLowerCase());
-  {{/if}}
+{{/if}}
 {{/if}}
       });
     }
@@ -85,7 +90,7 @@
     const discriminatorValue = url.searchParams.get('{{discriminator.case}}');
     let responseSchema = '{{discriminator.default}}';
     
-    const schemaMapping = {{json discriminator.when}};
+    const schemaMapping: Record<string, string> = {{{json discriminator.when}}};
     if (discriminatorValue && schemaMapping[discriminatorValue]) {
       responseSchema = schemaMapping[discriminatorValue];
     }

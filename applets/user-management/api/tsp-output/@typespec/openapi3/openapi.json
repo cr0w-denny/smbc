@@ -438,14 +438,16 @@
             "type": "string",
             "format": "date-time",
             "x-mock-data": {
-              "relative": "-30d to now"
+              "relative": "-30d to now",
+              "format": "MMMM dd, yyyy"
             }
           },
           "updatedAt": {
             "type": "string",
             "format": "date-time",
             "x-mock-data": {
-              "relative": "-7d to now"
+              "relative": "-7d to now",
+              "format": "yyyy-MM-dd"
             }
           },
           "isActive": {
@@ -509,14 +511,16 @@
             "type": "string",
             "format": "date-time",
             "x-mock-data": {
-              "relative": "-30d to now"
+              "relative": "-30d to now",
+              "format": "MMMM dd, yyyy"
             }
           },
           "updatedAt": {
             "type": "string",
             "format": "date-time",
             "x-mock-data": {
-              "relative": "-7d to now"
+              "relative": "-7d to now",
+              "format": "yyyy-MM-dd"
             }
           },
           "isActive": {
@@ -537,7 +541,12 @@
             "type": "string"
           },
           "memberSince": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "x-mock-data": {
+              "relative": "-300d to now",
+              "format": "yyyy-MM-dd"
+            }
           }
         },
         "description": "Detailed view of a user with computed fields"

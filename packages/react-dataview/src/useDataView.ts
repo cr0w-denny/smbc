@@ -267,17 +267,109 @@ export function useDataView<T extends Record<string, any>>(
         
         transactionSnapshot = null;
       };
+
+      const handleOperationRemoved = (operationId: string, removedOperation?: any) => {
+        console.log('🗑️ Individual operation removed, rolling back data for operation:', operationId);
+        console.log('🔍 Removed operation details:', removedOperation);
+        
+        queryClient.setQueryData(currentQueryKey, (old: any) => {
+          if (!old) return old;
+          
+          const currentRows = responseRow(old);
+          let updatedRows: any[];
+          
+          if (removedOperation) {
+            console.log(`🔄 Rolling back ${removedOperation.type} operation for entity:`, removedOperation.entityId);
+            
+            if (removedOperation.type === 'create') {
+              // Remove the newly created item entirely
+              updatedRows = currentRows.filter((item: any) => 
+                item.__pendingOperationId !== operationId
+              );
+            } else if (removedOperation.type === 'update') {
+              // Restore original data
+              console.log('🔍 Current rows before rollback:', currentRows.map(r => ({ id: r.id, __pendingOperationId: r.__pendingOperationId, status: r.status })));
+              console.log('🎯 Looking for operationId:', operationId);
+              let foundMatch = false;
+              updatedRows = currentRows.map((item: any) => {
+                if (item.__pendingOperationId === operationId) {
+                  foundMatch = true;
+                  const originalData = removedOperation.originalData;
+                  console.log('🎯 Found item to rollback:', { id: item.id, currentStatus: item.status, pendingOpId: item.__pendingOperationId });
+                  if (originalData) {
+                    console.log('📸 Restoring original data:', { id: originalData.id, originalStatus: originalData.status });
+                    return originalData;
+                  } else {
+                    console.log('⚠️ No original data, falling back to clean item');
+                    // Fallback: just remove pending state
+                    const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                    return cleanItem;
+                  }
+                }
+                return item;
+              });
+              if (!foundMatch) {
+                console.log('❌ No matching item found with operationId:', operationId);
+                console.log('❌ Available operation IDs:', currentRows.map(r => r.__pendingOperationId).filter(Boolean));
+              }
+              console.log('🔍 Updated rows after rollback:', updatedRows.map(r => ({ id: r.id, __pendingOperationId: r.__pendingOperationId, status: r.status })));
+            } else if (removedOperation.type === 'delete') {
+              // Restore the deleted item (remove pending delete state)
+              updatedRows = currentRows.map((item: any) => {
+                if (item.__pendingOperationId === operationId) {
+                  const originalData = removedOperation.originalData;
+                  if (originalData) {
+                    console.log('📸 Restoring deleted item:', originalData);
+                    return originalData;
+                  } else {
+                    // Fallback: just remove pending state
+                    const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                    return cleanItem;
+                  }
+                }
+                return item;
+              });
+            } else {
+              // Unknown operation type, just clear pending state
+              updatedRows = currentRows.map((item: any) => {
+                if (item.__pendingOperationId === operationId) {
+                  const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                  return cleanItem;
+                }
+                return item;
+              });
+            }
+          } else {
+            // Operation not found, just clear pending state as fallback
+            console.log('⚠️ Operation not found, clearing pending state only');
+            updatedRows = currentRows.map((item: any) => {
+              if (item.__pendingOperationId === operationId) {
+                const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                return cleanItem;
+              }
+              return item;
+            });
+          }
+          
+          console.log('✅ Rolled back individual operation:', operationId);
+          return optimisticResponse ? optimisticResponse(old, updatedRows) : updatedRows;
+        });
+      };
       
       // Listen to transaction events for rollback
+      console.log('🎧 Registering transaction event listeners');
       transactionManager.on('onTransactionStart', handleTransactionStart);
       transactionManager.on('onTransactionCancelled', handleTransactionCancelled);
       transactionManager.on('onTransactionComplete', handleTransactionComplete);
+      transactionManager.on('onOperationRemoved', handleOperationRemoved);
+      console.log('✅ Transaction event listeners registered');
       
       return () => {
         TransactionRegistry.unregister(managerId);
         transactionManager.off('onTransactionStart', handleTransactionStart);
         transactionManager.off('onTransactionCancelled', handleTransactionCancelled);
         transactionManager.off('onTransactionComplete', handleTransactionComplete);
+        transactionManager.off('onOperationRemoved', handleOperationRemoved);
       };
     }
   }, [transactionManager, queryClient, currentQueryKey]);
@@ -514,9 +606,13 @@ export function useDataView<T extends Record<string, any>>(
       transactionManager.begin();
     }
 
+    // Generate a consistent operation ID that will be used for both the transaction and visual state
+    const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('🆔 Generated operation ID:', operationId);
+
     // Add visual pending state instead of actually modifying data
     // This avoids pagination issues while providing immediate visual feedback
-    console.log('🎨 Adding visual pending state for operation', { type, entityId: entity[schema.primaryKey] });
+    console.log('🎨 Adding visual pending state for operation', { type, entityId: entity[schema.primaryKey], operationId });
     const previousData = queryClient.getQueryData(currentQueryKey);
     
     queryClient.setQueryData(currentQueryKey, (old: any) => {
@@ -536,7 +632,7 @@ export function useDataView<T extends Record<string, any>>(
           [primaryKey]: entity[primaryKey] || `temp-${Date.now()}`,
           createdAt: new Date().toISOString(),
           __pendingState: 'added' as const,
-          __pendingOperationId: `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          __pendingOperationId: operationId,
         };
         updatedRows = [pendingItem, ...currentRows];
         console.log('➕ Added pending new item, total rows:', updatedRows.length);
@@ -552,7 +648,7 @@ export function useDataView<T extends Record<string, any>>(
               ...item, 
               ...entity, 
               __pendingState: 'edited' as const,
-              __pendingOperationId: `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              __pendingOperationId: operationId,
             };
           }
           return item;
@@ -570,7 +666,7 @@ export function useDataView<T extends Record<string, any>>(
             return { 
               ...item, 
               __pendingState: 'deleted' as const,
-              __pendingOperationId: `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              __pendingOperationId: operationId,
             };
           }
           return item;
@@ -605,7 +701,7 @@ export function useDataView<T extends Record<string, any>>(
       color: type === 'create' ? 'success' : type === 'update' ? 'primary' : 'error',
     };
 
-    return transactionManager.addOperation(operation);
+    return transactionManager.addOperation(operation, operationId);
   }, [transactionManager, activityConfig, schema, queryClient, currentQueryKey, responseRow, optimisticResponse]);
 
   // Helper to update pagination

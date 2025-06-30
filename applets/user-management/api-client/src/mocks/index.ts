@@ -1,120 +1,156 @@
-// Auto-generated enhanced MSW mocks for user-management
-// Generated from: ../api/tsp-output/@typespec/openapi3/openapi.json
-// 
-// This file includes:
-// - Schema-driven mock data generation
-// - Intelligent field detection and faker mapping
-// - Relationship handling
-// - Advanced filtering and pagination
-// - Comprehensive error simulation
-//
-// Generated with SMBC enhanced mock generator
+// Generated mock handlers for User Management API
+// Generated at: 2025-06-30T19:37:01.160Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
+import { format } from 'date-fns';
 
-// Enhanced mock configuration
-export const mockConfig = {
+// Configuration for mock responses
+const mockConfig = {
   baseUrl: '/api/v1',
-  delay: {"min":0,"max":0},
-  errorRate: 0,
-  locale: 'en',
-  dataSetSize: {"min":10,"max":50},
-  generateRelationships: true
+  delay: { min: 0, max: 200 },
+  errorRate: 0.05,
+  dataSetSize: { min: 10, max: 50 },
 };
 
-// Note: Faker locale configuration removed - use faker.locale directly if needed
+// Utility: Configurable delay for realistic API responses
+async function delay() {
+  const delayMs = typeof mockConfig.delay === 'number' 
+    ? mockConfig.delay 
+    : faker.number.int({ min: mockConfig.delay.min, max: mockConfig.delay.max });
+  await new Promise(resolve => setTimeout(resolve, delayMs));
+}
 
-// Seed faker for consistent results in tests
-if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-  faker.seed(12345);
+// ============================================================================
+// CreateUserRequest Schema & Data Management
+// ============================================================================
+
+// Persistent data store for CreateUserRequest
+let createuserrequestDataStore: Map<string, any> = new Map();
+let createuserrequestDataInitialized = false;
+
+// Mock generator for CreateUserRequest
+function generateCreateUserRequest(overrides = {}) {
+  return {
+    email: faker.internet.email(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    ...overrides
+  };
+}
+
+// Initialize data store with consistent data
+function initializeCreateUserRequestDataStore() {
+  if (createuserrequestDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, () => 
+    generateCreateUserRequest({})
+  );
+  
+  items.forEach((item, index) => {
+    createuserrequestDataStore.set(String(index), item);
+  });
+  
+  createuserrequestDataInitialized = true;
+}
+
+// Get all createuserrequests from the data store
+// @ts-ignore - May not be used by all operations
+function getAllCreateUserRequests(): any[] {
+  initializeCreateUserRequestDataStore();
+  return Array.from(createuserrequestDataStore.values());
 }
 
 
-// Utility functions
-function delay(ms?: number) {
-  if (ms !== undefined) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-  
-  // If delay config is {min: 0, max: 0}, return immediately
-  if (mockConfig.delay.min === 0 && mockConfig.delay.max === 0) {
-    return Promise.resolve();
-  }
-  
-  const delayTime = faker.number.int(mockConfig.delay);
-  return new Promise(resolve => setTimeout(resolve, delayTime));
+// ============================================================================
+// ErrorResponse Schema & Data Management
+// ============================================================================
+
+// Persistent data store for ErrorResponse
+let errorresponseDataStore: Map<string, any> = new Map();
+let errorresponseDataInitialized = false;
+
+// Mock generator for ErrorResponse
+function generateErrorResponse(overrides = {}) {
+  return {
+    code: faker.lorem.word(),
+    message: faker.lorem.word(),
+    details: faker.lorem.word(),
+    ...overrides
+  };
 }
 
-// =============================================================================
-// SCHEMA ANALYSIS
-// =============================================================================
-// Schema: CreateUserRequest
-//   email: string - email [required]
-//   firstName: string - firstName [required]
-//   lastName: string - lastName [required]
-// Relationships:
-//   No relationships detected
+// Initialize data store with consistent data
+function initializeErrorResponseDataStore() {
+  if (errorresponseDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, () => 
+    generateErrorResponse({})
+  );
+  
+  items.forEach((item, index) => {
+    errorresponseDataStore.set(String(index), item);
+  });
+  
+  errorresponseDataInitialized = true;
+}
 
-// Schema: ErrorResponse
-//   code: string - generic [required]
-//   message: string - generic [required]
-//   details: string - generic
-// Relationships:
-//   No relationships detected
+// Get all errorresponses from the data store
+// @ts-ignore - May not be used by all operations
+function getAllErrorResponses(): any[] {
+  initializeErrorResponseDataStore();
+  return Array.from(errorresponseDataStore.values());
+}
 
-// Schema: UpdateUserRequest
-//   firstName: string - firstName
-//   lastName: string - lastName
-//   isActive: boolean - isActive
-// Relationships:
-//   No relationships detected
 
-// Schema: User
-//   id: string - id [required]
-//   email: string - email [required]
-//   firstName: string - firstName [required]
-//   lastName: string - lastName [required]
-//   createdAt: string (date-time) - timestamp [required]
-//   updatedAt: string (date-time) - timestamp [required]
-//   isActive: boolean - isActive [required]
-//   isAdmin: boolean - flag [required]
-// Relationships:
-//   No relationships detected
+// ============================================================================
+// UpdateUserRequest Schema & Data Management
+// ============================================================================
 
-// Schema: UserDetailed
-//   id: string - id [required]
-//   email: string - email [required]
-//   firstName: string - firstName [required]
-//   lastName: string - lastName [required]
-//   createdAt: string (date-time) - timestamp [required]
-//   updatedAt: string (date-time) - timestamp [required]
-//   isActive: boolean - isActive [required]
-//   isAdmin: boolean - flag [required]
-//   fullName: string - fullName [required]
-//   memberSince: string - generic [required]
-// Relationships:
-//   No relationships detected
+// Persistent data store for UpdateUserRequest
+let updateuserrequestDataStore: Map<string, any> = new Map();
+let updateuserrequestDataInitialized = false;
 
-// Schema: UserList
-//   users: array - generic [required]
-//   total: integer (int32) - amount [required]
-//   page: integer (int32) - generic [required]
-//   pageSize: integer (int32) - generic [required]
-// Relationships:
-//   No relationships detected
+// Mock generator for UpdateUserRequest
+function generateUpdateUserRequest(overrides = {}) {
+  return {
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    isActive: faker.datatype.boolean(),
+    ...overrides
+  };
+}
 
-// Schema: UserSummary
-//   id: string - id [required]
-//   name: string - fullName [required]
-//   email: string - email [required]
-//   status: string - status [required]
-// Relationships:
-//   No relationships detected
+// Initialize data store with consistent data
+function initializeUpdateUserRequestDataStore() {
+  if (updateuserrequestDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, () => 
+    generateUpdateUserRequest({})
+  );
+  
+  items.forEach((item, index) => {
+    updateuserrequestDataStore.set(String(index), item);
+  });
+  
+  updateuserrequestDataInitialized = true;
+}
 
-// =============================================================================
-// MOCK DATA GENERATORS
-// =============================================================================
+// Get all updateuserrequests from the data store
+// @ts-ignore - May not be used by all operations
+function getAllUpdateUserRequests(): any[] {
+  initializeUpdateUserRequestDataStore();
+  return Array.from(updateuserrequestDataStore.values());
+}
+
+
+// ============================================================================
+// User Schema & Data Management
+// ============================================================================
+
 // Persistent data store for User
 let userDataStore: Map<string, any> = new Map();
 let userDataInitialized = false;
@@ -126,8 +162,8 @@ function generateUser(overrides = {}) {
     email: faker.helpers.unique(() => faker.internet.email()),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
-    createdAt: faker.date.recent({ days: 30 }).toISOString(),
-    updatedAt: faker.date.recent({ days: 7 }).toISOString(),
+    createdAt: format(faker.date.recent({ days: 30 }), 'MMMM dd, yyyy'),
+    updatedAt: format(faker.date.recent({ days: 7 }), 'yyyy-MM-dd'),
     isActive: faker.datatype.boolean({ probability: 0.9 }),
     isAdmin: faker.datatype.boolean({ probability: 0.1 }),
     ...overrides
@@ -139,9 +175,11 @@ function initializeUserDataStore() {
   if (userDataInitialized) return;
   
   const totalItems = faker.number.int(mockConfig.dataSetSize);
-  const items = Array.from({ length: totalItems }, (_, index) => generateUser({ id: String(index + 1) }));
+  const items = Array.from({ length: totalItems }, (_, i) => 
+    generateUser({ id: String(i + 1) })
+  );
   
-  items.forEach(item => {
+  items.forEach((item) => {
     userDataStore.set(String(item.id), item);
   });
   
@@ -149,6 +187,7 @@ function initializeUserDataStore() {
 }
 
 // Get all users from the data store
+// @ts-ignore - May not be used by all operations
 function getAllUsers(): any[] {
   initializeUserDataStore();
   return Array.from(userDataStore.values());
@@ -157,269 +196,377 @@ function getAllUsers(): any[] {
 // Transform User to different response schemas
 function transformUserToSchema(item: any, targetSchema: string): any {
   switch (targetSchema) {
-    case 'UserSummary':
+    case 'UserSummary': {
+      // Generate fresh data for target schema and merge with mapped fields
+      const generatedUserSummary = generateUserSummary({ id: item.id });
       return {
+        ...generatedUserSummary,
         id: item.id,
         name: `${item.firstName} ${item.lastName}`,
         email: item.email,
-        status: item.isActive ? 'active' : 'inactive'
+        status: item.isActive ? "active" : "inactive",
       };
-    
-    case 'UserDetailed':
+    }
+    case 'UserDetailed': {
+      // Generate fresh data for target schema and merge with mapped fields
+      const generatedUserDetailed = generateUserDetailed({ id: item.id });
       return {
-        ...item,
+        ...generatedUserDetailed,
         fullName: `${item.firstName} ${item.lastName}`,
-        memberSince: new Date(item.createdAt).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long' 
-        })
       };
-    
+    }
     default:
       return item;
   }
 }
 
-// =============================================================================
-// REQUEST HANDLERS
-// =============================================================================
+// ============================================================================
+// UserDetailed Schema & Data Management
+// ============================================================================
+
+// Persistent data store for UserDetailed
+let userdetailedDataStore: Map<string, any> = new Map();
+let userdetailedDataInitialized = false;
+
+// Mock generator for UserDetailed
+function generateUserDetailed(overrides = {}) {
+  return {
+    id: faker.string.uuid(),
+    email: faker.helpers.unique(() => faker.internet.email()),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    createdAt: format(faker.date.recent({ days: 30 }), 'MMMM dd, yyyy'),
+    updatedAt: format(faker.date.recent({ days: 7 }), 'yyyy-MM-dd'),
+    isActive: faker.datatype.boolean({ probability: 0.9 }),
+    isAdmin: faker.datatype.boolean({ probability: 0.1 }),
+    fullName: faker.person.fullName(),
+    memberSince: format(faker.date.recent({ days: 300 }), 'yyyy-MM-dd'),
+    ...overrides
+  };
+}
+
+// Initialize data store with consistent data
+function initializeUserDetailedDataStore() {
+  if (userdetailedDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, (_, i) => 
+    generateUserDetailed({ id: String(i + 1) })
+  );
+  
+  items.forEach((item) => {
+    userdetailedDataStore.set(String(item.id), item);
+  });
+  
+  userdetailedDataInitialized = true;
+}
+
+// Get all userdetaileds from the data store
+// @ts-ignore - May not be used by all operations
+function getAllUserDetaileds(): any[] {
+  initializeUserDetailedDataStore();
+  return Array.from(userdetailedDataStore.values());
+}
+
+
+// ============================================================================
+// UserList Schema & Data Management
+// ============================================================================
+
+// Persistent data store for UserList
+let userlistDataStore: Map<string, any> = new Map();
+let userlistDataInitialized = false;
+
+// Mock generator for UserList
+function generateUserList(overrides = {}) {
+  return {
+    users: faker.lorem.word(),
+    total: faker.number.float({ min: 0, max: 10000, fractionDigits: 2 }),
+    page: faker.number.int(),
+    pageSize: faker.number.int(),
+    ...overrides
+  };
+}
+
+// Initialize data store with consistent data
+function initializeUserListDataStore() {
+  if (userlistDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, () => 
+    generateUserList({})
+  );
+  
+  items.forEach((item, index) => {
+    userlistDataStore.set(String(index), item);
+  });
+  
+  userlistDataInitialized = true;
+}
+
+// Get all userlists from the data store
+// @ts-ignore - May not be used by all operations
+function getAllUserLists(): any[] {
+  initializeUserListDataStore();
+  return Array.from(userlistDataStore.values());
+}
+
+
+// ============================================================================
+// UserSummary Schema & Data Management
+// ============================================================================
+
+// Persistent data store for UserSummary
+let usersummaryDataStore: Map<string, any> = new Map();
+let usersummaryDataInitialized = false;
+
+// Mock generator for UserSummary
+function generateUserSummary(overrides = {}) {
+  return {
+    id: faker.number.int({ min: 1, max: 100000 }),
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    status: faker.helpers.arrayElement(["active", "inactive", "pending"]),
+    ...overrides
+  };
+}
+
+// Initialize data store with consistent data
+function initializeUserSummaryDataStore() {
+  if (usersummaryDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, (_, i) => 
+    generateUserSummary({ id: String(i + 1) })
+  );
+  
+  items.forEach((item) => {
+    usersummaryDataStore.set(String(item.id), item);
+  });
+  
+  usersummaryDataInitialized = true;
+}
+
+// Get all usersummarys from the data store
+// @ts-ignore - May not be used by all operations
+function getAllUserSummarys(): any[] {
+  initializeUserSummaryDataStore();
+  return Array.from(usersummaryDataStore.values());
+}
+
+
+
+// Export MSW handlers
 export const handlers = [
-  // GET /users - List users
+  // get /users - Get all users with pagination
   http.get(`${mockConfig.baseUrl}/users`, async ({ request }) => {
     await delay();
     
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '1');
-    const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
-    const search = url.searchParams.get('search');
-    const sortBy = url.searchParams.get('sortBy');
-    const sortOrder = url.searchParams.get('sortOrder');
-    const isAdmin = url.searchParams.get('isAdmin');
-    const email = url.searchParams.get('email');
-    const status = url.searchParams.get('status');
-    
-    // Get dataset from persistent store
-    const allItems = getAllUsers();
-    
-    // Apply filters
-    let filteredItems = allItems;
-    
-    // Apply search filter if provided
-    if (search) {
-      filteredItems = filteredItems.filter(item => 
-        JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    
-    // Apply filters using OpenAPI extension metadata
-    if (isAdmin !== null) {
-      filteredItems = filteredItems.filter(item => {
-        if (isAdmin === 'true' || isAdmin === 'false') {
-          return item.isAdmin === (isAdmin === 'true');
+        // Error simulation based on configuration
+        if (faker.number.float() < mockConfig.errorRate) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'User not found' },
+            { status: 404 }
+          );
         }
-        return item.isAdmin?.toString() === isAdmin;
-      });
-    }
-    if (email !== null) {
-      filteredItems = filteredItems.filter(item => 
-        item.email && item.email.toString().toLowerCase().includes(email.toLowerCase())
-      );
-    }
-    if (status !== null) {
-      filteredItems = filteredItems.filter(item => {
-        const fieldValue = item.isActive;
-        return (status === 'active' && fieldValue) || (status === 'inactive' && !fieldValue);
-      });
-    }
     
-    // Apply sorting (only if sortBy parameter exists)
-    if (sortBy && filteredItems.length > 0) {
-      filteredItems.sort((a, b) => {
-        const aVal = a[sortBy];
-        const bVal = b[sortBy];
+        const url = new URL(request.url);
         
-        // Handle different data types
-        if (typeof aVal === 'string' && typeof bVal === 'string') {
-          const comparison = aVal.localeCompare(bVal);
-          return sortOrder === 'desc' ? -comparison : comparison;
-        } else if (typeof aVal === 'number' && typeof bVal === 'number') {
-          return sortOrder === 'desc' ? bVal - aVal : aVal - bVal;
-        } else if (aVal instanceof Date && bVal instanceof Date) {
-          return sortOrder === 'desc' ? bVal.getTime() - aVal.getTime() : aVal.getTime() - bVal.getTime();
-        } else {
-          // Fallback to string comparison
-          const comparison = String(aVal).localeCompare(String(bVal));
-          return sortOrder === 'desc' ? -comparison : comparison;
+        // Extract query parameters
+        const page = parseInt(url.searchParams.get('page') || '1');
+        const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
+        const sortBy = url.searchParams.get('sortBy');
+        const sortOrder = url.searchParams.get('sortOrder') || 'asc';
+        const search = url.searchParams.get('search');
+        const isAdmin = url.searchParams.get('isAdmin');
+        const email = url.searchParams.get('email');
+        const status = url.searchParams.get('status');
+        
+        // Get dataset from persistent store
+        const allItems = getAllUsers();
+        
+        // Apply filters
+        let filteredItems = allItems;
+        
+        // Apply search filter
+        if (search) {
+          filteredItems = filteredItems.filter((item: any) => 
+            ['email', 'firstName', 'lastName']
+              .some(field => item[field]?.toString().toLowerCase().includes(search.toLowerCase()))
+          );
         }
-      });
-    }
     
-    // Apply pagination to filtered results
-    const total = filteredItems.length;
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, total);
-    const paginatedItems = filteredItems.slice(startIndex, endIndex);
-
+        // Apply isAdmin filter
+        if (isAdmin !== null) {
+          filteredItems = filteredItems.filter((item: any) => {
+            if (isAdmin === 'true' || isAdmin === 'false') {
+              return item.isAdmin === (isAdmin === 'true');
+            }
+            return item.isAdmin?.toString() === isAdmin;
+          });
+        }
+        // Apply email filter
+        if (email !== null) {
+          filteredItems = filteredItems.filter((item: any) => {
+            return item.email?.toString().toLowerCase().includes(email.toLowerCase());
+          });
+        }
+        // Apply status filter
+        if (status !== null) {
+          filteredItems = filteredItems.filter((item: any) => {
+            const fieldValue = item.isActive;
+            return (status === 'active' && fieldValue) || (status === 'inactive' && !fieldValue);
+          });
+        }
     
-    // Handle discriminated responses based on query parameter: format
-    const discriminatorValue = url.searchParams.get('format');
-    let responseSchema = 'User';
+        // Apply sorting
+        if (sortBy && filteredItems.length > 0) {
+          filteredItems.sort((a, b) => {
+            const aVal = a[sortBy];
+            const bVal = b[sortBy];
+            
+            // Handle different data types for sorting
+            if (typeof aVal === 'string' && typeof bVal === 'string') {
+              const comparison = aVal.localeCompare(bVal);
+              return sortOrder === 'desc' ? -comparison : comparison;
+            } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+              return sortOrder === 'desc' ? bVal - aVal : aVal - bVal;
+            } else if (aVal instanceof Date && bVal instanceof Date) {
+              return sortOrder === 'desc' ? bVal.getTime() - aVal.getTime() : aVal.getTime() - bVal.getTime();
+            } else {
+              // Fallback to string comparison
+              const comparison = String(aVal).localeCompare(String(bVal));
+              return sortOrder === 'desc' ? -comparison : comparison;
+            }      });
+        }
+        
+        // Apply pagination
+        const total = filteredItems.length;
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, total);
+        const paginatedItems = filteredItems.slice(startIndex, endIndex);
     
-    // Map discriminator values to schema names
-    const schemaMapping: Record<string, string> = {"summary":"UserSummary","detailed":"UserDetailed"};
-    if (discriminatorValue && schemaMapping[discriminatorValue]) {
-      responseSchema = schemaMapping[discriminatorValue];
-    }
-    
-    // Transform data based on selected schema
-    let transformedItems = paginatedItems;
-    if (responseSchema !== 'User') {
-      transformedItems = paginatedItems.map(item => transformUserToSchema(item, responseSchema));
-    }
-    
-    return HttpResponse.json({
-      users: transformedItems,
-      total,
-      page,
-      pageSize
-    });
+        // Handle discriminated responses
+        const discriminatorValue = url.searchParams.get('format');
+        let responseSchema = 'User';
+        
+        const schemaMapping: Record<string, string> = {"summary":"UserSummary","detailed":"UserDetailed"};
+        if (discriminatorValue && schemaMapping[discriminatorValue]) {
+          responseSchema = schemaMapping[discriminatorValue];
+        }
+        
+        // Transform data based on selected schema
+        let transformedItems = paginatedItems;
+        if (responseSchema !== 'User') {
+          transformedItems = paginatedItems.map(item => 
+            transformUserToSchema(item, responseSchema)
+          );
+        }
+        
+        return HttpResponse.json({
+          users: transformedItems,
+          total,
+          page,
+          pageSize
+        });
   }),
-
-  // POST /users - Create user
+  // post /users - Create a new user
   http.post(`${mockConfig.baseUrl}/users`, async ({ request }) => {
     await delay();
     
-    if (faker.number.float() < mockConfig.errorRate) {
-      return HttpResponse.json(
-        { error: 'Validation failed', message: 'Invalid user data' },
-        { status: 400 }
-      );
-    }
-
-    const requestBody = await request.json() as Record<string, any>;
-    const createdUser = generateUser(requestBody || {});
+        // Error simulation based on configuration
+        if (faker.number.float() < mockConfig.errorRate) {
+          return HttpResponse.json(
+            { error: 'Validation failed', message: 'Invalid user data' },
+            { status: 400 }
+          );
+        }
     
-    // Add to persistent store so it appears in subsequent GET requests
-    userDataStore.set(String(createdUser.id), createdUser);
-    
-    return HttpResponse.json(createdUser, { status: 201 });
-  }),
-
-  // GET /users/{id} - Get single user
+        const requestBody = await request.json() as Record<string, any>;
+        const createdUser = generateUser(requestBody || {});
+        
+        // Add to persistent store so it appears in subsequent GET requests
+        userDataStore.set(String(createdUser.id), createdUser);
+        
+        return HttpResponse.json(createdUser, { status: 201 });  }),
+  // get /users/{id} - Get a user by ID
   http.get(`${mockConfig.baseUrl}/users/:id`, async ({ params }) => {
     await delay();
     
-    if (faker.number.float() < mockConfig.errorRate) {
-      return HttpResponse.json(
-        { error: 'Not found', message: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    const entityId = params.id as string;
-    const item = userDataStore.get(entityId);
+        // Error simulation based on configuration
+        if (faker.number.float() < mockConfig.errorRate) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'User not found' },
+            { status: 404 }
+          );
+        }
     
-    if (!item) {
-      return HttpResponse.json(
-        { error: 'Not found', message: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    return HttpResponse.json(item);
-  }),
-
-  // PATCH /users/{id} - Update user
+        const entityId = params.id as string;
+        const item = userDataStore.get(entityId);
+        
+        if (!item) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'User not found' },
+            { status: 404 }
+          );
+        }
+    
+        return HttpResponse.json(item);  }),
+  // patch /users/{id} - Update a user
   http.patch(`${mockConfig.baseUrl}/users/:id`, async ({ request, params }) => {
     await delay();
     
-    if (faker.number.float() < mockConfig.errorRate) {
-      return HttpResponse.json(
-        { error: 'Not found', message: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    const requestBody = await request.json() as Record<string, any>;
-    const entityId = params.id as string;
+        // Error simulation based on configuration
+        if (faker.number.float() < mockConfig.errorRate) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'User not found' },
+            { status: 404 }
+          );
+        }
     
-    // Get existing item from store
-    const existingItem = userDataStore.get(entityId);
-    if (!existingItem) {
-      return HttpResponse.json(
-        { error: 'Not found', message: 'User not found' },
-        { status: 404 }
-      );
-    }
-    
-    // Update item in store
-    const updatedUser = { ...existingItem, ...requestBody, id: entityId };
-    userDataStore.set(entityId, updatedUser);
-    
-    return HttpResponse.json(updatedUser);
-  }),
-
-  // DELETE /users/{id} - Delete user
+        const requestBody = await request.json() as Record<string, any>;
+        const entityId = params.id as string;
+        
+        // Get existing item from store
+        const existingItem = userDataStore.get(entityId);
+        if (!existingItem) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'User not found' },
+            { status: 404 }
+          );
+        }
+        
+        // Update item in store
+        const updatedUser = { ...existingItem, ...requestBody, id: entityId };
+        userDataStore.set(entityId, updatedUser);
+        
+        return HttpResponse.json(updatedUser);  }),
+  // delete /users/{id} - Delete a user
   http.delete(`${mockConfig.baseUrl}/users/:id`, async ({ params }) => {
     await delay();
     
-    if (faker.number.float() < mockConfig.errorRate) {
-      return HttpResponse.json(
-        { error: 'Not found', message: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    const entityId = params.id as string;
+        // Error simulation based on configuration
+        if (faker.number.float() < mockConfig.errorRate) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'User not found' },
+            { status: 404 }
+          );
+        }
     
-    // Check if item exists
-    if (!userDataStore.has(entityId)) {
-      return HttpResponse.json(
-        { error: 'Not found', message: 'User not found' },
-        { status: 404 }
-      );
-    }
-    
-    // Remove from store
-    userDataStore.delete(entityId);
-    
-    return HttpResponse.json({ message: `User ${entityId} deleted successfully` });
-  }),
-
-  // Health check endpoint
-  http.get(`${mockConfig.baseUrl}/health`, async () => {
-    await delay();
-    return HttpResponse.json({ 
-      status: 'ok', 
-      timestamp: new Date().toISOString(),
-      service: 'user-management',
-      mockMode: true
-    });
-  }),
-
+        const entityId = params.id as string;
+        
+        // Check if item exists
+        if (!userDataStore.has(entityId)) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'User not found' },
+            { status: 404 }
+          );
+        }
+        
+        // Remove from store
+        userDataStore.delete(entityId);
+        
+        return HttpResponse.json({ 
+          message: `User ${entityId} deleted successfully` 
+        });  }),
 ];
-
-// Apply custom overrides if available
-async function loadCustomOverrides() {
-  try {
-    // Dynamic import that won't be analyzed by TypeScript
-    const customPath = './custom.js';
-    const customModule = await import(/* @vite-ignore */ customPath);
-    if (customModule.customHandlers) {
-      // Prepend custom handlers so they take precedence
-      handlers.unshift(...customModule.customHandlers);
-    }
-    if (customModule.updateConfig) {
-      Object.assign(mockConfig, customModule.updateConfig(mockConfig));
-    }
-  } catch {
-    // No custom overrides available
-  }
-}
-
-// Load custom overrides (non-blocking)
-loadCustomOverrides().catch(() => {
-  // Silently ignore if custom overrides fail to load
-});
-
-export default handlers;

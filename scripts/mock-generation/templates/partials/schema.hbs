@@ -10,7 +10,7 @@ let {{lowerName}}DataInitialized = false;
 function generate{{name}}(overrides = {}) {
   return {
 {{#each properties}}
-    {{name}}: {{fakerMethod}},
+    {{name}}: {{{fakerMethod}}},
 {{/each}}
     ...overrides
   };
@@ -21,37 +21,56 @@ function initialize{{name}}DataStore() {
   if ({{lowerName}}DataInitialized) return;
   
   const totalItems = faker.number.int(mockConfig.dataSetSize);
-  const items = Array.from({ length: totalItems }, (_, index) => 
-    generate{{name}}({ {{primaryKey}}: String(index + 1) })
+  {{#if primaryKey}}
+  const items = Array.from({ length: totalItems }, (_, i) => 
+    generate{{name}}({ {{primaryKey}}: String(i + 1) })
   );
+  {{else}}
+  const items = Array.from({ length: totalItems }, () => 
+    generate{{name}}({})
+  );
+  {{/if}}
   
-  items.forEach(item => {
+  {{#if primaryKey}}
+  items.forEach((item) => {
     {{lowerName}}DataStore.set(String(item.{{primaryKey}}), item);
   });
+  {{else}}
+  items.forEach((item, index) => {
+    {{lowerName}}DataStore.set(String(index), item);
+  });
+  {{/if}}
   
   {{lowerName}}DataInitialized = true;
 }
 
 // Get all {{lowerName}}s from the data store
+// @ts-ignore - May not be used by all operations
 function getAll{{name}}s(): any[] {
   initialize{{name}}DataStore();
   return Array.from({{lowerName}}DataStore.values());
 }
 
 {{#if hasDiscriminatedResponses}}
+{{#if discriminatedSchemas.length}}
 // Transform {{name}} to different response schemas
 function transform{{name}}ToSchema(item: any, targetSchema: string): any {
   switch (targetSchema) {
 {{#each discriminatedSchemas}}
-    case '{{name}}':
+    case '{{name}}': {
+      // Generate fresh data for target schema and merge with mapped fields
+      const generated{{name}} = generate{{name}}({ id: item.id });
       return {
+        ...generated{{name}},
 {{#each mapping}}
-        {{target}}: {{#if transform}}{{transform}}{{else}}item.{{source}}{{/if}},
+        {{target}}: {{#if transform}}{{{transform}}}{{else}}item.{{source}}{{/if}},
 {{/each}}
       };
+    }
 {{/each}}
     default:
       return item;
   }
 }
+{{/if}}
 {{/if}}

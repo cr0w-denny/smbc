@@ -31,7 +31,7 @@ export class SimpleTransactionManager<T = any> implements TransactionManager<T> 
     return id;
   }
 
-  addOperation(operation: Omit<TransactionOperation<T>, 'id' | 'timestamp'>): string {
+  addOperation(operation: Omit<TransactionOperation<T>, 'id' | 'timestamp'>, providedId?: string): string {
     if (!this.currentTransaction) {
       this.begin(); // Auto-start transaction if needed
     }
@@ -41,7 +41,7 @@ export class SimpleTransactionManager<T = any> implements TransactionManager<T> 
       op => op.entityId === operation.entityId
     );
 
-    const id = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const id = providedId || `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const fullOperation: TransactionOperation<T> = { 
       ...operation, 
       id, 
@@ -53,14 +53,23 @@ export class SimpleTransactionManager<T = any> implements TransactionManager<T> 
       console.log(`⚠️ Found existing ${existingOp.type} operation for entity ${operation.entityId}`);
       
       // Handle conflict based on operation types - last operation wins
+      // IMPORTANT: Preserve the original data from the first operation to enable full rollback
+      const preservedOriginalData = existingOp.originalData;
+      
       if (operation.type === 'delete') {
         // Delete replaces any existing operation
-        console.log(`🔄 Replacing ${existingOp.type} with delete operation`);
-        this.currentTransaction!.operations[existingOpIndex] = fullOperation;
+        console.log(`🔄 Replacing ${existingOp.type} with delete operation, preserving original data`);
+        this.currentTransaction!.operations[existingOpIndex] = {
+          ...fullOperation,
+          originalData: preservedOriginalData // Keep the very first state
+        };
       } else if (operation.type === 'update') {
         // Update replaces any existing operation (including delete)
-        console.log(`🔄 Replacing ${existingOp.type} with update operation`);
-        this.currentTransaction!.operations[existingOpIndex] = fullOperation;
+        console.log(`🔄 Replacing ${existingOp.type} with update operation, preserving original data`);
+        this.currentTransaction!.operations[existingOpIndex] = {
+          ...fullOperation,
+          originalData: preservedOriginalData // Keep the very first state
+        };
       } else if (operation.type === 'create') {
         // This shouldn't happen (can't create an existing entity)
         console.log(`⚠️ Unexpected: create operation for existing entity ${operation.entityId}`);
@@ -99,6 +108,9 @@ export class SimpleTransactionManager<T = any> implements TransactionManager<T> 
     if (!this.currentTransaction) return false;
 
     const initialLength = this.currentTransaction.operations.length;
+    // Find the operation before removing it
+    const operationToRemove = this.currentTransaction.operations.find(op => op.id === operationId);
+    
     this.currentTransaction.operations = this.currentTransaction.operations.filter(
       op => op.id !== operationId
     );
@@ -106,7 +118,10 @@ export class SimpleTransactionManager<T = any> implements TransactionManager<T> 
     const removed = this.currentTransaction.operations.length < initialLength;
     if (removed) {
       this.currentTransaction.totalOperations = this.currentTransaction.operations.length;
-      this.emit('onOperationRemoved', operationId);
+      console.log('🔥 TransactionManager: Emitting onOperationRemoved for operation:', operationId, operationToRemove);
+      // Pass the operation details to the event handler
+      this.emit('onOperationRemoved', operationId, operationToRemove);
+      TransactionRegistry.notifyListeners();
     }
     
     return removed;

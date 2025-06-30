@@ -3,6 +3,9 @@
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
+{{#if usesDateFormatting}}
+import { format } from 'date-fns';
+{{/if}}
 
 // Configuration for mock responses
 const mockConfig = {
@@ -14,12 +17,10 @@ const mockConfig = {
 
 // Utility: Configurable delay for realistic API responses
 async function delay() {
-  if (typeof mockConfig.delay === 'number') {
-    await new Promise(resolve => setTimeout(resolve, mockConfig.delay));
-  } else {
-    const delayTime = faker.number.int(mockConfig.delay);
-    await new Promise(resolve => setTimeout(resolve, delayTime));
-  }
+  const delayMs = typeof mockConfig.delay === 'number' 
+    ? mockConfig.delay 
+    : faker.number.int({ min: mockConfig.delay.min, max: mockConfig.delay.max });
+  await new Promise(resolve => setTimeout(resolve, delayMs));
 }
 
 {{#each schemas}}

@@ -35,10 +35,10 @@ model User {
   @extension("x-mock-data", #{ faker: "person.lastName" })
   lastName: string;
   
-  @extension("x-mock-data", #{ relative: "-30d to now" })
+  @extension("x-mock-data", #{ relative: "-30d to now", format: "MMMM dd, yyyy" })
   createdAt: utcDateTime;
   
-  @extension("x-mock-data", #{ relative: "-7d to now" })
+  @extension("x-mock-data", #{ relative: "-7d to now", format: "yyyy-MM-dd" })
   updatedAt: utcDateTime;
   
   @extension("x-mock-data", #{ faker: "datatype.boolean", weight: 0.9 })
@@ -64,7 +64,8 @@ model UserSummary {
 model UserDetailed {
   ...User;
   fullName: string;
-  memberSince: string;
+  @extension("x-mock-data", #{ relative: "-300d to now", format: "yyyy-MM-dd" })
+  memberSince: utcDateTime;
 }
 
 /**

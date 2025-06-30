@@ -235,15 +235,37 @@ export class SchemaAnalyzer {
       return `faker.helpers.arrayElement([${examples}])`;
     }
     
-    // Handle relative dates
-    if (mockData.relative && (schema.format === 'date-time' || schema.format === 'date')) {
-      // Parse relative date string like "-30d to now" or "-7d to now"
-      const match = mockData.relative.match(/^-(\d+)d\s+to\s+now$/);
-      if (match) {
-        const days = parseInt(match[1], 10);
-        return `faker.date.recent({ days: ${days} }).toISOString()`;
+    // Handle date formatting
+    if (schema.format === 'date-time' || schema.format === 'date') {
+      // Handle relative dates
+      if (mockData.relative) {
+        // Parse relative date string like "-30d to now" or "-7d to now"
+        const match = mockData.relative.match(/^-(\d+)d\s+to\s+now$/);
+        if (match) {
+          const days = parseInt(match[1], 10);
+          const baseCall = `faker.date.recent({ days: ${days} })`;
+          
+          // Apply custom format if specified
+          if (mockData.format) {
+            return `format(${baseCall}, '${mockData.format}')`;
+          }
+          
+          return `${baseCall}.toISOString()`;
+        }
+        // Default fallback for relative
+        const baseCall = `faker.date.recent({ days: 30 })`;
+        if (mockData.format) {
+          return `format(${baseCall}, '${mockData.format}')`;
+        }
+        return `${baseCall}.toISOString()`;
       }
-      // Default fallback
+      
+      // Handle custom format without relative date
+      if (mockData.format) {
+        return `format(faker.date.recent({ days: 30 }), '${mockData.format}')`;
+      }
+      
+      // Default date handling
       return `faker.date.recent({ days: 30 }).toISOString()`;
     }
     
@@ -378,4 +400,8 @@ export class SchemaAnalyzer {
     if (str.endsWith('s')) return str.slice(0, -1);
     return str;
   }
+
+  /**
+   * Parse date format strings to JavaScript Intl.DateTimeFormat options
+   */
 }
