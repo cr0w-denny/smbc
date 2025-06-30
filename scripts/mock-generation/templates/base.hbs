@@ -1,0 +1,35 @@
+// Generated mock handlers for {{apiName}}
+// Generated at: {{timestamp}}
+
+import { http, HttpResponse } from 'msw';
+import { faker } from '@faker-js/faker';
+
+// Configuration for mock responses
+const mockConfig = {
+  baseUrl: '{{baseUrl}}',
+  delay: { min: {{delay.min}}, max: {{delay.max}} },
+  errorRate: {{errorRate}},
+  dataSetSize: { min: {{dataSetSize.min}}, max: {{dataSetSize.max}} },
+};
+
+// Utility: Configurable delay for realistic API responses
+async function delay() {
+  if (typeof mockConfig.delay === 'number') {
+    await new Promise(resolve => setTimeout(resolve, mockConfig.delay));
+  } else {
+    const delayTime = faker.number.int(mockConfig.delay);
+    await new Promise(resolve => setTimeout(resolve, delayTime));
+  }
+}
+
+{{#each schemas}}
+{{> schema this}}
+
+{{/each}}
+
+// Export MSW handlers
+export const handlers = [
+{{#each operations}}
+{{> operation this}},
+{{/each}}
+];

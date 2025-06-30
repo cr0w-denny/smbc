@@ -1,0 +1,57 @@
+// ============================================================================
+// {{name}} Schema & Data Management
+// ============================================================================
+
+// Persistent data store for {{name}}
+let {{lowerName}}DataStore: Map<string, any> = new Map();
+let {{lowerName}}DataInitialized = false;
+
+// Mock generator for {{name}}
+function generate{{name}}(overrides = {}) {
+  return {
+{{#each properties}}
+    {{name}}: {{fakerMethod}},
+{{/each}}
+    ...overrides
+  };
+}
+
+// Initialize data store with consistent data
+function initialize{{name}}DataStore() {
+  if ({{lowerName}}DataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, (_, index) => 
+    generate{{name}}({ {{primaryKey}}: String(index + 1) })
+  );
+  
+  items.forEach(item => {
+    {{lowerName}}DataStore.set(String(item.{{primaryKey}}), item);
+  });
+  
+  {{lowerName}}DataInitialized = true;
+}
+
+// Get all {{lowerName}}s from the data store
+function getAll{{name}}s(): any[] {
+  initialize{{name}}DataStore();
+  return Array.from({{lowerName}}DataStore.values());
+}
+
+{{#if hasDiscriminatedResponses}}
+// Transform {{name}} to different response schemas
+function transform{{name}}ToSchema(item: any, targetSchema: string): any {
+  switch (targetSchema) {
+{{#each discriminatedSchemas}}
+    case '{{name}}':
+      return {
+{{#each mapping}}
+        {{target}}: {{#if transform}}{{transform}}{{else}}item.{{source}}{{/if}},
+{{/each}}
+      };
+{{/each}}
+    default:
+      return item;
+  }
+}
+{{/if}}

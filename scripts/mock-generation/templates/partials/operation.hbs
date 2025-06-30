@@ -1,0 +1,20 @@
+  // {{method}} {{path}} - {{description}}
+  http.{{method}}(`${mockConfig.baseUrl}{{mswPath}}`, async ({{#if hasParams}}{ {{#if hasBody}}request, {{/if}}{{#if hasPathParams}}params{{/if}} }{{else}}{}{{/if}}) => {
+    await delay();
+    
+    {{> errorHandling this}}
+    
+    {{#if isListOperation}}
+    {{> listOperation this}}
+    {{else if isSingleOperation}}
+    {{> singleOperation this}}
+    {{else if isCreateOperation}}
+    {{> createOperation this}}
+    {{else if isUpdateOperation}}
+    {{> updateOperation this}}
+    {{else if isDeleteOperation}}
+    {{> deleteOperation this}}
+    {{else}}
+    {{> genericOperation this}}
+    {{/if}}
+  })

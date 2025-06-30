@@ -1,0 +1,9 @@
+{{#if errorScenarios}}
+    // Error simulation based on configuration
+    if (faker.number.float() < mockConfig.errorRate) {
+      return HttpResponse.json(
+        { error: '{{defaultError.type}}', message: '{{defaultError.message}}' },
+        { status: {{defaultError.status}} }
+      );
+    }
+{{/if}}

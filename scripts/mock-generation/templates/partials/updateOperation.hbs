@@ -1,0 +1,17 @@
+    const requestBody = await request.json() as Record<string, any>;
+    const entityId = params.{{pathParam}} as string;
+    
+    // Get existing item from store
+    const existingItem = {{lowerEntityName}}DataStore.get(entityId);
+    if (!existingItem) {
+      return HttpResponse.json(
+        { error: 'Not found', message: '{{entityName}} not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Update item in store
+    const updated{{entityName}} = { ...existingItem, ...requestBody, {{primaryKey}}: entityId };
+    {{lowerEntityName}}DataStore.set(entityId, updated{{entityName}});
+    
+    return HttpResponse.json(updated{{entityName}});
