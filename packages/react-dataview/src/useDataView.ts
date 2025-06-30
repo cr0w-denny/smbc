@@ -5,6 +5,7 @@ import { useActivity } from "./activity";
 import { SimpleTransactionManager } from "./transaction/TransactionManager";
 import type { TransactionConfig, TransactionOperation, OperationTrigger } from "./transaction/types";
 import { TransactionRegistry } from "./transaction/TransactionRegistry";
+import { useHashParams } from "./useHashParams";
 
 export interface UseDataViewOptions {
   /** Custom hook for managing filter state (e.g., URL-synced filters) */
@@ -20,6 +21,10 @@ export interface UseDataViewOptions {
   onError?: (action: 'create' | 'edit' | 'delete', error: any, item?: any) => void;
   /** Transaction configuration for batch operations */
   transaction?: TransactionConfig;
+  /** Enable URL hash synchronization for filters and pagination (default: true) */
+  hashParams?: boolean;
+  /** Namespace for hash params to avoid conflicts when multiple applets on same page */
+  hashNamespace?: string;
 }
 
 export function useDataView<T extends Record<string, any>>(
@@ -98,18 +103,26 @@ export function useDataView<T extends Record<string, any>>(
   }, [activityConfig, activityContext, schema]);
 
 
-  // Filter state (either custom hook or local state)
+  // State management with optional hash params support
   const defaultFilters = filterSpec?.initialValues || {};
-  const useFilterStateHook = options.useFilterState || useState;
-  const [filters, setFilters] = useFilterStateHook(defaultFilters);
-
-  // Pagination state (either custom hook or local state)
   const defaultPagination = {
     page: 0,
     pageSize: paginationConfig.defaultPageSize || 10,
   };
-  const usePaginationStateHook = options.usePaginationState || useState;
-  const [pagination, setPaginationState] = usePaginationStateHook(defaultPagination);
+
+  // Use hash params by default unless disabled or custom hooks provided
+  const hashParamsEnabled = (options.hashParams !== false) && !options.useFilterState && !options.usePaginationState;
+  
+  const hashState = useHashParams(defaultFilters, defaultPagination, hashParamsEnabled, options.hashNamespace);
+  
+  // Choose between hash params, custom hooks, or local state
+  const [filters, setFilters] = hashParamsEnabled 
+    ? [hashState.filters, hashState.setFilters]
+    : (options.useFilterState || useState)(defaultFilters);
+    
+  const [pagination, setPaginationState] = hashParamsEnabled
+    ? [hashState.pagination, hashState.setPagination]
+    : (options.usePaginationState || useState)(defaultPagination);
 
   // Selection state (optional)
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -205,8 +218,8 @@ export function useDataView<T extends Record<string, any>>(
         // Clear pending states and invalidate queries to get fresh data from server
         console.log('✅ Transaction completed, clearing pending states and refreshing data');
         
-        // Emit activities for all successful operations
-        if (activityConfig?.enabled && activityContext) {
+        // Emit activities for all successful operations on transaction commit (only if explicitly enabled)
+        if (activityConfig?.enabled && activityContext && options.transaction?.emitActivities === true) {
           results.forEach((result: any) => {
             if (result.success && result.operation) {
               const operation = result.operation;
@@ -330,8 +343,9 @@ export function useDataView<T extends Record<string, any>>(
     },
     onSuccess: (newItem: any) => {
       options.onSuccess?.('create', newItem);
-      // Only emit activity if not in transaction mode (transactions handle activities centrally)
-      if (!transactionManager) {
+      // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
+      const shouldEmitActivity = !transactionManager || options.transaction?.emitActivities === true;
+      if (shouldEmitActivity) {
         emitActivity('create', newItem);
       }
       
@@ -406,8 +420,9 @@ export function useDataView<T extends Record<string, any>>(
     },
     onSuccess: (_data: any, variables: any) => {
       options.onSuccess?.('edit', variables.body);
-      // Only emit activity if not in transaction mode (transactions handle activities centrally)
-      if (!transactionManager) {
+      // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
+      const shouldEmitActivity = !transactionManager || options.transaction?.emitActivities === true;
+      if (shouldEmitActivity) {
         emitActivity('update', variables.body);
       }
       // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
@@ -455,8 +470,9 @@ export function useDataView<T extends Record<string, any>>(
     },
     onSuccess: (_data: any, _variables: any, context: any) => {
       options.onSuccess?.('delete', context?.deletedItem);
-      // Only emit activity if not in transaction mode (transactions handle activities centrally)
-      if (context?.deletedItem && !transactionManager) {
+      // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
+      const shouldEmitActivity = !transactionManager || options.transaction?.emitActivities === true;
+      if (context?.deletedItem && shouldEmitActivity) {
         emitActivity('delete', context.deletedItem);
       }
       // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
@@ -731,6 +747,8 @@ export function useDataView<T extends Record<string, any>>(
     const createForm = forms?.create;
     if (!createForm) return () => null;
 
+    const entityType = activityConfig?.entityType || 'Item';
+
     return () =>
       React.createElement(renderer.FormComponent, {
         mode: "create",
@@ -738,13 +756,16 @@ export function useDataView<T extends Record<string, any>>(
         onSubmit: handleCreateSubmit,
         onCancel: () => setCreateDialogOpen(false),
         isSubmitting: createMutation.isPending,
+        entityType,
         ...rendererOptions,
       });
-  }, [renderer, forms?.create, handleCreateSubmit, createMutation.isPending, rendererOptions]);
+  }, [renderer, forms?.create, handleCreateSubmit, createMutation.isPending, rendererOptions, activityConfig?.entityType]);
 
   const EditFormComponent = useMemo(() => {
     const editForm = forms?.edit;
     if (!editForm) return () => null;
+
+    const entityType = activityConfig?.entityType || 'Item';
 
     return ({ item }: { item: T }) =>
       React.createElement(renderer.FormComponent, {
@@ -757,9 +778,10 @@ export function useDataView<T extends Record<string, any>>(
           setEditingItem(null);
         },
         isSubmitting: updateMutation.isPending,
+        entityType,
         ...rendererOptions,
       });
-  }, [renderer, forms?.edit, handleEditSubmit, updateMutation.isPending, rendererOptions]);
+  }, [renderer, forms?.edit, handleEditSubmit, updateMutation.isPending, rendererOptions, activityConfig?.entityType]);
 
   const PaginationComponent = useMemo(() => {
     if (!paginationConfig.enabled) return () => null;

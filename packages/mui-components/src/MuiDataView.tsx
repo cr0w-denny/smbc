@@ -222,6 +222,7 @@ function MuiDataForm<T extends Record<string, any>>({
   onCancel,
   isSubmitting,
   error,
+  entityType = "Item",
 }: DataViewFormProps<T>) {
   const [formData, setFormData] = React.useState<Partial<T>>(
     initialValues || {},
@@ -236,11 +237,13 @@ function MuiDataForm<T extends Record<string, any>>({
     onSubmit(formData as T);
   };
 
+  const capitalizedEntityType = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="sm" fullWidth>
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          {mode === "create" ? "Create New Item" : "Edit Item"}
+          {mode === "create" ? `Create New ${capitalizedEntityType}` : `Edit ${capitalizedEntityType}`}
         </DialogTitle>
         <DialogContent>
           {error && (

@@ -86,7 +86,7 @@
         },
         "primaryContrast": {
           "light": { "value": "#ffffff", "type": "color" },
-          "dark": { "value": "#000000", "type": "color" }
+          "dark": { "value": "#ffffff", "type": "color" }
         },
         "secondary": {
           "light": { "value": "{color.secondary.500}", "type": "color" },

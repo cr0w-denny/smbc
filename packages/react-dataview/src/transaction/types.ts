@@ -15,6 +15,9 @@ export interface TransactionConfig {
   showPendingIndicator: boolean; // Show "X pending changes" badge
   showReviewUI: boolean;         // Enable review modal/drawer
   
+  // Activity behavior
+  emitActivities?: boolean;      // Emit activities for individual operations (default: false when transactions enabled)
+  
   // Advanced options
   maxPendingOperations?: number; // Auto-commit after X operations
   timeoutMs?: number;           // Auto-commit after timeout

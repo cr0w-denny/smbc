@@ -40,7 +40,7 @@ const createTasksApiClient = () => {
   // Real useQuery that uses React Query cache with a mock query function
   const mockUseQuery = (method: string, endpoint: string, params: any) => {
     const queryKey = [method, endpoint, params];
-    
+
     // Calculate initial data for this specific query
     const filters = params?.params?.query || {};
     const page = filters.page || 1;
@@ -80,11 +80,13 @@ const createTasksApiClient = () => {
       page,
       pageSize,
     };
-    
+
     return useQuery({
       queryKey,
       queryFn: async () => {
-        console.log('🔄 Query function called, recalculating data from mockTasks');
+        console.log(
+          "🔄 Query function called, recalculating data from mockTasks",
+        );
         // Apply filtering to current mockTasks state
         let filteredTasks = mockTasks;
         if (filters.search) {
@@ -119,11 +121,11 @@ const createTasksApiClient = () => {
           page,
           pageSize,
         };
-        
-        console.log('📊 Query function result:', { 
-          totalMockTasks: mockTasks.length, 
-          filteredTasks: filteredTasks.length, 
-          paginatedTasks: paginatedTasks.length 
+
+        console.log("📊 Query function result:", {
+          totalMockTasks: mockTasks.length,
+          filteredTasks: filteredTasks.length,
+          paginatedTasks: paginatedTasks.length,
         });
         return result;
       },
@@ -140,24 +142,24 @@ const createTasksApiClient = () => {
   ) => {
     return useMutation({
       mutationFn: async (variables: any) => {
-        console.log('🚀 Mock mutation called:', method, endpoint, variables);
-        
+        console.log("🚀 Mock mutation called:", method, endpoint, variables);
+
         // Handle different mutation types
-        if (method === 'patch' && endpoint.includes('{id}')) {
+        if (method === "patch" && endpoint.includes("{id}")) {
           // Update mutation
           const id = variables.params?.path?.id;
           const updates = variables.body;
-          const taskIndex = mockTasks.findIndex(t => t.id === id);
+          const taskIndex = mockTasks.findIndex((t) => t.id === id);
           if (taskIndex !== -1) {
             mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates };
-            console.log('✅ Updated mock task:', id, updates);
+            console.log("✅ Updated mock task:", id, updates);
           }
-        } else if (method === 'delete' && endpoint.includes('{id}')) {
+        } else if (method === "delete" && endpoint.includes("{id}")) {
           // Delete mutation
           const id = variables.params?.path?.id;
-          mockTasks = mockTasks.filter(t => t.id !== id);
-          console.log('🗑️ Deleted mock task:', id);
-        } else if (method === 'post') {
+          mockTasks = mockTasks.filter((t) => t.id !== id);
+          console.log("🗑️ Deleted mock task:", id);
+        } else if (method === "post") {
           // Create mutation
           const newTask = {
             id: mockTasks.length + 1,
@@ -165,10 +167,10 @@ const createTasksApiClient = () => {
             createdAt: new Date().toISOString(),
           };
           mockTasks.unshift(newTask);
-          console.log('➕ Created mock task:', newTask);
+          console.log("➕ Created mock task:", newTask);
           return Promise.resolve(newTask);
         }
-        
+
         return Promise.resolve(variables);
       },
       ...options,
@@ -319,15 +321,27 @@ const createTaskConfig = (
                 "update",
                 updatedTask,
                 async () => {
-                  console.log('🔥 Executing update mutation for task:', task.id);
+                  console.log(
+                    "🔥 Executing update mutation for task:",
+                    task.id,
+                  );
                   // Directly update mockTasks and return the result
-                  const taskIndex = mockTasks.findIndex(t => t.id === task.id);
+                  const taskIndex = mockTasks.findIndex(
+                    (t) => t.id === task.id,
+                  );
                   if (taskIndex !== -1) {
                     // Remove pending state metadata before saving
-                    const { __pendingState, __pendingOperationId, ...cleanTask } = updatedTask as any;
-                    console.log('📝 Updating mock task with:', cleanTask);
+                    const {
+                      __pendingState,
+                      __pendingOperationId,
+                      ...cleanTask
+                    } = updatedTask as any;
+                    console.log("📝 Updating mock task with:", cleanTask);
                     mockTasks[taskIndex] = cleanTask;
-                    console.log('✅ Updated mockTasks, task now:', mockTasks[taskIndex]);
+                    console.log(
+                      "✅ Updated mockTasks, task now:",
+                      mockTasks[taskIndex],
+                    );
                   }
                   return updatedTask;
                 },
@@ -356,15 +370,30 @@ const createTaskConfig = (
                 "update",
                 updatedTask,
                 async () => {
-                  console.log('🔥 Executing priority update mutation for task:', task.id);
+                  console.log(
+                    "🔥 Executing priority update mutation for task:",
+                    task.id,
+                  );
                   // Directly update mockTasks and return the result
-                  const taskIndex = mockTasks.findIndex(t => t.id === task.id);
+                  const taskIndex = mockTasks.findIndex(
+                    (t) => t.id === task.id,
+                  );
                   if (taskIndex !== -1) {
                     // Remove pending state metadata before saving
-                    const { __pendingState, __pendingOperationId, ...cleanTask } = updatedTask as any;
-                    console.log('📝 Updating mock task priority with:', cleanTask);
+                    const {
+                      __pendingState,
+                      __pendingOperationId,
+                      ...cleanTask
+                    } = updatedTask as any;
+                    console.log(
+                      "📝 Updating mock task priority with:",
+                      cleanTask,
+                    );
                     mockTasks[taskIndex] = cleanTask;
-                    console.log('✅ Updated mockTasks priority, task now:', mockTasks[taskIndex]);
+                    console.log(
+                      "✅ Updated mockTasks priority, task now:",
+                      mockTasks[taskIndex],
+                    );
                   }
                   return updatedTask;
                 },
@@ -388,11 +417,16 @@ const createTaskConfig = (
                 "delete",
                 task,
                 async () => {
-                  console.log('🔥 Executing delete mutation for task:', task.id);
+                  console.log(
+                    "🔥 Executing delete mutation for task:",
+                    task.id,
+                  );
                   // Actually remove from mock data
                   const originalLength = mockTasks.length;
-                  mockTasks = mockTasks.filter(t => t.id !== task.id);
-                  console.log(`✅ Deleted task ${task.id}, mockTasks length: ${originalLength} → ${mockTasks.length}`);
+                  mockTasks = mockTasks.filter((t) => t.id !== task.id);
+                  console.log(
+                    `✅ Deleted task ${task.id}, mockTasks length: ${originalLength} → ${mockTasks.length}`,
+                  );
                   return {};
                 },
                 "bulk-action",
@@ -407,7 +441,7 @@ const createTaskConfig = (
         type: "global",
         key: "create",
         label: "Create Task",
-        color: "primary",
+        color: "secondary",
         icon: TaskIcon,
       },
     ],
@@ -506,6 +540,7 @@ const TasksDemo = () => {
           showPendingIndicator: true,
           showReviewUI: true,
         },
+        // Hash params are enabled by default
       }}
     />
   );

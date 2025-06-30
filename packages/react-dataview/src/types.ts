@@ -164,6 +164,7 @@ export interface DataViewFormProps<T> {
   onCancel: () => void;
   isSubmitting?: boolean;
   error?: Error | null;
+  entityType?: string;
 }
 
 export interface DataViewPaginationProps {
