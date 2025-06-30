@@ -25,6 +25,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Chip,
 } from "@mui/material";
 import { Filter } from "./Filter";
 import type {
@@ -66,19 +67,30 @@ function MuiDataTable<T extends Record<string, any>>({
             {selection?.enabled && (
               <TableCell padding="checkbox">
                 <Checkbox
-                  indeterminate={
-                    selection.selectedIds.length > 0 &&
-                    selection.selectedIds.length < data.length
-                  }
-                  checked={
-                    data.length > 0 &&
-                    selection.selectedIds.length === data.length
-                  }
+                  indeterminate={(() => {
+                    const currentPageIds = data.map(item => item.id);
+                    const selectedOnPage = currentPageIds.filter(id => 
+                      selection.selectedIds.includes(id)
+                    ).length;
+                    return selectedOnPage > 0 && selectedOnPage < data.length;
+                  })()}
+                  checked={(() => {
+                    if (data.length === 0) return false;
+                    const currentPageIds = data.map(item => item.id);
+                    return currentPageIds.every(id => selection.selectedIds.includes(id));
+                  })()}
                   onChange={(event) => {
+                    const currentPageIds = data.map((item) => item.id);
                     if (event.target.checked) {
-                      selection.onSelectionChange(data.map((item) => item.id));
+                      // Add current page IDs to existing selection
+                      const newSelection = [...new Set([...selection.selectedIds, ...currentPageIds])];
+                      selection.onSelectionChange(newSelection);
                     } else {
-                      selection.onSelectionChange([]);
+                      // Remove current page IDs from selection
+                      const newSelection = selection.selectedIds.filter(id => 
+                        !currentPageIds.includes(id)
+                      );
+                      selection.onSelectionChange(newSelection);
                     }
                   }}
                 />
@@ -93,12 +105,44 @@ function MuiDataTable<T extends Record<string, any>>({
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((item, index) => (
-            <TableRow
-              key={item.id || index}
-              onClick={onRowClick ? () => onRowClick(item) : undefined}
-              sx={{ cursor: onRowClick ? "pointer" : "default" }}
-            >
+          {data.map((item, index) => {
+            // Check for pending state
+            const pendingState = (item as any).__pendingState;
+            
+            // Define styling based on pending state
+            const getPendingStyles = () => {
+              switch (pendingState) {
+                case 'added':
+                  return {
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)', // Light green
+                    borderLeft: '4px solid #4caf50',
+                  };
+                case 'edited':
+                  return {
+                    backgroundColor: 'rgba(255, 152, 0, 0.1)', // Light orange
+                    borderLeft: '4px solid #ff9800',
+                  };
+                case 'deleted':
+                  return {
+                    backgroundColor: 'rgba(244, 67, 54, 0.1)', // Light red
+                    borderLeft: '4px solid #f44336',
+                    textDecoration: 'line-through',
+                    opacity: 0.7,
+                  };
+                default:
+                  return {};
+              }
+            };
+            
+            return (
+              <TableRow
+                key={item.id || index}
+                onClick={onRowClick ? () => onRowClick(item) : undefined}
+                sx={{ 
+                  cursor: onRowClick ? "pointer" : "default",
+                  ...getPendingStyles(),
+                }}
+              >
               {selection?.enabled && (
                 <TableCell padding="checkbox">
                   <Checkbox
@@ -118,9 +162,22 @@ function MuiDataTable<T extends Record<string, any>>({
                   />
                 </TableCell>
               )}
-              {columns.map((column) => (
+              {columns.map((column, colIndex) => (
                 <TableCell key={column.key} sx={(column as any).sx}>
-                  {column.render ? column.render(item) : item[column.key]}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {/* Show pending state chip on first column */}
+                    {colIndex === 0 && pendingState && (
+                      <Chip
+                        size="small"
+                        label={pendingState === 'added' ? 'NEW' : pendingState === 'edited' ? 'EDITED' : 'DELETED'}
+                        color={pendingState === 'added' ? 'success' : pendingState === 'edited' ? 'warning' : 'error'}
+                        variant="outlined"
+                      />
+                    )}
+                    <span style={{ textDecoration: pendingState === 'deleted' ? 'line-through' : 'none' }}>
+                      {column.render ? column.render(item) : item[column.key]}
+                    </span>
+                  </Box>
                 </TableCell>
               ))}
               {actions.length > 0 && (
@@ -141,7 +198,8 @@ function MuiDataTable<T extends Record<string, any>>({
                 </TableCell>
               )}
             </TableRow>
-          ))}
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>

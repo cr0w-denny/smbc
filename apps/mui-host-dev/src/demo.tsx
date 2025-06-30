@@ -32,7 +32,8 @@ const generateMockTasks = (count: number = 50) => {
 };
 
 // Generate static mock data that will be used as the "source of truth"
-const mockTasks = generateMockTasks(75);
+// Make it mutable so mutations can update it
+let mockTasks = generateMockTasks(75);
 
 // Create a simple React Query client for the demo
 const createTasksApiClient = () => {
@@ -83,24 +84,91 @@ const createTasksApiClient = () => {
     return useQuery({
       queryKey,
       queryFn: async () => {
-        // This won't run immediately since we have initialData
-        // But it's here for consistency and future refetches
-        return initialData;
+        console.log('🔄 Query function called, recalculating data from mockTasks');
+        // Apply filtering to current mockTasks state
+        let filteredTasks = mockTasks;
+        if (filters.search) {
+          const searchLower = filters.search.toLowerCase();
+          filteredTasks = mockTasks.filter(
+            (task) =>
+              task.title.toLowerCase().includes(searchLower) ||
+              task.assignee.toLowerCase().includes(searchLower),
+          );
+        }
+        if (filters.status) {
+          filteredTasks = filteredTasks.filter(
+            (task) => task.status === filters.status,
+          );
+        }
+        if (filters.priority) {
+          filteredTasks = filteredTasks.filter(
+            (task) => task.priority === filters.priority,
+          );
+        }
+
+        // Apply pagination
+        const startIndex = (page - 1) * pageSize;
+        const paginatedTasks = filteredTasks.slice(
+          startIndex,
+          startIndex + pageSize,
+        );
+
+        const result = {
+          data: paginatedTasks,
+          total: filteredTasks.length,
+          page,
+          pageSize,
+        };
+        
+        console.log('📊 Query function result:', { 
+          totalMockTasks: mockTasks.length, 
+          filteredTasks: filteredTasks.length, 
+          paginatedTasks: paginatedTasks.length 
+        });
+        return result;
       },
       initialData, // Pre-populate the cache with mock data
-      staleTime: Infinity, // Keep data fresh so optimistic updates work
+      staleTime: 0, // Allow refetching to get updated data
     });
   };
 
   // Real useMutation that uses React Query
   const mockUseMutation = (
-    _method: string,
-    _endpoint: string,
+    method: string,
+    endpoint: string,
     options: any = {},
   ) => {
     return useMutation({
       mutationFn: async (variables: any) => {
-        // Just resolve immediately - optimistic updates handle the UI
+        console.log('🚀 Mock mutation called:', method, endpoint, variables);
+        
+        // Handle different mutation types
+        if (method === 'patch' && endpoint.includes('{id}')) {
+          // Update mutation
+          const id = variables.params?.path?.id;
+          const updates = variables.body;
+          const taskIndex = mockTasks.findIndex(t => t.id === id);
+          if (taskIndex !== -1) {
+            mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates };
+            console.log('✅ Updated mock task:', id, updates);
+          }
+        } else if (method === 'delete' && endpoint.includes('{id}')) {
+          // Delete mutation
+          const id = variables.params?.path?.id;
+          mockTasks = mockTasks.filter(t => t.id !== id);
+          console.log('🗑️ Deleted mock task:', id);
+        } else if (method === 'post') {
+          // Create mutation
+          const newTask = {
+            id: mockTasks.length + 1,
+            ...variables.body,
+            createdAt: new Date().toISOString(),
+          };
+          mockTasks.unshift(newTask);
+          console.log('➕ Created mock task:', newTask);
+          return Promise.resolve(newTask);
+        }
+        
         return Promise.resolve(variables);
       },
       ...options,
@@ -124,7 +192,8 @@ const createTaskConfig = (
     optimisticResponse: (originalResponse: any, newRows: any[]) => ({
       ...originalResponse,
       data: newRows,
-      total: newRows.length,
+      // Keep the original total - visual pending states don't change the actual count
+      total: originalResponse.total,
     }),
   },
   schema: {
@@ -243,10 +312,25 @@ const createTaskConfig = (
           if (context?.addTransactionOperation) {
             console.log("📝 Adding transaction operations...");
             for (const task of tasks) {
+              const updatedTask = { ...task, status: "completed" };
+              // Need to access mutation from context or pass it in somehow
+              // For now, keeping the custom approach but ensuring it properly updates mockTasks
               context.addTransactionOperation(
                 "update",
-                { ...task, status: "completed" },
-                () => Promise.resolve({ status: "completed" }), // Simple mock mutation
+                updatedTask,
+                async () => {
+                  console.log('🔥 Executing update mutation for task:', task.id);
+                  // Directly update mockTasks and return the result
+                  const taskIndex = mockTasks.findIndex(t => t.id === task.id);
+                  if (taskIndex !== -1) {
+                    // Remove pending state metadata before saving
+                    const { __pendingState, __pendingOperationId, ...cleanTask } = updatedTask as any;
+                    console.log('📝 Updating mock task with:', cleanTask);
+                    mockTasks[taskIndex] = cleanTask;
+                    console.log('✅ Updated mockTasks, task now:', mockTasks[taskIndex]);
+                  }
+                  return updatedTask;
+                },
                 "bulk-action",
                 ["status"],
               );
@@ -267,10 +351,23 @@ const createTaskConfig = (
           // Queue transaction operations
           if (context?.addTransactionOperation) {
             for (const task of tasks) {
+              const updatedTask = { ...task, priority: "high" };
               context.addTransactionOperation(
                 "update",
-                { ...task, priority: "high" },
-                () => Promise.resolve({ priority: "high" }), // Simple mock mutation
+                updatedTask,
+                async () => {
+                  console.log('🔥 Executing priority update mutation for task:', task.id);
+                  // Directly update mockTasks and return the result
+                  const taskIndex = mockTasks.findIndex(t => t.id === task.id);
+                  if (taskIndex !== -1) {
+                    // Remove pending state metadata before saving
+                    const { __pendingState, __pendingOperationId, ...cleanTask } = updatedTask as any;
+                    console.log('📝 Updating mock task priority with:', cleanTask);
+                    mockTasks[taskIndex] = cleanTask;
+                    console.log('✅ Updated mockTasks priority, task now:', mockTasks[taskIndex]);
+                  }
+                  return updatedTask;
+                },
                 "bulk-action",
                 ["priority"],
               );
@@ -290,7 +387,14 @@ const createTaskConfig = (
               context.addTransactionOperation(
                 "delete",
                 task,
-                () => Promise.resolve({}), // Simple mock mutation
+                async () => {
+                  console.log('🔥 Executing delete mutation for task:', task.id);
+                  // Actually remove from mock data
+                  const originalLength = mockTasks.length;
+                  mockTasks = mockTasks.filter(t => t.id !== task.id);
+                  console.log(`✅ Deleted task ${task.id}, mockTasks length: ${originalLength} → ${mockTasks.length}`);
+                  return {};
+                },
                 "bulk-action",
               );
             }

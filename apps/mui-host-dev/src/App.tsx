@@ -97,7 +97,7 @@ function AppContentWithQueryAccess() {
           title={APP_CONSTANTS.appName}
         />
       </Box>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
       <ActivitySnackbar onNavigate={handleNavigate} />
     </>
   );

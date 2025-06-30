@@ -103,10 +103,7 @@ export function ActionBar<T>({
                   onClick={async () => {
                     try {
                       await action.onClick?.(selectedItems);
-                      // Only clear selection for destructive operations (delete)
-                      if (action.key.includes('delete')) {
-                        onClearSelection();
-                      }
+                      // Don't automatically clear selections - let users manage their selections
                     } catch (error) {
                       console.error('Bulk action failed:', error);
                       // Don't clear selection on error so user can retry

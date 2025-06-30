@@ -36,14 +36,44 @@ export class SimpleTransactionManager<T = any> implements TransactionManager<T> 
       this.begin(); // Auto-start transaction if needed
     }
 
+    // Check for conflicting operations on the same entity
+    const existingOpIndex = this.currentTransaction!.operations.findIndex(
+      op => op.entityId === operation.entityId
+    );
+
     const id = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const fullOperation: TransactionOperation<T> = { 
       ...operation, 
       id, 
       timestamp: new Date() 
     };
+
+    if (existingOpIndex !== -1) {
+      const existingOp = this.currentTransaction!.operations[existingOpIndex];
+      console.log(`⚠️ Found existing ${existingOp.type} operation for entity ${operation.entityId}`);
+      
+      // Handle conflict based on operation types - last operation wins
+      if (operation.type === 'delete') {
+        // Delete replaces any existing operation
+        console.log(`🔄 Replacing ${existingOp.type} with delete operation`);
+        this.currentTransaction!.operations[existingOpIndex] = fullOperation;
+      } else if (operation.type === 'update') {
+        // Update replaces any existing operation (including delete)
+        console.log(`🔄 Replacing ${existingOp.type} with update operation`);
+        this.currentTransaction!.operations[existingOpIndex] = fullOperation;
+      } else if (operation.type === 'create') {
+        // This shouldn't happen (can't create an existing entity)
+        console.log(`⚠️ Unexpected: create operation for existing entity ${operation.entityId}`);
+        this.currentTransaction!.operations.push(fullOperation);
+      } else {
+        // Default: add as new operation
+        this.currentTransaction!.operations.push(fullOperation);
+      }
+    } else {
+      // No conflict, add normally
+      this.currentTransaction!.operations.push(fullOperation);
+    }
     
-    this.currentTransaction!.operations.push(fullOperation);
     this.currentTransaction!.totalOperations = this.currentTransaction!.operations.length;
 
     console.log(`🔥 TransactionManager.addOperation: Added operation ${id}, total operations: ${this.currentTransaction!.operations.length}`);

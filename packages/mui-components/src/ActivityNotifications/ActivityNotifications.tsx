@@ -122,13 +122,10 @@ function ActivityListItem({ activity, onView }: ActivityListItemProps) {
 export interface ActivityNotificationsProps {
   /** Called when user clicks to view an item */
   onNavigate?: (url: string) => void;
-  /** Maximum height of the notifications dropdown */
-  maxHeight?: number;
 }
 
 export function ActivityNotifications({
   onNavigate,
-  maxHeight = 400,
 }: ActivityNotificationsProps) {
   const { activities, unviewedCount, markAsViewed, clearAll } = useActivity();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -150,12 +147,11 @@ export function ActivityNotifications({
     : 0;
   const totalBadgeCount = unviewedCount + pendingCount;
 
-
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     // Mark all activities as viewed when opened
     activities.forEach((activity: ActivityItem) => markAsViewed(activity.id));
-    
+
     // Auto-focus tab with items: pending changes first, then recent activity
     if (pendingCount > 0) {
       setActiveTab(1); // Pending changes tab
@@ -276,7 +272,10 @@ export function ActivityNotifications({
                 <Button
                   size="small"
                   startIcon={<ClearIcon />}
-                  onClick={clearAll}
+                  onClick={() => {
+                    clearAll();
+                    handleClose();
+                  }}
                   color="inherit"
                 >
                   Clear All
@@ -291,11 +290,13 @@ export function ActivityNotifications({
                 </Typography>
               </Box>
             ) : (
-              <List sx={{ 
-                maxHeight: "60vh", // Allow list to grow significantly
-                overflow: "auto", 
-                p: 0
-              }}>
+              <List
+                sx={{
+                  maxHeight: "60vh", // Allow list to grow significantly
+                  overflow: "auto",
+                  p: 0,
+                }}
+              >
                 {activities.map((activity: ActivityItem, index: number) => (
                   <React.Fragment key={activity.id}>
                     <ActivityListItem activity={activity} onView={handleView} />
@@ -329,6 +330,7 @@ export function ActivityNotifications({
                     size="small"
                     onClick={() => {
                       TransactionRegistry.cancelAll();
+                      handleClose();
                     }}
                     color="inherit"
                     title="Cancel all changes"
@@ -354,11 +356,13 @@ export function ActivityNotifications({
                 </Typography>
               </Box>
             ) : (
-              <List sx={{ 
-                maxHeight: "60vh", // Allow list to grow significantly
-                overflow: "auto", 
-                p: 0
-              }}>
+              <List
+                sx={{
+                  maxHeight: "60vh", // Allow list to grow significantly
+                  overflow: "auto",
+                  p: 0,
+                }}
+              >
                 {transactionContext
                   .getAllManagers()
                   .flatMap((manager) => manager.getOperations())
