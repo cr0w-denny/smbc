@@ -21,6 +21,7 @@
     "dev:host": "npm run dev -w apps/mui-host-dev",
     "dev:api-clients": "npm run dev -w 'applets/*/api-client'",
     "dev:mui-packages": "npm run dev -w applets/user-management/mui -w applets/product-catalog/mui",
+    "storybook": "npm run storybook -w @smbc/mui-components",
     "dev:simple": "npm run dev --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",

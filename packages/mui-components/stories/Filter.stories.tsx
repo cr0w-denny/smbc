@@ -1,15 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Filter } from '../src/Filter/Filter';
-import { useState } from 'react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Filter } from "../src/Filter/Filter";
+import { useState } from "react";
 
 const meta: Meta<typeof Filter> = {
-  title: 'Components/Filter',
+  title: "Components/Filter",
   component: Filter,
   parameters: {
-    layout: 'padded',
+    layout: "padded",
     docs: {
       description: {
-        component: 'A flexible filter component that supports various field types and real-time filtering.',
+        component:
+          "A flexible filter component that supports various field types and real-time filtering.",
       },
     },
   },
@@ -20,15 +21,18 @@ type Story = StoryObj<typeof meta>;
 
 const FilterWithState = ({ spec }: { spec: any }) => {
   const [filters, setFilters] = useState(spec.initialValues || {});
-  
+
   return (
     <div>
-      <Filter
-        spec={spec}
-        values={filters}
-        onFiltersChange={setFilters}
-      />
-      <div style={{ marginTop: 16, padding: 16, backgroundColor: '#f5f5f5', borderRadius: 4 }}>
+      <Filter spec={spec} values={filters} onFiltersChange={setFilters} />
+      <div
+        style={{
+          marginTop: 16,
+          padding: 16,
+          backgroundColor: "#f5f5f5",
+          borderRadius: 4,
+        }}
+      >
         <strong>Current Filter Values:</strong>
         <pre>{JSON.stringify(filters, null, 2)}</pre>
       </div>
@@ -42,35 +46,35 @@ export const BasicFilters: Story = {
       spec={{
         fields: [
           {
-            name: 'search',
-            type: 'search',
-            label: 'Search',
-            placeholder: 'Search items...',
+            name: "search",
+            type: "search",
+            label: "Search",
+            placeholder: "Search items...",
             fullWidth: true,
           },
           {
-            name: 'category',
-            type: 'select',
-            label: 'Category',
+            name: "category",
+            type: "select",
+            label: "Category",
             options: [
-              { label: 'All Categories', value: '' },
-              { label: 'Electronics', value: 'electronics' },
-              { label: 'Clothing', value: 'clothing' },
-              { label: 'Books', value: 'books' },
+              { label: "All Categories", value: "" },
+              { label: "Electronics", value: "electronics" },
+              { label: "Clothing", value: "clothing" },
+              { label: "Books", value: "books" },
             ],
           },
           {
-            name: 'active',
-            type: 'boolean',
-            label: 'Active Only',
+            name: "active",
+            type: "boolean",
+            label: "Active Only",
           },
         ],
         initialValues: {
-          search: '',
-          category: '',
+          search: "",
+          category: "",
           active: false,
         },
-        title: 'Product Filters',
+        title: "Product Filters",
         showClearButton: true,
         showFilterCount: true,
       }}
@@ -84,68 +88,68 @@ export const UserManagementFilters: Story = {
       spec={{
         fields: [
           {
-            name: 'search',
-            type: 'search',
-            label: 'Search users...',
-            placeholder: 'Search users...',
+            name: "search",
+            type: "search",
+            label: "Search users...",
+            placeholder: "Search users...",
             fullWidth: true,
           },
           {
-            name: 'email',
-            type: 'text',
-            label: 'Email Filter',
-            placeholder: 'Filter by email...',
+            name: "email",
+            type: "text",
+            label: "Email Filter",
+            placeholder: "Filter by email...",
           },
           {
-            name: 'status',
-            type: 'select',
-            label: 'Status',
+            name: "status",
+            type: "select",
+            label: "Status",
             options: [
-              { label: 'All Statuses', value: '' },
-              { label: 'Active', value: 'active' },
-              { label: 'Inactive', value: 'inactive' },
+              { label: "All Statuses", value: "" },
+              { label: "Active", value: "active" },
+              { label: "Inactive", value: "inactive" },
             ],
           },
           {
-            name: 'sortBy',
-            type: 'select',
-            label: 'Sort By',
+            name: "sortBy",
+            type: "select",
+            label: "Sort By",
             options: [
-              { label: 'First Name', value: 'firstName' },
-              { label: 'Last Name', value: 'lastName' },
-              { label: 'Email', value: 'email' },
-              { label: 'Created Date', value: 'createdAt' },
+              { label: "First Name", value: "firstName" },
+              { label: "Last Name", value: "lastName" },
+              { label: "Email", value: "email" },
+              { label: "Created Date", value: "createdAt" },
             ],
-            defaultValue: 'firstName',
+            defaultValue: "firstName",
             excludeFromCount: true,
           },
           {
-            name: 'sortOrder',
-            type: 'select',
-            label: 'Sort Order',
+            name: "sortOrder",
+            type: "select",
+            label: "Sort Order",
             options: [
-              { label: 'Ascending', value: 'asc' },
-              { label: 'Descending', value: 'desc' },
+              { label: "Ascending", value: "asc" },
+              { label: "Descending", value: "desc" },
             ],
-            defaultValue: 'asc',
+            defaultValue: "asc",
             excludeFromCount: true,
           },
           {
-            name: 'showDetails',
-            type: 'checkbox',
-            label: 'Show Details',
+            name: "showDetails",
+            type: "checkbox",
+            label: "Show Details",
             defaultValue: false,
           },
         ],
         initialValues: {
-          search: '',
+          search: "",
           email: undefined,
           status: undefined,
-          sortBy: 'firstName',
-          sortOrder: 'asc',
+          sortBy: "firstName",
+          sortOrder: "asc",
           showDetails: false,
         },
-        title: 'User Filters',
+        title: "User Filters",
         collapsible: true,
         defaultCollapsed: false,
         showClearButton: true,
@@ -162,34 +166,34 @@ export const CollapsibleFilters: Story = {
       spec={{
         fields: [
           {
-            name: 'name',
-            type: 'text',
-            label: 'Name',
-            placeholder: 'Enter name...',
+            name: "name",
+            type: "text",
+            label: "Name",
+            placeholder: "Enter name...",
           },
           {
-            name: 'priority',
-            type: 'select',
-            label: 'Priority',
+            name: "priority",
+            type: "select",
+            label: "Priority",
             options: [
-              { label: 'All Priorities', value: '' },
-              { label: 'High', value: 'high' },
-              { label: 'Medium', value: 'medium' },
-              { label: 'Low', value: 'low' },
+              { label: "All Priorities", value: "" },
+              { label: "High", value: "high" },
+              { label: "Medium", value: "medium" },
+              { label: "Low", value: "low" },
             ],
           },
           {
-            name: 'completed',
-            type: 'checkbox',
-            label: 'Completed Only',
+            name: "completed",
+            type: "checkbox",
+            label: "Completed Only",
           },
         ],
         initialValues: {
-          name: '',
-          priority: '',
+          name: "",
+          priority: "",
           completed: false,
         },
-        title: 'Task Filters',
+        title: "Task Filters",
         collapsible: true,
         defaultCollapsed: true,
         showClearButton: true,
@@ -205,15 +209,15 @@ export const MinimalFilters: Story = {
       spec={{
         fields: [
           {
-            name: 'q',
-            type: 'search',
-            label: 'Search',
-            placeholder: 'Type to search...',
+            name: "q",
+            type: "search",
+            label: "Search",
+            placeholder: "Type to search...",
             fullWidth: true,
           },
         ],
         initialValues: {
-          q: '',
+          q: "",
         },
         showClearButton: false,
         showFilterCount: false,

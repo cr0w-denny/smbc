@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import {
   Box,
   Typography,
-  Grid,
+  GridLegacy as Grid,
   Paper,
   Chip,
 } from "@mui/material";
