@@ -3,3 +3,4 @@ export * from "./useDataView";
 export * from "./filter-types";
 export * from "./activity";
 export * from "./transaction";
+export * from "./helpers/actionHelpers";

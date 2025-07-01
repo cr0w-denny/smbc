@@ -1,5 +1,5 @@
 // Generated mock handlers for User Management API
-// Generated at: 2025-07-01T03:21:58.083Z
+// Generated at: 2025-07-01T21:24:45.172Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';

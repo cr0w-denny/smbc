@@ -280,6 +280,13 @@ export function useDataView<T extends Record<string, any>>(
     error,
     total,
 
+    // Transaction state (not supported in applet-core)
+    transactionState: {
+      hasActiveTransaction: false,
+      pendingStates: new Map(),
+      pendingStatesVersion: 0,
+    },
+
     // Filters
     filters,
     setFilters,

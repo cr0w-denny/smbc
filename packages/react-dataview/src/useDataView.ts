@@ -79,11 +79,9 @@ export function useDataView<T extends Record<string, any>>(
 
     const defaultConfig: TransactionConfig = {
       enabled: true,
-      mode: "immediate",
-      autoCommit: true,
-      requireConfirmation: false,
-      showPendingIndicator: false,
-      showReviewUI: false,
+      mode: "all",
+      autoCommit: false,
+      requireConfirmation: true,
     };
 
     return new SimpleTransactionManager<T>({
@@ -208,6 +206,18 @@ export function useDataView<T extends Record<string, any>>(
     config.options?.apiParams,
   ]);
 
+  // Store the current query key in a ref so we can access it without causing effect re-runs
+  const currentQueryKeyRef = React.useRef(currentQueryKey);
+  React.useEffect(() => {
+    currentQueryKeyRef.current = currentQueryKey;
+  }, [currentQueryKey]);
+
+  // Helper to update pending states and trigger re-render
+  const updatePendingStates = React.useCallback((updater: (map: Map<string | number, any>) => void) => {
+    updater(pendingStatesRef.current);
+    setPendingStatesVersion(v => v + 1);
+  }, []);
+
   // Register transaction manager directly with global registry
   React.useEffect(() => {
     if (transactionManager) {
@@ -220,42 +230,40 @@ export function useDataView<T extends Record<string, any>>(
       const handleTransactionStart = () => {
         // Only capture snapshot if we don't have one yet
         if (!transactionSnapshot) {
-          transactionSnapshot = queryClient.getQueryData(currentQueryKey);
+          transactionSnapshot = queryClient.getQueryData(currentQueryKeyRef.current);
         }
       };
 
       const handleTransactionCancelled = () => {
+        // Clear pending states Map
+        updatePendingStates((map) => map.clear());
+        
         if (transactionSnapshot) {
           // Restore the original snapshot data
-
-          queryClient.setQueryData(currentQueryKey, transactionSnapshot);
+          queryClient.setQueryData(currentQueryKeyRef.current, transactionSnapshot);
         } else {
-          // Fallback: Clear pending states if no snapshot available
-
-          queryClient.setQueryData(currentQueryKey, (old: any) => {
+          // Fallback: Just trigger re-render to remove pending states
+          queryClient.setQueryData(currentQueryKeyRef.current, (old: any) => {
             if (!old) return old;
-
-            const currentRows = responseRow(old);
-            // Remove items that were pending creation and clear pending states from others
-            const clearedRows = currentRows
-              .filter((item: any) => item.__pendingState !== "added") // Remove pending adds
-              .map((item: any) => {
-                // Remove pending state metadata
-                const { __pendingState, __pendingOperationId, ...cleanItem } =
-                  item;
-                return cleanItem;
-              });
-
-            return optimisticResponse
-              ? optimisticResponse(old, clearedRows)
-              : clearedRows;
+            // Simply return the data - pending states are now cleared from the Map
+            return { ...old };
           });
         }
         transactionSnapshot = null;
       };
 
       const handleTransactionComplete = (results: any[]) => {
-        // Clear pending states and invalidate queries to get fresh data from server
+        console.log('🔄 Transaction completing - before clear:', {
+          pendingStatesCount: pendingStatesRef.current.size,
+          pendingStates: Array.from(pendingStatesRef.current.entries()),
+          results: results.map(r => ({ success: r.success, operationType: r.operation?.type, entityId: r.operation?.entityId }))
+        });
+        
+        // Clear pending states Map
+        updatePendingStates((map) => {
+          console.log('🔄 Clearing pending states map');
+          map.clear();
+        });
 
         // Emit activities for all successful operations on transaction commit (only if explicitly enabled)
         if (
@@ -284,112 +292,90 @@ export function useDataView<T extends Record<string, any>>(
           });
         }
 
-        queryClient.setQueryData(currentQueryKey, (old: any) => {
-          if (!old) return old;
-
-          const currentRows = responseRow(old);
-          // Clear all pending state metadata
-          const clearedRows = currentRows.map((item: any) => {
-            const { __pendingState, __pendingOperationId, ...cleanItem } = item;
-            return cleanItem;
-          });
-
-          return optimisticResponse
-            ? optimisticResponse(old, clearedRows)
-            : clearedRows;
-        });
-
-        // Now that pending states are cleared, refetch to get the actual server state
+        // Invalidate queries to get fresh data from server
         queryClient.invalidateQueries({
           queryKey: ["get", api.endpoint],
           exact: false,
         });
 
+        // Clear selections since the transaction is complete
+        clearSelection();
+
         transactionSnapshot = null;
+        
+        console.log('🔄 Transaction complete - after clear:', {
+          pendingStatesCount: pendingStatesRef.current.size,
+          pendingStates: Array.from(pendingStatesRef.current.entries())
+        });
       };
 
       const handleOperationRemoved = (
         operationId: string,
         removedOperation?: any,
       ) => {
-        queryClient.setQueryData(currentQueryKey, (old: any) => {
+        console.log('🔄 Operation removed:', {
+          operationId,
+          removedOperation: removedOperation ? {
+            type: removedOperation.type,
+            entityId: removedOperation.entityId
+          } : null,
+          currentPendingStates: Array.from(pendingStatesRef.current.entries())
+        });
+        
+        // For operation conflicts, don't remove pending state if it's been updated to a different operation
+        // (i.e., when delete gets replaced by update, we keep the update pending state)
+        updatePendingStates((map) => {
+          if (removedOperation && removedOperation.entityId) {
+            const entityId = removedOperation.entityId;
+            const currentPendingState = map.get(entityId);
+            
+            // Only remove if the current pending state still has the same operation ID as the removed one
+            if (currentPendingState && currentPendingState.operationId === operationId) {
+              console.log('🔄 Removing pending state for entity (current operation removed):', entityId);
+              map.delete(entityId);
+            } else {
+              console.log('🔄 Keeping pending state - operation already replaced:', {
+                entityId,
+                removedOperationId: operationId,
+                currentOperationId: currentPendingState?.operationId
+              });
+            }
+          } else {
+            // Fallback: try to match by operationId
+            let found = false;
+            for (const [entityId, pendingState] of map.entries()) {
+              if (pendingState.operationId === operationId) {
+                console.log('🔄 Removing pending state for entity (by operationId):', entityId);
+                map.delete(entityId);
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              console.log('🔄 Operation ID not found in pending states:', {
+                operationId,
+                currentPendingStates: Array.from(map.entries())
+              });
+            }
+          }
+        });
+
+        // Update cache to trigger re-render
+        queryClient.setQueryData(currentQueryKeyRef.current, (old: any) => {
           if (!old) return old;
 
           const currentRows = responseRow(old);
           let updatedRows: any[];
 
-          if (removedOperation) {
-            if (removedOperation.type === "create") {
-              // Remove the newly created item entirely
-              updatedRows = currentRows.filter(
-                (item: any) => item.__pendingOperationId !== operationId,
-              );
-            } else if (removedOperation.type === "update") {
-              // Restore original data
-
-              let foundMatch = false;
-              updatedRows = currentRows.map((item: any) => {
-                if (item.__pendingOperationId === operationId) {
-                  foundMatch = true;
-                  const originalData = removedOperation.originalData;
-
-                  if (originalData) {
-                    return originalData;
-                  } else {
-                    // Fallback: just remove pending state
-                    const {
-                      __pendingState,
-                      __pendingOperationId,
-                      ...cleanItem
-                    } = item;
-                    return cleanItem;
-                  }
-                }
-                return item;
-              });
-              if (!foundMatch) {
-              }
-            } else if (removedOperation.type === "delete") {
-              // Restore the deleted item (remove pending delete state)
-              updatedRows = currentRows.map((item: any) => {
-                if (item.__pendingOperationId === operationId) {
-                  const originalData = removedOperation.originalData;
-                  if (originalData) {
-                    return originalData;
-                  } else {
-                    // Fallback: just remove pending state
-                    const {
-                      __pendingState,
-                      __pendingOperationId,
-                      ...cleanItem
-                    } = item;
-                    return cleanItem;
-                  }
-                }
-                return item;
-              });
-            } else {
-              // Unknown operation type, just clear pending state
-              updatedRows = currentRows.map((item: any) => {
-                if (item.__pendingOperationId === operationId) {
-                  const { __pendingState, __pendingOperationId, ...cleanItem } =
-                    item;
-                  return cleanItem;
-                }
-                return item;
-              });
-            }
+          if (removedOperation && removedOperation.type === "create") {
+            // Remove the newly created item entirely for creates
+            const entityId = removedOperation.entityId;
+            updatedRows = currentRows.filter(
+              (item: any) => item[schema.primaryKey] !== entityId,
+            );
           } else {
-            // Operation not found, just clear pending state as fallback
-
-            updatedRows = currentRows.map((item: any) => {
-              if (item.__pendingOperationId === operationId) {
-                const { __pendingState, __pendingOperationId, ...cleanItem } =
-                  item;
-                return cleanItem;
-              }
-              return item;
-            });
+            // For updates and deletes, just trigger re-render - pending states are already removed from Map
+            updatedRows = [...currentRows];
           }
 
           return optimisticResponse
@@ -399,6 +385,7 @@ export function useDataView<T extends Record<string, any>>(
       };
 
       // Listen to transaction events for rollback
+      console.log('🔄 Registering transaction event handlers');
 
       transactionManager.on("onTransactionStart", handleTransactionStart);
       transactionManager.on(
@@ -407,6 +394,8 @@ export function useDataView<T extends Record<string, any>>(
       );
       transactionManager.on("onTransactionComplete", handleTransactionComplete);
       transactionManager.on("onOperationRemoved", handleOperationRemoved);
+      
+      console.log('🔄 Transaction event handlers registered');
 
       return () => {
         TransactionRegistry.unregister(managerId);
@@ -422,10 +411,9 @@ export function useDataView<T extends Record<string, any>>(
         transactionManager.off("onOperationRemoved", handleOperationRemoved);
       };
     }
-  }, [transactionManager, queryClient, currentQueryKey]);
+  }, [transactionManager, queryClient, responseRow, optimisticResponse, activityConfig, activityContext, options.transaction?.emitActivities, api.endpoint, updatePendingStates]);
 
-  // API Query - This will need to be implemented based on the specific API client
-  // For now, we'll create a placeholder that can be overridden
+  // Build query parameters for the API request
   const queryParams = {
     params: {
       query: {
@@ -437,18 +425,71 @@ export function useDataView<T extends Record<string, any>>(
     },
   };
 
+  // Track if transaction is active
+  const hasActiveTransaction = transactionManager?.hasOperations() || false;
+
+  // Separate pending state tracking - key: entity ID, value: pending state info
+  const pendingStatesRef = React.useRef<Map<string | number, {
+    state: "added" | "edited" | "deleted";
+    operationId: string;
+    data?: Partial<T>;
+  }>>(new Map());
+  
+  // State to force re-renders when pending states change (since refs don't trigger re-renders)
+  const [pendingStatesVersion, setPendingStatesVersion] = React.useState(0);
+  
+  
+
   const {
     data: queryData,
     isLoading,
     error,
-  } = api.client.useQuery?.("get", api.endpoint, queryParams) || {
+  } = api.client.useQuery?.("get", api.endpoint, queryParams, {
+    enabled: !hasActiveTransaction, // Disable query during transactions
+  }) || {
     data: null,
     isLoading: false,
     error: null,
   };
 
-  const data = responseRow(queryData);
-  const total = responseRowCount(queryData);
+  // During transactions, get data from cache
+  const effectiveData = React.useMemo(() => {
+    if (hasActiveTransaction) {
+      const cachedData = queryClient.getQueryData(currentQueryKey);
+      return cachedData;
+    }
+    return queryData;
+  }, [hasActiveTransaction, queryClient, currentQueryKey, queryData]);
+
+  // Return clean data and transaction state separately - let UI components handle merging
+  const rawData = responseRow(effectiveData);
+  const data = rawData; // Always return clean data
+  
+  // Transaction state for UI components to use during rendering
+  const transactionState = React.useMemo(() => {
+    if (!transactionManager || !transactionManager.hasOperations()) {
+      return {
+        hasActiveTransaction: false,
+        pendingStates: new Map(),
+        pendingStatesVersion: 0
+      };
+    }
+    
+    return {
+      hasActiveTransaction: true,
+      pendingStates: new Map(pendingStatesRef.current),
+      pendingStatesVersion
+    };
+  }, [transactionManager, pendingStatesVersion]);
+  
+  console.log('🔄 Providing separate data and transaction state to UI:', {
+    dataLength: data?.length || 0,
+    hasActiveTransaction: transactionState.hasActiveTransaction,
+    pendingStatesCount: transactionState.pendingStates.size,
+    firstItemId: data?.[0]?.id
+  });
+  
+  const total = responseRowCount(effectiveData);
 
   // Mutations with optimistic updates
   const createMutation = api.client.useMutation?.("post", api.endpoint, {
@@ -677,71 +718,73 @@ export function useDataView<T extends Record<string, any>>(
       // Generate a consistent operation ID that will be used for both the transaction and visual state
       const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Add visual pending state instead of actually modifying data
-      // This avoids pagination issues while providing immediate visual feedback
+      const primaryKey = schema.primaryKey;
+      const entityId = entity[primaryKey];
 
-      const previousData = queryClient.getQueryData(currentQueryKey);
-
-      queryClient.setQueryData(currentQueryKey, (old: any) => {
-        if (!old) {
-          return old;
+      // Store pending state in separate Map structure
+      updatePendingStates((map) => {
+        console.log('🔄 Adding pending state:', {
+          type,
+          entityId,
+          existingState: map.get(entityId),
+          newOperationId: operationId
+        });
+        
+        if (type === "create") {
+          // For creates, we need a temp ID
+          const tempId = entityId || `temp-${Date.now()}`;
+          map.set(tempId, {
+            state: "added",
+            operationId,
+            data: entity,
+          });
+        } else {
+          // For updates and deletes, use the actual entity ID
+          // Check if there's an existing pending state that should be overridden
+          const existingState = map.get(entityId);
+          
+          if (type === "update" && existingState?.state === "deleted") {
+            // If we're updating a deleted item, it should become edited instead
+            console.log('🔄 Converting delete to edit for entity:', entityId);
+            map.set(entityId, {
+              state: "edited",
+              operationId,
+              data: entity,
+            });
+          } else {
+            map.set(entityId, {
+              state: type === "update" ? "edited" : "deleted",
+              operationId,
+              data: type === "update" ? entity : undefined,
+            });
+          }
         }
+      });
+
+      // Update cache to trigger re-render with new pending states
+      queryClient.setQueryData(currentQueryKeyRef.current, (old: any) => {
+        if (!old) return old;
 
         const currentRows = responseRow(old);
-        const primaryKey = schema.primaryKey;
         let updatedRows: T[];
 
         if (type === "create") {
-          // Add new item to beginning with pending state
+          // Add new item to beginning for creates
+          const tempId = entityId || `temp-${Date.now()}`;
           const pendingItem = {
             ...entity,
-            [primaryKey]: entity[primaryKey] || `temp-${Date.now()}`,
+            [primaryKey]: tempId,
             createdAt: new Date().toISOString(),
-            __pendingState: "added" as const,
-            __pendingOperationId: operationId,
           };
           updatedRows = [pendingItem, ...currentRows];
-        } else if (type === "update") {
-          // Mark existing item as pending update (last operation wins)
-          updatedRows = currentRows.map((item: T) => {
-            if (item[primaryKey] === entity[primaryKey]) {
-              const existingState = (item as any).__pendingState;
-              if (existingState === "deleted") {
-              }
-              return {
-                ...item,
-                ...entity,
-                __pendingState: "edited" as const,
-                __pendingOperationId: operationId,
-              };
-            }
-            return item;
-          });
-        } else if (type === "delete") {
-          // Mark item as pending delete (overrides any previous pending state)
-          updatedRows = currentRows.map((item: T) => {
-            if (item[primaryKey] === entity[primaryKey]) {
-              // Delete operation takes precedence over any other pending state
-              const existingState = (item as any).__pendingState;
-              if (existingState) {
-              }
-              return {
-                ...item,
-                __pendingState: "deleted" as const,
-                __pendingOperationId: operationId,
-              };
-            }
-            return item;
-          });
         } else {
-          updatedRows = currentRows;
+          // For updates and deletes, just trigger re-render - pending states will be merged during rendering
+          updatedRows = [...currentRows];
         }
 
-        const result = optimisticResponse
+        return optimisticResponse
           ? optimisticResponse(old, updatedRows)
           : updatedRows;
-
-        return result;
       });
 
       const entityType = activityConfig?.entityType || "item";
@@ -750,16 +793,18 @@ export function useDataView<T extends Record<string, any>>(
         : `${type} ${entityType}`;
 
       // Store original data for rollback
+      const previousData = queryClient.getQueryData(currentQueryKeyRef.current);
       const originalItem = previousData
         ? responseRow(previousData).find(
             (item: T) => item[schema.primaryKey] === entity[schema.primaryKey],
           )
         : undefined;
 
+      // Clean entity data before storing in transaction (no metadata to remove anymore)
       const operation: Omit<TransactionOperation<T>, "id" | "timestamp"> = {
         type,
         trigger,
-        entity,
+        entity: entity as T,
         entityId: entity[schema.primaryKey],
         originalData: originalItem,
         changedFields,
@@ -780,9 +825,9 @@ export function useDataView<T extends Record<string, any>>(
       activityConfig,
       schema,
       queryClient,
-      currentQueryKey,
       responseRow,
       optimisticResponse,
+      updatePendingStates,
     ],
   );
 
@@ -802,10 +847,29 @@ export function useDataView<T extends Record<string, any>>(
     setCreateDialogOpen(true);
   }, []);
 
+  // Helper to merge pending changes into an item
+  const getMergedItem = useCallback((item: T) => {
+    if (!transactionManager || !transactionManager.hasOperations()) {
+      return item;
+    }
+    
+    const primaryKey = schema.primaryKey;
+    const entityId = item[primaryKey];
+    const pendingState = pendingStatesRef.current.get(entityId);
+    
+    if (pendingState?.state === "edited" && pendingState.data) {
+      return { ...item, ...pendingState.data };
+    }
+    
+    return item;
+  }, [transactionManager, schema.primaryKey]);
+
   const handleEdit = useCallback((item: T) => {
-    setEditingItem(item);
+    // Store the merged item (with pending changes) for the edit form
+    const mergedItem = getMergedItem(item);
+    setEditingItem(mergedItem);
     setEditDialogOpen(true);
-  }, []);
+  }, [getMergedItem]);
 
   const handleDelete = useCallback(
     async (item: T) => {
@@ -1052,11 +1116,14 @@ export function useDataView<T extends Record<string, any>>(
   ]);
 
   return {
-    // Data
+    // Data (always clean, no pending states merged)
     data,
     isLoading,
     error,
     total,
+
+    // Transaction state (separate from data)
+    transactionState,
 
     // Filters
     filters,

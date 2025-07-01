@@ -38,7 +38,7 @@ let mockTasks = generateMockTasks(75);
 // Create a simple React Query client for the demo
 const createTasksApiClient = () => {
   // Real useQuery that uses React Query cache with a mock query function
-  const mockUseQuery = (method: string, endpoint: string, params: any) => {
+  const mockUseQuery = (method: string, endpoint: string, params: any, options?: any) => {
     const queryKey = [method, endpoint, params];
 
     // Calculate initial data for this specific query
@@ -83,6 +83,7 @@ const createTasksApiClient = () => {
 
     return useQuery({
       queryKey,
+      enabled: options?.enabled !== false,
       queryFn: async () => {
         // Apply filtering to current mockTasks state
         let filteredTasks = mockTasks;
@@ -141,7 +142,9 @@ const createTasksApiClient = () => {
           const updates = variables.body;
           const taskIndex = mockTasks.findIndex((t) => t.id === id);
           if (taskIndex !== -1) {
-            mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates };
+            // Remove pending state metadata before saving
+            const { __pendingState, __pendingOperationId, ...cleanUpdates } = updates as any;
+            mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...cleanUpdates };
           }
         } else if (method === "delete" && endpoint.includes("{id}")) {
           // Delete mutation
@@ -149,9 +152,11 @@ const createTasksApiClient = () => {
           mockTasks = mockTasks.filter((t) => t.id !== id);
         } else if (method === "post") {
           // Create mutation
+          // Remove pending state metadata before saving
+          const { __pendingState, __pendingOperationId, ...cleanBody } = variables.body as any;
           const newTask = {
             id: mockTasks.length + 1,
-            ...variables.body,
+            ...cleanBody,
             createdAt: new Date().toISOString(),
           };
           mockTasks.unshift(newTask);

@@ -251,6 +251,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
           selectedIds: dataView.selection.selectedIds,
           onSelectionChange: dataView.selection.setSelectedIds,
         },
+        // Pass transaction state separately for UI components to handle merging
+        transactionState: dataView.transactionState,
       });
   }, [
     dataView.data,
@@ -261,6 +263,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     dataView.isLoading,
     dataView.error,
     dataView.selection,
+    dataView.transactionState,
   ]);
 
   return (

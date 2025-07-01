@@ -46,6 +46,7 @@ function MuiDataTable<T extends Record<string, any>>({
   error,
   onRowClick,
   selection,
+  transactionState,
 }: DataViewTableProps<T>) {
   if (error) {
     return <Alert severity="error">{error.message}</Alert>;
@@ -113,8 +114,16 @@ function MuiDataTable<T extends Record<string, any>>({
         </TableHead>
         <TableBody>
           {data.map((item, index) => {
-            // Check for pending state
-            const pendingState = (item as any).__pendingState;
+            // Get pending state from transaction state (if any)
+            const pendingStateInfo = transactionState?.hasActiveTransaction
+              ? transactionState.pendingStates.get(item.id)
+              : null;
+            const pendingState = pendingStateInfo?.state;
+            
+            // Create merged item with pending data (for edited items)
+            const displayItem = pendingState === "edited" && pendingStateInfo?.data
+              ? { ...item, ...pendingStateInfo.data }
+              : item;
 
             // Define styling based on pending state
             const getPendingStyles = () => {
@@ -203,7 +212,7 @@ function MuiDataTable<T extends Record<string, any>>({
                               : "none",
                         }}
                       >
-                        {column.render ? column.render(item) : item[column.key]}
+                        {column.render ? column.render(displayItem) : displayItem[column.key]}
                       </span>
                     </Box>
                   </TableCell>

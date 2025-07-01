@@ -155,6 +155,15 @@ export interface DataViewTableProps<T> {
     selectedIds: (string | number)[];
     onSelectionChange: (selectedIds: (string | number)[]) => void;
   };
+  transactionState?: {
+    hasActiveTransaction: boolean;
+    pendingStates: Map<string | number, {
+      state: "added" | "edited" | "deleted";
+      operationId: string;
+      data?: Partial<T>;
+    }>;
+    pendingStatesVersion: number;
+  };
 }
 
 export interface DataViewFilterProps {
@@ -325,4 +334,15 @@ export interface DataViewResult<T> {
     trigger?: OperationTrigger,
     changedFields?: string[],
   ) => any;
+
+  // Transaction state (separate from data)
+  transactionState: {
+    hasActiveTransaction: boolean;
+    pendingStates: Map<string | number, {
+      state: "added" | "edited" | "deleted";
+      operationId: string;
+      data?: Partial<T>;
+    }>;
+    pendingStatesVersion: number;
+  };
 }

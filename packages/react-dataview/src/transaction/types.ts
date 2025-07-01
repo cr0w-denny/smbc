@@ -1,10 +1,8 @@
 // Flexible transaction system for react-dataview
 
 export type TransactionMode =
-  | "immediate"
-  | "user-controlled"
-  | "bulk-only"
-  | "hybrid";
+  | "all"
+  | "bulk-only";
 
 export interface TransactionConfig {
   enabled: boolean;
@@ -16,8 +14,6 @@ export interface TransactionConfig {
 
   // User interaction
   requireConfirmation: boolean; // Show confirmation before commit
-  showPendingIndicator: boolean; // Show "X pending changes" badge
-  showReviewUI: boolean; // Enable review modal/drawer
 
   // Activity behavior
   emitActivities?: boolean; // Emit activities for individual operations (default: false when transactions enabled)

@@ -73,21 +73,22 @@ export class SimpleTransactionManager<T = any>
 
       if (operation.type === "delete") {
         // Delete replaces any existing operation
-
         this.currentTransaction!.operations[existingOpIndex] = {
           ...fullOperation,
           originalData: preservedOriginalData, // Keep the very first state
         };
+        // Emit removal event for the replaced operation
+        this.emit("onOperationRemoved", existingOp.id, existingOp);
       } else if (operation.type === "update") {
         // Update replaces any existing operation (including delete)
-
         this.currentTransaction!.operations[existingOpIndex] = {
           ...fullOperation,
           originalData: preservedOriginalData, // Keep the very first state
         };
+        // Emit removal event for the replaced operation
+        this.emit("onOperationRemoved", existingOp.id, existingOp);
       } else if (operation.type === "create") {
         // This shouldn't happen (can't create an existing entity)
-
         this.currentTransaction!.operations.push(fullOperation);
       } else {
         // Default: add as new operation
@@ -144,6 +145,12 @@ export class SimpleTransactionManager<T = any>
   }
 
   async commit(force: boolean = false): Promise<TransactionResult<T>[]> {
+    console.log('🔄 TransactionManager.commit() called', { 
+      hasTransaction: !!this.currentTransaction,
+      operationsCount: this.currentTransaction?.operations.length || 0,
+      force 
+    });
+    
     if (!this.currentTransaction) {
       throw new Error("No active transaction to commit.");
     }
@@ -164,17 +171,21 @@ export class SimpleTransactionManager<T = any>
     try {
       let results: TransactionResult<T>[] = [];
 
-      if (transaction.config.mode === "immediate") {
-        results = await this.executeImmediate();
-      } else {
-        results = await this.executeBatch();
-      }
+      // All modes use batch execution now
+      results = await this.executeBatch();
 
       transaction.status = "completed";
       transaction.completedAt = new Date();
       transaction.results = results;
 
+      console.log('🔄 TransactionManager emitting onTransactionComplete event', { 
+        resultsCount: results.length,
+        hasListeners: this.eventHandlers.has("onTransactionComplete"),
+        listenerCount: this.eventHandlers.get("onTransactionComplete")?.length || 0
+      });
       this.emit("onTransactionComplete", results);
+      
+      console.log('🔄 TransactionManager clearing transaction');
       this.clear(); // Clear transaction after successful completion
 
       return results;
@@ -307,25 +318,17 @@ export class SimpleTransactionManager<T = any>
   private shouldAutoCommit(operation: TransactionOperation<T>): boolean {
     const config = this.currentTransaction!.config;
 
-    // Check mode-specific auto-commit rules
-    if (config.mode === "immediate") {
-      return true;
+    // all mode: never auto-commit
+    if (config.mode === "all") {
+      return false;
     }
 
-    if (config.mode === "bulk-only" && operation.trigger === "bulk-action") {
-      return config.bulkAutoCommit ?? config.autoCommit;
-    }
-
-    if (config.mode === "hybrid") {
+    // bulk-only mode: only auto-commit non-bulk actions
+    if (config.mode === "bulk-only") {
       if (operation.trigger === "bulk-action") {
-        return config.bulkAutoCommit ?? false;
+        return config.bulkAutoCommit ?? false; // Bulk actions default to batched
       }
-      return config.autoCommit;
-    }
-
-    // user-controlled mode
-    if (config.mode === "user-controlled") {
-      return false; // Never auto-commit in user-controlled mode
+      return true; // Row actions are immediate
     }
 
     // Check max operations limit
@@ -339,53 +342,6 @@ export class SimpleTransactionManager<T = any>
     return config.autoCommit;
   }
 
-  private async executeImmediate(): Promise<TransactionResult<T>[]> {
-    const transaction = this.currentTransaction!;
-    const results: TransactionResult<T>[] = [];
-
-    for (const operation of transaction.operations) {
-      const startTime = Date.now();
-
-      try {
-        const result = await operation.mutation();
-        const duration = Date.now() - startTime;
-
-        const opResult: TransactionResult<T> = {
-          success: true,
-          operation,
-          result,
-          duration,
-        };
-
-        results.push(opResult);
-        this.emit("onOperationComplete", opResult);
-      } catch (error) {
-        const duration = Date.now() - startTime;
-
-        const opResult: TransactionResult<T> = {
-          success: false,
-          operation,
-          error: error as Error,
-          duration,
-        };
-
-        results.push(opResult);
-        this.emit("onOperationComplete", opResult);
-
-        // For immediate mode with rollback, stop and rollback on first failure
-        if (transaction.config.mode === "immediate") {
-          await this.rollbackOperations(results.filter((r) => r.success));
-          transaction.status = "rolledback";
-          this.emit("onRollbackComplete", transaction);
-          throw new Error(
-            `Transaction failed and rolled back. Original error: ${(error as Error).message}`,
-          );
-        }
-      }
-    }
-
-    return results;
-  }
 
   private async executeBatch(): Promise<TransactionResult<T>[]> {
     const transaction = this.currentTransaction!;
