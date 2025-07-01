@@ -4,7 +4,7 @@ import { type components } from "@smbc/user-management-client";
 type User = components["schemas"]["User"];
 
 /**
- * Extended user type with optional computed fields
+ * Extended user type with optional fields
  */
 type UserWithOptionalFields = User & {
   fullName?: string;

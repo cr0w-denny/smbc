@@ -11,7 +11,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { faker } from "@faker-js/faker";
 
 // =============================================================================
-// BASIC DATAVIEW EXAMPLE - Configuration Only, No Custom Components
+// "BASIC" DATAVIEW EXAMPLE
 // =============================================================================
 
 // Generate mock data for the demo
