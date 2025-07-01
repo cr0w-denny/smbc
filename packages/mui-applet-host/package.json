@@ -1,6 +1,6 @@
 {
   "name": "@smbc/mui-applet-host",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "SMBC MUI Applet Host Package - Easy setup for React apps with applet system",
   "type": "module",
   "main": "dist/index.js",

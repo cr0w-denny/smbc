@@ -1,6 +1,6 @@
 {
   "name": "@smbc/product-catalog-client",
-  "version": "1.1.0",
+  "version": "0.0.0",
   "description": "React Query client for product catalog API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

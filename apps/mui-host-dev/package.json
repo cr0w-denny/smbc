@@ -1,6 +1,6 @@
 {
   "name": "@smbc/mui-host-dev",
-  "version": "1.0.1",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build:libs": "echo 'N/A - Application package'",

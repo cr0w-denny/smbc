@@ -1,6 +1,6 @@
 {
   "name": "@smbc/applet-core",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Framework-agnostic core utilities for SMBC applets",
   "type": "module",
   "main": "dist/index.js",

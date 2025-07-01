@@ -1,6 +1,6 @@
 {
   "name": "@smbc/monorepo",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "SMBC Monorepo",
   "private": true,
   "type": "module",
@@ -24,19 +24,19 @@
     "storybook": "npm run storybook -w @smbc/mui-components",
     "dev:simple": "npm run dev --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
+    "clean-console": "./scripts/clean-console.ts",
+    "clean-console:dry": "./scripts/clean-console.ts --dry-run --verbose",
+    "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
+    "clean-slate": "./scripts/clean-slate.sh",
     "lint": "npm run lint --workspaces --if-present",
     "type-check": "npm run type-check --workspaces --if-present",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
-    "clean-code": "./scripts/clean-code.ts",
-    "clean-code:dry": "./scripts/clean-code.ts --dry-run --verbose",
     "validate": "npm run type-check && npm run lint && npm run test",
-    "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
     "generate": "./scripts/mock-generation/generate.ts",
-    "create-applet": "tsx scripts/create-applet/cli.ts",
-    "reset": "rm package-lock.json && rimraf --glob ./**/node_modules && npm run clean && ./scripts/reset.sh"
+    "create-applet": "tsx scripts/create-applet/cli.ts"
   },
   "overrides": {
     "prismjs": "1.29.0"

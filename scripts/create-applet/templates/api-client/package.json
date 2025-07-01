@@ -1,6 +1,6 @@
 {
   "name": "@smbc/{{APPLET_NAME}}-client",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "{{APPLET_DESCRIPTION}} - API Client",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

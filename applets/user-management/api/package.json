@@ -1,6 +1,6 @@
 {
   "name": "@smbc/user-management-api",
-  "version": "1.1.1",
+  "version": "0.0.0",
   "description": "TypeSpec API definition for user management",
   "main": "tsp-output/@typespec/openapi3/openapi.json",
   "type": "module",

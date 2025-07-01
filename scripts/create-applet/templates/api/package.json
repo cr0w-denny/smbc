@@ -1,6 +1,6 @@
 {
   "name": "@smbc/{{APPLET_NAME}}-api",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "{{APPLET_DESCRIPTION}} - TypeSpec API Definition",
   "type": "module",
   "main": "tsp-output/@typespec/openapi3/openapi.json",

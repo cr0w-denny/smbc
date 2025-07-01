@@ -1,6 +1,6 @@
 {
   "name": "@smbc/design-tokens",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
   "description": "Framework-agnostic design tokens for SMBC applications (colors, spacing, typography, etc.)",
   "main": "dist/index.js",

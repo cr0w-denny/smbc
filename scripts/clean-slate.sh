@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Clean All Caches - Remove all TypeScript build info and other cache files across the monorepo
-# This script provides a truly clean slate for debugging build issues
+# Clean slate for debugging build issues
 
 set -e
 
@@ -11,6 +10,14 @@ echo "🧹 Cleaning all caches across the monorepo..."
 cd "$(dirname "$0")/.."
 
 echo "📁 Current directory: $(pwd)"
+
+# Run package-specific clean scripts
+echo "🔧 Running package-specific clean scripts..."
+npm run clean
+
+# Remove TypeScript declaration files, declaration maps, and JavaScript files 
+echo "🗑️  Removing TypeScript declaration files, maps, and JavaScript files..."
+npm run clean-ts
 
 # Remove TypeScript build info files
 echo "🔨 Removing TypeScript build info files..."
@@ -37,3 +44,8 @@ find . -name ".vite" -type d -not -path "./node_modules/*" -exec rm -rf {} + || 
 echo "🗑️  Removing temporary files..."
 find . -name "*.tmp" -type f -not -path "./node_modules/*" -delete || true
 find . -name "*.temp" -type f -not -path "./node_modules/*" -delete || true
+
+# Remove package-lock.json and node_modules
+echo "🗑️  Removing package-lock.json and node_modules directories..."
+rm package-lock.json
+find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
