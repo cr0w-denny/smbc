@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Drawer,
@@ -12,8 +12,8 @@ import {
   Chip,
   Tabs,
   Tab,
-} from '@mui/material';
-import { Dashboard as DashboardIcon } from '@mui/icons-material';
+} from "@mui/material";
+import { Dashboard as DashboardIcon } from "@mui/icons-material";
 
 /**
  * Navigation route interface
@@ -37,7 +37,7 @@ export interface AppletNavigationProps {
   /** Array of navigation routes */
   routes: NavigationRoute[];
   /** Navigation style mode */
-  mode?: 'list' | 'tabs';
+  mode?: "list" | "tabs";
   /** Whether to show debug info (applet count chip) */
   showDebugInfo?: boolean;
   /** Number of total applets for debug display */
@@ -52,7 +52,7 @@ export function AppletNavigation({
   currentPath,
   onNavigate,
   routes,
-  mode = 'list',
+  mode = "list",
   showDebugInfo = false,
   totalApplets = 0,
 }: AppletNavigationProps) {
@@ -60,8 +60,10 @@ export function AppletNavigation({
     onNavigate(path);
   };
 
-  if (mode === 'tabs') {
-    const currentIndex = routes.findIndex(route => route.path === currentPath);
+  if (mode === "tabs") {
+    const currentIndex = routes.findIndex(
+      (route) => route.path === currentPath,
+    );
     const tabValue = currentIndex === -1 ? 0 : currentIndex;
 
     return (
@@ -150,7 +152,7 @@ export interface AppletDrawerProps {
 /**
  * A reusable drawer component for application navigation
  * that provides a consistent sidebar with navigation items
- * 
+ *
  * @example
  * ```tsx
  * <AppletDrawer
@@ -194,13 +196,9 @@ export function AppletDrawer({
           {title}
         </Typography>
       </Toolbar>
-      
-      {headerContent && (
-        <Box sx={{ px: 2, py: 1 }}>
-          {headerContent}
-        </Box>
-      )}
-      
+
+      {headerContent && <Box sx={{ px: 2, py: 1 }}>{headerContent}</Box>}
+
       <AppletNavigation
         currentPath={currentPath}
         onNavigate={onNavigate}
@@ -208,11 +206,9 @@ export function AppletDrawer({
         showDebugInfo={showDebugInfo}
         totalApplets={totalApplets}
       />
-      
+
       {footerContent && (
-        <Box sx={{ px: 2, py: 1, mt: 'auto' }}>
-          {footerContent}
-        </Box>
+        <Box sx={{ px: 2, py: 1, mt: "auto" }}>{footerContent}</Box>
       )}
     </Drawer>
   );

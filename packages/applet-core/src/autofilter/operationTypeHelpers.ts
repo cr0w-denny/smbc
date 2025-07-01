@@ -10,8 +10,8 @@
 export function createOperationSchema(queryParams: Record<string, any>) {
   return {
     parameters: {
-      query: queryParams
-    }
+      query: queryParams,
+    },
   };
 }
 
@@ -22,47 +22,50 @@ export const commonOperationSchemas = {
   /**
    * Standard list operation with pagination, search, and optional filters
    */
-  listWithFilters: (additionalFilters: Record<string, any> = {}) => createOperationSchema({
-    page: { 
-      type: 'integer', 
-      default: 1,
-      description: 'Page number for pagination'
-    },
-    pageSize: { 
-      type: 'integer', 
-      default: 10,
-      description: 'Number of items per page'
-    },
-    search: { 
-      type: 'string',
-      description: 'Search query'
-    },
-    ...additionalFilters
-  }),
+  listWithFilters: (additionalFilters: Record<string, any> = {}) =>
+    createOperationSchema({
+      page: {
+        type: "integer",
+        default: 1,
+        description: "Page number for pagination",
+      },
+      pageSize: {
+        type: "integer",
+        default: 10,
+        description: "Number of items per page",
+      },
+      search: {
+        type: "string",
+        description: "Search query",
+      },
+      ...additionalFilters,
+    }),
 
   /**
    * Basic list operation with just pagination
    */
-  listWithPagination: () => createOperationSchema({
-    page: { 
-      type: 'integer', 
-      default: 1 
-    },
-    pageSize: { 
-      type: 'integer', 
-      default: 10 
-    }
-  }),
+  listWithPagination: () =>
+    createOperationSchema({
+      page: {
+        type: "integer",
+        default: 1,
+      },
+      pageSize: {
+        type: "integer",
+        default: 10,
+      },
+    }),
 
   /**
    * Search-only operation
    */
-  searchOnly: () => createOperationSchema({
-    search: { 
-      type: 'string',
-      description: 'Search query'
-    }
-  }),
+  searchOnly: () =>
+    createOperationSchema({
+      search: {
+        type: "string",
+        description: "Search query",
+      },
+    }),
 };
 
 /**
@@ -71,15 +74,15 @@ export const commonOperationSchemas = {
  */
 export function extractFieldsFromOpenAPIOperation(operation: any) {
   const queryParams: Record<string, any> = {};
-  
+
   if (operation?.parameters) {
     operation.parameters
-      .filter((param: any) => param.in === 'query')
+      .filter((param: any) => param.in === "query")
       .forEach((param: any) => {
         queryParams[param.name] = param.schema || param;
       });
   }
-  
+
   return createOperationSchema(queryParams);
 }
 
@@ -93,12 +96,13 @@ export const smbcOperationSchemas = {
   usersList: () => commonOperationSchemas.listWithFilters(),
 
   /**
-   * Product Catalog API - Products list operation  
+   * Product Catalog API - Products list operation
    */
-  productsList: () => commonOperationSchemas.listWithFilters({
-    category: {
-      type: 'string',
-      description: 'Product category filter'
-    }
-  }),
+  productsList: () =>
+    commonOperationSchemas.listWithFilters({
+      category: {
+        type: "string",
+        description: "Product category filter",
+      },
+    }),
 };

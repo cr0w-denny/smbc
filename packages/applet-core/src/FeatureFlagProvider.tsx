@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from "react";
 
 /**
  * Supported feature flag value types
@@ -8,7 +8,9 @@ export type FeatureFlagValue = boolean | string | number;
 /**
  * Feature flag configuration interface
  */
-export interface FeatureFlagConfig<T extends FeatureFlagValue = FeatureFlagValue> {
+export interface FeatureFlagConfig<
+  T extends FeatureFlagValue = FeatureFlagValue,
+> {
   /** Unique identifier for the feature flag */
   key: string;
   /** Default value for the feature flag */
@@ -45,7 +47,9 @@ export interface FeatureFlagState {
   getConfigs: () => FeatureFlagConfig[];
 }
 
-const FeatureFlagContext = createContext<FeatureFlagState | undefined>(undefined);
+const FeatureFlagContext = createContext<FeatureFlagState | undefined>(
+  undefined,
+);
 
 /**
  * Props for the FeatureFlagProvider component
@@ -58,13 +62,17 @@ export interface FeatureFlagProviderProps {
   /** Optional prefix for localStorage keys */
   storagePrefix?: string;
   /** Optional callback when a flag value changes */
-  onFlagChange?: (key: string, value: FeatureFlagValue, previousValue?: FeatureFlagValue) => void;
+  onFlagChange?: (
+    key: string,
+    value: FeatureFlagValue,
+    previousValue?: FeatureFlagValue,
+  ) => void;
 }
 
 /**
  * A flexible feature flag provider that supports different value types,
  * localStorage persistence, and type-safe access to feature flags.
- * 
+ *
  * @example
  * ```tsx
  * const featureFlags = [
@@ -87,7 +95,7 @@ export interface FeatureFlagProviderProps {
  *     persist: true,
  *   },
  * ];
- * 
+ *
  * <FeatureFlagProvider configs={featureFlags}>
  *   <App />
  * </FeatureFlagProvider>
@@ -96,120 +104,137 @@ export interface FeatureFlagProviderProps {
 export function FeatureFlagProvider({
   children,
   configs,
-  storagePrefix = 'featureFlag',
+  storagePrefix = "featureFlag",
   onFlagChange,
 }: FeatureFlagProviderProps) {
   // Initialize flags with default values or stored values
   const [flags, setFlags] = useState<Record<string, FeatureFlagValue>>(() => {
     const initialFlags: Record<string, FeatureFlagValue> = {};
-    
-    configs.forEach(config => {
+
+    configs.forEach((config) => {
       let value = config.defaultValue;
-      
+
       // Try to load from localStorage if persistence is enabled
       if (config.persist) {
         try {
           const stored = localStorage.getItem(`${storagePrefix}-${config.key}`);
           if (stored !== null) {
             let parsedValue = JSON.parse(stored);
-            
+
             // Apply transformation if provided
             if (config.transform) {
               parsedValue = config.transform(parsedValue);
             }
-            
+
             // Validate the loaded value
             if (!config.validate || config.validate(parsedValue)) {
               value = parsedValue;
             }
           }
-        } catch (error) {
-          console.warn(`Failed to load feature flag '${config.key}' from localStorage:`, error);
-        }
+        } catch (error) {}
       }
-      
+
       initialFlags[config.key] = value;
     });
-    
+
     return initialFlags;
   });
 
   // Helper to get config for a key
-  const getConfig = useCallback((key: string) => {
-    return configs.find(config => config.key === key);
-  }, [configs]);
+  const getConfig = useCallback(
+    (key: string) => {
+      return configs.find((config) => config.key === key);
+    },
+    [configs],
+  );
 
   // Persist flag to localStorage if enabled
-  const persistFlag = useCallback((key: string, value: FeatureFlagValue) => {
-    const config = getConfig(key);
-    if (config?.persist) {
-      try {
-        localStorage.setItem(`${storagePrefix}-${key}`, JSON.stringify(value));
-      } catch (error) {
-        console.warn(`Failed to persist feature flag '${key}' to localStorage:`, error);
+  const persistFlag = useCallback(
+    (key: string, value: FeatureFlagValue) => {
+      const config = getConfig(key);
+      if (config?.persist) {
+        try {
+          localStorage.setItem(
+            `${storagePrefix}-${key}`,
+            JSON.stringify(value),
+          );
+        } catch (error) {}
       }
-    }
-  }, [getConfig, storagePrefix]);
+    },
+    [getConfig, storagePrefix],
+  );
 
-  const setFlag = useCallback(<T extends FeatureFlagValue>(key: string, value: T) => {
-    const config = getConfig(key);
-    if (!config) {
-      console.warn(`Feature flag '${key}' is not configured`);
-      return;
-    }
-
-    // Validate the value if validator is provided
-    if (config.validate && !config.validate(value)) {
-      console.warn(`Invalid value for feature flag '${key}':`, value);
-      return;
-    }
-
-    setFlags(prev => {
-      const previousValue = prev[key];
-      const newFlags = { ...prev, [key]: value };
-      
-      // Persist the value
-      persistFlag(key, value);
-      
-      // Call onChange callback
-      if (onFlagChange) {
-        onFlagChange(key, value, previousValue);
+  const setFlag = useCallback(
+    <T extends FeatureFlagValue>(key: string, value: T) => {
+      const config = getConfig(key);
+      if (!config) {
+        return;
       }
-      
-      return newFlags;
-    });
-  }, [getConfig, persistFlag, onFlagChange]);
 
-  const getFlag = useCallback(<T extends FeatureFlagValue>(key: string): T | undefined => {
-    return flags[key] as T | undefined;
-  }, [flags]);
+      // Validate the value if validator is provided
+      if (config.validate && !config.validate(value)) {
+        return;
+      }
 
-  const toggleFlag = useCallback((key: string) => {
-    const currentValue = flags[key];
-    if (typeof currentValue === 'boolean') {
-      setFlag(key, !currentValue);
-    } else {
-      console.warn(`Cannot toggle non-boolean feature flag '${key}'`);
-    }
-  }, [flags, setFlag]);
+      setFlags((prev) => {
+        const previousValue = prev[key];
+        const newFlags = { ...prev, [key]: value };
 
-  const resetFlag = useCallback((key: string) => {
-    const config = getConfig(key);
-    if (config) {
-      setFlag(key, config.defaultValue);
-    }
-  }, [getConfig, setFlag]);
+        // Persist the value
+        persistFlag(key, value);
+
+        // Call onChange callback
+        if (onFlagChange) {
+          onFlagChange(key, value, previousValue);
+        }
+
+        return newFlags;
+      });
+    },
+    [getConfig, persistFlag, onFlagChange],
+  );
+
+  const getFlag = useCallback(
+    <T extends FeatureFlagValue>(key: string): T | undefined => {
+      return flags[key] as T | undefined;
+    },
+    [flags],
+  );
+
+  const toggleFlag = useCallback(
+    (key: string) => {
+      const currentValue = flags[key];
+      if (typeof currentValue === "boolean") {
+        setFlag(key, !currentValue);
+      } else {
+      }
+    },
+    [flags, setFlag],
+  );
+
+  const resetFlag = useCallback(
+    (key: string) => {
+      const config = getConfig(key);
+      if (config) {
+        setFlag(key, config.defaultValue);
+      }
+    },
+    [getConfig, setFlag],
+  );
 
   const resetAllFlags = useCallback(() => {
-    configs.forEach(config => {
+    configs.forEach((config) => {
       setFlag(config.key, config.defaultValue);
     });
   }, [configs, setFlag]);
 
-  const isEnabled = useCallback((key: string): boolean => {
-    const value = flags[key];
-    return typeof value === 'boolean' ? value : false;
-  }, [flags]);
+  const isEnabled = useCallback(
+    (key: string): boolean => {
+      const value = flags[key];
+      return typeof value === "boolean" ? value : false;
+    },
+    [flags],
+  );
 
   const getConfigs = useCallback(() => configs, [configs]);
 
@@ -238,28 +263,32 @@ export function FeatureFlagProvider({
 export function useFeatureFlags(): FeatureFlagState {
   const context = useContext(FeatureFlagContext);
   if (!context) {
-    throw new Error('useFeatureFlags must be used within a FeatureFlagProvider');
+    throw new Error(
+      "useFeatureFlags must be used within a FeatureFlagProvider",
+    );
   }
   return context;
 }
 
 /**
  * Hook to access a specific feature flag value with type safety
- * 
+ *
  * @example
  * ```tsx
  * const isDarkMode = useFeatureFlag<boolean>('darkMode');
  * const debugLevel = useFeatureFlag<string>('debugLevel');
  * ```
  */
-export function useFeatureFlag<T extends FeatureFlagValue>(key: string): T | undefined {
+export function useFeatureFlag<T extends FeatureFlagValue>(
+  key: string,
+): T | undefined {
   const { getFlag } = useFeatureFlags();
   return getFlag<T>(key);
 }
 
 /**
  * Hook to check if a boolean feature flag is enabled
- * 
+ *
  * @example
  * ```tsx
  * const isDarkModeEnabled = useFeatureFlagEnabled('darkMode');
@@ -272,7 +301,7 @@ export function useFeatureFlagEnabled(key: string): boolean {
 
 /**
  * Hook to get a feature flag toggle function for boolean flags
- * 
+ *
  * @example
  * ```tsx
  * const toggleDarkMode = useFeatureFlagToggle('darkMode');

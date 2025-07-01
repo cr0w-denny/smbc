@@ -418,7 +418,6 @@ export function ActivityNotifications({
                           <IconButton
                             size="small"
                             onClick={() => {
-                              console.log('🖱️ Individual cancel clicked for operation:', operation.id);
                               // Find the manager that contains this operation and remove it
                               for (const manager of transactionContext.getAllManagers()) {
                                 if (
@@ -426,13 +425,18 @@ export function ActivityNotifications({
                                     .getOperations()
                                     .some((op: any) => op.id === operation.id)
                                 ) {
-                                  console.log('📋 Found manager, removing operation:', operation.id);
-                                  const result = manager.removeOperation(operation.id);
-                                  console.log('✅ Remove operation result:', result);
-                                  
+                                  const result = manager.removeOperation(
+                                    operation.id,
+                                  );
+
                                   // Close popover if no more operations exist
-                                  const totalOperations = transactionContext.getAllManagers()
-                                    .reduce((total, mgr) => total + mgr.getOperations().length, 0);
+                                  const totalOperations = transactionContext
+                                    .getAllManagers()
+                                    .reduce(
+                                      (total, mgr) =>
+                                        total + mgr.getOperations().length,
+                                      0,
+                                    );
                                   if (totalOperations === 0) {
                                     handleClose();
                                   }

@@ -46,12 +46,12 @@ export const {{APPLET_PASCAL_CASE}}Detail: React.FC<{{APPLET_PASCAL_CASE}}Detail
 
   const handleEdit = () => {
     // TODO: Implement edit functionality
-    console.log('Edit {{APPLET_NAME}} item:', data.id);
+
   };
 
   const handleDelete = () => {
     // TODO: Implement delete functionality
-    console.log('Delete {{APPLET_NAME}} item:', data.id);
+
   };
 
   const getStatusColor = (status: string) => {

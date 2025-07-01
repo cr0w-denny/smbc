@@ -11,7 +11,7 @@ export function createApiClient(config: ApiClientConfig) {
   const fetchClient = createFetchClient<paths>({
     baseUrl: config.baseUrl,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...config.headers,
     },
   });
@@ -23,7 +23,7 @@ export function createApiClient(config: ApiClientConfig) {
     // Expose both the fetch client and query client
     fetch: fetchClient,
     query: queryClient,
-    
+
     // Expose individual hooks for convenience
     useQuery: queryClient.useQuery,
     useMutation: queryClient.useMutation,
@@ -34,9 +34,10 @@ export function createApiClient(config: ApiClientConfig) {
 
 // Create a default client instance for convenience
 export const defaultApiConfig: ApiClientConfig = {
-  baseUrl: process.env.NODE_ENV === 'production' 
-    ? 'https://api.smbc.com/api/v1' 
-    : 'http://localhost:3000/api/v1',
+  baseUrl:
+    process.env.NODE_ENV === "production"
+      ? "https://api.smbc.com/api/v1"
+      : "http://localhost:3000/api/v1",
 };
 
 export const apiClient = createApiClient(defaultApiConfig);

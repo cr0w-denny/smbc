@@ -95,4 +95,3 @@ export type { ActivityNotificationsProps } from "./ActivityNotifications";
 // Activity snackbar component
 export { ActivitySnackbar } from "./ActivitySnackbar";
 export type { ActivitySnackbarProps } from "./ActivitySnackbar";
-

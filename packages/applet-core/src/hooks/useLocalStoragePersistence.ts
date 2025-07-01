@@ -17,8 +17,6 @@ export function useLocalStoragePersistence({
 
     try {
       localStorage.setItem(localStorageKey, JSON.stringify(selectedRoles));
-    } catch (error) {
-      console.warn("Failed to save selected roles to localStorage:", error);
-    }
+    } catch (error) {}
   }, [selectedRoles, persistRoles, localStorageKey]);
 }

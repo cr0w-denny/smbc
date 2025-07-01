@@ -37,16 +37,9 @@ export function CurrentUserInfo({
           )}
           <Box sx={{ mt: 1 }}>
             <strong>Active Roles:</strong>
-            <Box
-              sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}
-            >
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
               {selectedRoles.map((role) => (
-                <Chip
-                  key={role}
-                  label={role}
-                  color="primary"
-                  size="small"
-                />
+                <Chip key={role} label={role} color="primary" size="small" />
               ))}
             </Box>
           </Box>

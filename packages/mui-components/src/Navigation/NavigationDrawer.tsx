@@ -2,39 +2,31 @@
  * Pure NavigationDrawer component - just the drawer UI, no business logic
  */
 
-import React from 'react';
-import {
-  Drawer,
-  Toolbar,
-  Typography,
-  Divider,
-  Box,
-} from '@mui/material';
-import type { NavigationDrawerProps } from './types';
+import React from "react";
+import { Drawer, Toolbar, Typography, Divider, Box } from "@mui/material";
+import type { NavigationDrawerProps } from "./types";
 
 export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   open,
   onClose,
   width,
-  variant = 'temporary',
-  title = 'Navigation',
+  variant = "temporary",
+  title = "Navigation",
   children,
 }) => {
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Header */}
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
           {title}
         </Typography>
       </Toolbar>
-      
+
       <Divider />
-      
+
       {/* Navigation content */}
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
-        {children}
-      </Box>
+      <Box sx={{ flex: 1, overflow: "auto" }}>{children}</Box>
     </Box>
   );
 
@@ -46,9 +38,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
       sx={{
         width: width,
         flexShrink: 0,
-        '& .MuiDrawer-paper': {
+        "& .MuiDrawer-paper": {
           width: width,
-          boxSizing: 'border-box',
+          boxSizing: "border-box",
         },
       }}
     >

@@ -115,7 +115,6 @@ export default defineConfig(({ mode }) => {
             // Debug: log what's going into vendor-misc
             if (id.includes("node_modules")) {
               if (process.env.VITE_CHUNK_DEBUG) {
-                console.log("vendor-misc:", id);
               }
               return "vendor-misc";
             }

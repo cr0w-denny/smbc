@@ -16,7 +16,7 @@ export interface {{APPLET_PASCAL_CASE}}ComponentProps {
 export const {{APPLET_PASCAL_CASE}}Component: React.FC<{{APPLET_PASCAL_CASE}}ComponentProps> = () => {
   const handleCreate = () => {
     // TODO: Implement create functionality
-    console.log('Create new {{APPLET_NAME}} item');
+
   };
 
   return (

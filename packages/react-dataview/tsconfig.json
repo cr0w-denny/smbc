@@ -11,7 +11,5 @@
   },
   "include": ["src"],
   "exclude": ["dist", "node_modules"],
-  "references": [
-    { "path": "../shared-query-client" }
-  ]
+  "references": [{ "path": "../shared-query-client" }]
 }

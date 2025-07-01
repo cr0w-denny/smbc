@@ -2,14 +2,14 @@
 // SMBC MUI Host - Create App (for greenfield apps)
 // =============================================================================
 
-import { createRoot } from 'react-dom/client';
-import { CreateAppOptions, HostConfig } from './types';
-import { AppletProvider } from './AppletProvider';
-import { validateConfig, getDefaultConfig } from './config';
+import { createRoot } from "react-dom/client";
+import { CreateAppOptions, HostConfig } from "./types";
+import { AppletProvider } from "./AppletProvider";
+import { validateConfig, getDefaultConfig } from "./config";
 
 /**
  * Create a complete SMBC app with full app shell
- * 
+ *
  * This function creates a greenfield app with the complete SMBC experience:
  * - App bar with navigation
  * - Side drawer with applet menu
@@ -19,7 +19,7 @@ import { validateConfig, getDefaultConfig } from './config';
  */
 export async function createApp(options: CreateAppOptions = {}) {
   const { config, container } = options;
-  
+
   // Load configuration
   let hostConfig: HostConfig;
   if (config) {
@@ -31,7 +31,7 @@ export async function createApp(options: CreateAppOptions = {}) {
   // Validate configuration
   const errors = validateConfig(hostConfig);
   if (errors.length > 0) {
-    throw new Error(`Configuration errors: ${errors.join(', ')}`);
+    throw new Error(`Configuration errors: ${errors.join(", ")}`);
   }
 
   // Create app component
@@ -69,18 +69,18 @@ function SMBCApp() {
 }
 
 function getContainer(container?: string | HTMLElement): HTMLElement {
-  if (typeof container === 'string') {
+  if (typeof container === "string") {
     const element = document.querySelector(container);
     if (!element) {
       throw new Error(`Container element not found: ${container}`);
     }
     return element as HTMLElement;
   }
-  
+
   if (container instanceof HTMLElement) {
     return container;
   }
-  
+
   // Default to body
   return document.body;
 }

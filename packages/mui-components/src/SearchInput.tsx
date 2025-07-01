@@ -1,11 +1,6 @@
-import React, { useCallback } from 'react';
-import {
-  TextField,
-  InputAdornment,
-  IconButton,
-  Box,
-} from '@mui/material';
-import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
+import React, { useCallback } from "react";
+import { TextField, InputAdornment, IconButton, Box } from "@mui/material";
+import { Search as SearchIcon, Clear as ClearIcon } from "@mui/icons-material";
 
 export interface SearchInputProps {
   /** Current search value */
@@ -21,7 +16,7 @@ export interface SearchInputProps {
   /** Debounce delay in milliseconds */
   debounceMs?: number;
   /** Size variant */
-  size?: 'small' | 'medium';
+  size?: "small" | "medium";
   /** Full width */
   fullWidth?: boolean;
   /** Additional props to pass to TextField */
@@ -34,11 +29,11 @@ export interface SearchInputProps {
 export const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChange,
-  placeholder = 'Search...',
+  placeholder = "Search...",
   disabled = false,
   showClearButton = true,
   debounceMs = 300,
-  size = 'medium',
+  size = "medium",
   fullWidth = false,
   textFieldProps = {},
 }) => {
@@ -69,20 +64,26 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     };
   }, [localValue, debounceMs]); // Removed onChange and value to prevent unnecessary re-renders
 
-  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValue(event.target.value);
-  }, []);
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setLocalValue(event.target.value);
+    },
+    [],
+  );
 
   const handleClear = useCallback(() => {
-    setLocalValue('');
-    onChange('');
+    setLocalValue("");
+    onChange("");
   }, [onChange]);
 
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      handleClear();
-    }
-  }, [handleClear]);
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleClear();
+      }
+    },
+    [handleClear],
+  );
 
   return (
     <Box>
@@ -98,7 +99,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <SearchIcon color={disabled ? 'disabled' : 'action'} />
+              <SearchIcon color={disabled ? "disabled" : "action"} />
             </InputAdornment>
           ),
           endAdornment: showClearButton && localValue && (
@@ -107,7 +108,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
                 aria-label="clear search"
                 onClick={handleClear}
                 disabled={disabled}
-                size={size === 'small' ? 'small' : 'medium'}
+                size={size === "small" ? "small" : "medium"}
                 edge="end"
               >
                 <ClearIcon />

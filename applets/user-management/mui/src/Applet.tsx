@@ -17,18 +17,18 @@ export interface AppletProps {
 
 /**
  * 🚀 Main User Management Applet Entry Point
- * 
+ *
  * This is the primary entry point for the user management applet.
  * It provides navigation between user management views and handles routing
  * within the applet. This component is automatically loaded when the applet
  * is mounted in an applet host.
- * 
+ *
  * Located at `src/Applet.tsx` for easy discoverability by developers.
- * 
+ *
  * @example
  * ```tsx
  * // Used automatically by applet host
- * <Applet 
+ * <Applet
  *   mountPath="/user-management"
  *   userType="all"
  *   permissionContext="admin-panel"
@@ -41,7 +41,7 @@ export const Applet: FC<AppletProps> = ({
   permissionContext = "user-management",
 }) => {
   const { currentPath, navigateTo } = useHashNavigation(mountPath);
-  
+
   // Store the previous URL (including query params) when navigating to profile
   const previousUrlRef = useRef<string | null>(null);
 
@@ -52,20 +52,22 @@ export const Applet: FC<AppletProps> = ({
     // Check for profile route with ID
     if (currentPath.startsWith("/profile/")) {
       const userId = currentPath.replace("/profile/", "");
-      return <UserProfile 
-        userId={userId} 
-        onBack={() => {
-          // If we have a stored previous URL, restore it; otherwise go to root
-          if (previousUrlRef.current) {
-            window.location.hash = previousUrlRef.current;
-            previousUrlRef.current = null;
-          } else {
-            navigateTo("/");
-          }
-        }} 
-      />;
+      return (
+        <UserProfile
+          userId={userId}
+          onBack={() => {
+            // If we have a stored previous URL, restore it; otherwise go to root
+            if (previousUrlRef.current) {
+              window.location.hash = previousUrlRef.current;
+              previousUrlRef.current = null;
+            } else {
+              navigateTo("/");
+            }
+          }}
+        />
+      );
     }
-    
+
     switch (currentPath) {
       case "/analytics":
         return <UserAnalytics />;

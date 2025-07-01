@@ -54,7 +54,6 @@ export function UserManager({
 
   // Event handlers
   const handleSuccess = (action: "create" | "edit" | "delete", item?: any) => {
-    console.log(`Success: ${action}`, item);
     // TODO: Add toast notification or snackbar
   };
 

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { ApiDocsModal } from "../src/ApiDocsModal";
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 import "swagger-ui-react/swagger-ui.css";
 
 const meta: Meta<typeof ApiDocsModal> = {
@@ -199,7 +199,7 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
+      <ThemeProvider theme={createTheme({ palette: { mode: "dark" } })}>
         <CssBaseline />
         <Story />
       </ThemeProvider>

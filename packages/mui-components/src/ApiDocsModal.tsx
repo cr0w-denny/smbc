@@ -45,8 +45,6 @@ export function ApiDocsModal({
   // Debug logging
   React.useEffect(() => {
     if (open && apiSpec) {
-      console.log("🔍 API Docs Modal opened for:", appletName);
-      console.log("📄 API Spec:", apiSpec);
     }
   }, [open, appletName, apiSpec]);
 

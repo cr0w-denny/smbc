@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from "@tanstack/react-query";
 
 // Singleton QueryClient manager
 class QueryClientManager {
@@ -55,7 +55,8 @@ class QueryClientManager {
             // Retry up to 3 times for other errors
             return failureCount < 3;
           },
-          retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+          retryDelay: (attemptIndex) =>
+            Math.min(1000 * 2 ** attemptIndex, 30000),
         },
         mutations: {
           retry: (failureCount, error: any) => {

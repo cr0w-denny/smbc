@@ -28,11 +28,7 @@ export {
   AutoFilter,
 } from "./autofilter";
 
-export type {
-  FilterFieldConfig,
-  FilterValues,
-  FilterSpec,
-} from "./autofilter";
+export type { FilterFieldConfig, FilterValues, FilterSpec } from "./autofilter";
 
 // Hooks
 export { useLocalStoragePersistence } from "./hooks/useLocalStoragePersistence";
@@ -63,4 +59,3 @@ export {
 
 // DataView utilities
 export * from "./dataview";
-

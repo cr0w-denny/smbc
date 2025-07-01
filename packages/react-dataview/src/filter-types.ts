@@ -5,7 +5,14 @@
 export interface FilterFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'search' | 'select' | 'number' | 'boolean' | 'checkbox' | 'hidden';
+  type:
+    | "text"
+    | "search"
+    | "select"
+    | "number"
+    | "boolean"
+    | "checkbox"
+    | "hidden";
   placeholder?: string;
   options?: Array<{ label: string; value: any }>;
   defaultValue?: any;
@@ -13,7 +20,7 @@ export interface FilterFieldConfig {
   disabled?: boolean;
   hidden?: boolean;
   fullWidth?: boolean;
-  size?: 'small' | 'medium';
+  size?: "small" | "medium";
   minWidth?: number | string;
   // Simple validation properties
   min?: number;

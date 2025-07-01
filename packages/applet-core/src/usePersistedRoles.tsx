@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * Props for the usePersistedRoles hook
@@ -29,7 +29,7 @@ export interface UsePersistedRolesReturn {
 /**
  * A hook that manages role selection with localStorage persistence
  * and automatic synchronization with user roles.
- * 
+ *
  * @example
  * ```tsx
  * const { selectedRoles, toggleRole } = usePersistedRoles({
@@ -43,7 +43,7 @@ export interface UsePersistedRolesReturn {
 export function usePersistedRoles({
   userRoles,
   availableRoles,
-  storageKey = 'selectedRoles',
+  storageKey = "selectedRoles",
   onRolesChange,
 }: UsePersistedRolesProps): UsePersistedRolesReturn {
   // State for managing selected roles (allowing multiple selection)
@@ -68,9 +68,7 @@ export function usePersistedRoles({
             : validRoles;
         }
       }
-    } catch (error) {
-      console.warn(`Failed to load selected roles from localStorage (${storageKey}):`, error);
-    }
+    } catch (error) {}
     return [...userRoles];
   });
 
@@ -88,23 +86,24 @@ export function usePersistedRoles({
   React.useEffect(() => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(selectedRoles));
-    } catch (error) {
-      console.warn(`Failed to save selected roles to localStorage (${storageKey}):`, error);
-    }
+    } catch (error) {}
   }, [selectedRoles, storageKey]);
 
-  const toggleRole = React.useCallback((role: string) => {
-    setSelectedRoles((prev) => {
-      const newRoles = prev.includes(role)
-        ? prev.filter((r) => r !== role)
-        : [...prev, role];
+  const toggleRole = React.useCallback(
+    (role: string) => {
+      setSelectedRoles((prev) => {
+        const newRoles = prev.includes(role)
+          ? prev.filter((r) => r !== role)
+          : [...prev, role];
 
-      // Update the user's roles immediately
-      onRolesChange(newRoles);
+        // Update the user's roles immediately
+        onRolesChange(newRoles);
 
-      return newRoles;
-    });
-  }, [onRolesChange]);
+        return newRoles;
+      });
+    },
+    [onRolesChange],
+  );
 
   return {
     selectedRoles,

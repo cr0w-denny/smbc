@@ -39,7 +39,6 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   const navigate = (path: string) => {
     // Update URL hash
     window.location.hash = path;
-    console.log("Navigate to:", path);
   };
 
   const checkPermission = (appletId: string, permission: string): boolean => {

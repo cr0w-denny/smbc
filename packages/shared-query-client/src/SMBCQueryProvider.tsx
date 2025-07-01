@@ -23,7 +23,10 @@ const SMBCQueryContext = createContext<SMBCQueryContextValue | null>(null);
  */
 function isDevelopmentMode(): boolean {
   // Check for explicit MSW disable flag
-  if (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_DISABLE_MSW) {
+  if (
+    typeof import.meta !== "undefined" &&
+    (import.meta as any).env?.VITE_DISABLE_MSW
+  ) {
     return false;
   }
 
@@ -136,9 +139,7 @@ export function SMBCQueryProvider({
         // Stop MSW if it's running
         try {
           await stopMswWorker();
-        } catch (error) {
-          console.warn("Failed to stop MSW worker:", error);
-        }
+        } catch (error) {}
         setMswStatus("ready");
         setIsReady(true);
         return;
@@ -150,10 +151,6 @@ export function SMBCQueryProvider({
         setMswStatus("ready");
         setIsReady(true);
       } catch (error) {
-        console.warn(
-          "MSW initialization failed, continuing without mocks:",
-          error,
-        );
         setMswError(
           error instanceof Error ? error.message : "Unknown MSW error",
         );

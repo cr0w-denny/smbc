@@ -2,10 +2,10 @@
  * Pure NavigationList component - renders a list of navigation items
  */
 
-import React from 'react';
-import { List } from '@mui/material';
-import { NavigationItem } from './NavigationItem';
-import type { NavigationListProps } from './types';
+import React from "react";
+import { List } from "@mui/material";
+import { NavigationItem } from "./NavigationItem";
+import type { NavigationListProps } from "./types";
 
 export const NavigationList: React.FC<NavigationListProps> = ({
   items,
@@ -21,9 +21,9 @@ export const NavigationList: React.FC<NavigationListProps> = ({
 
   const isParentOfActiveItem = (item: any): boolean => {
     if (!item.children) return false;
-    
-    return item.children.some((child: any) => 
-      isItemActive(child.path) || isParentOfActiveItem(child)
+
+    return item.children.some(
+      (child: any) => isItemActive(child.path) || isParentOfActiveItem(child),
     );
   };
 
@@ -45,12 +45,12 @@ export const NavigationList: React.FC<NavigationListProps> = ({
           onNavigate={onNavigate}
           showItem={showItem}
         />
-        
+
         {/* Render children recursively */}
         {showItem && item.children && isExpanded && (
           <>
             {item.children.map((child: any) =>
-              renderNavigationItem(child, level + 1)
+              renderNavigationItem(child, level + 1),
             )}
           </>
         )}
@@ -58,9 +58,5 @@ export const NavigationList: React.FC<NavigationListProps> = ({
     );
   };
 
-  return (
-    <List>
-      {items.map(item => renderNavigationItem(item))}
-    </List>
-  );
+  return <List>{items.map((item) => renderNavigationItem(item))}</List>;
 };

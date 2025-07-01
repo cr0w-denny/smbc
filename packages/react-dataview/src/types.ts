@@ -108,7 +108,14 @@ export interface FormConfig<T> {
 export interface DataViewFilterFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'search' | 'select' | 'number' | 'boolean' | 'checkbox' | 'hidden';
+  type:
+    | "text"
+    | "search"
+    | "select"
+    | "number"
+    | "boolean"
+    | "checkbox"
+    | "hidden";
   placeholder?: string;
   options?: Array<{ label: string; value: any }>;
   defaultValue?: any;
@@ -116,7 +123,7 @@ export interface DataViewFilterFieldConfig {
   disabled?: boolean;
   hidden?: boolean;
   fullWidth?: boolean;
-  size?: 'small' | 'medium';
+  size?: "small" | "medium";
   debounceMs?: number;
   /** Exclude this field from the active filter count */
   excludeFromCount?: boolean;
@@ -192,7 +199,7 @@ export interface DataView<T> {
   FormComponent: React.ComponentType<DataViewFormProps<T>>;
   CreateButtonComponent: React.ComponentType<DataViewCreateButtonProps>;
   PaginationComponent: React.ComponentType<DataViewPaginationProps>;
-  
+
   // Transform functions for renderer-specific formats
   mapColumns?: (columns: DataColumn<T>[]) => any;
   mapFilters?: (filters: DataViewFilterSpec) => any;
@@ -206,7 +213,7 @@ export interface DataViewConfig<T> {
   schema: DataSchema<T>;
   columns: DataColumn<T>[];
   renderer: DataView<T>;
-  
+
   // Optional
   filters?: DataViewFilterSpec;
   permissions?: DataViewPermissions;
@@ -235,7 +242,11 @@ export interface DataViewConfig<T> {
 }
 
 // Import and re-export transaction types
-import type { TransactionManager, TransactionOperation, OperationTrigger } from './transaction/types';
+import type {
+  TransactionManager,
+  TransactionOperation,
+  OperationTrigger,
+} from "./transaction/types";
 export type { TransactionManager, TransactionOperation, OperationTrigger };
 
 // Return type from useDataView hook
@@ -245,11 +256,11 @@ export interface DataViewResult<T> {
   isLoading: boolean;
   error: Error | null;
   total: number;
-  
+
   // Filters
   filters: any;
   setFilters: (filters: any) => void;
-  
+
   // Pagination
   pagination: {
     page: number;
@@ -257,19 +268,19 @@ export interface DataViewResult<T> {
     total: number;
   };
   setPagination: (pagination: { page?: number; pageSize?: number }) => void;
-  
+
   // Mutations
   createMutation: any; // Will be typed based on API client
   updateMutation: any;
   deleteMutation: any;
-  
+
   // Components (pre-configured with data and handlers)
   TableComponent: React.ComponentType<{}>;
   FilterComponent: React.ComponentType<{}>;
   CreateFormComponent: React.ComponentType<{}>;
   EditFormComponent: React.ComponentType<{ item: T }>;
   PaginationComponent: React.ComponentType<{}>;
-  
+
   // Actions
   handleCreate: () => void;
   handleEdit: (item: T) => void;
@@ -277,7 +288,7 @@ export interface DataViewResult<T> {
   handleCreateSubmit: (data: Partial<T>) => Promise<void>;
   handleEditSubmit: (data: T) => Promise<void>;
   handleDeleteConfirm: () => Promise<void>;
-  
+
   // Dialog states
   createDialogOpen: boolean;
   setCreateDialogOpen: (open: boolean) => void;
@@ -289,7 +300,7 @@ export interface DataViewResult<T> {
   setEditingItem: (item: T | null) => void;
   deletingItem: T | null;
   setDeletingItem: (item: T | null) => void;
-  
+
   // Selection
   selection: {
     selectedIds: (string | number)[];
@@ -308,10 +319,10 @@ export interface DataViewResult<T> {
   // Transaction system
   transaction: TransactionManager<T> | null;
   addTransactionOperation: (
-    type: 'create' | 'update' | 'delete',
+    type: "create" | "update" | "delete",
     entity: T,
     mutation: () => Promise<any>,
     trigger?: OperationTrigger,
-    changedFields?: string[]
+    changedFields?: string[],
   ) => any;
 }

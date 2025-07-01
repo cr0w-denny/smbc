@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { TransactionRegistry } from './TransactionRegistry';
-import type { TransactionManager } from './types';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { TransactionRegistry } from "./TransactionRegistry";
+import type { TransactionManager } from "./types";
 
 interface TransactionContextValue {
   managers: Map<string, TransactionManager<any>>;
@@ -10,15 +10,25 @@ interface TransactionContextValue {
   combinedSummary: {
     total: number;
     byType: { create: number; update: number; delete: number };
-    byTrigger: { 'user-edit': number; 'bulk-action': number; 'row-action': number };
+    byTrigger: {
+      "user-edit": number;
+      "bulk-action": number;
+      "row-action": number;
+    };
     entities: string[];
   };
 }
 
 const TransactionContext = createContext<TransactionContextValue | null>(null);
 
-export function TransactionProvider({ children }: { children: React.ReactNode }) {
-  const [summary, setSummary] = useState(() => TransactionRegistry.getCombinedSummary());
+export function TransactionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [summary, setSummary] = useState(() =>
+    TransactionRegistry.getCombinedSummary(),
+  );
 
   // Listen for changes in the global registry
   useEffect(() => {
@@ -34,8 +44,9 @@ export function TransactionProvider({ children }: { children: React.ReactNode })
     managers: new Map(), // Not used with global registry
     registerManager: TransactionRegistry.register.bind(TransactionRegistry),
     unregisterManager: TransactionRegistry.unregister.bind(TransactionRegistry),
-    getAllManagers: TransactionRegistry.getAllManagers.bind(TransactionRegistry),
-    combinedSummary: summary
+    getAllManagers:
+      TransactionRegistry.getAllManagers.bind(TransactionRegistry),
+    combinedSummary: summary,
   };
 
   return (
@@ -48,7 +59,9 @@ export function TransactionProvider({ children }: { children: React.ReactNode })
 export function useTransactionContext() {
   const context = useContext(TransactionContext);
   if (!context) {
-    throw new Error('useTransactionContext must be used within a TransactionProvider');
+    throw new Error(
+      "useTransactionContext must be used within a TransactionProvider",
+    );
   }
   return context;
 }

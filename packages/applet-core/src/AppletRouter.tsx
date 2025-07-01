@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * Configuration for an applet with permission mapping
@@ -44,7 +44,7 @@ export interface AppletRouterProps {
 /**
  * A reusable router component that handles permission-based routing
  * for applet systems with dynamic route matching and access control.
- * 
+ *
  * @example
  * ```tsx
  * <AppletRouter
@@ -96,7 +96,7 @@ export function AppletRouter({
       const applet = applets.find((a) =>
         a.routes.some((r) => r.path === currentRoute!.path),
       );
-      
+
       if (applet) {
         // Check if user has any of the required permissions
         // Apply permission mapping for applet ID transformations (for reused applets)
@@ -109,7 +109,7 @@ export function AppletRouter({
           permissionAppletId,
           currentRoute.requiredPermissions,
         );
-        
+
         if (!hasPermission) {
           // User doesn't have permission, show access denied
           return AccessDeniedComponent ? <AccessDeniedComponent /> : null;
@@ -143,7 +143,7 @@ export interface UsePermissionFilteredRoutesProps {
 
 /**
  * Hook that filters routes based on user permissions
- * 
+ *
  * @example
  * ```tsx
  * const filteredRoutes = usePermissionFilteredRoutes({

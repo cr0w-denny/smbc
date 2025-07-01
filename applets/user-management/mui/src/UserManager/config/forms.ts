@@ -20,11 +20,11 @@ export const createFormsConfig = (permissions: {
             label: "Last Name",
             required: true,
           },
-          { 
-            name: "email", 
-            type: "email" as const, 
-            label: "Email", 
-            required: true 
+          {
+            name: "email",
+            type: "email" as const,
+            label: "Email",
+            required: true,
           },
         ],
         title: "Create New User",
@@ -47,10 +47,10 @@ export const createFormsConfig = (permissions: {
             label: "Last Name",
             required: true,
           },
-          { 
-            name: "isActive", 
-            type: "boolean" as const, 
-            label: "Active" 
+          {
+            name: "isActive",
+            type: "boolean" as const,
+            label: "Active",
           },
         ],
         title: "Edit User",

@@ -20,7 +20,6 @@ const handlerRegistry: any[] = [];
  */
 export function registerMswHandlers(handlers: any[]): void {
   if (Array.isArray(handlers)) {
-    console.log(`🎯 Registered ${handlers.length} MSW handlers`);
     handlerRegistry.push(...handlers);
   }
 }
@@ -48,7 +47,6 @@ export async function setupMswForSharedProvider(
 ): Promise<void> {
   // Check if we're in a browser environment
   if (typeof window === "undefined") {
-    console.warn("MSW setup called in non-browser environment, skipping");
     return;
   }
 
@@ -60,13 +58,7 @@ export async function setupMswForSharedProvider(
     const allHandlers = getRegisteredHandlers();
 
     if (allHandlers.length === 0) {
-      console.warn(
-        "⚠️ No MSW handlers registered. Make sure applets call registerMswHandlers() before setupMswForSharedProvider()",
-      );
     } else {
-      console.log(
-        `🎯 Setting up MSW with ${allHandlers.length} registered handlers`,
-      );
     }
 
     // Setup the MSW worker
@@ -81,14 +73,10 @@ export async function setupMswForSharedProvider(
         },
       });
 
-      console.log("🎭 MSW (Mock Service Worker) started for development");
-
       // Apply any custom API configuration if provided
       if (apiConfig?.baseUrl) {
-        console.log(`🔧 MSW configured with base URL: ${apiConfig.baseUrl}`);
       }
     } else {
-      console.log("🎭 MSW worker already running");
     }
   } catch (error) {
     console.error("❌ Failed to setup MSW:", error);
@@ -104,7 +92,6 @@ export async function stopMswForSharedProvider(): Promise<void> {
     try {
       await globalMswWorker.stop();
       globalMswWorker = null;
-      console.log("🛑 MSW worker stopped");
     } catch (error) {
       console.error("❌ Failed to stop MSW worker:", error);
     }

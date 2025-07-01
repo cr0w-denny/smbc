@@ -12,23 +12,34 @@ export const usePermissions = () => {
     hasPermission: (appletId: string, permission: PermissionDefinition) =>
       roleUtils.hasPermission(userRoles, appletId, permission.id),
     hasAnyPermission: (appletId: string, permissions: PermissionDefinition[]) =>
-      roleUtils.hasAnyPermission(userRoles, appletId, permissions.map(p => p.id)),
-    hasAllPermissions: (appletId: string, permissions: PermissionDefinition[]) =>
-      roleUtils.hasAllPermissions(userRoles, appletId, permissions.map(p => p.id)),
+      roleUtils.hasAnyPermission(
+        userRoles,
+        appletId,
+        permissions.map((p) => p.id),
+      ),
+    hasAllPermissions: (
+      appletId: string,
+      permissions: PermissionDefinition[],
+    ) =>
+      roleUtils.hasAllPermissions(
+        userRoles,
+        appletId,
+        permissions.map((p) => p.id),
+      ),
   };
 };
 
 /**
  * Custom hook for hash-based navigation with query parameter support
  * Provides clean URLs like #/path?param=value instead of #?route=path&param=value
- * 
+ *
  * @param mountPath Optional mount path for scoped navigation within applets
  * @returns Object with currentPath and navigateTo function
- * 
+ *
  * @example
  * // Global navigation (for host system)
  * const { currentPath, navigateTo } = useHashNavigation();
- * 
+ *
  * // Scoped navigation (for applets)
  * const { currentPath, navigateTo } = useHashNavigation("/user-management");
  */
@@ -71,17 +82,19 @@ export function useHashNavigation(mountPath?: string) {
 
   // If mountPath is provided, return scoped navigation
   if (mountPath) {
-    const currentPath = globalPath.startsWith(mountPath) 
-      ? globalPath.slice(mountPath.length) || '/'
-      : '/';
-    
-    const navigateTo = useCallback((relativePath: string) => {
-      const fullPath = relativePath === '/' 
-        ? mountPath 
-        : `${mountPath}${relativePath}`;
-      globalNavigateTo(fullPath);
-    }, [mountPath, globalNavigateTo]);
-    
+    const currentPath = globalPath.startsWith(mountPath)
+      ? globalPath.slice(mountPath.length) || "/"
+      : "/";
+
+    const navigateTo = useCallback(
+      (relativePath: string) => {
+        const fullPath =
+          relativePath === "/" ? mountPath : `${mountPath}${relativePath}`;
+        globalNavigateTo(fullPath);
+      },
+      [mountPath, globalNavigateTo],
+    );
+
     return { currentPath, navigateTo };
   }
 
@@ -130,7 +143,7 @@ export function useHashQueryParams<T extends Record<string, any>>(
 
   const updateParams = useCallback(
     (updates: Partial<T>) => {
-      setParams(currentParams => {
+      setParams((currentParams) => {
         const newParams = { ...currentParams, ...updates };
 
         // Update the hash with new query parameters, preserving the path
@@ -203,7 +216,6 @@ export function useHashQueryParams<T extends Record<string, any>>(
 
   return [params, updateParams];
 }
-
 
 // Hook for user management
 export const useUser = () => {

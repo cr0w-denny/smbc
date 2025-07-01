@@ -1,9 +1,10 @@
 import React from "react";
-import { useDataView, type DataViewConfig, type UseDataViewOptions } from "@smbc/react-dataview";
 import {
-  usePermissions,
-  type PermissionDefinition,
-} from "@smbc/applet-core";
+  useDataView,
+  type DataViewConfig,
+  type UseDataViewOptions,
+} from "@smbc/react-dataview";
+import { usePermissions, type PermissionDefinition } from "@smbc/applet-core";
 import { MuiDataView, ActionBar } from "@smbc/mui-components";
 import {
   Dialog,
@@ -101,7 +102,6 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     ? hasPermission(permissionContext, config.permissions.create)
     : false;
 
-
   // Layer 1: Prepare config for framework-agnostic data management
   // Strip out Layer 2 concepts (SMBC permissions, actions) before passing to Layer 1
   const baseConfigWithoutActions: DataViewConfig<T> = {
@@ -140,13 +140,20 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         pagination: customPaginationState[0],
       });
     }
-  }, [customFilterState[0], customPaginationState[0], onStateChange, useCustomState]);
+  }, [
+    customFilterState[0],
+    customPaginationState[0],
+    onStateChange,
+    useCustomState,
+  ]);
 
   // Layer 1: Framework-agnostic data management (API calls, state, mutations)
   const dataView = useDataView(baseConfigWithoutActions, {
     // Use custom state hooks only when doing URL sync without initial state override
     useFilterState: useCustomState ? () => customFilterState : undefined,
-    usePaginationState: useCustomState ? () => customPaginationState : undefined,
+    usePaginationState: useCustomState
+      ? () => customPaginationState
+      : undefined,
     transformFilters: config.options?.transformFilters,
     getActiveColumns: config.options?.getActiveColumns,
     onSuccess,
@@ -154,7 +161,6 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     // Merge in any additional options passed to the applet
     ...options,
   });
-
 
   // Layer 2: SMBC business logic - process row actions with permission filtering and connect to Layer 1 handlers
   const processedRowActions =
@@ -178,7 +184,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       ...action,
       onClick: (items: T[]) => {
         // Handle bulk operations - pass mutations and transaction support to the action handler
-        if (typeof action.onClick === 'function') {
+        if (typeof action.onClick === "function") {
           const originalOnClick = action.onClick;
           try {
             // Call with mutations and transaction support
@@ -282,37 +288,39 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       {dataView.editDialogOpen && dataView.editingItem && (
         <dataView.EditFormComponent item={dataView.editingItem} />
       )}
-      {dataView.deleteDialogOpen && dataView.deletingItem && !dataView.transaction && (
-        <Dialog
-          open={dataView.deleteDialogOpen}
-          onClose={() => dataView.setDeleteDialogOpen(false)}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle>Confirm Delete</DialogTitle>
-          <DialogContent>
-            <Typography>
-              Are you sure you want to delete this item? This action cannot be
-              undone.
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => dataView.setDeleteDialogOpen(false)}
-              color="inherit"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => dataView.handleDeleteConfirm()}
-              color="error"
-              variant="contained"
-            >
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+      {dataView.deleteDialogOpen &&
+        dataView.deletingItem &&
+        !dataView.transaction && (
+          <Dialog
+            open={dataView.deleteDialogOpen}
+            onClose={() => dataView.setDeleteDialogOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogContent>
+              <Typography>
+                Are you sure you want to delete this item? This action cannot be
+                undone.
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => dataView.setDeleteDialogOpen(false)}
+                color="inherit"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => dataView.handleDeleteConfirm()}
+                color="error"
+                variant="contained"
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
     </div>
   );
 }

@@ -84,9 +84,6 @@ const createTasksApiClient = () => {
     return useQuery({
       queryKey,
       queryFn: async () => {
-        console.log(
-          "🔄 Query function called, recalculating data from mockTasks",
-        );
         // Apply filtering to current mockTasks state
         let filteredTasks = mockTasks;
         if (filters.search) {
@@ -122,11 +119,6 @@ const createTasksApiClient = () => {
           pageSize,
         };
 
-        console.log("📊 Query function result:", {
-          totalMockTasks: mockTasks.length,
-          filteredTasks: filteredTasks.length,
-          paginatedTasks: paginatedTasks.length,
-        });
         return result;
       },
       initialData, // Pre-populate the cache with mock data
@@ -142,8 +134,6 @@ const createTasksApiClient = () => {
   ) => {
     return useMutation({
       mutationFn: async (variables: any) => {
-        console.log("🚀 Mock mutation called:", method, endpoint, variables);
-
         // Handle different mutation types
         if (method === "patch" && endpoint.includes("{id}")) {
           // Update mutation
@@ -152,13 +142,11 @@ const createTasksApiClient = () => {
           const taskIndex = mockTasks.findIndex((t) => t.id === id);
           if (taskIndex !== -1) {
             mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates };
-            console.log("✅ Updated mock task:", id, updates);
           }
         } else if (method === "delete" && endpoint.includes("{id}")) {
           // Delete mutation
           const id = variables.params?.path?.id;
           mockTasks = mockTasks.filter((t) => t.id !== id);
-          console.log("🗑️ Deleted mock task:", id);
         } else if (method === "post") {
           // Create mutation
           const newTask = {
@@ -167,7 +155,7 @@ const createTasksApiClient = () => {
             createdAt: new Date().toISOString(),
           };
           mockTasks.unshift(newTask);
-          console.log("➕ Created mock task:", newTask);
+
           return Promise.resolve(newTask);
         }
 
@@ -305,14 +293,8 @@ const createTaskConfig = (
         color: "success",
         appliesTo: (task) => task.status !== "completed",
         onClick: async (tasks, context) => {
-          console.log("🔥 Mark Complete bulk action called:", {
-            tasks: tasks.length,
-            context: !!context,
-          });
-
           // Queue transaction operations
           if (context?.addTransactionOperation) {
-            console.log("📝 Adding transaction operations...");
             for (const task of tasks) {
               const updatedTask = { ...task, status: "completed" };
               // Need to access mutation from context or pass it in somehow
@@ -321,10 +303,6 @@ const createTaskConfig = (
                 "update",
                 updatedTask,
                 async () => {
-                  console.log(
-                    "🔥 Executing update mutation for task:",
-                    task.id,
-                  );
                   // Directly update mockTasks and return the result
                   const taskIndex = mockTasks.findIndex(
                     (t) => t.id === task.id,
@@ -336,12 +314,8 @@ const createTaskConfig = (
                       __pendingOperationId,
                       ...cleanTask
                     } = updatedTask as any;
-                    console.log("📝 Updating mock task with:", cleanTask);
+
                     mockTasks[taskIndex] = cleanTask;
-                    console.log(
-                      "✅ Updated mockTasks, task now:",
-                      mockTasks[taskIndex],
-                    );
                   }
                   return updatedTask;
                 },
@@ -349,9 +323,7 @@ const createTaskConfig = (
                 ["status"],
               );
             }
-            console.log("✅ Added transaction operations");
           } else {
-            console.log("❌ No addTransactionOperation function available");
           }
         },
       },
@@ -370,10 +342,6 @@ const createTaskConfig = (
                 "update",
                 updatedTask,
                 async () => {
-                  console.log(
-                    "🔥 Executing priority update mutation for task:",
-                    task.id,
-                  );
                   // Directly update mockTasks and return the result
                   const taskIndex = mockTasks.findIndex(
                     (t) => t.id === task.id,
@@ -385,15 +353,8 @@ const createTaskConfig = (
                       __pendingOperationId,
                       ...cleanTask
                     } = updatedTask as any;
-                    console.log(
-                      "📝 Updating mock task priority with:",
-                      cleanTask,
-                    );
+
                     mockTasks[taskIndex] = cleanTask;
-                    console.log(
-                      "✅ Updated mockTasks priority, task now:",
-                      mockTasks[taskIndex],
-                    );
                   }
                   return updatedTask;
                 },
@@ -409,7 +370,7 @@ const createTaskConfig = (
         key: "delete-selected",
         label: "Delete Selected",
         color: "error",
-        appliesTo: (task) => task.__pendingState !== 'deleted',
+        appliesTo: (task) => task.__pendingState !== "deleted",
         onClick: async (tasks, context) => {
           // Queue transaction operations
           if (context?.addTransactionOperation) {
@@ -418,16 +379,10 @@ const createTaskConfig = (
                 "delete",
                 task,
                 async () => {
-                  console.log(
-                    "🔥 Executing delete mutation for task:",
-                    task.id,
-                  );
                   // Actually remove from mock data
                   const originalLength = mockTasks.length;
                   mockTasks = mockTasks.filter((t) => t.id !== task.id);
-                  console.log(
-                    `✅ Deleted task ${task.id}, mockTasks length: ${originalLength} → ${mockTasks.length}`,
-                  );
+
                   return {};
                 },
                 "bulk-action",

@@ -105,7 +105,7 @@ export function ActionBar<T>({
                       await action.onClick?.(selectedItems);
                       // Don't automatically clear selections - let users manage their selections
                     } catch (error) {
-                      console.error('Bulk action failed:', error);
+                      console.error("Bulk action failed:", error);
                       // Don't clear selection on error so user can retry
                     }
                   }}

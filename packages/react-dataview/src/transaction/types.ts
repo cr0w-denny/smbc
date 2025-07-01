@@ -1,47 +1,51 @@
 // Flexible transaction system for react-dataview
 
-export type TransactionMode = 'immediate' | 'user-controlled' | 'bulk-only' | 'hybrid';
+export type TransactionMode =
+  | "immediate"
+  | "user-controlled"
+  | "bulk-only"
+  | "hybrid";
 
 export interface TransactionConfig {
   enabled: boolean;
   mode: TransactionMode;
-  
+
   // Commit behavior
-  autoCommit: boolean;           // Auto-commit individual operations
-  bulkAutoCommit?: boolean;      // Auto-commit bulk actions (for hybrid mode)
-  
+  autoCommit: boolean; // Auto-commit individual operations
+  bulkAutoCommit?: boolean; // Auto-commit bulk actions (for hybrid mode)
+
   // User interaction
-  requireConfirmation: boolean;  // Show confirmation before commit
+  requireConfirmation: boolean; // Show confirmation before commit
   showPendingIndicator: boolean; // Show "X pending changes" badge
-  showReviewUI: boolean;         // Enable review modal/drawer
-  
+  showReviewUI: boolean; // Enable review modal/drawer
+
   // Activity behavior
-  emitActivities?: boolean;      // Emit activities for individual operations (default: false when transactions enabled)
-  
+  emitActivities?: boolean; // Emit activities for individual operations (default: false when transactions enabled)
+
   // Advanced options
   maxPendingOperations?: number; // Auto-commit after X operations
-  timeoutMs?: number;           // Auto-commit after timeout
+  timeoutMs?: number; // Auto-commit after timeout
 }
 
-export type OperationTrigger = 'user-edit' | 'bulk-action' | 'row-action';
+export type OperationTrigger = "user-edit" | "bulk-action" | "row-action";
 
 export interface TransactionOperation<T = any> {
   id: string;
-  type: 'create' | 'update' | 'delete';
+  type: "create" | "update" | "delete";
   trigger: OperationTrigger;
   entity: T;
   entityId: string | number;
-  originalData?: T;             // For rollback and review UI
-  changedFields?: string[];     // Which fields were modified
-  
+  originalData?: T; // For rollback and review UI
+  changedFields?: string[]; // Which fields were modified
+
   // Operation metadata
-  label: string;                // Human readable description
+  label: string; // Human readable description
   timestamp: Date;
   mutation: () => Promise<any>; // The actual mutation to execute
-  
+
   // UI metadata
   icon?: React.ComponentType;
-  color?: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
+  color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
 }
 
 export interface TransactionResult<T = any> {
@@ -49,29 +53,40 @@ export interface TransactionResult<T = any> {
   operation: TransactionOperation<T>;
   result?: any;
   error?: Error;
-  duration?: number;            // Execution time in ms
+  duration?: number; // Execution time in ms
 }
 
 export interface Transaction<T = any> {
   id: string;
   operations: TransactionOperation<T>[];
-  status: 'pending' | 'reviewing' | 'executing' | 'completed' | 'failed' | 'rolledback' | 'cancelled';
+  status:
+    | "pending"
+    | "reviewing"
+    | "executing"
+    | "completed"
+    | "failed"
+    | "rolledback"
+    | "cancelled";
   results: TransactionResult<T>[];
   createdAt: Date;
   executedAt?: Date;
   completedAt?: Date;
   config: TransactionConfig;
-  
+
   // Metadata for UI
   totalOperations: number;
-  estimatedDuration?: number;   // For progress indication
+  estimatedDuration?: number; // For progress indication
 }
 
 export interface TransactionSummary {
   total: number;
   byType: { create: number; update: number; delete: number };
-  byTrigger: { 'user-edit': number; 'bulk-action': number; 'row-action': number };
-  entities: string[];           // List of affected entity types
+  byTrigger: {
+    "user-edit": number;
+    "bulk-action": number;
+    "row-action": number;
+  };
+  entities: string[]; // List of affected entity types
 }
 
 // Events for transaction lifecycle
@@ -90,32 +105,40 @@ export interface TransactionEvents<T = any> {
 export interface TransactionManager<T = any> {
   // Transaction lifecycle
   begin(config?: Partial<TransactionConfig>): string;
-  addOperation(operation: Omit<TransactionOperation<T>, 'id' | 'timestamp'>): string;
+  addOperation(
+    operation: Omit<TransactionOperation<T>, "id" | "timestamp">,
+  ): string;
   removeOperation(operationId: string): boolean;
   commit(force?: boolean): Promise<TransactionResult<T>[]>;
   cancel(): void;
-  
+
   // State queries
   getTransaction(): Transaction<T> | null;
   getOperations(): TransactionOperation<T>[];
   getSummary(): TransactionSummary;
   hasOperations(): boolean;
   canCommit(): boolean;
-  
+
   // Utilities
   clear(): void;
-  estimateDuration(): number;   // Estimate execution time
-  
+  estimateDuration(): number; // Estimate execution time
+
   // Events
-  on<K extends keyof TransactionEvents<T>>(event: K, handler: TransactionEvents<T>[K]): void;
-  off<K extends keyof TransactionEvents<T>>(event: K, handler: TransactionEvents<T>[K]): void;
+  on<K extends keyof TransactionEvents<T>>(
+    event: K,
+    handler: TransactionEvents<T>[K],
+  ): void;
+  off<K extends keyof TransactionEvents<T>>(
+    event: K,
+    handler: TransactionEvents<T>[K],
+  ): void;
 }
 
 // UI Component Props
 export interface TransactionIndicatorProps {
   transactionManager: TransactionManager;
   onClick?: () => void;
-  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
 }
 
 export interface TransactionReviewProps<T = any> {
@@ -126,4 +149,3 @@ export interface TransactionReviewProps<T = any> {
   onCancel: () => void;
   onRemoveOperation: (operationId: string) => void;
 }
-

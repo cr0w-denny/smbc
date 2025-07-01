@@ -75,7 +75,6 @@ function AdvancedFilters() {
         showFilterCount: true,
       }}
       onFiltersChange={(filters) => {
-        console.log("Filter values changed:", filters);
         // TODO: Apply filters to the product query
       }}
     />

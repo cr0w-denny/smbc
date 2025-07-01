@@ -5,7 +5,6 @@
 ### Minor Changes
 
 - Enhanced applets with shared component integration and improved user experience:
-
   - Integrated shared MUI components (LoadingTable, SearchInput, EmptyState, ConfirmationDialog)
   - Replaced duplicate UI patterns with standardized components
   - Added debounced search functionality to both user and product tables

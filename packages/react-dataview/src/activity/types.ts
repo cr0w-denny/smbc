@@ -2,7 +2,7 @@
  * Activity tracking types for the notification system
  */
 
-export type ActivityType = 'create' | 'update' | 'delete';
+export type ActivityType = "create" | "update" | "delete";
 
 export interface ActivityItem {
   /** Unique identifier for this activity */
@@ -41,7 +41,7 @@ export interface ActivityContextValue {
   /** Current list of activities, newest first */
   activities: ActivityItem[];
   /** Add a new activity */
-  addActivity: (activity: Omit<ActivityItem, 'id' | 'timestamp'>) => void;
+  addActivity: (activity: Omit<ActivityItem, "id" | "timestamp">) => void;
   /** Mark an activity as viewed */
   markAsViewed: (activityId: string) => void;
   /** Clear all activities */

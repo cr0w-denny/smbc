@@ -3,7 +3,7 @@ import { useHashQueryParams } from "../hooks";
 import type { DataViewConfig, DataViewResult } from "./types";
 
 export function useDataView<T extends Record<string, any>>(
-  config: DataViewConfig<T>
+  config: DataViewConfig<T>,
 ): DataViewResult<T> {
   const {
     api,
@@ -43,7 +43,9 @@ export function useDataView<T extends Record<string, any>>(
   const [deletingItem, setDeletingItem] = useState<T | null>(null);
 
   // Transform filters if needed
-  const transformedFilters = options?.transformFilters ? options.transformFilters(filters) : filters;
+  const transformedFilters = options?.transformFilters
+    ? options.transformFilters(filters)
+    : filters;
 
   // API Query - This will need to be implemented based on the specific API client
   // For now, we'll create a placeholder that can be overridden
@@ -64,7 +66,8 @@ export function useDataView<T extends Record<string, any>>(
 
   // Extract data and total from query response
   // Handle different API response structures
-  const rawData = queryData?.data || queryData?.items || queryData?.users || queryData || [];
+  const rawData =
+    queryData?.data || queryData?.items || queryData?.users || queryData || [];
   const data = Array.isArray(rawData) ? rawData : [];
   const total = queryData?.total || queryData?.count || data.length;
 
@@ -74,23 +77,32 @@ export function useDataView<T extends Record<string, any>>(
     isPending: false,
   };
 
-  const updateMutation = api.client.useMutation?.("patch", `${api.endpoint}/{id}`) || {
+  const updateMutation = api.client.useMutation?.(
+    "patch",
+    `${api.endpoint}/{id}`,
+  ) || {
     mutate: () => {},
     isPending: false,
   };
 
-  const deleteMutation = api.client.useMutation?.("delete", `${api.endpoint}/{id}`) || {
+  const deleteMutation = api.client.useMutation?.(
+    "delete",
+    `${api.endpoint}/{id}`,
+  ) || {
     mutate: () => {},
     isPending: false,
   };
 
   // Helper to update pagination
-  const setPagination = useCallback((updates: { page?: number; pageSize?: number }) => {
-    setPaginationState(prev => ({
-      ...prev,
-      ...updates,
-    }));
-  }, []);
+  const setPagination = useCallback(
+    (updates: { page?: number; pageSize?: number }) => {
+      setPaginationState((prev) => ({
+        ...prev,
+        ...updates,
+      }));
+    },
+    [],
+  );
 
   // Action handlers
   const handleCreate = useCallback(() => {
@@ -107,21 +119,27 @@ export function useDataView<T extends Record<string, any>>(
     setDeleteDialogOpen(true);
   }, []);
 
-  const handleCreateSubmit = useCallback(async (data: Partial<T>) => {
-    await createMutation.mutate({ body: data });
-    setCreateDialogOpen(false);
-  }, [createMutation]);
+  const handleCreateSubmit = useCallback(
+    async (data: Partial<T>) => {
+      await createMutation.mutate({ body: data });
+      setCreateDialogOpen(false);
+    },
+    [createMutation],
+  );
 
-  const handleEditSubmit = useCallback(async (data: T) => {
-    if (!editingItem) return;
-    const primaryKey = schema.primaryKey;
-    await updateMutation.mutate({
-      params: { path: { id: editingItem[primaryKey] } },
-      body: data,
-    });
-    setEditDialogOpen(false);
-    setEditingItem(null);
-  }, [updateMutation, editingItem, schema.primaryKey]);
+  const handleEditSubmit = useCallback(
+    async (data: T) => {
+      if (!editingItem) return;
+      const primaryKey = schema.primaryKey;
+      await updateMutation.mutate({
+        params: { path: { id: editingItem[primaryKey] } },
+        body: data,
+      });
+      setEditDialogOpen(false);
+      setEditingItem(null);
+    },
+    [updateMutation, editingItem, schema.primaryKey],
+  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletingItem) return;
@@ -156,14 +174,25 @@ export function useDataView<T extends Record<string, any>>(
         },
         ...options,
       });
-  }, [renderer, data, columns, rowActions, isLoading, error, selectedIds, options]);
+  }, [
+    renderer,
+    data,
+    columns,
+    rowActions,
+    isLoading,
+    error,
+    selectedIds,
+    options,
+  ]);
 
   const FilterComponent = useMemo(() => {
     if (!filterSpec) return () => null;
-    
+
     return () =>
       React.createElement(renderer.FilterComponent, {
-        spec: renderer.mapFilters ? renderer.mapFilters(filterSpec) : filterSpec,
+        spec: renderer.mapFilters
+          ? renderer.mapFilters(filterSpec)
+          : filterSpec,
         values: filters,
         onFiltersChange: setFilters,
         ...options,
@@ -177,13 +206,21 @@ export function useDataView<T extends Record<string, any>>(
     return () =>
       React.createElement(renderer.FormComponent, {
         mode: "create",
-        fields: renderer.mapFormFields ? renderer.mapFormFields(createForm.fields) : createForm.fields,
+        fields: renderer.mapFormFields
+          ? renderer.mapFormFields(createForm.fields)
+          : createForm.fields,
         onSubmit: handleCreateSubmit,
         onCancel: () => setCreateDialogOpen(false),
         isSubmitting: createMutation.isPending,
         ...options,
       });
-  }, [renderer, forms?.create, handleCreateSubmit, createMutation.isPending, options]);
+  }, [
+    renderer,
+    forms?.create,
+    handleCreateSubmit,
+    createMutation.isPending,
+    options,
+  ]);
 
   const EditFormComponent = useMemo(() => {
     const editForm = forms?.edit;
@@ -192,7 +229,9 @@ export function useDataView<T extends Record<string, any>>(
     return ({ item }: { item: T }) =>
       React.createElement(renderer.FormComponent, {
         mode: "edit",
-        fields: renderer.mapFormFields ? renderer.mapFormFields(editForm.fields) : editForm.fields,
+        fields: renderer.mapFormFields
+          ? renderer.mapFormFields(editForm.fields)
+          : editForm.fields,
         initialValues: item,
         onSubmit: handleEditSubmit,
         onCancel: () => {
@@ -202,22 +241,37 @@ export function useDataView<T extends Record<string, any>>(
         isSubmitting: updateMutation.isPending,
         ...options,
       });
-  }, [renderer, forms?.edit, handleEditSubmit, updateMutation.isPending, options]);
+  }, [
+    renderer,
+    forms?.edit,
+    handleEditSubmit,
+    updateMutation.isPending,
+    options,
+  ]);
 
   const PaginationComponent = useMemo(() => {
     if (!paginationConfig.enabled) return () => null;
-    
+
     return () =>
       React.createElement(renderer.PaginationComponent, {
         page: pagination.page,
         pageSize: pagination.pageSize,
         total,
         onPageChange: (page: number) => setPagination({ page }),
-        onPageSizeChange: (pageSize: number) => setPagination({ pageSize, page: 0 }),
+        onPageSizeChange: (pageSize: number) =>
+          setPagination({ pageSize, page: 0 }),
         pageSizeOptions: paginationConfig.pageSizeOptions,
         ...options,
       });
-  }, [renderer, pagination.page, pagination.pageSize, total, setPagination, paginationConfig, options]);
+  }, [
+    renderer,
+    pagination.page,
+    pagination.pageSize,
+    total,
+    setPagination,
+    paginationConfig,
+    options,
+  ]);
 
   return {
     // Data

@@ -47,7 +47,6 @@ const featureFlags = [
 async function initializeMswHandlers(): Promise<void> {
   // Skip MSW initialization if disabled via environment variable
   if (import.meta.env.VITE_DISABLE_MSW === "true") {
-    console.log("MSW disabled via VITE_DISABLE_MSW environment variable");
     return;
   }
   try {
@@ -64,20 +63,10 @@ async function initializeMswHandlers(): Promise<void> {
     const allHandlers = [...userManagementHandlers, ...productCatalogHandlers];
 
     registerMswHandlers(allHandlers);
-    console.log(
-      `🎯 Registered ${allHandlers.length} MSW handlers from applets`,
-    );
-  } catch (error) {
-    console.warn("Failed to register MSW handlers:", error);
-  }
+  } catch (error) {}
 }
 
 // No other initialization needed - direct applet imports
-console.log("🔍 Applets loaded:", APPLETS.length);
-console.log(
-  "📋 Available applets:",
-  APPLETS.map((a) => a.label),
-);
 
 function AppContentWithQueryAccess() {
   const handleNavigate = (url: string) => {
@@ -116,10 +105,7 @@ function Navigation() {
 
   // Debug logging
   React.useEffect(() => {
-    console.log("📍 Current path:", currentPath);
-    console.log("🔍 Current applet info:", currentAppletInfo);
     if (currentAppletInfo?.apiSpec) {
-      console.log("🗂️ API Spec:", currentAppletInfo.apiSpec);
     }
   }, [currentPath, currentAppletInfo]);
 
@@ -187,11 +173,7 @@ function AppWithMockToggle() {
   const actualMockState = mockEnabled && mswReady;
 
   // Debug logging
-  React.useEffect(() => {
-    console.log(
-      `🔄 Mock state changed: mockEnabled=${mockEnabled}, mswReady=${mswReady}, actualMockState=${actualMockState}`,
-    );
-  }, [mockEnabled, mswReady, actualMockState]);
+  React.useEffect(() => {}, [mockEnabled, mswReady, actualMockState]);
 
   return (
     <SMBCQueryProvider enableMocks={actualMockState}>
@@ -206,9 +188,6 @@ function AppContentWithCacheInvalidation() {
 
   // Clear all cached data when switching between mock and real data
   React.useEffect(() => {
-    console.log(
-      `🗑️ Clearing React Query cache due to mock toggle: ${mockEnabled}`,
-    );
     queryClient.clear(); // Completely clear cache, not just invalidate
   }, [mockEnabled, queryClient]);
 
@@ -240,17 +219,9 @@ export function App() {
       configs={featureFlags}
       storagePrefix="smbcHost"
       onFlagChange={(key: string, value: unknown) => {
-        console.log(`🚩 Feature flag '${key}' changed to:`, value);
         if (key === "mockData") {
-          console.log(`🔄 Mock data ${value ? "enabled" : "disabled"}`);
           if (value) {
-            console.log(
-              "📝 Now using mock data - great for development and testing",
-            );
           } else {
-            console.log(
-              "🌐 Now using real API endpoints - make sure your backend is running",
-            );
           }
         }
       }}

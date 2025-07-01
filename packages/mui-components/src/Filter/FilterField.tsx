@@ -2,7 +2,7 @@
  * Pure UI component for individual filter fields - no business logic or state
  */
 
-import React from 'react';
+import React from "react";
 import {
   TextField,
   Select,
@@ -13,9 +13,9 @@ import {
   FormControlLabel,
   FormHelperText,
   Box,
-} from '@mui/material';
-import { SearchInput } from '../SearchInput';
-import type { FilterFieldConfig } from './types';
+} from "@mui/material";
+import { SearchInput } from "../SearchInput";
+import type { FilterFieldConfig } from "./types";
 
 export interface FilterFieldProps {
   field: FilterFieldConfig;
@@ -38,23 +38,23 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   };
 
   // Don't render hidden fields
-  if (field.type === 'hidden' || field.hidden) {
+  if (field.type === "hidden" || field.hidden) {
     return null;
   }
 
   const commonProps = {
     disabled: field.disabled,
-    size: field.size || 'small',
+    size: field.size || "small",
     fullWidth: field.fullWidth,
     error: !!error,
   };
 
   switch (field.type) {
-    case 'search':
+    case "search":
       return (
         <Box>
           <SearchInput
-            value={value || ''}
+            value={value || ""}
             onChange={handleChange}
             placeholder={field.placeholder || field.label}
             disabled={field.disabled}
@@ -66,22 +66,26 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         </Box>
       );
 
-    case 'select':
+    case "select":
       return (
         <FormControl {...commonProps} sx={{ minWidth: 120 }}>
           <InputLabel shrink={true}>{field.label}</InputLabel>
           <Select
-            value={value || ''}
+            value={value || ""}
             onChange={(e) => handleChange(e.target.value)}
             label={field.label}
             displayEmpty
             notched
             renderValue={(selected) => {
-              if (selected === '') {
-                const emptyOption = field.options?.find(opt => opt.value === '');
-                return emptyOption?.label || 'None';
+              if (selected === "") {
+                const emptyOption = field.options?.find(
+                  (opt) => opt.value === "",
+                );
+                return emptyOption?.label || "None";
               }
-              const option = field.options?.find(opt => opt.value === selected);
+              const option = field.options?.find(
+                (opt) => opt.value === selected,
+              );
               return option?.label || selected;
             }}
           >
@@ -95,15 +99,17 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         </FormControl>
       );
 
-    case 'number':
+    case "number":
       return (
         <TextField
           {...commonProps}
           type="number"
           label={field.label}
           placeholder={field.placeholder}
-          value={value ?? ''}
-          onChange={(e) => handleChange(e.target.value ? Number(e.target.value) : null)}
+          value={value ?? ""}
+          onChange={(e) =>
+            handleChange(e.target.value ? Number(e.target.value) : null)
+          }
           inputProps={{
             min: field.min,
             max: field.max,
@@ -112,8 +118,8 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         />
       );
 
-    case 'boolean':
-    case 'checkbox':
+    case "boolean":
+    case "checkbox":
       return (
         <FormControl {...commonProps}>
           <FormControlLabel
@@ -130,14 +136,14 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         </FormControl>
       );
 
-    case 'text':
+    case "text":
     default:
       return (
         <TextField
           {...commonProps}
           label={field.label}
           placeholder={field.placeholder}
-          value={value || ''}
+          value={value || ""}
           onChange={(e) => handleChange(e.target.value)}
           helperText={error}
         />

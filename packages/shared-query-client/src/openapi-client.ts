@@ -8,7 +8,7 @@ export { default as createClient } from "openapi-react-query";
 import createClientDefault from "openapi-fetch";
 
 export function createApiClient<
-  T extends Record<string, any> = Record<string, any>
+  T extends Record<string, any> = Record<string, any>,
 >(config: { baseUrl: string; headers?: Record<string, string> }) {
   return createClientDefault<T>({
     baseUrl: config.baseUrl,
@@ -21,7 +21,11 @@ export function createApiClient<
 
 // Common error handling utilities
 export class ApiError extends Error {
-  constructor(message: string, public status?: number, public response?: any) {
+  constructor(
+    message: string,
+    public status?: number,
+    public response?: any,
+  ) {
     super(message);
     this.name = "ApiError";
   }

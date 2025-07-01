@@ -11,10 +11,10 @@ npm install @smbc/user-management-mui
 ### Basic Usage
 
 ```tsx
-import userManagementApplet from '@smbc/user-management-mui';
+import userManagementApplet from "@smbc/user-management-mui";
 
 // Use in applet host - this is the intended usage
-<AppletHost applets={[userManagementApplet]} />
+<AppletHost applets={[userManagementApplet]} />;
 ```
 
 ## ✨ Features
@@ -45,7 +45,7 @@ const userManagementConfig = {
   // Applet-level configuration goes here
 };
 
-<AppletHost applets={[userManagementConfig]} />
+<AppletHost applets={[userManagementConfig]} />;
 ```
 
 ### Permission System
@@ -53,9 +53,9 @@ const userManagementConfig = {
 The applet integrates with the SMBC permission system:
 
 ```tsx
-import userManagementApplet from '@smbc/user-management-mui';
+import userManagementApplet from "@smbc/user-management-mui";
 
-// Permissions are defined within the applet and automatically 
+// Permissions are defined within the applet and automatically
 // handled by the applet host - no manual setup required
 const { permissions } = userManagementApplet;
 ```
@@ -68,10 +68,7 @@ The applet uses Material-UI's theming system and will inherit themes from the ap
 
 ```tsx
 // Theme is provided by the applet host
-<AppletHost 
-  theme={customTheme}
-  applets={[userManagementApplet]} 
-/>
+<AppletHost theme={customTheme} applets={[userManagementApplet]} />
 ```
 
 ## 🏗 Architecture
@@ -126,7 +123,7 @@ type User = components["schemas"]["User"];
 # Run tests
 npm test
 
-# Run tests in watch mode  
+# Run tests in watch mode
 npm run test:watch
 
 # Run tests with coverage
@@ -136,21 +133,21 @@ npm run test:coverage
 ### Example Tests
 
 ```tsx
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { AppletHost } from '@smbc/mui-applet-host';
-import userManagementApplet from '@smbc/user-management-mui';
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { AppletHost } from "@smbc/mui-applet-host";
+import userManagementApplet from "@smbc/user-management-mui";
 
-describe('User Management Applet', () => {
-  it('displays user management interface when loaded', async () => {
+describe("User Management Applet", () => {
+  it("displays user management interface when loaded", async () => {
     render(<AppletHost applets={[userManagementApplet]} />);
-    
+
     await waitFor(() => {
-      expect(screen.getByRole('table')).toBeInTheDocument();
+      expect(screen.getByRole("table")).toBeInTheDocument();
     });
   });
 
-  it('respects permission configurations', async () => {
+  it("respects permission configurations", async () => {
     // Test applet behavior through the host
   });
 });
@@ -177,7 +174,7 @@ interface User {
 
 // API endpoints
 GET    /users          # List users with filtering
-POST   /users          # Create new user  
+POST   /users          # Create new user
 GET    /users/{id}     # Get user by ID
 PATCH  /users/{id}     # Update user
 DELETE /users/{id}     # Delete user
@@ -215,7 +212,7 @@ The applet includes MSW (Mock Service Worker) integration for development:
 
 ```tsx
 // Mock handlers are automatically generated from OpenAPI spec
-import { handlers } from '@smbc/user-management-mui/mocks';
+import { handlers } from "@smbc/user-management-mui/mocks";
 
 // Setup MSW in your app
 setupWorker(...handlers).start();
@@ -228,7 +225,7 @@ setupWorker(...handlers).start();
 ```tsx
 // The applet automatically adapts based on user permissions
 // No need to manually configure - handled by the applet host
-<AppletHost 
+<AppletHost
   applets={[userManagementApplet]}
   userPermissions={currentUserPermissions}
 />
@@ -238,11 +235,13 @@ setupWorker(...handlers).start();
 
 ```tsx
 // Use alongside other applets
-<AppletHost applets={[
-  userManagementApplet,
-  productCatalogApplet,
-  // ... other applets
-]} />
+<AppletHost
+  applets={[
+    userManagementApplet,
+    productCatalogApplet,
+    // ... other applets
+  ]}
+/>
 ```
 
 ## 🚨 Troubleshooting

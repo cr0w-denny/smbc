@@ -11,7 +11,7 @@ export interface AppShellConfig {
 }
 
 export interface UserAction {
-  type: 'profile' | 'settings' | 'logout';
+  type: "profile" | "settings" | "logout";
   label: string;
   icon?: React.ReactNode;
   onClick: () => void;

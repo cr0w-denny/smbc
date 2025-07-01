@@ -24,8 +24,8 @@ interface AppletSystemProps {
 }
 
 function useAppletRoutes(
-  applets: HostAppletDefinition[], 
-  permissionMapping: Record<string, string> = {}
+  applets: HostAppletDefinition[],
+  permissionMapping: Record<string, string> = {},
 ): NavigationRoute[] {
   const { hasAnyPermission, userRoles } = useRoleManagement();
   const appletRoutes = getAllRoutes(applets);
@@ -61,11 +61,11 @@ function useAppletRoutes(
   );
 }
 
-export function AppletDrawer({ 
-  applets, 
-  appConstants, 
+export function AppletDrawer({
+  applets,
+  appConstants,
   title,
-  permissionMapping = {}
+  permissionMapping = {},
 }: AppletSystemProps) {
   const { currentPath, navigateTo } = useHashNavigation();
   const routes = useAppletRoutes(applets, permissionMapping);
@@ -83,10 +83,10 @@ export function AppletDrawer({
   );
 }
 
-export function AppletRoutes({ 
-  applets, 
+export function AppletRoutes({
+  applets,
   dashboardComponent,
-  permissionMapping = {}
+  permissionMapping = {},
 }: AppletSystemProps) {
   const { currentPath } = useHashNavigation();
   const { hasAnyPermission } = useRoleManagement();

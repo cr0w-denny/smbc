@@ -2,7 +2,7 @@
  * AppShell state management provider
  */
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from "react";
 
 export interface AppShellContextValue {
   // Drawer state
@@ -10,12 +10,12 @@ export interface AppShellContextValue {
   openDrawer: () => void;
   closeDrawer: () => void;
   toggleDrawer: () => void;
-  
+
   // User menu state
   userMenuAnchor: HTMLElement | null;
   openUserMenu: (event: React.MouseEvent<HTMLElement>) => void;
   closeUserMenu: () => void;
-  
+
   // Notification menu state
   notificationMenuAnchor: HTMLElement | null;
   openNotificationMenu: (event: React.MouseEvent<HTMLElement>) => void;
@@ -39,33 +39,41 @@ export const AppShellProvider: React.FC<AppShellProviderProps> = ({
 }) => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState(initialDrawerOpen);
-  
+
   // Menu anchor states
-  const [userMenuAnchor, setUserMenuAnchor] = useState<HTMLElement | null>(null);
-  const [notificationMenuAnchor, setNotificationMenuAnchor] = useState<HTMLElement | null>(null);
-  
+  const [userMenuAnchor, setUserMenuAnchor] = useState<HTMLElement | null>(
+    null,
+  );
+  const [notificationMenuAnchor, setNotificationMenuAnchor] =
+    useState<HTMLElement | null>(null);
+
   // Notification state
-  const [notificationCount, setNotificationCount] = useState(initialNotificationCount);
+  const [notificationCount, setNotificationCount] = useState(
+    initialNotificationCount,
+  );
 
   // Drawer actions
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
-  const toggleDrawer = useCallback(() => setDrawerOpen(prev => !prev), []);
+  const toggleDrawer = useCallback(() => setDrawerOpen((prev) => !prev), []);
 
   // User menu actions
   const openUserMenu = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setUserMenuAnchor(event.currentTarget);
   }, []);
-  
+
   const closeUserMenu = useCallback(() => {
     setUserMenuAnchor(null);
   }, []);
 
   // Notification menu actions
-  const openNotificationMenu = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    setNotificationMenuAnchor(event.currentTarget);
-  }, []);
-  
+  const openNotificationMenu = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setNotificationMenuAnchor(event.currentTarget);
+    },
+    [],
+  );
+
   const closeNotificationMenu = useCallback(() => {
     setNotificationMenuAnchor(null);
   }, []);
@@ -76,12 +84,12 @@ export const AppShellProvider: React.FC<AppShellProviderProps> = ({
     openDrawer,
     closeDrawer,
     toggleDrawer,
-    
+
     // User menu
     userMenuAnchor,
     openUserMenu,
     closeUserMenu,
-    
+
     // Notification menu
     notificationMenuAnchor,
     openNotificationMenu,
@@ -100,7 +108,7 @@ export const AppShellProvider: React.FC<AppShellProviderProps> = ({
 export const useAppShell = (): AppShellContextValue => {
   const context = useContext(AppShellContext);
   if (!context) {
-    throw new Error('useAppShell must be used within an AppShellProvider');
+    throw new Error("useAppShell must be used within an AppShellProvider");
   }
   return context;
 };

@@ -19,11 +19,11 @@ npm install @smbc/user-management-client
 ## Quick Start
 
 ```tsx
-import React from 'react';
-import { apiClient } from '@smbc/user-management-client';
+import React from "react";
+import { apiClient } from "@smbc/user-management-client";
 
 function UsersList() {
-  const { data, error, isPending } = apiClient.useQuery('get', '/users', {});
+  const { data, error, isPending } = apiClient.useQuery("get", "/users", {});
 
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -47,13 +47,13 @@ function UsersList() {
 The package exports a pre-configured client instance:
 
 ```tsx
-import { apiClient } from '@smbc/user-management-client';
+import { apiClient } from "@smbc/user-management-client";
 
 // Available methods
-apiClient.useQuery(method, path, options)
-apiClient.useMutation(method, path)
-apiClient.useInfiniteQuery(method, path, options)
-apiClient.useSuspenseQuery(method, path, options)
+apiClient.useQuery(method, path, options);
+apiClient.useMutation(method, path);
+apiClient.useInfiniteQuery(method, path, options);
+apiClient.useSuspenseQuery(method, path, options);
 ```
 
 ### Custom Client
@@ -61,12 +61,12 @@ apiClient.useSuspenseQuery(method, path, options)
 Create a custom client with different configuration:
 
 ```tsx
-import { createApiClient } from '@smbc/user-management-client';
+import { createApiClient } from "@smbc/user-management-client";
 
 const customClient = createApiClient({
-  baseUrl: 'https://api.example.com',
+  baseUrl: "https://api.example.com",
   headers: {
-    'Authorization': 'Bearer ' + token,
+    Authorization: "Bearer " + token,
   },
 });
 ```
@@ -87,14 +87,14 @@ All endpoints are fully typed based on the OpenAPI schema:
 
 ```tsx
 function UsersList() {
-  const { data, error, isPending } = apiClient.useQuery('get', '/users', {
+  const { data, error, isPending } = apiClient.useQuery("get", "/users", {
     params: {
       query: {
         page: 1,
         pageSize: 20,
-        search: 'john@example.com'
-      }
-    }
+        search: "john@example.com",
+      },
+    },
   });
 
   // data is typed as { users: User[], total: number, page: number, pageSize: number }
@@ -105,7 +105,10 @@ function UsersList() {
 
 ```tsx
 function CreateUser() {
-  const { mutate: createUser, isPending } = apiClient.useMutation('post', '/users');
+  const { mutate: createUser, isPending } = apiClient.useMutation(
+    "post",
+    "/users",
+  );
 
   const handleSubmit = (userData) => {
     createUser({
@@ -113,7 +116,7 @@ function CreateUser() {
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
-      }
+      },
     });
   };
 }
@@ -123,10 +126,10 @@ function CreateUser() {
 
 ```tsx
 function UserDetail({ userId }: { userId: string }) {
-  const { data: user } = apiClient.useQuery('get', '/users/{id}', {
+  const { data: user } = apiClient.useQuery("get", "/users/{id}", {
     params: {
-      path: { id: userId }
-    }
+      path: { id: userId },
+    },
   });
 
   // user is typed as User | undefined
@@ -137,17 +140,17 @@ function UserDetail({ userId }: { userId: string }) {
 
 ```tsx
 function UpdateUser({ userId }: { userId: string }) {
-  const { mutate: updateUser } = apiClient.useMutation('patch', '/users/{id}');
+  const { mutate: updateUser } = apiClient.useMutation("patch", "/users/{id}");
 
   const handleUpdate = (updates) => {
     updateUser({
       params: {
-        path: { id: userId }
+        path: { id: userId },
       },
       body: {
         firstName: updates.firstName,
         isActive: updates.isActive,
-      }
+      },
     });
   };
 }
@@ -158,8 +161,8 @@ function UpdateUser({ userId }: { userId: string }) {
 The package includes auto-generated MSW handlers for testing:
 
 ```tsx
-import { handlers } from '@smbc/user-management-client';
-import { setupServer } from 'msw/node';
+import { handlers } from "@smbc/user-management-client";
+import { setupServer } from "msw/node";
 
 const server = setupServer(...handlers);
 
@@ -173,11 +176,11 @@ afterAll(() => server.close());
 All types are automatically generated and exported:
 
 ```tsx
-import type { paths, components } from '@smbc/user-management-client';
+import type { paths, components } from "@smbc/user-management-client";
 
-type User = components['schemas']['User'];
-type CreateUserRequest = components['schemas']['CreateUserRequest'];
-type UserList = components['schemas']['UserList'];
+type User = components["schemas"]["User"];
+type CreateUserRequest = components["schemas"]["CreateUserRequest"];
+type UserList = components["schemas"]["UserList"];
 ```
 
 ## Development
@@ -193,7 +196,6 @@ npm run build
 npm run dev
 ```
 
-
 ## Configuration
 
 ### Base URL
@@ -207,10 +209,10 @@ The client automatically detects the environment:
 
 ```tsx
 const client = createApiClient({
-  baseUrl: 'https://api.example.com',
+  baseUrl: "https://api.example.com",
   headers: {
-    'Authorization': `Bearer ${token}`,
-    'X-Custom-Header': 'value',
+    Authorization: `Bearer ${token}`,
+    "X-Custom-Header": "value",
   },
 });
 ```

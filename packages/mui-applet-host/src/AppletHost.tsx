@@ -34,8 +34,8 @@ interface AppletHostProps {
 }
 
 function useAppletRoutes(
-  applets: HostAppletDefinition[], 
-  permissionMapping: Record<string, string> = {}
+  applets: HostAppletDefinition[],
+  permissionMapping: Record<string, string> = {},
 ): NavigationRoute[] {
   const { hasAnyPermission, userRoles } = useRoleManagement();
   const appletRoutes = getAllRoutes(applets);
@@ -71,12 +71,12 @@ function useAppletRoutes(
 }
 
 // Dashboard component extracted to prevent recreation
-const Dashboard = React.memo(function Dashboard({ 
-  hostApplets, 
-  roleConfig 
-}: { 
-  hostApplets: HostAppletDefinition[], 
-  roleConfig: RoleConfig 
+const Dashboard = React.memo(function Dashboard({
+  hostApplets,
+  roleConfig,
+}: {
+  hostApplets: HostAppletDefinition[];
+  roleConfig: RoleConfig;
 }) {
   const { userRoles } = useRoleManagement();
   const { user, availableRoles, setRoles } = useUser();
@@ -120,13 +120,9 @@ export function AppletHost({
   const routes = useAppletRoutes(applets, permissionMapping);
   const allRoutes = getAllRoutes(applets);
 
-  const DashboardComponent = React.useMemo(() => 
-    () => (
-      <Dashboard 
-        hostApplets={applets}
-        roleConfig={roleConfig}
-      />
-    ), [applets, roleConfig]
+  const DashboardComponent = React.useMemo(
+    () => () => <Dashboard hostApplets={applets} roleConfig={roleConfig} />,
+    [applets, roleConfig],
   );
 
   return (

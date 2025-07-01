@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogActions,
@@ -7,8 +7,8 @@ import {
   DialogTitle,
   Button,
   IconButton,
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 export interface ConfirmationDialogProps {
   /** Whether the dialog is open */
@@ -26,11 +26,17 @@ export interface ConfirmationDialogProps {
   /** Text for the cancel button */
   cancelText?: string;
   /** Color variant for the confirm button */
-  confirmColor?: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
+  confirmColor?:
+    | "primary"
+    | "secondary"
+    | "error"
+    | "warning"
+    | "info"
+    | "success";
   /** Whether the confirm action is loading */
   loading?: boolean;
   /** Maximum width of the dialog */
-  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
 }
 
 /**
@@ -42,11 +48,11 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onConfirm,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  confirmColor = 'primary',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  confirmColor = "primary",
   loading = false,
-  maxWidth = 'sm',
+  maxWidth = "sm",
 }) => {
   const handleConfirm = () => {
     onConfirm();
@@ -67,7 +73,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           aria-label="close"
           onClick={onClose}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             right: 8,
             top: 8,
             color: (theme) => theme.palette.grey[500],
@@ -82,11 +88,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button 
-          onClick={onClose} 
-          disabled={loading}
-          variant="outlined"
-        >
+        <Button onClick={onClose} disabled={loading} variant="outlined">
           {cancelText}
         </Button>
         <Button
@@ -96,7 +98,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           disabled={loading}
           autoFocus
         >
-          {loading ? 'Processing...' : confirmText}
+          {loading ? "Processing..." : confirmText}
         </Button>
       </DialogActions>
     </Dialog>

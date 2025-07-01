@@ -1,4 +1,8 @@
-import { Edit as EditIcon, Delete as DeleteIcon, Visibility as ViewIcon } from "@mui/icons-material";
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Visibility as ViewIcon,
+} from "@mui/icons-material";
 
 /**
  * Action configuration for the UserManager component
@@ -13,7 +17,7 @@ export const createActionsConfig = (
   },
   handlers?: {
     onViewUser?: (user: any) => void;
-  }
+  },
 ) => {
   const actions = [];
 

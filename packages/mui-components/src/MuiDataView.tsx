@@ -68,27 +68,34 @@ function MuiDataTable<T extends Record<string, any>>({
               <TableCell padding="checkbox">
                 <Checkbox
                   indeterminate={(() => {
-                    const currentPageIds = data.map(item => item.id);
-                    const selectedOnPage = currentPageIds.filter(id => 
-                      selection.selectedIds.includes(id)
+                    const currentPageIds = data.map((item) => item.id);
+                    const selectedOnPage = currentPageIds.filter((id) =>
+                      selection.selectedIds.includes(id),
                     ).length;
                     return selectedOnPage > 0 && selectedOnPage < data.length;
                   })()}
                   checked={(() => {
                     if (data.length === 0) return false;
-                    const currentPageIds = data.map(item => item.id);
-                    return currentPageIds.every(id => selection.selectedIds.includes(id));
+                    const currentPageIds = data.map((item) => item.id);
+                    return currentPageIds.every((id) =>
+                      selection.selectedIds.includes(id),
+                    );
                   })()}
                   onChange={(event) => {
                     const currentPageIds = data.map((item) => item.id);
                     if (event.target.checked) {
                       // Add current page IDs to existing selection
-                      const newSelection = [...new Set([...selection.selectedIds, ...currentPageIds])];
+                      const newSelection = [
+                        ...new Set([
+                          ...selection.selectedIds,
+                          ...currentPageIds,
+                        ]),
+                      ];
                       selection.onSelectionChange(newSelection);
                     } else {
                       // Remove current page IDs from selection
-                      const newSelection = selection.selectedIds.filter(id => 
-                        !currentPageIds.includes(id)
+                      const newSelection = selection.selectedIds.filter(
+                        (id) => !currentPageIds.includes(id),
                       );
                       selection.onSelectionChange(newSelection);
                     }
@@ -108,96 +115,117 @@ function MuiDataTable<T extends Record<string, any>>({
           {data.map((item, index) => {
             // Check for pending state
             const pendingState = (item as any).__pendingState;
-            
+
             // Define styling based on pending state
             const getPendingStyles = () => {
               switch (pendingState) {
-                case 'added':
+                case "added":
                   return {
-                    backgroundColor: 'rgba(76, 175, 80, 0.1)', // Light green
-                    borderLeft: '4px solid #4caf50',
+                    backgroundColor: "rgba(76, 175, 80, 0.1)", // Light green
+                    borderLeft: "4px solid #4caf50",
                   };
-                case 'edited':
+                case "edited":
                   return {
-                    backgroundColor: 'rgba(255, 152, 0, 0.1)', // Light orange
-                    borderLeft: '4px solid #ff9800',
+                    backgroundColor: "rgba(255, 152, 0, 0.1)", // Light orange
+                    borderLeft: "4px solid #ff9800",
                   };
-                case 'deleted':
+                case "deleted":
                   return {
-                    backgroundColor: 'rgba(244, 67, 54, 0.1)', // Light red
-                    borderLeft: '4px solid #f44336',
-                    textDecoration: 'line-through',
+                    backgroundColor: "rgba(244, 67, 54, 0.1)", // Light red
+                    borderLeft: "4px solid #f44336",
+                    textDecoration: "line-through",
                     opacity: 0.7,
                   };
                 default:
                   return {};
               }
             };
-            
+
             return (
               <TableRow
                 key={item.id || index}
                 onClick={onRowClick ? () => onRowClick(item) : undefined}
-                sx={{ 
+                sx={{
                   cursor: onRowClick ? "pointer" : "default",
                   ...getPendingStyles(),
                 }}
               >
-              {selection?.enabled && (
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selection.selectedIds.includes(item.id)}
-                    onChange={(event) => {
-                      if (event.target.checked) {
-                        selection.onSelectionChange([
-                          ...selection.selectedIds,
-                          item.id,
-                        ]);
-                      } else {
-                        selection.onSelectionChange(
-                          selection.selectedIds.filter((id) => id !== item.id),
-                        );
-                      }
-                    }}
-                  />
-                </TableCell>
-              )}
-              {columns.map((column, colIndex) => (
-                <TableCell key={column.key} sx={(column as any).sx}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {/* Show pending state chip on first column */}
-                    {colIndex === 0 && pendingState && (
-                      <Chip
-                        size="small"
-                        label={pendingState === 'added' ? 'NEW' : pendingState === 'edited' ? 'EDITED' : 'DELETED'}
-                        color={pendingState === 'added' ? 'success' : pendingState === 'edited' ? 'warning' : 'error'}
-                        variant="outlined"
-                      />
-                    )}
-                    <span style={{ textDecoration: pendingState === 'deleted' ? 'line-through' : 'none' }}>
-                      {column.render ? column.render(item) : item[column.key]}
-                    </span>
-                  </Box>
-                </TableCell>
-              ))}
-              {actions.length > 0 && (
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
-                  {actions
-                    .filter((action) => !action.hidden?.(item))
-                    .map((action) => (
-                      <IconButton
-                        key={action.key}
-                        onClick={() => action.onClick?.(item)}
-                        disabled={action.disabled?.(item)}
-                        color={action.color}
-                        size="small"
+                {selection?.enabled && (
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={selection.selectedIds.includes(item.id)}
+                      onChange={(event) => {
+                        if (event.target.checked) {
+                          selection.onSelectionChange([
+                            ...selection.selectedIds,
+                            item.id,
+                          ]);
+                        } else {
+                          selection.onSelectionChange(
+                            selection.selectedIds.filter(
+                              (id) => id !== item.id,
+                            ),
+                          );
+                        }
+                      }}
+                    />
+                  </TableCell>
+                )}
+                {columns.map((column, colIndex) => (
+                  <TableCell key={column.key} sx={(column as any).sx}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      {/* Show pending state chip on first column */}
+                      {colIndex === 0 && pendingState && (
+                        <Chip
+                          size="small"
+                          label={
+                            pendingState === "added"
+                              ? "NEW"
+                              : pendingState === "edited"
+                                ? "EDITED"
+                                : "DELETED"
+                          }
+                          color={
+                            pendingState === "added"
+                              ? "success"
+                              : pendingState === "edited"
+                                ? "warning"
+                                : "error"
+                          }
+                          variant="outlined"
+                        />
+                      )}
+                      <span
+                        style={{
+                          textDecoration:
+                            pendingState === "deleted"
+                              ? "line-through"
+                              : "none",
+                        }}
                       >
-                        {action.icon && <action.icon />}
-                      </IconButton>
-                    ))}
-                </TableCell>
-              )}
-            </TableRow>
+                        {column.render ? column.render(item) : item[column.key]}
+                      </span>
+                    </Box>
+                  </TableCell>
+                ))}
+                {actions.length > 0 && (
+                  <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                    {actions
+                      .filter((action) => !action.hidden?.(item))
+                      .map((action) => (
+                        <IconButton
+                          key={action.key}
+                          onClick={() => action.onClick?.(item)}
+                          disabled={action.disabled?.(item)}
+                          color={action.color}
+                          size="small"
+                        >
+                          {action.icon && <action.icon />}
+                        </IconButton>
+                      ))}
+                  </TableCell>
+                )}
+              </TableRow>
             );
           })}
         </TableBody>
@@ -237,13 +265,16 @@ function MuiDataForm<T extends Record<string, any>>({
     onSubmit(formData as T);
   };
 
-  const capitalizedEntityType = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+  const capitalizedEntityType =
+    entityType.charAt(0).toUpperCase() + entityType.slice(1);
 
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="sm" fullWidth>
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          {mode === "create" ? `Create New ${capitalizedEntityType}` : `Edit ${capitalizedEntityType}`}
+          {mode === "create"
+            ? `Create New ${capitalizedEntityType}`
+            : `Edit ${capitalizedEntityType}`}
         </DialogTitle>
         <DialogContent>
           {error && (

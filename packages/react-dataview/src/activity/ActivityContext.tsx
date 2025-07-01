@@ -1,7 +1,19 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import type { ActivityItem, ActivityConfig, ActivityContextValue } from './types';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import type {
+  ActivityItem,
+  ActivityConfig,
+  ActivityContextValue,
+} from "./types";
 
-const ActivityContext = createContext<ActivityContextValue | undefined>(undefined);
+const ActivityContext = createContext<ActivityContextValue | undefined>(
+  undefined,
+);
 
 export interface ActivityProviderProps {
   children: React.ReactNode;
@@ -12,36 +24,45 @@ const defaultConfig: Required<ActivityConfig> = {
   maxItems: 50,
   retentionTime: 24 * 60 * 60 * 1000, // 24 hours
   showToasts: true,
-  urlGenerator: (entityType: string, entityId: string) => `/${entityType}/${entityId}`,
+  urlGenerator: (entityType: string, entityId: string) =>
+    `/${entityType}/${entityId}`,
 };
 
-export function ActivityProvider({ children, config = {} }: ActivityProviderProps) {
+export function ActivityProvider({
+  children,
+  config = {},
+}: ActivityProviderProps) {
   const mergedConfig = { ...defaultConfig, ...config };
   const [activities, setActivities] = useState<ActivityItem[]>([]);
-  const [viewedActivityIds, setViewedActivityIds] = useState<Set<string>>(new Set());
+  const [viewedActivityIds, setViewedActivityIds] = useState<Set<string>>(
+    new Set(),
+  );
 
-  const addActivity = useCallback((activity: Omit<ActivityItem, 'id' | 'timestamp'>) => {
-    const newActivity: ActivityItem = {
-      ...activity,
-      id: `activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: new Date(),
-    };
+  const addActivity = useCallback(
+    (activity: Omit<ActivityItem, "id" | "timestamp">) => {
+      const newActivity: ActivityItem = {
+        ...activity,
+        id: `activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: new Date(),
+      };
 
-    setActivities(prev => {
-      // Add new activity at the beginning
-      const updated = [newActivity, ...prev];
-      
-      // Trim to max items
-      if (updated.length > mergedConfig.maxItems) {
-        return updated.slice(0, mergedConfig.maxItems);
-      }
-      
-      return updated;
-    });
-  }, [mergedConfig.maxItems]);
+      setActivities((prev) => {
+        // Add new activity at the beginning
+        const updated = [newActivity, ...prev];
+
+        // Trim to max items
+        if (updated.length > mergedConfig.maxItems) {
+          return updated.slice(0, mergedConfig.maxItems);
+        }
+
+        return updated;
+      });
+    },
+    [mergedConfig.maxItems],
+  );
 
   const markAsViewed = useCallback((activityId: string) => {
-    setViewedActivityIds(prev => new Set(prev).add(activityId));
+    setViewedActivityIds((prev) => new Set(prev).add(activityId));
   }, []);
 
   const clearAll = useCallback(() => {
@@ -51,10 +72,14 @@ export function ActivityProvider({ children, config = {} }: ActivityProviderProp
 
   const cleanup = useCallback(() => {
     const cutoffTime = new Date(Date.now() - mergedConfig.retentionTime);
-    setActivities(prev => prev.filter(activity => activity.timestamp > cutoffTime));
+    setActivities((prev) =>
+      prev.filter((activity) => activity.timestamp > cutoffTime),
+    );
   }, [mergedConfig.retentionTime]);
 
-  const unviewedCount = activities.filter(activity => !viewedActivityIds.has(activity.id)).length;
+  const unviewedCount = activities.filter(
+    (activity) => !viewedActivityIds.has(activity.id),
+  ).length;
 
   // Auto-cleanup every hour
   useEffect(() => {
@@ -81,7 +106,7 @@ export function ActivityProvider({ children, config = {} }: ActivityProviderProp
 export function useActivity(): ActivityContextValue {
   const context = useContext(ActivityContext);
   if (context === undefined) {
-    throw new Error('useActivity must be used within an ActivityProvider');
+    throw new Error("useActivity must be used within an ActivityProvider");
   }
   return context;
 }

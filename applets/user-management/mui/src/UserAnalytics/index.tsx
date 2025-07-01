@@ -31,8 +31,10 @@ export function UserAnalytics() {
       <Grid container spacing={3}>
         {/* Total Users */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent
+              sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+            >
               <Box
                 display="flex"
                 alignItems="center"
@@ -50,7 +52,8 @@ export function UserAnalytics() {
                   <Typography variant="h4">
                     {stats.totalUsers.toLocaleString()}
                   </Typography>
-                  <Box sx={{ height: '20px' }} /> {/* Spacer for uniform height */}
+                  <Box sx={{ height: "20px" }} />{" "}
+                  {/* Spacer for uniform height */}
                 </Box>
                 <PeopleIcon
                   sx={{ fontSize: 40, color: "primary.main", opacity: 0.3 }}
@@ -62,8 +65,10 @@ export function UserAnalytics() {
 
         {/* Active Users */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent
+              sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+            >
               <Box
                 display="flex"
                 alignItems="center"
@@ -79,7 +84,11 @@ export function UserAnalytics() {
                     Active Users
                   </Typography>
                   <Typography variant="h4">{stats.activeUsers}</Typography>
-                  <Typography variant="caption" color="success.main" sx={{ height: '20px', display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="success.main"
+                    sx={{ height: "20px", display: "block" }}
+                  >
                     {stats.activeRate} of total
                   </Typography>
                 </Box>
@@ -93,8 +102,10 @@ export function UserAnalytics() {
 
         {/* New Users */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent
+              sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+            >
               <Box
                 display="flex"
                 alignItems="center"
@@ -112,7 +123,11 @@ export function UserAnalytics() {
                   <Typography variant="h4">
                     {stats.newUsersThisMonth}
                   </Typography>
-                  <Typography variant="caption" color="info.main" sx={{ height: '20px', display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="info.main"
+                    sx={{ height: "20px", display: "block" }}
+                  >
                     {stats.growthRate} growth
                   </Typography>
                 </Box>
@@ -126,8 +141,10 @@ export function UserAnalytics() {
 
         {/* Admin Users */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent
+              sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+            >
               <Box
                 display="flex"
                 alignItems="center"
@@ -143,7 +160,8 @@ export function UserAnalytics() {
                     Admin Users
                   </Typography>
                   <Typography variant="h4">{stats.adminUsers}</Typography>
-                  <Box sx={{ height: '20px' }} /> {/* Spacer for uniform height */}
+                  <Box sx={{ height: "20px" }} />{" "}
+                  {/* Spacer for uniform height */}
                 </Box>
                 <AdminIcon
                   sx={{ fontSize: 40, color: "warning.main", opacity: 0.3 }}

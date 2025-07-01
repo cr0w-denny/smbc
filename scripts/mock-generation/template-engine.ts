@@ -1,7 +1,7 @@
-import Handlebars from 'handlebars';
-import { readFileSync, readdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import Handlebars from "handlebars";
+import { readFileSync, readdirSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 
 export interface TemplateContext {
   apiName: string;
@@ -52,31 +52,31 @@ export interface OperationContext {
   lowerEntityName: string;
   primaryKey: string;
   pathParam?: string;
-  
+
   // Operation type flags
   isListOperation: boolean;
   isSingleOperation: boolean;
   isCreateOperation: boolean;
   isUpdateOperation: boolean;
   isDeleteOperation: boolean;
-  
+
   // Parameter handling
   hasParams: boolean;
   hasBody: boolean;
   hasPathParams: boolean;
   queryParams: QueryParamContext[];
-  
+
   // List operation specific
   hasSearch: boolean;
   searchConfig?: SearchConfig;
   hasPagination: boolean;
   hasSorting: boolean;
   filters: FilterContext[];
-  
+
   // Error handling
   errorScenarios: boolean;
   defaultError: ErrorContext;
-  
+
   // Response discrimination
   discriminator?: DiscriminatorContext;
 }
@@ -97,7 +97,7 @@ export interface FilterContext {
   field: string;
   isBooleanField: boolean;
   config?: {
-    strategy: 'exact' | 'partial-match' | 'boolean-inverse';
+    strategy: "exact" | "partial-match" | "boolean-inverse";
     field: string;
   };
 }
@@ -120,24 +120,27 @@ export class TemplateEngine {
 
   constructor() {
     this.handlebars = Handlebars.create();
-    this.templatesDir = join(dirname(fileURLToPath(import.meta.url)), 'templates');
+    this.templatesDir = join(
+      dirname(fileURLToPath(import.meta.url)),
+      "templates",
+    );
     this.registerHelpers();
     this.loadPartials();
   }
 
   private registerHelpers() {
     // Helper for JSON stringification
-    this.handlebars.registerHelper('json', (context) => {
+    this.handlebars.registerHelper("json", (context) => {
       return JSON.stringify(context);
     });
 
     // Helper for equality comparison
-    this.handlebars.registerHelper('eq', (a, b) => {
+    this.handlebars.registerHelper("eq", (a, b) => {
       return a === b;
     });
 
     // Helper for conditional rendering
-    this.handlebars.registerHelper('unless', function(conditional, options) {
+    this.handlebars.registerHelper("unless", function (conditional, options) {
       if (!conditional) {
         return options.fn(this);
       }
@@ -145,53 +148,52 @@ export class TemplateEngine {
     });
 
     // Helper for capitalizing strings
-    this.handlebars.registerHelper('capitalize', (str: string) => {
+    this.handlebars.registerHelper("capitalize", (str: string) => {
       return str.charAt(0).toUpperCase() + str.slice(1);
     });
 
     // Helper for lowercasing strings
-    this.handlebars.registerHelper('lower', (str: string) => {
+    this.handlebars.registerHelper("lower", (str: string) => {
       return str.toLowerCase();
     });
 
     // Helper for singularizing plurals
-    this.handlebars.registerHelper('singularize', (str: string) => {
-      if (str.endsWith('ies')) return str.slice(0, -3) + 'y';
-      if (str.endsWith('es')) return str.slice(0, -2);
-      if (str.endsWith('s')) return str.slice(0, -1);
+    this.handlebars.registerHelper("singularize", (str: string) => {
+      if (str.endsWith("ies")) return str.slice(0, -3) + "y";
+      if (str.endsWith("es")) return str.slice(0, -2);
+      if (str.endsWith("s")) return str.slice(0, -1);
       return str;
     });
 
     // Helper for pluralizing singulars
-    this.handlebars.registerHelper('pluralize', (str: string) => {
-      if (str.endsWith('y')) return str.slice(0, -1) + 'ies';
-      if (str.endsWith('s') || str.endsWith('sh') || str.endsWith('ch')) return str + 'es';
-      return str + 's';
+    this.handlebars.registerHelper("pluralize", (str: string) => {
+      if (str.endsWith("y")) return str.slice(0, -1) + "ies";
+      if (str.endsWith("s") || str.endsWith("sh") || str.endsWith("ch"))
+        return str + "es";
+      return str + "s";
     });
   }
 
   private loadPartials() {
-    const partialsDir = join(this.templatesDir, 'partials');
-    
+    const partialsDir = join(this.templatesDir, "partials");
+
     try {
       const partialFiles = readdirSync(partialsDir);
-      
+
       for (const file of partialFiles) {
-        if (file.endsWith('.hbs')) {
-          const partialName = file.replace('.hbs', '');
+        if (file.endsWith(".hbs")) {
+          const partialName = file.replace(".hbs", "");
           const partialPath = join(partialsDir, file);
-          const partialContent = readFileSync(partialPath, 'utf-8');
+          const partialContent = readFileSync(partialPath, "utf-8");
           this.handlebars.registerPartial(partialName, partialContent);
         }
       }
-    } catch (error) {
-      console.warn('Could not load partials:', error);
-    }
+    } catch (error) {}
   }
 
   public loadTemplate(templateName: string): HandlebarsTemplateDelegate {
     const templatePath = join(this.templatesDir, `${templateName}.hbs`);
-    const templateContent = readFileSync(templatePath, 'utf-8');
+    const templateContent = readFileSync(templatePath, "utf-8");
     return this.handlebars.compile(templateContent);
   }
 
@@ -205,12 +207,12 @@ export class TemplateEngine {
     if (!partial) {
       throw new Error(`Partial '${partialName}' not found`);
     }
-    
-    if (typeof partial === 'string') {
+
+    if (typeof partial === "string") {
       const compiledPartial = this.handlebars.compile(partial);
       return compiledPartial(context);
     }
-    
+
     return partial(context);
   }
 }

@@ -17,7 +17,6 @@ export {
   filterFieldPresets,
 } from "./useAutoFilter";
 
-
 // Types
 export type {
   OpenAPIParameter,

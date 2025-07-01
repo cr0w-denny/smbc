@@ -35,16 +35,10 @@ export interface DataColumn<T> {
 }
 
 // Import action types for use in this file
-import type {
-  RowAction,
-} from "@smbc/react-dataview";
+import type { RowAction } from "@smbc/react-dataview";
 
 // Re-export action types from react-dataview
-export type {
-  RowAction,
-  BulkAction,
-  GlobalAction,
-} from "@smbc/react-dataview";
+export type { RowAction, BulkAction, GlobalAction } from "@smbc/react-dataview";
 
 // Pagination configuration
 export interface PaginationConfig {

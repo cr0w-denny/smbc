@@ -1,15 +1,15 @@
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import type { StorybookConfig } from '@storybook/react-vite';
+import type { StorybookConfig } from "@storybook/react-vite";
 
 const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
-  stories: ['../stories/**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)'],
+  stories: ["../stories/**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)"],
   addons: [
-    getAbsolutePath("@storybook/addon-links"), 
-    getAbsolutePath("@storybook/addon-docs"), 
-    getAbsolutePath("msw-storybook-addon")
+    getAbsolutePath("@storybook/addon-links"),
+    getAbsolutePath("@storybook/addon-docs"),
+    getAbsolutePath("msw-storybook-addon"),
   ],
 
   framework: {
@@ -19,12 +19,13 @@ const config: StorybookConfig = {
 
   typescript: {
     check: false,
-    reactDocgen: 'react-docgen-typescript',
+    reactDocgen: "react-docgen-typescript",
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
-      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+      propFilter: (prop) =>
+        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
     },
-  }
+  },
 };
 
 export default config;

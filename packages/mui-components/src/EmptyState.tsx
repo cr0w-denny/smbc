@@ -1,15 +1,10 @@
-import React from 'react';
+import React from "react";
+import { Box, Typography, Button, Stack } from "@mui/material";
 import {
-  Box,
-  Typography,
-  Button,
-  Stack,
-} from '@mui/material';
-import { 
-  Search as SearchIcon, 
+  Search as SearchIcon,
   Add as AddIcon,
-  Refresh as RefreshIcon 
-} from '@mui/icons-material';
+  Refresh as RefreshIcon,
+} from "@mui/icons-material";
 
 export interface EmptyStateProps {
   /** Icon to display */
@@ -22,20 +17,20 @@ export interface EmptyStateProps {
   primaryAction?: {
     label: string;
     onClick: () => void;
-    variant?: 'contained' | 'outlined' | 'text';
-    color?: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
+    variant?: "contained" | "outlined" | "text";
+    color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
     disabled?: boolean;
   };
   /** Secondary action button */
   secondaryAction?: {
     label: string;
     onClick: () => void;
-    variant?: 'contained' | 'outlined' | 'text';
-    color?: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
+    variant?: "contained" | "outlined" | "text";
+    color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
     disabled?: boolean;
   };
   /** Predefined empty state type */
-  type?: 'search' | 'create' | 'error' | 'custom';
+  type?: "search" | "create" | "error" | "custom";
   /** Custom styles */
   sx?: any;
 }
@@ -49,18 +44,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   description,
   primaryAction,
   secondaryAction,
-  type = 'custom',
+  type = "custom",
   sx = {},
 }) => {
   // Default icons based on type
   const getDefaultIcon = () => {
     switch (type) {
-      case 'search':
-        return <SearchIcon sx={{ fontSize: 64, color: 'text.secondary' }} />;
-      case 'create':
-        return <AddIcon sx={{ fontSize: 64, color: 'text.secondary' }} />;
-      case 'error':
-        return <RefreshIcon sx={{ fontSize: 64, color: 'text.secondary' }} />;
+      case "search":
+        return <SearchIcon sx={{ fontSize: 64, color: "text.secondary" }} />;
+      case "create":
+        return <AddIcon sx={{ fontSize: 64, color: "text.secondary" }} />;
+      case "error":
+        return <RefreshIcon sx={{ fontSize: 64, color: "text.secondary" }} />;
       default:
         return null;
     }
@@ -71,43 +66,39 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         minHeight: 200,
-        textAlign: 'center',
+        textAlign: "center",
         py: 4,
         px: 2,
         ...sx,
       }}
     >
-      {displayIcon && (
-        <Box sx={{ mb: 2 }}>
-          {displayIcon}
-        </Box>
-      )}
-      
+      {displayIcon && <Box sx={{ mb: 2 }}>{displayIcon}</Box>}
+
       <Typography variant="h6" component="h3" gutterBottom color="text.primary">
         {title}
       </Typography>
-      
+
       {description && (
-        <Typography 
-          variant="body2" 
-          color="text.secondary" 
+        <Typography
+          variant="body2"
+          color="text.secondary"
           sx={{ maxWidth: 400, mb: 3 }}
         >
           {description}
         </Typography>
       )}
-      
+
       {(primaryAction || secondaryAction) && (
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           {secondaryAction && (
             <Button
-              variant={secondaryAction.variant || 'outlined'}
-              color={secondaryAction.color || 'primary'}
+              variant={secondaryAction.variant || "outlined"}
+              color={secondaryAction.color || "primary"}
               onClick={secondaryAction.onClick}
               disabled={secondaryAction.disabled}
             >
@@ -116,8 +107,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           )}
           {primaryAction && (
             <Button
-              variant={primaryAction.variant || 'contained'}
-              color={primaryAction.color || 'primary'}
+              variant={primaryAction.variant || "contained"}
+              color={primaryAction.color || "primary"}
               onClick={primaryAction.onClick}
               disabled={primaryAction.disabled}
             >

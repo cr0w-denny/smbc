@@ -155,8 +155,7 @@ export const WithSelection: Story = {
     selection: {
       enabled: true,
       selectedIds: ["1", "3"],
-      onSelectionChange: (ids: string[]) =>
-        console.log("Selection changed:", ids),
+      onSelectionChange: (ids: string[]) => console.log("Selected IDs:", ids),
     },
   },
 };
@@ -211,8 +210,7 @@ export const LargeDataset: Story = {
     selection: {
       enabled: true,
       selectedIds: [],
-      onSelectionChange: (ids: string[]) =>
-        console.log("Selection changed:", ids),
+      onSelectionChange: (ids: string[]) => console.log("Selected IDs:", ids),
     },
   },
 };

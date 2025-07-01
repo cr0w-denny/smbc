@@ -1,12 +1,12 @@
-import type { Preview } from '@storybook/react-vite';
-import { initialize } from 'msw-storybook-addon';
+import type { Preview } from "@storybook/react-vite";
+import { initialize } from "msw-storybook-addon";
 
 // Initialize MSW for mocking API requests in stories
 initialize();
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
+    actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -15,24 +15,24 @@ const preview: Preview = {
     },
     options: {
       storySort: {
-        order: ['Design Tokens', '*'],
+        order: ["Design Tokens", "*"],
       },
     },
     docs: {
       source: {
-        state: 'open',
+        state: "open",
       },
     },
     backgrounds: {
-      default: 'light',
+      default: "light",
       values: [
         {
-          name: 'light',
-          value: '#ffffff',
+          name: "light",
+          value: "#ffffff",
         },
         {
-          name: 'dark',
-          value: '#1a1a1a',
+          name: "dark",
+          value: "#1a1a1a",
         },
       ],
     },

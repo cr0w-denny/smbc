@@ -10,38 +10,35 @@
 
 // High Priority - Core Framework
 const REACT_EXTERNALS = [
-  'react',
-  'react-dom',
-  'react/jsx-runtime',
-  'react/jsx-dev-runtime',
+  "react",
+  "react-dom",
+  "react/jsx-runtime",
+  "react/jsx-dev-runtime",
 ];
 
-// High Priority - UI Framework  
+// High Priority - UI Framework
 const MUI_EXTERNALS = [
-  '@mui/material',
-  '@mui/icons-material',
-  '@emotion/react',
-  '@emotion/styled',
+  "@mui/material",
+  "@mui/icons-material",
+  "@emotion/react",
+  "@emotion/styled",
 ];
 
 // Medium Priority - Data & Mocking
 const DATA_EXTERNALS = [
-  '@tanstack/react-query',
-  '@tanstack/react-query-devtools',
-  'msw',
+  "@tanstack/react-query",
+  "@tanstack/react-query-devtools",
+  "msw",
 ];
 
 // Medium Priority - API Tools
-const API_EXTERNALS = [
-  'openapi-fetch',
-  'openapi-react-query',
-];
+const API_EXTERNALS = ["openapi-fetch", "openapi-react-query"];
 
 // Lower Priority - Utilities
 const UTILITY_EXTERNALS = [
-  'swagger-ui-react',
-  '@faker-js/faker',
-  'openapi-sampler',
+  "swagger-ui-react",
+  "@faker-js/faker",
+  "openapi-sampler",
 ];
 
 // All external dependencies combined
@@ -59,25 +56,28 @@ const ALL_EXTERNALS = [
  * @param additionalExternals - Additional SMBC package externals
  * @returns Array of external dependencies
  */
-export function getExternals(packageType: string = 'full', additionalExternals: string[] = []): string[] {
+export function getExternals(
+  packageType: string = "full",
+  additionalExternals: string[] = [],
+): string[] {
   let externals: string[] = [];
-  
+
   switch (packageType) {
-    case 'core':
+    case "core":
       externals = [...REACT_EXTERNALS];
       break;
-    case 'mui':
+    case "mui":
       externals = [...REACT_EXTERNALS, ...MUI_EXTERNALS];
       break;
-    case 'api':
+    case "api":
       externals = [...REACT_EXTERNALS, ...DATA_EXTERNALS, ...API_EXTERNALS];
       break;
-    case 'full':
+    case "full":
     default:
       externals = [...ALL_EXTERNALS];
       break;
   }
-  
+
   return [...externals, ...additionalExternals];
 }
 
@@ -87,7 +87,10 @@ export function getExternals(packageType: string = 'full', additionalExternals: 
  * @param smbcExternals - SMBC package externals (e.g., ['@smbc/mui-applet-core'])
  * @returns Complete external dependencies list
  */
-export function getSMBCExternals(packageType: string = 'full', smbcExternals: string[] = []): string[] {
+export function getSMBCExternals(
+  packageType: string = "full",
+  smbcExternals: string[] = [],
+): string[] {
   return getExternals(packageType, smbcExternals);
 }
 

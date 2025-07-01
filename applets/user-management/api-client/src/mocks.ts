@@ -1,2 +1,2 @@
 // MSW mock handlers for testing and development
-export * from './mocks/index.js';
+export * from "./mocks/index.js";

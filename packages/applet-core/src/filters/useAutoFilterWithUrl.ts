@@ -3,18 +3,20 @@
  * This provides seamless integration with hash-based navigation
  */
 
-import { useCallback, useMemo } from 'react';
-import type { FilterFieldConfig, FilterValues } from '../autofilter/types';
-import type { AutoFilterConfig } from '../openapi/types';
-import { cleanFilterValues } from '../openapi/utils';
+import { useCallback, useMemo } from "react";
+import type { FilterFieldConfig, FilterValues } from "../autofilter/types";
+import type { AutoFilterConfig } from "../openapi/types";
+import { cleanFilterValues } from "../openapi/utils";
 
 // Note: This would normally import from @smbc/mui-applet-core
 // But since this is a shared component, we'll make it optional
 type UseHashQueryParamsHook = <T extends Record<string, any>>(
-  defaultValues: T
+  defaultValues: T,
 ) => [T, (updates: Partial<T>) => void];
 
-interface UseAutoFilterWithUrlOptions<TDefaults extends FilterValues = FilterValues> {
+interface UseAutoFilterWithUrlOptions<
+  TDefaults extends FilterValues = FilterValues,
+> {
   /** Default values for the URL parameters */
   defaultValues?: TDefaults;
   /** Hook for managing hash query parameters (from @smbc/applet-core) */
@@ -31,10 +33,12 @@ interface UseAutoFilterWithUrlOptions<TDefaults extends FilterValues = FilterVal
  * Use filter with URL synchronization
  * This is the core implementation that can be used by UI-specific implementations
  */
-export function useAutoFilterWithUrl<TDefaults extends FilterValues = FilterValues>(
+export function useAutoFilterWithUrl<
+  TDefaults extends FilterValues = FilterValues,
+>(
   fields: FilterFieldConfig[],
   initialValues: FilterValues,
-  options: UseAutoFilterWithUrlOptions<TDefaults> = {}
+  options: UseAutoFilterWithUrlOptions<TDefaults> = {},
 ) {
   return useAutoFilterWithUrlCore(fields, initialValues, options);
 }
@@ -42,10 +46,12 @@ export function useAutoFilterWithUrl<TDefaults extends FilterValues = FilterValu
 /**
  * Core implementation for URL-synchronized AutoFilter
  */
-function useAutoFilterWithUrlCore<TDefaults extends FilterValues = FilterValues>(
+function useAutoFilterWithUrlCore<
+  TDefaults extends FilterValues = FilterValues,
+>(
   fields: FilterFieldConfig[],
   initialValues: FilterValues,
-  options: UseAutoFilterWithUrlOptions<TDefaults> = {}
+  options: UseAutoFilterWithUrlOptions<TDefaults> = {},
 ) {
   const {
     defaultValues = initialValues,
@@ -68,7 +74,7 @@ function useAutoFilterWithUrlCore<TDefaults extends FilterValues = FilterValues>
         const transformed = transformToUrl(cleaned);
         setUrlValues(transformed);
       };
-      
+
       return {
         currentValues: current,
         onValuesChange: onChange,
@@ -83,73 +89,80 @@ function useAutoFilterWithUrlCore<TDefaults extends FilterValues = FilterValues>
   }, [urlValues, setUrlValues, transformToUrl, transformFromUrl, urlHook]);
 
   // Filter management utilities
-  const filterUtils = useMemo(() => ({
-    fields,
-    initialValues,
-    
-    // Clear all filters
-    clearFilters: () => {
-      onValuesChange(initialValues);
-    },
+  const filterUtils = useMemo(
+    () => ({
+      fields,
+      initialValues,
 
-    // Set specific filter value
-    setFilter: (name: string, value: any) => {
-      const newValues = { ...(currentValues || {}), [name]: value };
-      onValuesChange(newValues);
-    },
+      // Clear all filters
+      clearFilters: () => {
+        onValuesChange(initialValues);
+      },
 
-    // Set multiple filter values
-    setFilters: (values: Partial<FilterValues>) => {
-      const newValues = { ...(currentValues || {}), ...values };
-      onValuesChange(newValues);
-    },
+      // Set specific filter value
+      setFilter: (name: string, value: any) => {
+        const newValues = { ...(currentValues || {}), [name]: value };
+        onValuesChange(newValues);
+      },
 
-    // Get current filter value
-    getFilter: (name: string) => {
-      return currentValues?.[name];
-    },
+      // Set multiple filter values
+      setFilters: (values: Partial<FilterValues>) => {
+        const newValues = { ...(currentValues || {}), ...values };
+        onValuesChange(newValues);
+      },
 
-    // Check if a filter is active (has non-default value)
-    isFilterActive: (name: string) => {
-      const field = fields.find(f => f.name === name);
-      const value = currentValues?.[name];
-      const defaultValue = field?.defaultValue;
-      
-      return value !== undefined && 
-             value !== null && 
-             value !== '' && 
-             value !== defaultValue;
-    },
+      // Get current filter value
+      getFilter: (name: string) => {
+        return currentValues?.[name];
+      },
 
-    // Get count of active filters
-    getActiveFilterCount: () => {
-      if (!currentValues) return 0;
-      
-      return Object.entries(currentValues).filter(([key, value]) => {
-        const field = fields.find(f => f.name === key);
-        if (!field || field.type === 'hidden') return false;
-        
-        const defaultValue = field.defaultValue;
-        return value !== undefined && 
-               value !== null && 
-               value !== '' && 
-               value !== defaultValue;
-      }).length;
-    },
+      // Check if a filter is active (has non-default value)
+      isFilterActive: (name: string) => {
+        const field = fields.find((f) => f.name === name);
+        const value = currentValues?.[name];
+        const defaultValue = field?.defaultValue;
 
-    // Get cleaned filter values (for API calls)
-    getCleanedValues: () => {
-      return cleanFilterValues(currentValues || {});
-    },
-  }), [fields, initialValues, currentValues, onValuesChange]);
+        return (
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          value !== defaultValue
+        );
+      },
+
+      // Get count of active filters
+      getActiveFilterCount: () => {
+        if (!currentValues) return 0;
+
+        return Object.entries(currentValues).filter(([key, value]) => {
+          const field = fields.find((f) => f.name === key);
+          if (!field || field.type === "hidden") return false;
+
+          const defaultValue = field.defaultValue;
+          return (
+            value !== undefined &&
+            value !== null &&
+            value !== "" &&
+            value !== defaultValue
+          );
+        }).length;
+      },
+
+      // Get cleaned filter values (for API calls)
+      getCleanedValues: () => {
+        return cleanFilterValues(currentValues || {});
+      },
+    }),
+    [fields, initialValues, currentValues, onValuesChange],
+  );
 
   return {
     // Current filter values (for controlled AutoFilter)
     values: currentValues,
-    
+
     // Change handler for AutoFilter
     onFiltersChange: onValuesChange,
-    
+
     // Utility functions
     ...filterUtils,
   };
@@ -165,27 +178,33 @@ export function useUrlFilters<TDefaults extends FilterValues = FilterValues>(
   options: {
     transformToUrl?: (values: FilterValues) => FilterValues;
     transformFromUrl?: (values: FilterValues) => FilterValues;
-  } = {}
+  } = {},
 ) {
-  const {
-    transformToUrl = (v) => v,
-    transformFromUrl = (v) => v,
-  } = options;
+  const { transformToUrl = (v) => v, transformFromUrl = (v) => v } = options;
 
   const [urlValues, setUrlValues] = useHashQueryParams(defaultValues);
 
-  const currentValues = useMemo(() => transformFromUrl(urlValues), [urlValues, transformFromUrl]);
+  const currentValues = useMemo(
+    () => transformFromUrl(urlValues),
+    [urlValues, transformFromUrl],
+  );
 
-  const setFilters = useCallback((newValues: FilterValues) => {
-    const cleaned = cleanFilterValues(newValues);
-    const transformed = transformToUrl(cleaned);
-    setUrlValues(transformed as Partial<TDefaults>);
-  }, [setUrlValues, transformToUrl]);
+  const setFilters = useCallback(
+    (newValues: FilterValues) => {
+      const cleaned = cleanFilterValues(newValues);
+      const transformed = transformToUrl(cleaned);
+      setUrlValues(transformed as Partial<TDefaults>);
+    },
+    [setUrlValues, transformToUrl],
+  );
 
-  const setFilter = useCallback((name: string, value: any) => {
-    const newValues = { ...currentValues, [name]: value };
-    setFilters(newValues);
-  }, [currentValues, setFilters]);
+  const setFilter = useCallback(
+    (name: string, value: any) => {
+      const newValues = { ...currentValues, [name]: value };
+      setFilters(newValues);
+    },
+    [currentValues, setFilters],
+  );
 
   const clearFilters = useCallback(() => {
     setUrlValues(defaultValues);

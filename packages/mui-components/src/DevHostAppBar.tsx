@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   AppBar,
   Toolbar,
@@ -9,13 +9,13 @@ import {
   Switch,
   FormControlLabel,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Api as ApiIcon,
   LightMode as LightModeIcon,
   DarkMode as DarkModeIcon,
-} from '@mui/icons-material';
-import { ActivityNotifications } from './ActivityNotifications';
+} from "@mui/icons-material";
+import { ActivityNotifications } from "./ActivityNotifications";
 
 /**
  * Represents current applet information for API documentation
@@ -56,9 +56,9 @@ export interface DevHostAppBarProps {
 /**
  * A development/host application bar component that provides development-specific controls
  * including dark mode toggle, mock data toggle, and API documentation access.
- * 
+ *
  * This component is specifically designed for development environments and host applications.
- * 
+ *
  * @example
  * ```tsx
  * <DevHostAppBar
@@ -94,9 +94,7 @@ export function DevHostAppBar({
       }}
     >
       <Toolbar>
-        <Box
-          sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 2 }}
-        >
+        <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 2 }}>
           {/* API Docs button - only show when in an applet and callback is provided */}
           {currentAppletInfo && onApiDocsOpen && (
             <Tooltip

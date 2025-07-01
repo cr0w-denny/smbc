@@ -3,7 +3,11 @@ import { useSMBCQuery } from "@smbc/shared-query-client";
 import type { DataViewConfig, DataViewResult } from "./types";
 import { useActivity } from "./activity";
 import { SimpleTransactionManager } from "./transaction/TransactionManager";
-import type { TransactionConfig, TransactionOperation, OperationTrigger } from "./transaction/types";
+import type {
+  TransactionConfig,
+  TransactionOperation,
+  OperationTrigger,
+} from "./transaction/types";
 import { TransactionRegistry } from "./transaction/TransactionRegistry";
 import { useHashParams } from "./useHashParams";
 
@@ -11,14 +15,20 @@ export interface UseDataViewOptions {
   /** Custom hook for managing filter state (e.g., URL-synced filters) */
   useFilterState?: (defaultFilters: any) => [any, (filters: any) => void];
   /** Custom hook for managing pagination state (e.g., URL-synced pagination) */
-  usePaginationState?: (defaultPagination: any) => [any, (pagination: any) => void];
+  usePaginationState?: (
+    defaultPagination: any,
+  ) => [any, (pagination: any) => void];
   /** Transform filter values for query keys and API requests */
   transformFilters?: (filters: any) => any;
   /** Function to determine which columns to show based on current filters */
   getActiveColumns?: (columns: any[], filters: any) => any[];
   /** Optional notification handlers for user feedback */
-  onSuccess?: (action: 'create' | 'edit' | 'delete', item?: any) => void;
-  onError?: (action: 'create' | 'edit' | 'delete', error: any, item?: any) => void;
+  onSuccess?: (action: "create" | "edit" | "delete", item?: any) => void;
+  onError?: (
+    action: "create" | "edit" | "delete",
+    error: any,
+    item?: any,
+  ) => void;
   /** Transaction configuration for batch operations */
   transaction?: TransactionConfig;
   /** Enable URL hash synchronization for filters and pagination (default: true) */
@@ -29,7 +39,7 @@ export interface UseDataViewOptions {
 
 export function useDataView<T extends Record<string, any>>(
   config: DataViewConfig<T>,
-  options: UseDataViewOptions = {}
+  options: UseDataViewOptions = {},
 ): DataViewResult<T> {
   const {
     api,
@@ -48,7 +58,7 @@ export function useDataView<T extends Record<string, any>>(
   const rowActions = actionConfig.row || [];
   const bulkActions = actionConfig.bulk || [];
   const globalActions = actionConfig.global || [];
-  
+
   // Get the shared query client
   const { queryClient } = useSMBCQuery();
 
@@ -66,42 +76,46 @@ export function useDataView<T extends Record<string, any>>(
   // Transaction manager (optional) - use useState to keep it stable across re-renders
   const [transactionManager] = useState(() => {
     if (!options.transaction?.enabled) return null;
-    
+
     const defaultConfig: TransactionConfig = {
       enabled: true,
-      mode: 'immediate',
+      mode: "immediate",
       autoCommit: true,
       requireConfirmation: false,
       showPendingIndicator: false,
       showReviewUI: false,
     };
-    
-    console.log('🔧 Creating new transaction manager with config:', options.transaction);
-    return new SimpleTransactionManager<T>({ ...defaultConfig, ...options.transaction });
-  });
-  
-  
-  // Helper function to emit activities
-  const emitActivity = useCallback((
-    type: 'create' | 'update' | 'delete',
-    item: T
-  ) => {
-    if (!activityConfig?.enabled || !activityContext) return;
-    
-    const entityType = activityConfig.entityType || 'item';
-    const label = activityConfig.labelGenerator 
-      ? activityConfig.labelGenerator(item)
-      : (typeof schema.displayName === 'function' ? schema.displayName(item) : `${entityType} ${item[schema.primaryKey]}`);
-    const url = activityConfig.urlGenerator ? activityConfig.urlGenerator(item) : undefined;
-    
-    activityContext.addActivity({
-      type,
-      entityType,
-      label,
-      url,
-    });
-  }, [activityConfig, activityContext, schema]);
 
+    return new SimpleTransactionManager<T>({
+      ...defaultConfig,
+      ...options.transaction,
+    });
+  });
+
+  // Helper function to emit activities
+  const emitActivity = useCallback(
+    (type: "create" | "update" | "delete", item: T) => {
+      if (!activityConfig?.enabled || !activityContext) return;
+
+      const entityType = activityConfig.entityType || "item";
+      const label = activityConfig.labelGenerator
+        ? activityConfig.labelGenerator(item)
+        : typeof schema.displayName === "function"
+          ? schema.displayName(item)
+          : `${entityType} ${item[schema.primaryKey]}`;
+      const url = activityConfig.urlGenerator
+        ? activityConfig.urlGenerator(item)
+        : undefined;
+
+      activityContext.addActivity({
+        type,
+        entityType,
+        label,
+        url,
+      });
+    },
+    [activityConfig, activityContext, schema],
+  );
 
   // State management with optional hash params support
   const defaultFilters = filterSpec?.initialValues || {};
@@ -111,15 +125,23 @@ export function useDataView<T extends Record<string, any>>(
   };
 
   // Use hash params by default unless disabled or custom hooks provided
-  const hashParamsEnabled = (options.hashParams !== false) && !options.useFilterState && !options.usePaginationState;
-  
-  const hashState = useHashParams(defaultFilters, defaultPagination, hashParamsEnabled, options.hashNamespace);
-  
+  const hashParamsEnabled =
+    options.hashParams !== false &&
+    !options.useFilterState &&
+    !options.usePaginationState;
+
+  const hashState = useHashParams(
+    defaultFilters,
+    defaultPagination,
+    hashParamsEnabled,
+    options.hashNamespace,
+  );
+
   // Choose between hash params, custom hooks, or local state
-  const [filters, setFilters] = hashParamsEnabled 
+  const [filters, setFilters] = hashParamsEnabled
     ? [hashState.filters, hashState.setFilters]
     : (options.useFilterState || useState)(defaultFilters);
-    
+
   const [pagination, setPaginationState] = hashParamsEnabled
     ? [hashState.pagination, hashState.setPagination]
     : (options.usePaginationState || useState)(defaultPagination);
@@ -140,13 +162,22 @@ export function useDataView<T extends Record<string, any>>(
   const [deletingItem, setDeletingItem] = useState<T | null>(null);
 
   // Extract data and total from query response using configurable functions
-  const responseRow = api.responseRow || ((response: any) => Array.isArray(response) ? response : []);
-  const responseRowCount = api.responseRowCount || ((response: any) => response?.total || response?.count || responseRow(response).length);
-  const optimisticResponse = api.optimisticResponse || ((_originalResponse: any, newRows: any[]) => newRows);
+  const responseRow =
+    api.responseRow ||
+    ((response: any) => (Array.isArray(response) ? response : []));
+  const responseRowCount =
+    api.responseRowCount ||
+    ((response: any) =>
+      response?.total || response?.count || responseRow(response).length);
+  const optimisticResponse =
+    api.optimisticResponse ||
+    ((_originalResponse: any, newRows: any[]) => newRows);
 
   // Transform filters for consistent query keys and API requests
   const transformedFilters = useMemo(() => {
-    return options.transformFilters ? options.transformFilters(filters) : filters;
+    return options.transformFilters
+      ? options.transformFilters(filters)
+      : filters;
   }, [filters, options.transformFilters]);
 
   // Dynamic columns based on filters or other conditions
@@ -168,74 +199,81 @@ export function useDataView<T extends Record<string, any>>(
         },
       },
     };
-    return [
-      "get", 
-      api.endpoint, 
-      queryParams
-    ];
-  }, [api.endpoint, pagination.page, pagination.pageSize, transformedFilters, config.options?.apiParams]);
+    return ["get", api.endpoint, queryParams];
+  }, [
+    api.endpoint,
+    pagination.page,
+    pagination.pageSize,
+    transformedFilters,
+    config.options?.apiParams,
+  ]);
 
   // Register transaction manager directly with global registry
   React.useEffect(() => {
     if (transactionManager) {
       const managerId = `dataview_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
       TransactionRegistry.register(managerId, transactionManager);
-      
+
       // Store snapshot for rollback when transaction starts
       let transactionSnapshot: any = null;
-      
+
       const handleTransactionStart = () => {
         // Only capture snapshot if we don't have one yet
         if (!transactionSnapshot) {
           transactionSnapshot = queryClient.getQueryData(currentQueryKey);
-          console.log('📸 Captured transaction snapshot for rollback');
         }
       };
-      
+
       const handleTransactionCancelled = () => {
-        console.log('🔄 Transaction cancelled, restoring from snapshot...');
         if (transactionSnapshot) {
           // Restore the original snapshot data
-          console.log('📸 Restoring from transaction snapshot');
+
           queryClient.setQueryData(currentQueryKey, transactionSnapshot);
         } else {
           // Fallback: Clear pending states if no snapshot available
-          console.log('⚠️ No snapshot available, clearing pending states...');
+
           queryClient.setQueryData(currentQueryKey, (old: any) => {
             if (!old) return old;
-            
+
             const currentRows = responseRow(old);
             // Remove items that were pending creation and clear pending states from others
             const clearedRows = currentRows
-              .filter((item: any) => item.__pendingState !== 'added') // Remove pending adds
+              .filter((item: any) => item.__pendingState !== "added") // Remove pending adds
               .map((item: any) => {
                 // Remove pending state metadata
-                const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                const { __pendingState, __pendingOperationId, ...cleanItem } =
+                  item;
                 return cleanItem;
               });
-            
-            console.log('✅ Cleared pending states, rows:', clearedRows.length);
-            return optimisticResponse ? optimisticResponse(old, clearedRows) : clearedRows;
+
+            return optimisticResponse
+              ? optimisticResponse(old, clearedRows)
+              : clearedRows;
           });
         }
         transactionSnapshot = null;
       };
-      
+
       const handleTransactionComplete = (results: any[]) => {
         // Clear pending states and invalidate queries to get fresh data from server
-        console.log('✅ Transaction completed, clearing pending states and refreshing data');
-        
+
         // Emit activities for all successful operations on transaction commit (only if explicitly enabled)
-        if (activityConfig?.enabled && activityContext && options.transaction?.emitActivities === true) {
+        if (
+          activityConfig?.enabled &&
+          activityContext &&
+          options.transaction?.emitActivities === true
+        ) {
           results.forEach((result: any) => {
             if (result.success && result.operation) {
               const operation = result.operation;
-              const entityType = activityConfig.entityType || 'item';
-              const label = activityConfig.labelGenerator 
+              const entityType = activityConfig.entityType || "item";
+              const label = activityConfig.labelGenerator
                 ? activityConfig.labelGenerator(operation.entity)
                 : operation.label || `${operation.type} ${entityType}`;
-              const url = activityConfig.urlGenerator ? activityConfig.urlGenerator(operation.entity) : undefined;
-              
+              const url = activityConfig.urlGenerator
+                ? activityConfig.urlGenerator(operation.entity)
+                : undefined;
+
               activityContext.addActivity({
                 type: operation.type,
                 entityType,
@@ -245,85 +283,86 @@ export function useDataView<T extends Record<string, any>>(
             }
           });
         }
-        
+
         queryClient.setQueryData(currentQueryKey, (old: any) => {
           if (!old) return old;
-          
+
           const currentRows = responseRow(old);
           // Clear all pending state metadata
           const clearedRows = currentRows.map((item: any) => {
             const { __pendingState, __pendingOperationId, ...cleanItem } = item;
             return cleanItem;
           });
-          
-          return optimisticResponse ? optimisticResponse(old, clearedRows) : clearedRows;
+
+          return optimisticResponse
+            ? optimisticResponse(old, clearedRows)
+            : clearedRows;
         });
-        
+
         // Now that pending states are cleared, refetch to get the actual server state
         queryClient.invalidateQueries({
           queryKey: ["get", api.endpoint],
           exact: false,
         });
-        
+
         transactionSnapshot = null;
       };
 
-      const handleOperationRemoved = (operationId: string, removedOperation?: any) => {
-        console.log('🗑️ Individual operation removed, rolling back data for operation:', operationId);
-        console.log('🔍 Removed operation details:', removedOperation);
-        
+      const handleOperationRemoved = (
+        operationId: string,
+        removedOperation?: any,
+      ) => {
         queryClient.setQueryData(currentQueryKey, (old: any) => {
           if (!old) return old;
-          
+
           const currentRows = responseRow(old);
           let updatedRows: any[];
-          
+
           if (removedOperation) {
-            console.log(`🔄 Rolling back ${removedOperation.type} operation for entity:`, removedOperation.entityId);
-            
-            if (removedOperation.type === 'create') {
+            if (removedOperation.type === "create") {
               // Remove the newly created item entirely
-              updatedRows = currentRows.filter((item: any) => 
-                item.__pendingOperationId !== operationId
+              updatedRows = currentRows.filter(
+                (item: any) => item.__pendingOperationId !== operationId,
               );
-            } else if (removedOperation.type === 'update') {
+            } else if (removedOperation.type === "update") {
               // Restore original data
-              console.log('🔍 Current rows before rollback:', currentRows.map(r => ({ id: r.id, __pendingOperationId: r.__pendingOperationId, status: r.status })));
-              console.log('🎯 Looking for operationId:', operationId);
+
               let foundMatch = false;
               updatedRows = currentRows.map((item: any) => {
                 if (item.__pendingOperationId === operationId) {
                   foundMatch = true;
                   const originalData = removedOperation.originalData;
-                  console.log('🎯 Found item to rollback:', { id: item.id, currentStatus: item.status, pendingOpId: item.__pendingOperationId });
+
                   if (originalData) {
-                    console.log('📸 Restoring original data:', { id: originalData.id, originalStatus: originalData.status });
                     return originalData;
                   } else {
-                    console.log('⚠️ No original data, falling back to clean item');
                     // Fallback: just remove pending state
-                    const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                    const {
+                      __pendingState,
+                      __pendingOperationId,
+                      ...cleanItem
+                    } = item;
                     return cleanItem;
                   }
                 }
                 return item;
               });
               if (!foundMatch) {
-                console.log('❌ No matching item found with operationId:', operationId);
-                console.log('❌ Available operation IDs:', currentRows.map(r => r.__pendingOperationId).filter(Boolean));
               }
-              console.log('🔍 Updated rows after rollback:', updatedRows.map(r => ({ id: r.id, __pendingOperationId: r.__pendingOperationId, status: r.status })));
-            } else if (removedOperation.type === 'delete') {
+            } else if (removedOperation.type === "delete") {
               // Restore the deleted item (remove pending delete state)
               updatedRows = currentRows.map((item: any) => {
                 if (item.__pendingOperationId === operationId) {
                   const originalData = removedOperation.originalData;
                   if (originalData) {
-                    console.log('📸 Restoring deleted item:', originalData);
                     return originalData;
                   } else {
                     // Fallback: just remove pending state
-                    const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                    const {
+                      __pendingState,
+                      __pendingOperationId,
+                      ...cleanItem
+                    } = item;
                     return cleanItem;
                   }
                 }
@@ -333,7 +372,8 @@ export function useDataView<T extends Record<string, any>>(
               // Unknown operation type, just clear pending state
               updatedRows = currentRows.map((item: any) => {
                 if (item.__pendingOperationId === operationId) {
-                  const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                  const { __pendingState, __pendingOperationId, ...cleanItem } =
+                    item;
                   return cleanItem;
                 }
                 return item;
@@ -341,35 +381,45 @@ export function useDataView<T extends Record<string, any>>(
             }
           } else {
             // Operation not found, just clear pending state as fallback
-            console.log('⚠️ Operation not found, clearing pending state only');
+
             updatedRows = currentRows.map((item: any) => {
               if (item.__pendingOperationId === operationId) {
-                const { __pendingState, __pendingOperationId, ...cleanItem } = item;
+                const { __pendingState, __pendingOperationId, ...cleanItem } =
+                  item;
                 return cleanItem;
               }
               return item;
             });
           }
-          
-          console.log('✅ Rolled back individual operation:', operationId);
-          return optimisticResponse ? optimisticResponse(old, updatedRows) : updatedRows;
+
+          return optimisticResponse
+            ? optimisticResponse(old, updatedRows)
+            : updatedRows;
         });
       };
-      
+
       // Listen to transaction events for rollback
-      console.log('🎧 Registering transaction event listeners');
-      transactionManager.on('onTransactionStart', handleTransactionStart);
-      transactionManager.on('onTransactionCancelled', handleTransactionCancelled);
-      transactionManager.on('onTransactionComplete', handleTransactionComplete);
-      transactionManager.on('onOperationRemoved', handleOperationRemoved);
-      console.log('✅ Transaction event listeners registered');
-      
+
+      transactionManager.on("onTransactionStart", handleTransactionStart);
+      transactionManager.on(
+        "onTransactionCancelled",
+        handleTransactionCancelled,
+      );
+      transactionManager.on("onTransactionComplete", handleTransactionComplete);
+      transactionManager.on("onOperationRemoved", handleOperationRemoved);
+
       return () => {
         TransactionRegistry.unregister(managerId);
-        transactionManager.off('onTransactionStart', handleTransactionStart);
-        transactionManager.off('onTransactionCancelled', handleTransactionCancelled);
-        transactionManager.off('onTransactionComplete', handleTransactionComplete);
-        transactionManager.off('onOperationRemoved', handleOperationRemoved);
+        transactionManager.off("onTransactionStart", handleTransactionStart);
+        transactionManager.off(
+          "onTransactionCancelled",
+          handleTransactionCancelled,
+        );
+        transactionManager.off(
+          "onTransactionComplete",
+          handleTransactionComplete,
+        );
+        transactionManager.off("onOperationRemoved", handleOperationRemoved);
       };
     }
   }, [transactionManager, queryClient, currentQueryKey]);
@@ -386,12 +436,16 @@ export function useDataView<T extends Record<string, any>>(
       },
     },
   };
-  
+
   const {
     data: queryData,
     isLoading,
     error,
-  } = api.client.useQuery?.("get", api.endpoint, queryParams) || { data: null, isLoading: false, error: null };
+  } = api.client.useQuery?.("get", api.endpoint, queryParams) || {
+    data: null,
+    isLoading: false,
+    error: null,
+  };
 
   const data = responseRow(queryData);
   const total = responseRowCount(queryData);
@@ -408,19 +462,19 @@ export function useDataView<T extends Record<string, any>>(
       // Optimistically update to the new value
       queryClient.setQueryData(currentQueryKey, (old: any) => {
         if (!old) return old;
-        
+
         const currentRows = responseRow(old);
-        
+
         // Create optimistic item with temporary ID
         const optimisticItem = {
           ...variables.body,
           [schema.primaryKey]: `temp-${Date.now()}`, // Temporary ID for optimistic update
           createdAt: new Date().toISOString(),
         };
-        
+
         // Add to beginning of array (most recent first)
         const updatedRows = [optimisticItem, ...currentRows];
-        
+
         // Use optimisticResponse if provided, otherwise create a simple response
         if (optimisticResponse) {
           return optimisticResponse(old, updatedRows);
@@ -438,38 +492,42 @@ export function useDataView<T extends Record<string, any>>(
       if (context?.previousData) {
         queryClient.setQueryData(currentQueryKey, context.previousData);
       }
-      options.onError?.('create', error);
+      options.onError?.("create", error);
     },
     onSuccess: (newItem: any) => {
-      options.onSuccess?.('create', newItem);
+      options.onSuccess?.("create", newItem);
       // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
-      const shouldEmitActivity = !transactionManager || options.transaction?.emitActivities === true;
+      const shouldEmitActivity =
+        !transactionManager || options.transaction?.emitActivities === true;
       if (shouldEmitActivity) {
-        emitActivity('create', newItem);
+        emitActivity("create", newItem);
       }
-      
+
       // Update the optimistic item with the real server response
       queryClient.setQueryData(currentQueryKey, (old: any) => {
         if (!old) return old;
-        
+
         const currentRows = responseRow(old);
-        
+
         // Replace the temporary item with the real one from server
         const updatedRows = currentRows.map((item: any) => {
           // Find the temporary item and replace it
-          if (typeof item[schema.primaryKey] === 'string' && item[schema.primaryKey].startsWith('temp-')) {
+          if (
+            typeof item[schema.primaryKey] === "string" &&
+            item[schema.primaryKey].startsWith("temp-")
+          ) {
             return { ...newItem }; // Use server response
           }
           return item;
         });
-        
+
         if (optimisticResponse) {
           return optimisticResponse(old, updatedRows);
         } else {
           return updatedRows;
         }
       });
-      
+
       // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
       if (!transactionManager) {
         queryClient.invalidateQueries({
@@ -477,240 +535,267 @@ export function useDataView<T extends Record<string, any>>(
           exact: false,
         });
       }
-    }
+    },
   }) || {
     mutate: () => {},
     isPending: false,
   };
 
-  const updateMutation = api.client.useMutation?.("patch", `${api.endpoint}/{id}`, {
-    onMutate: async (variables: any) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: currentQueryKey });
-      
-      // Snapshot the previous value
-      const previousData = queryClient.getQueryData(currentQueryKey);
-      
-      // Optimistically update the cache
-      queryClient.setQueryData(currentQueryKey, (old: any) => {
-        if (!old) return old;
-        
-        const currentRows = responseRow(old);
-        const primaryKey = schema.primaryKey;
-        const itemId = variables.params?.path?.id;
-        
-        const updatedRows = currentRows.map((item: T) => 
-          item[primaryKey] === itemId 
-            ? { ...item, ...variables.body }
-            : item
-        );
-        
-        return optimisticResponse(old, updatedRows);
-      });
-      
-      return { previousData };
-    },
-    onError: (error: any, variables: any, context: any) => {
-      // Rollback optimistic update
-      if (context?.previousData) {
-        queryClient.setQueryData(currentQueryKey, context.previousData);
-      }
-      options.onError?.('edit', error, variables.body);
-    },
-    onSuccess: (_data: any, variables: any) => {
-      options.onSuccess?.('edit', variables.body);
-      // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
-      const shouldEmitActivity = !transactionManager || options.transaction?.emitActivities === true;
-      if (shouldEmitActivity) {
-        emitActivity('update', variables.body);
-      }
-      // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
-      if (!transactionManager) {
-        queryClient.invalidateQueries({
-          queryKey: ["get", api.endpoint],
-          exact: false,
+  const updateMutation = api.client.useMutation?.(
+    "patch",
+    `${api.endpoint}/{id}`,
+    {
+      onMutate: async (variables: any) => {
+        // Cancel any outgoing refetches
+        await queryClient.cancelQueries({ queryKey: currentQueryKey });
+
+        // Snapshot the previous value
+        const previousData = queryClient.getQueryData(currentQueryKey);
+
+        // Optimistically update the cache
+        queryClient.setQueryData(currentQueryKey, (old: any) => {
+          if (!old) return old;
+
+          const currentRows = responseRow(old);
+          const primaryKey = schema.primaryKey;
+          const itemId = variables.params?.path?.id;
+
+          const updatedRows = currentRows.map((item: T) =>
+            item[primaryKey] === itemId ? { ...item, ...variables.body } : item,
+          );
+
+          return optimisticResponse(old, updatedRows);
         });
-      }
-    }
-  }) || {
+
+        return { previousData };
+      },
+      onError: (error: any, variables: any, context: any) => {
+        // Rollback optimistic update
+        if (context?.previousData) {
+          queryClient.setQueryData(currentQueryKey, context.previousData);
+        }
+        options.onError?.("edit", error, variables.body);
+      },
+      onSuccess: (_data: any, variables: any) => {
+        options.onSuccess?.("edit", variables.body);
+        // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
+        const shouldEmitActivity =
+          !transactionManager || options.transaction?.emitActivities === true;
+        if (shouldEmitActivity) {
+          emitActivity("update", variables.body);
+        }
+        // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
+        if (!transactionManager) {
+          queryClient.invalidateQueries({
+            queryKey: ["get", api.endpoint],
+            exact: false,
+          });
+        }
+      },
+    },
+  ) || {
     mutate: () => {},
     isPending: false,
   };
 
-  const deleteMutation = api.client.useMutation?.("delete", `${api.endpoint}/{id}`, {
-    onMutate: async (variables: any) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: currentQueryKey });
-      
-      // Snapshot the previous value
-      const previousData = queryClient.getQueryData(currentQueryKey);
-      
-      // Optimistically remove the item from cache
-      queryClient.setQueryData(currentQueryKey, (old: any) => {
-        if (!old) return old;
-        
-        const currentRows = responseRow(old);
-        const primaryKey = schema.primaryKey;
-        const itemId = variables.params?.path?.id;
-        
-        const filteredRows = currentRows.filter((item: T) => item[primaryKey] !== itemId);
-        
-        return optimisticResponse(old, filteredRows);
-      });
-      
-      return { previousData, deletedItem: deletingItem };
-    },
-    onError: (error: any, _variables: any, context: any) => {
-      // Rollback optimistic update
-      if (context?.previousData) {
-        queryClient.setQueryData(currentQueryKey, context.previousData);
-      }
-      options.onError?.('delete', error, context?.deletedItem);
-    },
-    onSuccess: (_data: any, _variables: any, context: any) => {
-      options.onSuccess?.('delete', context?.deletedItem);
-      // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
-      const shouldEmitActivity = !transactionManager || options.transaction?.emitActivities === true;
-      if (context?.deletedItem && shouldEmitActivity) {
-        emitActivity('delete', context.deletedItem);
-      }
-      // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
-      if (!transactionManager) {
-        queryClient.invalidateQueries({
-          queryKey: ["get", api.endpoint],
-          exact: false,
+  const deleteMutation = api.client.useMutation?.(
+    "delete",
+    `${api.endpoint}/{id}`,
+    {
+      onMutate: async (variables: any) => {
+        // Cancel any outgoing refetches
+        await queryClient.cancelQueries({ queryKey: currentQueryKey });
+
+        // Snapshot the previous value
+        const previousData = queryClient.getQueryData(currentQueryKey);
+
+        // Optimistically remove the item from cache
+        queryClient.setQueryData(currentQueryKey, (old: any) => {
+          if (!old) return old;
+
+          const currentRows = responseRow(old);
+          const primaryKey = schema.primaryKey;
+          const itemId = variables.params?.path?.id;
+
+          const filteredRows = currentRows.filter(
+            (item: T) => item[primaryKey] !== itemId,
+          );
+
+          return optimisticResponse(old, filteredRows);
         });
-      }
-    }
-  }) || {
+
+        return { previousData, deletedItem: deletingItem };
+      },
+      onError: (error: any, _variables: any, context: any) => {
+        // Rollback optimistic update
+        if (context?.previousData) {
+          queryClient.setQueryData(currentQueryKey, context.previousData);
+        }
+        options.onError?.("delete", error, context?.deletedItem);
+      },
+      onSuccess: (_data: any, _variables: any, context: any) => {
+        options.onSuccess?.("delete", context?.deletedItem);
+        // Emit activity: always if no transactions, only if explicitly enabled when transactions are on
+        const shouldEmitActivity =
+          !transactionManager || options.transaction?.emitActivities === true;
+        if (context?.deletedItem && shouldEmitActivity) {
+          emitActivity("delete", context.deletedItem);
+        }
+        // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
+        if (!transactionManager) {
+          queryClient.invalidateQueries({
+            queryKey: ["get", api.endpoint],
+            exact: false,
+          });
+        }
+      },
+    },
+  ) || {
     mutate: () => {},
     isPending: false,
   };
 
   // Helper function to add operations to transaction
-  const addTransactionOperation = useCallback(async (
-    type: 'create' | 'update' | 'delete',
-    entity: T,
-    mutation: () => Promise<any>,
-    trigger: OperationTrigger = 'user-edit',
-    changedFields?: string[]
-  ) => {
-    if (!transactionManager) {
-      // No transaction manager, execute immediately
-      return mutation();
-    }
-
-    // Start transaction if this is the first operation (captures snapshot for rollback)
-    if (!transactionManager.hasOperations()) {
-      console.log('🚀 Starting new transaction');
-      transactionManager.begin();
-    }
-
-    // Generate a consistent operation ID that will be used for both the transaction and visual state
-    const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    console.log('🆔 Generated operation ID:', operationId);
-
-    // Add visual pending state instead of actually modifying data
-    // This avoids pagination issues while providing immediate visual feedback
-    console.log('🎨 Adding visual pending state for operation', { type, entityId: entity[schema.primaryKey], operationId });
-    const previousData = queryClient.getQueryData(currentQueryKey);
-    
-    queryClient.setQueryData(currentQueryKey, (old: any) => {
-      if (!old) {
-        console.log('❌ No old data found for pending state update');
-        return old;
-      }
-      
-      const currentRows = responseRow(old);
-      const primaryKey = schema.primaryKey;
-      let updatedRows: T[];
-
-      if (type === 'create') {
-        // Add new item to beginning with pending state
-        const pendingItem = {
-          ...entity,
-          [primaryKey]: entity[primaryKey] || `temp-${Date.now()}`,
-          createdAt: new Date().toISOString(),
-          __pendingState: 'added' as const,
-          __pendingOperationId: operationId,
-        };
-        updatedRows = [pendingItem, ...currentRows];
-        console.log('➕ Added pending new item, total rows:', updatedRows.length);
-      } else if (type === 'update') {
-        // Mark existing item as pending update (last operation wins)
-        updatedRows = currentRows.map((item: T) => {
-          if (item[primaryKey] === entity[primaryKey]) {
-            const existingState = (item as any).__pendingState;
-            if (existingState === 'deleted') {
-              console.log('🔄 Replacing pending delete with update for item:', entity[primaryKey]);
-            }
-            return { 
-              ...item, 
-              ...entity, 
-              __pendingState: 'edited' as const,
-              __pendingOperationId: operationId,
-            };
-          }
-          return item;
-        });
-        console.log('✏️ Marked item as pending edit with ID:', entity[primaryKey]);
-      } else if (type === 'delete') {
-        // Mark item as pending delete (overrides any previous pending state)
-        updatedRows = currentRows.map((item: T) => {
-          if (item[primaryKey] === entity[primaryKey]) {
-            // Delete operation takes precedence over any other pending state
-            const existingState = (item as any).__pendingState;
-            if (existingState) {
-              console.log(`🔄 Replacing pending ${existingState} with delete for item:`, entity[primaryKey]);
-            }
-            return { 
-              ...item, 
-              __pendingState: 'deleted' as const,
-              __pendingOperationId: operationId,
-            };
-          }
-          return item;
-        });
-        console.log('🗑️ Marked item as pending delete with ID:', entity[primaryKey]);
-      } else {
-        updatedRows = currentRows;
+  const addTransactionOperation = useCallback(
+    async (
+      type: "create" | "update" | "delete",
+      entity: T,
+      mutation: () => Promise<any>,
+      trigger: OperationTrigger = "user-edit",
+      changedFields?: string[],
+    ) => {
+      if (!transactionManager) {
+        // No transaction manager, execute immediately
+        return mutation();
       }
 
-      const result = optimisticResponse ? optimisticResponse(old, updatedRows) : updatedRows;
-      console.log('✅ Visual pending state applied:', result);
-      return result;
-    });
+      // Start transaction if this is the first operation (captures snapshot for rollback)
+      if (!transactionManager.hasOperations()) {
+        transactionManager.begin();
+      }
 
-    const entityType = activityConfig?.entityType || 'item';
-    const label = activityConfig?.labelGenerator 
-      ? activityConfig.labelGenerator(entity)
-      : `${type} ${entityType}`;
+      // Generate a consistent operation ID that will be used for both the transaction and visual state
+      const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Store original data for rollback
-    const originalItem = previousData ? responseRow(previousData).find((item: T) => item[schema.primaryKey] === entity[schema.primaryKey]) : undefined;
+      // Add visual pending state instead of actually modifying data
+      // This avoids pagination issues while providing immediate visual feedback
 
-    const operation: Omit<TransactionOperation<T>, 'id' | 'timestamp'> = {
-      type,
-      trigger,
-      entity,
-      entityId: entity[schema.primaryKey],
-      originalData: originalItem,
-      changedFields,
-      label,
-      mutation,
-      color: type === 'create' ? 'success' : type === 'update' ? 'primary' : 'error',
-    };
+      const previousData = queryClient.getQueryData(currentQueryKey);
 
-    return transactionManager.addOperation(operation, operationId);
-  }, [transactionManager, activityConfig, schema, queryClient, currentQueryKey, responseRow, optimisticResponse]);
+      queryClient.setQueryData(currentQueryKey, (old: any) => {
+        if (!old) {
+          return old;
+        }
+
+        const currentRows = responseRow(old);
+        const primaryKey = schema.primaryKey;
+        let updatedRows: T[];
+
+        if (type === "create") {
+          // Add new item to beginning with pending state
+          const pendingItem = {
+            ...entity,
+            [primaryKey]: entity[primaryKey] || `temp-${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            __pendingState: "added" as const,
+            __pendingOperationId: operationId,
+          };
+          updatedRows = [pendingItem, ...currentRows];
+        } else if (type === "update") {
+          // Mark existing item as pending update (last operation wins)
+          updatedRows = currentRows.map((item: T) => {
+            if (item[primaryKey] === entity[primaryKey]) {
+              const existingState = (item as any).__pendingState;
+              if (existingState === "deleted") {
+              }
+              return {
+                ...item,
+                ...entity,
+                __pendingState: "edited" as const,
+                __pendingOperationId: operationId,
+              };
+            }
+            return item;
+          });
+        } else if (type === "delete") {
+          // Mark item as pending delete (overrides any previous pending state)
+          updatedRows = currentRows.map((item: T) => {
+            if (item[primaryKey] === entity[primaryKey]) {
+              // Delete operation takes precedence over any other pending state
+              const existingState = (item as any).__pendingState;
+              if (existingState) {
+              }
+              return {
+                ...item,
+                __pendingState: "deleted" as const,
+                __pendingOperationId: operationId,
+              };
+            }
+            return item;
+          });
+        } else {
+          updatedRows = currentRows;
+        }
+
+        const result = optimisticResponse
+          ? optimisticResponse(old, updatedRows)
+          : updatedRows;
+
+        return result;
+      });
+
+      const entityType = activityConfig?.entityType || "item";
+      const label = activityConfig?.labelGenerator
+        ? activityConfig.labelGenerator(entity)
+        : `${type} ${entityType}`;
+
+      // Store original data for rollback
+      const originalItem = previousData
+        ? responseRow(previousData).find(
+            (item: T) => item[schema.primaryKey] === entity[schema.primaryKey],
+          )
+        : undefined;
+
+      const operation: Omit<TransactionOperation<T>, "id" | "timestamp"> = {
+        type,
+        trigger,
+        entity,
+        entityId: entity[schema.primaryKey],
+        originalData: originalItem,
+        changedFields,
+        label,
+        mutation,
+        color:
+          type === "create"
+            ? "success"
+            : type === "update"
+              ? "primary"
+              : "error",
+      };
+
+      return transactionManager.addOperation(operation, operationId);
+    },
+    [
+      transactionManager,
+      activityConfig,
+      schema,
+      queryClient,
+      currentQueryKey,
+      responseRow,
+      optimisticResponse,
+    ],
+  );
 
   // Helper to update pagination
-  const setPagination = useCallback((updates: { page?: number; pageSize?: number }) => {
-    setPaginationState((prev: any) => ({
-      ...prev,
-      ...updates,
-    }));
-  }, [setPaginationState]);
+  const setPagination = useCallback(
+    (updates: { page?: number; pageSize?: number }) => {
+      setPaginationState((prev: any) => ({
+        ...prev,
+        ...updates,
+      }));
+    },
+    [setPaginationState],
+  );
 
   // Action handlers
   const handleCreate = useCallback(() => {
@@ -722,84 +807,104 @@ export function useDataView<T extends Record<string, any>>(
     setEditDialogOpen(true);
   }, []);
 
-  const handleDelete = useCallback(async (item: T) => {
-    setDeletingItem(item);
-    // If transaction mode is enabled, skip the dialog and delete directly
-    if (transactionManager) {
-      const primaryKey = schema.primaryKey;
+  const handleDelete = useCallback(
+    async (item: T) => {
+      setDeletingItem(item);
+      // If transaction mode is enabled, skip the dialog and delete directly
+      if (transactionManager) {
+        const primaryKey = schema.primaryKey;
+        try {
+          await addTransactionOperation(
+            "delete",
+            item,
+            () =>
+              deleteMutation.mutate({
+                params: { path: { id: item[primaryKey] } },
+              }),
+            "user-edit",
+          );
+        } catch (error) {
+          // Error is handled by mutation onError callback
+        }
+      } else {
+        setDeleteDialogOpen(true);
+      }
+    },
+    [
+      transactionManager,
+      schema.primaryKey,
+      addTransactionOperation,
+      deleteMutation,
+    ],
+  );
+
+  const handleCreateSubmit = useCallback(
+    async (data: Partial<T>) => {
+      const tempEntity = {
+        ...data,
+        [schema.primaryKey]: `temp_${Date.now()}`,
+      } as T;
+
       try {
         await addTransactionOperation(
-          'delete',
-          item,
-          () => deleteMutation.mutate({
-            params: { path: { id: item[primaryKey] } },
-          }),
-          'user-edit'
+          "create",
+          tempEntity,
+          () => createMutation.mutate({ body: data }),
+          "user-edit",
         );
+        setCreateDialogOpen(false);
       } catch (error) {
         // Error is handled by mutation onError callback
       }
-    } else {
-      setDeleteDialogOpen(true);
-    }
-  }, [transactionManager, schema.primaryKey, addTransactionOperation, deleteMutation]);
+    },
+    [createMutation, addTransactionOperation, schema.primaryKey],
+  );
 
-  const handleCreateSubmit = useCallback(async (data: Partial<T>) => {
-    const tempEntity = { ...data, [schema.primaryKey]: `temp_${Date.now()}` } as T;
-    
-    try {
-      await addTransactionOperation(
-        'create',
-        tempEntity,
-        () => createMutation.mutate({ body: data }),
-        'user-edit'
-      );
-      setCreateDialogOpen(false);
-    } catch (error) {
-      // Error is handled by mutation onError callback
-    }
-  }, [createMutation, addTransactionOperation, schema.primaryKey]);
+  const handleEditSubmit = useCallback(
+    async (data: T) => {
+      if (!editingItem) return;
+      const primaryKey = schema.primaryKey;
 
-  const handleEditSubmit = useCallback(async (data: T) => {
-    if (!editingItem) return;
-    const primaryKey = schema.primaryKey;
-    
-    // Create the updated entity with the original item's primary key
-    const updatedEntity = {
-      ...editingItem,
-      ...data,
-      [primaryKey]: editingItem[primaryKey], // Ensure primary key is preserved
-    };
-    
-    try {
-      await addTransactionOperation(
-        'update',
-        updatedEntity,
-        () => updateMutation.mutate({
-          params: { path: { id: editingItem[primaryKey] } },
-          body: data,
-        }),
-        'user-edit'
-      );
-      setEditDialogOpen(false);
-      setEditingItem(null);
-    } catch (error) {
-      // Error is handled by mutation onError callback
-      // Keep dialog open so user can retry
-    }
-  }, [updateMutation, editingItem, schema.primaryKey, addTransactionOperation]);
+      // Create the updated entity with the original item's primary key
+      const updatedEntity = {
+        ...editingItem,
+        ...data,
+        [primaryKey]: editingItem[primaryKey], // Ensure primary key is preserved
+      };
+
+      try {
+        await addTransactionOperation(
+          "update",
+          updatedEntity,
+          () =>
+            updateMutation.mutate({
+              params: { path: { id: editingItem[primaryKey] } },
+              body: data,
+            }),
+          "user-edit",
+        );
+        setEditDialogOpen(false);
+        setEditingItem(null);
+      } catch (error) {
+        // Error is handled by mutation onError callback
+        // Keep dialog open so user can retry
+      }
+    },
+    [updateMutation, editingItem, schema.primaryKey, addTransactionOperation],
+  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletingItem) return;
     const primaryKey = schema.primaryKey;
     try {
       await addTransactionOperation(
-        'delete',
+        "delete",
         deletingItem,
-        () => deleteMutation.mutate({
-          params: { path: { id: deletingItem[primaryKey] } },
-        }),
-        'user-edit'
+        () =>
+          deleteMutation.mutate({
+            params: { path: { id: deletingItem[primaryKey] } },
+          }),
+        "user-edit",
       );
       setDeleteDialogOpen(false);
       setDeletingItem(null);
@@ -807,7 +912,12 @@ export function useDataView<T extends Record<string, any>>(
       // Error is handled by mutation onError callback
       // Keep dialog open so user can retry
     }
-  }, [deleteMutation, deletingItem, schema.primaryKey, addTransactionOperation]);
+  }, [
+    deleteMutation,
+    deletingItem,
+    schema.primaryKey,
+    addTransactionOperation,
+  ]);
 
   // Selection helpers
   const selectedItems = useMemo(() => {
@@ -821,7 +931,9 @@ export function useDataView<T extends Record<string, any>>(
     return () =>
       React.createElement(Component, {
         data,
-        columns: renderer.mapColumns ? renderer.mapColumns(activeColumns) : activeColumns,
+        columns: renderer.mapColumns
+          ? renderer.mapColumns(activeColumns)
+          : activeColumns,
         actions: rowActions,
         isLoading,
         error,
@@ -832,14 +944,25 @@ export function useDataView<T extends Record<string, any>>(
         },
         ...rendererOptions,
       });
-  }, [renderer, data, activeColumns, rowActions, isLoading, error, selectedIds, rendererOptions]);
+  }, [
+    renderer,
+    data,
+    activeColumns,
+    rowActions,
+    isLoading,
+    error,
+    selectedIds,
+    rendererOptions,
+  ]);
 
   const FilterComponent = useMemo(() => {
     if (!filterSpec) return () => null;
-    
+
     return () =>
       React.createElement(renderer.FilterComponent, {
-        spec: renderer.mapFilters ? renderer.mapFilters(filterSpec) : filterSpec,
+        spec: renderer.mapFilters
+          ? renderer.mapFilters(filterSpec)
+          : filterSpec,
         values: filters,
         onFiltersChange: setFilters,
         ...rendererOptions,
@@ -850,30 +973,41 @@ export function useDataView<T extends Record<string, any>>(
     const createForm = forms?.create;
     if (!createForm) return () => null;
 
-    const entityType = activityConfig?.entityType || 'Item';
+    const entityType = activityConfig?.entityType || "Item";
 
     return () =>
       React.createElement(renderer.FormComponent, {
         mode: "create",
-        fields: renderer.mapFormFields ? renderer.mapFormFields(createForm.fields) : createForm.fields,
+        fields: renderer.mapFormFields
+          ? renderer.mapFormFields(createForm.fields)
+          : createForm.fields,
         onSubmit: handleCreateSubmit,
         onCancel: () => setCreateDialogOpen(false),
         isSubmitting: createMutation.isPending,
         entityType,
         ...rendererOptions,
       });
-  }, [renderer, forms?.create, handleCreateSubmit, createMutation.isPending, rendererOptions, activityConfig?.entityType]);
+  }, [
+    renderer,
+    forms?.create,
+    handleCreateSubmit,
+    createMutation.isPending,
+    rendererOptions,
+    activityConfig?.entityType,
+  ]);
 
   const EditFormComponent = useMemo(() => {
     const editForm = forms?.edit;
     if (!editForm) return () => null;
 
-    const entityType = activityConfig?.entityType || 'Item';
+    const entityType = activityConfig?.entityType || "Item";
 
     return ({ item }: { item: T }) =>
       React.createElement(renderer.FormComponent, {
         mode: "edit",
-        fields: renderer.mapFormFields ? renderer.mapFormFields(editForm.fields) : editForm.fields,
+        fields: renderer.mapFormFields
+          ? renderer.mapFormFields(editForm.fields)
+          : editForm.fields,
         initialValues: item,
         onSubmit: handleEditSubmit,
         onCancel: () => {
@@ -884,22 +1018,38 @@ export function useDataView<T extends Record<string, any>>(
         entityType,
         ...rendererOptions,
       });
-  }, [renderer, forms?.edit, handleEditSubmit, updateMutation.isPending, rendererOptions, activityConfig?.entityType]);
+  }, [
+    renderer,
+    forms?.edit,
+    handleEditSubmit,
+    updateMutation.isPending,
+    rendererOptions,
+    activityConfig?.entityType,
+  ]);
 
   const PaginationComponent = useMemo(() => {
     if (!paginationConfig.enabled) return () => null;
-    
+
     return () =>
       React.createElement(renderer.PaginationComponent, {
         page: pagination.page,
         pageSize: pagination.pageSize,
         total,
         onPageChange: (page: number) => setPagination({ page }),
-        onPageSizeChange: (pageSize: number) => setPagination({ pageSize, page: 0 }),
+        onPageSizeChange: (pageSize: number) =>
+          setPagination({ pageSize, page: 0 }),
         pageSizeOptions: paginationConfig.pageSizeOptions,
         ...rendererOptions,
       });
-  }, [renderer, pagination.page, pagination.pageSize, total, setPagination, paginationConfig, rendererOptions]);
+  }, [
+    renderer,
+    pagination.page,
+    pagination.pageSize,
+    total,
+    setPagination,
+    paginationConfig,
+    rendererOptions,
+  ]);
 
   return {
     // Data

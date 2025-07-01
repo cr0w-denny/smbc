@@ -33,8 +33,6 @@ program
   .option("--with-api", "include API package structure", true)
   .option("--no-install", "skip installing dependencies")
   .action(async (appletName?: string, options = {}) => {
-    console.log(chalk.blue.bold("\n🚀 Welcome to SMBC Applet Generator!\n"));
-
     const config = await gatherAppletConfig(appletName, options);
     await createApplet(config);
   });
@@ -142,7 +140,6 @@ async function createApplet(config: AppletConfig) {
 
   // Check if directory already exists
   if (await fs.pathExists(appletPath)) {
-    console.log(chalk.red(`\n❌ Applet "${config.name}" already exists.`));
     process.exit(1);
   }
 
@@ -168,22 +165,9 @@ async function createApplet(config: AppletConfig) {
     }
 
     // Success message
-    console.log(chalk.green.bold("\n✨ Applet created successfully!\n"));
-    console.log(chalk.cyan("Next steps:"));
-    console.log(chalk.gray(`  cd applets/${config.name}/mui`));
 
     if (!config.installDeps) {
-      console.log(chalk.gray("  pnpm install"));
     }
-
-    console.log(chalk.gray("  pnpm run build"));
-
-    console.log(chalk.blue("\n📚 To use in a host app:"));
-    console.log(
-      chalk.gray(
-        `  import ${toCamelCase(config.name)}Applet from '@smbc/${config.name}-mui';`,
-      ),
-    );
   } catch (error) {
     spinner.fail(chalk.red("Failed to create applet"));
     console.error(error);
@@ -355,7 +339,6 @@ function toPascalCase(str: string): string {
 
 // Handle process termination
 process.on("SIGINT", () => {
-  console.log(chalk.red("\n\n❌ Process interrupted"));
   process.exit(1);
 });
 

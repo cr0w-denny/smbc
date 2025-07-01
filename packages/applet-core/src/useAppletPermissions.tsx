@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * Permission interface
@@ -35,11 +35,14 @@ export interface HostAppletConfig {
  * Original applet with permissions
  */
 export interface OriginalApplet {
-  permissions?: Record<string, {
-    id: string;
-    name: string;
-    [key: string]: any;
-  }>;
+  permissions?: Record<
+    string,
+    {
+      id: string;
+      name: string;
+      [key: string]: any;
+    }
+  >;
   [key: string]: any;
 }
 
@@ -62,7 +65,11 @@ export interface UseAppletPermissionsProps {
   /** Currently selected roles */
   selectedRoles: string[];
   /** Function to check if roles have permission */
-  hasPermission: (roles: string[], appletId: string, permissionId: string) => boolean;
+  hasPermission: (
+    roles: string[],
+    appletId: string,
+    permissionId: string,
+  ) => boolean;
 }
 
 /**
@@ -79,7 +86,7 @@ export function formatPermissionName(name: string): string {
 /**
  * A hook that generates AppletPermissionGroup data by mapping host applets
  * to their original applet permissions and checking user access.
- * 
+ *
  * @example
  * ```tsx
  * const appletPermissions = useAppletPermissions({
@@ -98,41 +105,47 @@ export function useAppletPermissions({
   hasPermission,
 }: UseAppletPermissionsProps): AppletPermissionGroup[] {
   return React.useMemo(() => {
-    return hostApplets.map((hostApplet) => {
-      // Get permission mappings for this host applet
-      const permissionMappings = roleConfig.permissionMappings?.[hostApplet.id];
-      if (!permissionMappings) {
-        console.warn(
-          `No permission mappings found for host applet: ${hostApplet.id}`,
-        );
-        return null;
-      }
+    return hostApplets
+      .map((hostApplet) => {
+        // Get permission mappings for this host applet
+        const permissionMappings =
+          roleConfig.permissionMappings?.[hostApplet.id];
+        if (!permissionMappings) {
+          return null;
+        }
 
-      // Helper function to check if any selected role has the permission
-      const hasAnyRolePermission = (appletId: string, permissionId: string): boolean => {
-        return hasPermission(selectedRoles, appletId, permissionId);
-      };
-
-      // Convert permission mappings to permission checks
-      const permissionChecks = Object.keys(permissionMappings).map((permissionId) => {
-        // Extract permission name from ID (e.g., "user-management:view-users" -> "View Users")
-        const permissionName = permissionId.split(':').pop() || permissionId;
-        
-        return {
-          key: permissionId,
-          label: formatPermissionName(permissionName),
-          hasAccess: hasAnyRolePermission(hostApplet.id, permissionId),
+        // Helper function to check if any selected role has the permission
+        const hasAnyRolePermission = (
+          appletId: string,
+          permissionId: string,
+        ): boolean => {
+          return hasPermission(selectedRoles, appletId, permissionId);
         };
-      });
 
-      return {
-        id: hostApplet.id,
-        label: hostApplet.label,
-        icon: hostApplet.routes[0]?.icon,
-        permissions: permissionChecks,
-      };
-    }).filter(
-      (applet): applet is NonNullable<typeof applet> => applet !== null,
-    );
+        // Convert permission mappings to permission checks
+        const permissionChecks = Object.keys(permissionMappings).map(
+          (permissionId) => {
+            // Extract permission name from ID (e.g., "user-management:view-users" -> "View Users")
+            const permissionName =
+              permissionId.split(":").pop() || permissionId;
+
+            return {
+              key: permissionId,
+              label: formatPermissionName(permissionName),
+              hasAccess: hasAnyRolePermission(hostApplet.id, permissionId),
+            };
+          },
+        );
+
+        return {
+          id: hostApplet.id,
+          label: hostApplet.label,
+          icon: hostApplet.routes[0]?.icon,
+          permissions: permissionChecks,
+        };
+      })
+      .filter(
+        (applet): applet is NonNullable<typeof applet> => applet !== null,
+      );
   }, [hostApplets, roleConfig, selectedRoles, hasPermission]);
 }

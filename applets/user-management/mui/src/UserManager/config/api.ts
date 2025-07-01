@@ -13,7 +13,7 @@ interface ApiResponse {
 
 /**
  * Creates API configuration for the UserManager component
- * 
+ *
  * @param userType - Type of users to fetch ("all", "admins", or "non-admins")
  * @returns API configuration object for the data view applet
  */
@@ -25,7 +25,7 @@ export const createApiConfig = (userType: "all" | "admins" | "non-admins") => ({
   optimisticResponse: (originalResponse: ApiResponse, newRows: User[]) => ({
     ...originalResponse,
     users: newRows,
-    total: newRows.length
+    total: newRows.length,
   }),
   // Additional API parameters based on user type
   apiParams: {

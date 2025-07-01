@@ -36,34 +36,6 @@ function parseArgs(): CleanOptions {
         break;
       case "--help":
       case "-h":
-        console.log(`
-Usage: clean-console [options]
-
-Strip console.log statements and format code according to Prettier rules.
-
-Options:
-  --dry-run, -d     Show what would be changed without making changes
-  --verbose, -v     Show detailed output
-  --include         Comma-separated list of additional patterns to include
-  --exclude         Comma-separated list of patterns to exclude
-  --help, -h        Show this help message
-
-Examples:
-  # Clean all TypeScript/JavaScript files
-  clean-console
-
-  # Dry run to see what would be changed
-  clean-console --dry-run
-
-  # Verbose output with dry run
-  clean-console --dry-run --verbose
-
-  # Include additional patterns
-  clean-console --include "*.jsx,*.vue"
-
-  # Exclude specific directories
-  clean-console --exclude "node_modules/**,dist/**"
-`);
         process.exit(0);
     }
   }
@@ -187,7 +159,6 @@ function formatWithPrettier(files: string[], verbose: boolean) {
 
   try {
     if (verbose) {
-      console.log(chalk.blue("🎨 Running Prettier..."));
     }
 
     execSync(`npx prettier --write ${files.map((f) => `"${f}"`).join(" ")}`, {
@@ -195,7 +166,6 @@ function formatWithPrettier(files: string[], verbose: boolean) {
     });
 
     if (verbose) {
-      console.log(chalk.green("✅ Prettier formatting complete"));
     }
   } catch (error) {
     console.error(chalk.red("❌ Prettier formatting failed:"), error);
@@ -205,13 +175,10 @@ function formatWithPrettier(files: string[], verbose: boolean) {
 async function main() {
   const options = parseArgs();
 
-  console.log(chalk.cyan("🧹 Cleaning codebase..."));
   if (options.dry) {
-    console.log(chalk.yellow("🔍 DRY RUN MODE - No files will be modified"));
   }
 
   const files = await getFilesToProcess(options);
-  console.log(chalk.blue(`📁 Found ${files.length} files to process`));
 
   let totalRemoved = 0;
   let filesChanged = 0;
@@ -228,11 +195,6 @@ async function main() {
         changedFiles.push(file);
 
         if (options.verbose) {
-          console.log(
-            chalk.yellow(
-              `🗑️  ${file}: removed ${removed} console statement(s)`,
-            ),
-          );
         }
 
         if (!options.dry) {
@@ -244,21 +206,11 @@ async function main() {
     }
   }
 
-  console.log(chalk.green(`\n✨ Console cleanup complete!`));
-  console.log(chalk.white(`   Files processed: ${files.length}`));
-  console.log(chalk.white(`   Files changed: ${filesChanged}`));
-  console.log(chalk.white(`   Console statements removed: ${totalRemoved}`));
-
   if (totalRemoved > 0 && !options.dry) {
-    console.log(chalk.blue("\n🎨 Formatting with Prettier..."));
     formatWithPrettier(changedFiles, options.verbose || false);
-    console.log(chalk.green("✅ Code formatting complete!"));
   }
 
   if (options.dry && totalRemoved > 0) {
-    console.log(
-      chalk.yellow("\n💡 Run without --dry-run to apply these changes"),
-    );
   }
 }
 
