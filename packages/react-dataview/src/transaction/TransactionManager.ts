@@ -467,7 +467,7 @@ export class SimpleTransactionManager<T = any>
   }
 
   private async rollbackSingleOperation(
-    operation: TransactionOperation<T>,
+    _operation: TransactionOperation<T>,
   ): Promise<void> {
     // Note: This is a simplified rollback implementation
     // In a real system, you'd need to implement proper reverse operations

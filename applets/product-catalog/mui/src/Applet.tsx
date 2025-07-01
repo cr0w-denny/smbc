@@ -74,7 +74,7 @@ function AdvancedFilters() {
         defaultCollapsed: false,
         showFilterCount: true,
       }}
-      onFiltersChange={(filters) => {
+      onFiltersChange={(_filters) => {
         // TODO: Apply filters to the product query
       }}
     />

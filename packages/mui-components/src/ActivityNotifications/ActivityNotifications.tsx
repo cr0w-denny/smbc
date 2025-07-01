@@ -425,7 +425,7 @@ export function ActivityNotifications({
                                     .getOperations()
                                     .some((op: any) => op.id === operation.id)
                                 ) {
-                                  const result = manager.removeOperation(
+                                  manager.removeOperation(
                                     operation.id,
                                   );
 

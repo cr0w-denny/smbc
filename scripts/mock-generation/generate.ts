@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
 // CLI tool for generating mocks using the template-based approach
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { resolve, dirname, join } from "path";
 import {
   TemplateMockGenerator,
@@ -94,7 +94,6 @@ function loadOpenAPISpec(inputPath: string): any {
 function ensureDirectoryExists(filePath: string): void {
   const dir = dirname(filePath);
   if (!existsSync(dir)) {
-    const { mkdirSync } = require("fs");
     mkdirSync(dir, { recursive: true });
   }
 }

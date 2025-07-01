@@ -64,8 +64,6 @@ class TransactionRegistryClass {
     const managers = this.getAllManagers();
 
     for (const manager of managers) {
-      const operationCount = manager.getOperations().length;
-
       if (manager.canCommit()) {
         try {
           await manager.commit(true); // Force commit
@@ -84,8 +82,6 @@ class TransactionRegistryClass {
     const managers = this.getAllManagers();
 
     for (const manager of managers) {
-      const operationCount = manager.getOperations().length;
-
       if (manager.hasOperations()) {
         manager.cancel();
       }

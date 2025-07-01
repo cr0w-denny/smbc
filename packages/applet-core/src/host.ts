@@ -8,7 +8,7 @@ export const useRoleManagement = () => {
   return {
     userRoles,
     availableRoles: roleUtils.roles,
-    setUserRoles: (roles: string[]) => {
+    setUserRoles: (_roles: string[]) => {
       // This would need to be implemented in the app context
     },
     // Permission checking available for host convenience
