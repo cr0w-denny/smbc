@@ -1,4 +1,4 @@
-# @smbc/mui-host
+# @smbc/mui-applet-host
 
 Easy setup for SMBC applets. Supports both greenfield apps and existing app integration.
 
@@ -9,7 +9,7 @@ Easy setup for SMBC applets. Supports both greenfield apps and existing app inte
 ```bash
 npm create vite@latest my-react-app -- --template react-ts
 cd my-react-app
-npm install @smbc/mui-host @smbc/mui-user-management
+npm install @smbc/mui-applet-host @smbc/mui-user-management
 
 # Install peer dependencies (see DEPENDENCIES.md for full list)
 npm install react react-dom @mui/material @mui/icons-material @emotion/react @emotion/styled @tanstack/react-query msw
@@ -24,7 +24,7 @@ Create your app:
 
 ```typescript
 // src/main.tsx
-import { createApp } from "@smbc/mui-host";
+import { createApp } from "@smbc/mui-applet-host";
 
 createApp({
   config: {
@@ -38,7 +38,7 @@ createApp({
 ### Existing Apps (Component Integration)
 
 ```bash
-npm install @smbc/mui-host @smbc/mui-user-management
+npm install @smbc/mui-applet-host @smbc/mui-user-management
 # Install peer dependencies...
 ```
 
@@ -46,7 +46,7 @@ Integrate with your existing app:
 
 ```typescript
 // src/App.tsx
-import { AppletProvider, AppletRoute } from '@smbc/mui-host'
+import { AppletProvider, AppletRoute } from '@smbc/mui-applet-host'
 
 function App() {
   return (
@@ -176,7 +176,7 @@ import "swagger-ui-react/swagger-ui.css";
 ### Basic User Management
 
 ```typescript
-import { createApp } from "@smbc/mui-host";
+import { createApp } from "@smbc/mui-applet-host";
 
 createApp({
   config: {
@@ -194,7 +194,7 @@ createApp({
 ### Multiple Applets
 
 ```typescript
-import { AppletProvider, AppletRoute } from '@smbc/mui-host'
+import { AppletProvider, AppletRoute } from '@smbc/mui-applet-host'
 
 <AppletProvider
   applets={[

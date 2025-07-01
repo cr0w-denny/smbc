@@ -81,12 +81,12 @@ npm run create:applet
 
 - **[@smbc/shared-query-client](./packages/shared-query-client/README.md)** - Single QueryClient architecture
 - **[@smbc/mui-components](./packages/mui-components/README.md)** - Shared MUI components
-- **[@smbc/mui-applet-core](./packages/mui-applet-core/README.md)** - Core applet infrastructure
-- **[@smbc/react-openapi-client](./packages/react-openapi-client/README.md)** - Shared API client utilities
-- **[@smbc/msw-utils](./packages/msw-utils/README.md)** - Mock generation tools
+- **[@smbc/applet-core](./packages/applet-core/README.md)** - Core applet infrastructure
+- **[@smbc/react-dataview](./packages/react-dataview/README.md)** - Data view and transaction management
+- **[@smbc/typespec-core](./packages/typespec-core/README.md)** - TypeSpec core utilities
 - **[@smbc/design-tokens](./packages/design-tokens/README.md)** - Design token system
-- **[@smbc/mui-host](./packages/mui-host/README.md)** - Easy setup for React apps with applet system
-- **[@smbc/create-applet](./packages/create-applet/README.md)** - Applet creation CLI
+- **[@smbc/mui-applet-host](./packages/mui-applet-host/README.md)** - Easy setup for React apps with applet system
+- **[create-applet script](./scripts/create-applet/README.md)** - Applet creation CLI
 
 ### Example Applets
 

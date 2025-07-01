@@ -8,10 +8,10 @@ npm create vite@latest my-smbc-app -- --template react-ts
 cd my-smbc-app
 
 # Install SMBC dependencies
-npm install @smbc/mui-host @smbc/user-management-mui
+npm install @smbc/mui-applet-host @smbc/user-management-mui
 
 # Create your app
-echo 'import { createApp } from "@smbc/mui-host"
+echo 'import { createApp } from "@smbc/mui-applet-host"
 
 createApp({
   config: {
@@ -40,14 +40,14 @@ Add SMBC applets to your existing React application:
 ### 1. Install Dependencies
 
 ```bash
-npm install @smbc/mui-host @smbc/user-management-mui
+npm install @smbc/mui-applet-host @smbc/user-management-mui
 ```
 
 ### 2. Wrap Your App
 
 ```typescript
 // App.tsx
-import { AppletProvider } from '@smbc/mui-host'
+import { AppletProvider } from '@smbc/mui-applet-host'
 
 function App() {
   return (
@@ -67,7 +67,7 @@ function App() {
 
 ```typescript
 // Routes.tsx
-import { AppletRoute } from '@smbc/mui-host'
+import { AppletRoute } from '@smbc/mui-applet-host'
 
 <Routes>
   {/* Your existing routes */}

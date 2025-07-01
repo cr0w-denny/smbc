@@ -10,7 +10,7 @@ Use a microfrontend approach without the module federation complexity:
 
 ```typescript
 // main-app/src/App.tsx
-import { AppletProvider } from '@smbc/mui-host'
+import { AppletProvider } from '@smbc/mui-applet-host'
 import { TeamARoutes, TeamBRoutes } from './routes'
 
 function App() {
@@ -45,10 +45,10 @@ Migrate existing applications piece by piece:
 <AppletProvider applets={['@smbc/user-management-mui']}>
   <Routes>
     {/* Existing routes */}
-    <Route path="/legacy-dashboard" element={<LegacyDashboard />} />
-    <Route path="/legacy-reports" element={<LegacyReports />} />
+    <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/reports" element={<Reports />} />
 
-    {/* New applet route */}
+    {/* Applet route */}
     <Route path="/users/*" element={<AppletRoute applet="user-management" />} />
   </Routes>
 </AppletProvider>
@@ -87,7 +87,7 @@ function TenantApp({ tenantId }: { tenantId: string }) {
 Integrate with your existing auth system:
 
 ```typescript
-import { AppletProvider } from '@smbc/mui-host'
+import { AppletProvider } from '@smbc/mui-applet-host'
 import { useAuth } from './auth'
 
 function App() {
@@ -221,7 +221,7 @@ function useDataSync() {
 Wrap applets in your existing layout:
 
 ```typescript
-import { AppletRoute } from '@smbc/mui-host'
+import { AppletRoute } from '@smbc/mui-applet-host'
 
 function CompanyLayout({ children }) {
   return (
@@ -249,7 +249,7 @@ function CompanyLayout({ children }) {
 Integrate with your existing navigation:
 
 ```typescript
-import { useAppletNavigation } from '@smbc/mui-host'
+import { useAppletNavigation } from '@smbc/mui-applet-host'
 
 function CompanySidebar() {
   const { getAppletRoutes } = useAppletNavigation()
@@ -344,7 +344,7 @@ Test applet components in isolation:
 
 ```typescript
 import { render } from '@testing-library/react'
-import { AppletProvider } from '@smbc/mui-host'
+import { AppletProvider } from '@smbc/mui-applet-host'
 
 function renderWithAppletProvider(component, options = {}) {
   return render(
