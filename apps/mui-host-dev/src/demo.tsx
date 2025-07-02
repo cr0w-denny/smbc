@@ -15,33 +15,13 @@ import {
 } from "@smbc/applet-dataview";
 
 // =============================================================================
-// COMPREHENSIVE DATAVIEW REFERENCE IMPLEMENTATION
+// DATAVIEW REFERENCE IMPLEMENTATION
 // =============================================================================
 //
-// This file serves as a complete reference implementation for the DataView system
+// This file serves as a reference implementation for the DataView system
 // demonstrating all key features and patterns:
 //
-// 🏗️  ARCHITECTURE OVERVIEW:
-// The DataView system uses a clean 3-layer architecture:
-//
-// Layer 1 (react-dataview): Framework-agnostic data management
-// - Handles API calls, caching, optimistic updates via React Query
-// - Manages filters, pagination, selections, CRUD operations
-// - Transaction system for batch operations with rollback support
-// - No knowledge of UI frameworks or business logic
-//
-// Layer 2 (mui-applet-core): SMBC business logic integration
-// - Converts PermissionDefinitions to simple strings
-// - Processes and filters actions based on user permissions
-// - Handles URL-based state synchronization
-// - Bridges generic data operations to specific business handlers
-//
-// Layer 3 (mui-components): Material-UI rendering
-// - Renders tables, forms, dialogs, action bars using MUI
-// - Handles user interactions and visual feedback
-// - No knowledge of data fetching or business logic
-//
-// 📊 KEY FEATURES DEMONSTRATED:
+// FEATURES DEMONSTRATED:
 // - Complete CRUD operations with forms and validation
 // - Bulk actions with transaction support and visual feedback
 // - Advanced filtering and pagination with URL synchronization
@@ -51,7 +31,7 @@ import {
 // - Permission-based action visibility
 // - Activity tracking integration
 //
-// 🔄 TRANSACTION SYSTEM:
+// TRANSACTION SYSTEM:
 // The transaction system provides:
 // - Batch operations that can be committed or rolled back as a group
 // - Visual feedback showing pending changes without mixing data
@@ -59,20 +39,13 @@ import {
 // - Individual operation undo before commit
 // - Clean separation: data remains pure, transactions tracked separately
 //
-// 💡 USAGE PATTERNS:
+// USAGE PATTERNS:
 // This implementation shows the recommended patterns for:
 // - Setting up mock API clients for development/testing
 // - Creating reusable bulk actions with helper functions
 // - Implementing appliesTo logic for conditional action visibility
 // - Handling complex data transformations
-// - Integrating with external libraries (faker, React Query)
-//
-// 🎯 REFERENCE POINTS:
-// - Lines 67-76: TypeScript interface definition
-// - Lines 103-248: Mock API client implementation
-// - Lines 309-541: Complete DataView configuration
-// - Lines 417-456: Bulk action setup with helpers
-// - Lines 552-560: Transaction configuration
+// - Integrating with external libraries (React Query)
 //
 // =============================================================================
 
@@ -108,11 +81,6 @@ interface Task {
 /**
  * Generates realistic mock task data using faker.js for development and testing.
  *
- * Benefits of using faker:
- * - Consistent, reproducible data when seeded
- * - Realistic-looking data that resembles production
- * - Easy to generate large datasets for performance testing
- *
  * @param count - Number of tasks to generate (default: 50)
  * @returns Array of mock Task objects
  */
@@ -142,10 +110,7 @@ faker.seed(12345);
  * IMPORTANT: In a real application, this would be your actual API/database.
  * This mutable array simulates server-side data persistence.
  *
- * Architecture notes:
- * - Mutations directly modify this array to simulate API calls
- * - React Query cache is updated separately for UI consistency
- * - Transaction system works on top of this base data
+ * Mutations directly modify this array to simulate API calls
  */
 let mockTasks = generateMockTasks(75);
 
@@ -155,16 +120,6 @@ let mockTasks = generateMockTasks(75);
 
 /**
  * Creates a mock API client that simulates real backend interactions.
- *
- * This implementation demonstrates:
- * - Proper React Query integration patterns
- * - Realistic query/mutation handling
- * - Error simulation capabilities
- * - Optimistic update support
- *
- * Key patterns:
- * - useQuery for data fetching with caching
- * - useMutation for data modifications
  */
 const createTasksApiClient = () => {
   /**
@@ -173,7 +128,7 @@ const createTasksApiClient = () => {
    * Features demonstrated:
    * - Query key generation for proper caching
    * - Server-side filtering and pagination simulation
-   * - Initial data population for instant UI feedback
+   * - Initial data population
    * - Realistic async behavior with Promise-based queries
    *
    * @param method - HTTP method (GET, POST, etc.)
@@ -292,8 +247,7 @@ const createTasksApiClient = () => {
    * 2. DELETE: Removes records
    * 3. POST: Creates new records
    *
-   * Important implementation details:
-   * - Updates the global mockTasks array to simulate backend persistence
+   * Updates the global mockTasks array to simulate backend persistence
    */
   const mockUseMutation = (
     method: string,
@@ -344,10 +298,10 @@ const createTasksApiClient = () => {
 // =============================================================================
 // MUTATION HELPER FUNCTIONS
 // =============================================================================
-// 
+//
 // NOTE: We're now shifting into frontend territory and away from backend mocking.
 // The functions below are pure frontend utilities that work with the DataView
-// transaction system and action helpers. They bridge the gap between the 
+// transaction system and action helpers. They bridge the gap between the
 // mock API layer above and the UI components below.
 
 /**
@@ -403,7 +357,6 @@ const createTaskUpdateFunction = () => {
  * - Proper error handling for non-existent items
  * - Detailed logging for debugging
  * - Integration with transaction system
- * - Consistent return value patterns
  */
 const createTaskDeleteFunction = () => {
   return async (id: string | number) => {

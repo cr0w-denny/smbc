@@ -1,5 +1,5 @@
 // Generated mock handlers for Product Catalog API
-// Generated at: 2025-07-02T05:17:40.898Z
+// Generated at: 2025-07-02T05:40:02.974Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
