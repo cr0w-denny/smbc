@@ -15,6 +15,8 @@ const meta: Meta = {
     docs: {
       page: null,
     },
+    // Mark this as the homepage
+    viewMode: 'story',
   },
 };
 

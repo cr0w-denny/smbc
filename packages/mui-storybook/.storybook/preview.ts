@@ -17,6 +17,12 @@ const preview: Preview = {
         return null;
       },
     },
+    options: {
+      // Sort stories to ensure Design Tokens appears first
+      storySort: {
+        order: ['Design Tokens', 'Components'],
+      },
+    },
   },
 };
 

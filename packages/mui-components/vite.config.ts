@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     dts({
       include: ["src/**/*"],
-      exclude: ["src/**/*.test.*", "src/**/*.stories.*"],
+      exclude: ["src/**/*.test.*"],
       rollupTypes: true,
       bundledPackages: ["@smbc/design-tokens", "@smbc/mui-applet-core"],
     }),
