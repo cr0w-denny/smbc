@@ -9,9 +9,9 @@ import {
   Inventory as InventoryIcon,
 } from "@mui/icons-material";
 
-// Import applets directly
-import userManagementApplet from "@smbc/user-management-mui";
-import productCatalogApplet from "@smbc/product-catalog-mui";
+// Import applets directly from source during development
+import userManagementApplet from "../../../applets/user-management/mui/src";
+import productCatalogApplet from "../../../applets/product-catalog/mui/src";
 import demoTasksApplet from "./demo";
 
 // =============================================================================
@@ -109,6 +109,37 @@ export const roleConfig: RoleConfig = {
     permissionRequirements,
   ),
 };
+
+// =============================================================================
+// FLAT PERMISSION SYSTEM (New approach)
+// =============================================================================
+
+/**
+ * Convert user roles to a flat list of permissions
+ * This bridges the current role system with the new flat permission approach
+ */
+export function calculatePermissionsFromRoles(
+  userRoles: string[],
+  roleConfig: RoleConfig,
+): string[] {
+  const permissions: string[] = [];
+  
+  // Iterate through all permission mappings
+  Object.entries(roleConfig.permissionMappings).forEach(([appletId, appletPermissions]) => {
+    Object.entries(appletPermissions).forEach(([permissionId, requiredRoles]) => {
+      // Check if user has any of the required roles for this permission
+      const hasPermission = userRoles.some(userRole => 
+        requiredRoles.includes(userRole)
+      );
+      
+      if (hasPermission) {
+        permissions.push(`${appletId}:${permissionId}`);
+      }
+    });
+  });
+  
+  return permissions;
+}
 
 // =============================================================================
 // APPLET DEFINITIONS

@@ -28,13 +28,13 @@
   },
   "devDependencies": {
     "@smbc/design-tokens": "*",
-    "@smbc/applet-dataview": "*",
+    "@smbc/react-query-dataview": "*",
     "@types/react": "^18.0.0",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "@smbc/design-tokens": "*",
-    "@smbc/applet-dataview": "*",
+    "@smbc/react-query-dataview": "*",
     "react": "^18.0.0"
   }
 }

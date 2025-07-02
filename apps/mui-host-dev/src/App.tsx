@@ -9,23 +9,30 @@ import {
   useFeatureFlag,
   useFeatureFlagToggle,
 } from "@smbc/applet-core";
-import { AppletHost } from "@smbc/mui-applet-host";
+import { AppletDrawer } from "./components/AppletDrawer";
+import { AppletRouter } from "./components/AppletRouter";
 import { getCurrentApplet } from "@smbc/applet-core";
 import {
   ApiDocsModal,
   DevHostAppBar,
-  ActivitySnackbar,
   lightTheme,
   darkTheme,
 } from "@smbc/mui-components";
+import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import {
   registerMswHandlers,
   AppletQueryProvider,
 } from "@smbc/applet-query-client";
-import { ActivityProvider, TransactionProvider } from "@smbc/applet-dataview";
+import { ActivityProvider, TransactionProvider } from "@smbc/react-query-dataview";
 
 // Import configuration
-import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
+import { 
+  APP_CONSTANTS, 
+  APPLETS, 
+  demoUser, 
+  roleConfig, 
+  calculatePermissionsFromRoles 
+} from "./app.config";
 
 // Feature flag configuration
 const featureFlags = [
@@ -78,12 +85,16 @@ function AppContentWithQueryAccess() {
     <>
       <Box sx={{ display: "flex" }}>
         <Navigation />
-        <AppletHost
+        <AppletDrawer
           applets={APPLETS}
           constants={APP_CONSTANTS}
-          roleConfig={roleConfig}
           permissionMapping={{ "admin-users": "user-management" }}
           title={APP_CONSTANTS.appName}
+        />
+        <AppletRouter
+          applets={APPLETS}
+          roleConfig={roleConfig}
+          constants={APP_CONSTANTS}
         />
       </Box>
       <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
@@ -136,9 +147,10 @@ function Navigation() {
         mockEnabled={mockEnabled}
         onMockToggle={toggleMockData}
         onApiDocsOpen={handleApiDocsOpen}
-        onNavigate={handleNavigate}
         drawerWidth={APP_CONSTANTS.drawerWidth}
-      />
+      >
+        <ActivityNotifications onNavigate={handleNavigate} />
+      </DevHostAppBar>
 
       {/* API Documentation Modal */}
       {currentAppletInfo && currentAppletInfo.apiSpec && (
@@ -203,10 +215,16 @@ function AppWithThemeProvider() {
     localStorage.removeItem("roleMapping-selectedRoles");
   }, []);
 
+  // Create user with calculated permissions
+  const userWithPermissions = {
+    ...demoUser,
+    permissions: calculatePermissionsFromRoles(demoUser.roles, roleConfig),
+  };
+
   return (
     <ThemeProvider theme={currentTheme}>
       <CssBaseline />
-      <AppProvider initialRoleConfig={roleConfig} initialUser={demoUser}>
+      <AppProvider initialRoleConfig={roleConfig} initialUser={userWithPermissions}>
         <AppWithMockToggle />
       </AppProvider>
     </ThemeProvider>

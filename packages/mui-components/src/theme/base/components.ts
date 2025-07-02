@@ -1,5 +1,5 @@
 import { Components, Theme } from "@mui/material/styles";
-import { getSemanticColor, getSemanticShadow } from "@smbc/design-tokens";
+import { getSemanticColor, getSemanticShadow } from "@smbc/ui-core";
 
 export const createBaseComponents = (
   theme: Theme,

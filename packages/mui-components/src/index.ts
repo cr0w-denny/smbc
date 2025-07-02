@@ -85,17 +85,10 @@ export const getTheme = (mode: "light" | "dark" = "light") => {
   }
 };
 
-// DataView renderer for MUI
-export { MuiDataView } from "./MuiDataView";
+// Components moved to mui-applet-core:
+// - MuiDataView (depends on applet-dataview)
 
-// Action bar component
-export { ActionBar } from "./ActionBar";
-export type { ActionBarProps } from "./ActionBar";
-
-// Activity notifications component
-export { ActivityNotifications } from "./ActivityNotifications";
-export type { ActivityNotificationsProps } from "./ActivityNotifications";
-
-// Activity snackbar component
-export { ActivitySnackbar } from "./ActivitySnackbar";
-export type { ActivitySnackbarProps } from "./ActivitySnackbar";
+// Components moved to mui-applet-core:
+// - ActionBar
+// - ActivityNotifications  
+// - ActivitySnackbar

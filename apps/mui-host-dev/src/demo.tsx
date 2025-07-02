@@ -12,7 +12,7 @@ import { faker } from "@faker-js/faker";
 import {
   createBulkUpdateAction,
   createBulkDeleteAction,
-} from "@smbc/applet-dataview";
+} from "@smbc/react-query-dataview";
 
 // =============================================================================
 // DATAVIEW REFERENCE IMPLEMENTATION

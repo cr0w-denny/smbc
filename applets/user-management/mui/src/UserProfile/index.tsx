@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Box,
   Card,
@@ -49,8 +50,19 @@ export const UserProfile: FC<UserProfileProps> = ({
     data: fetchedUser,
     isLoading,
     error,
-  } = apiClient.useQuery("get", "/users/{id}", {
-    params: { path: { id: userId || "current" } },
+  } = useQuery({
+    queryKey: ['user', userId || 'current'],
+    queryFn: async () => {
+      const result = await apiClient.GET("/users/{id}", {
+        params: { path: { id: userId || "current" } },
+      });
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to fetch user');
+      }
+      
+      return result.data;
+    },
     // Only fetch if no user data is provided and we have a userId
     enabled: !providedUser && !!userId,
   });

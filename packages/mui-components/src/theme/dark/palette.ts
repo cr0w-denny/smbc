@@ -1,5 +1,5 @@
 import { PaletteOptions } from "@mui/material/styles";
-import { colors, getSemanticColor } from "@smbc/design-tokens";
+import { colors, getSemanticColor } from "@smbc/ui-core";
 
 export const darkPalette: PaletteOptions = {
   mode: "dark",

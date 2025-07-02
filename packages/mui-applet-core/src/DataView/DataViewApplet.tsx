@@ -3,9 +3,10 @@ import {
   useDataView,
   type DataViewConfig,
   type UseDataViewOptions,
-} from "@smbc/applet-dataview";
+} from "@smbc/react-query-dataview";
 import { usePermissions, type PermissionDefinition } from "@smbc/applet-core";
-import { MuiDataView, ActionBar } from "@smbc/mui-components";
+import { MuiDataView } from "./MuiDataView";
+import { ActionBar } from "../ActionBar";
 import {
   Dialog,
   DialogTitle,

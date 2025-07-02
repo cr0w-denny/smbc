@@ -3,11 +3,11 @@ import {
   Block as BlockIcon,
   CheckCircle as ActivateIcon,
 } from "@mui/icons-material";
-import type { BulkAction } from "@smbc/applet-dataview";
+import type { BulkAction } from "@smbc/react-query-dataview";
 import {
   createBulkDeleteAction,
   createBulkUpdateAction,
-} from "@smbc/applet-dataview";
+} from "@smbc/react-query-dataview";
 import { apiClient, type components } from "@smbc/user-management-client";
 
 type User = components["schemas"]["User"];
@@ -29,7 +29,7 @@ export const createBulkActionsConfig = (permissions: {
     const activateAction = createBulkUpdateAction<User>(
       async (id: string | number, data: Partial<User>) => {
         // Use the generated API client to update the user
-        const result = await apiClient.fetch.PATCH("/users/{id}", {
+        const result = await apiClient.PATCH("/users/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -59,7 +59,7 @@ export const createBulkActionsConfig = (permissions: {
     const deactivateAction = createBulkUpdateAction<User>(
       async (id: string | number, data: Partial<User>) => {
         // Use the generated API client to update the user
-        const result = await apiClient.fetch.PATCH("/users/{id}", {
+        const result = await apiClient.PATCH("/users/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -90,7 +90,7 @@ export const createBulkActionsConfig = (permissions: {
     const deleteAction = createBulkDeleteAction<User>(
       async (id: string | number) => {
         // Use the generated API client to delete the user
-        const result = await apiClient.fetch.DELETE("/users/{id}", {
+        const result = await apiClient.DELETE("/users/{id}", {
           params: { path: { id: id as string } },
         });
 

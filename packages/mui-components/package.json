@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@smbc/design-tokens": "*",
-    "@smbc/applet-dataview": "*",
+    "@smbc/react-query-dataview": "*",
     "@storybook/addon-docs": "^8.0.0",
     "@storybook/addon-links": "^8.0.0",
     "@storybook/react-vite": "^8.0.0",
@@ -52,7 +52,7 @@
     "@mui/icons-material": "^7.0.0",
     "@mui/material": "^7.0.0",
     "@smbc/design-tokens": "*",
-    "@smbc/applet-dataview": "*",
+    "@smbc/react-query-dataview": "*",
     "@tanstack/react-query": "^5.0.0",
     "msw": "^2.0.0",
     "react": "^18.0.0",

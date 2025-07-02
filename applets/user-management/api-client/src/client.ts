@@ -1,4 +1,4 @@
-import { createFetchClient, createClient } from "@smbc/applet-query-client";
+import { createFetchClient } from "@smbc/applet-query-client";
 import type { paths } from "./generated/types.js";
 
 export interface ApiClientConfig {
@@ -16,20 +16,7 @@ export function createApiClient(config: ApiClientConfig) {
     },
   });
 
-  // Create the React Query client
-  const queryClient = createClient(fetchClient);
-
-  return {
-    // Expose both the fetch client and query client
-    fetch: fetchClient,
-    query: queryClient,
-
-    // Expose individual hooks for convenience
-    useQuery: queryClient.useQuery,
-    useMutation: queryClient.useMutation,
-    useInfiniteQuery: queryClient.useInfiniteQuery,
-    useSuspenseQuery: queryClient.useSuspenseQuery,
-  };
+  return fetchClient;
 }
 
 // Create a default client instance for convenience

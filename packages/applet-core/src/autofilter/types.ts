@@ -6,6 +6,6 @@ import type {
   FilterFieldConfig,
   FilterValues,
   FilterSpec,
-} from "@smbc/applet-dataview";
+} from "@smbc/ui-core";
 
 export type { FilterFieldConfig, FilterValues, FilterSpec };

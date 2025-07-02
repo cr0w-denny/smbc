@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 import { suppressUseClientWarnings } from "../../scripts/vite/suppress-warnings.ts";
 
 // https://vitejs.dev/config/
@@ -101,6 +102,7 @@ export default defineConfig(({ mode }) => {
 
             // SMBC shared libraries - change more frequently
             if (
+              id.includes("@smbc/ui-core") ||
               id.includes("@smbc/applet-core") ||
               id.includes("@smbc/mui-applet-core") ||
               id.includes("@smbc/mui-applet-host") ||

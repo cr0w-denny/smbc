@@ -59,3 +59,12 @@ export type {
   MuiDataViewAppletConfig,
   MuiDataViewAppletProps,
 } from "./DataView/DataViewApplet";
+
+// Components moved from mui-components
+export { ActionBar } from "./ActionBar";
+export { ActivityNotifications } from "./ActivityNotifications";
+export { ActivitySnackbar } from "./ActivitySnackbar";
+
+// Internal components exported for Storybook only
+// @internal - Do not use directly, use MuiDataViewApplet instead
+export { MuiDataView } from "./DataView/MuiDataView";

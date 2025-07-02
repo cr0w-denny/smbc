@@ -37,12 +37,16 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   fullWidth = false,
   textFieldProps = {},
 }) => {
+
   const [localValue, setLocalValue] = React.useState(value);
   const debounceRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const isTypingRef = React.useRef(false);
 
-  // Sync external value changes
+  // Sync external value changes, but only when not actively typing
   React.useEffect(() => {
-    setLocalValue(value);
+    if (!isTypingRef.current) {
+      setLocalValue(value);
+    }
   }, [value]);
 
   // Debounced onChange
@@ -51,10 +55,21 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       clearTimeout(debounceRef.current);
     }
 
+    // Mark as typing when local value changes
+    isTypingRef.current = true;
+
     debounceRef.current = setTimeout(() => {
-      if (localValue !== value) {
+      // Only call onChange if localValue is still current
+      // (user hasn't typed more since this debounce was set)
+      const currentInputValue = document.activeElement?.tagName === 'INPUT' 
+        ? (document.activeElement as HTMLInputElement).value 
+        : localValue;
+      
+      if (currentInputValue === localValue && localValue !== value) {
         onChange(localValue);
       }
+      // Mark typing as done after debounce completes
+      isTypingRef.current = false;
     }, debounceMs);
 
     return () => {
@@ -62,11 +77,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         clearTimeout(debounceRef.current);
       }
     };
-  }, [localValue, debounceMs]); // Removed onChange and value to prevent unnecessary re-renders
+  }, [localValue, onChange, value, debounceMs]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setLocalValue(event.target.value);
+      const newValue = event.target.value;
+      setLocalValue(newValue);
     },
     [],
   );
@@ -74,6 +90,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const handleClear = useCallback(() => {
     setLocalValue("");
     onChange("");
+    // Reset typing state when clearing
+    isTypingRef.current = false;
   }, [onChange]);
 
   const handleKeyDown = useCallback(

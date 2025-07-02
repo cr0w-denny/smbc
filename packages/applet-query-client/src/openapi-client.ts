@@ -1,9 +1,6 @@
 // Re-export the openapi libraries for applets to use
 export { default as createFetchClient } from "openapi-fetch";
 
-// Re-export react-query integration
-export { default as createClient } from "openapi-react-query";
-
 // Utility function to create a typed API client with common configuration
 import createClientDefault from "openapi-fetch";
 

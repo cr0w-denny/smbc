@@ -11,6 +11,8 @@ export interface paths {
   };
   "/products/{id}": {
     get: operations["Products_get"];
+    delete: operations["Products_delete"];
+    patch: operations["Products_update"];
   };
 }
 
@@ -53,6 +55,15 @@ export interface components {
       page: number;
       /** Format: int32 */
       pageSize: number;
+    };
+    UpdateProductRequest: {
+      name?: string;
+      description?: string;
+      /** Format: double */
+      price?: number;
+      category?: string;
+      sku?: string;
+      inStock?: boolean;
     };
   };
   responses: never;
@@ -117,6 +128,55 @@ export interface operations {
     parameters: {
       path: {
         id: string;
+      };
+    };
+    responses: {
+      /** @description The request has succeeded. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Product"];
+        };
+      };
+      /** @description An unexpected error response. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  Products_delete: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description The request has succeeded. */
+      200: {
+        content: {
+          "application/json": {
+            message: string;
+          };
+        };
+      };
+      /** @description An unexpected error response. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  Products_update: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProductRequest"];
       };
     };
     responses: {

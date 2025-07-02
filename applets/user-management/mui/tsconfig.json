@@ -13,7 +13,7 @@
   "exclude": ["dist", "node_modules", "storybook-static", ".storybook"],
   "references": [
     {
-      "path": "../../../packages/design-tokens"
+      "path": "../../../packages/ui-core"
     },
     {
       "path": "../../../packages/applet-query-client"

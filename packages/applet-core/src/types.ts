@@ -17,6 +17,7 @@ export interface PermissionMapping {
 export interface User {
   id: string;
   roles: string[]; // Multiple roles (e.g., ['Customer', 'Manager'])
+  permissions?: string[]; // Flat list of permissions (new approach)
   name: string;
   email?: string; // Optional for display purposes
   avatar?: string; // Optional for display purposes

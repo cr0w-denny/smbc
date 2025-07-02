@@ -18,7 +18,6 @@ export type { ApiConfig } from "./msw-integration";
 // OpenAPI client utilities
 export {
   createFetchClient,
-  createClient,
   createApiClient,
   ApiError,
   handleApiError,

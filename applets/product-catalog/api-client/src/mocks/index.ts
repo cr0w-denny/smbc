@@ -1,5 +1,5 @@
 // Generated mock handlers for Product Catalog API
-// Generated at: 2025-07-02T16:22:45.121Z
+// Generated at: 2025-07-02T20:17:55.446Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
@@ -197,6 +197,51 @@ function getAllProductLists(): any[] {
 }
 
 
+// ============================================================================
+// UpdateProductRequest Schema & Data Management
+// ============================================================================
+
+// Persistent data store for UpdateProductRequest
+let updateproductrequestDataStore: Map<string, any> = new Map();
+let updateproductrequestDataInitialized = false;
+
+// Mock generator for UpdateProductRequest
+function generateUpdateProductRequest(overrides = {}) {
+  return {
+    name: faker.person.fullName(),
+    description: faker.lorem.paragraph(),
+    price: parseFloat(faker.commerce.price()),
+    category: faker.commerce.department(),
+    sku: faker.lorem.word(),
+    inStock: faker.datatype.boolean(),
+    ...overrides
+  };
+}
+
+// Initialize data store with consistent data
+function initializeUpdateProductRequestDataStore() {
+  if (updateproductrequestDataInitialized) return;
+  
+  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const items = Array.from({ length: totalItems }, () => 
+    generateUpdateProductRequest({})
+  );
+  
+  items.forEach((item, index) => {
+    updateproductrequestDataStore.set(String(index), item);
+  });
+  
+  updateproductrequestDataInitialized = true;
+}
+
+// Get all updateproductrequests from the data store
+// @ts-ignore - May not be used by all operations
+function getAllUpdateProductRequests(): any[] {
+  initializeUpdateProductRequestDataStore();
+  return Array.from(updateproductrequestDataStore.values());
+}
+
+
 
 // Export MSW handlers
 export const handlers = [
@@ -296,4 +341,61 @@ export const handlers = [
         }
     
         return HttpResponse.json(item);  }),
+  // patch /products/{id} - PATCH /products/{id}
+  http.patch(`${mockConfig.baseUrl}/products/:id`, async ({ request, params }) => {
+    await delay();
+    
+        // Error simulation based on configuration
+        if (faker.number.float() < mockConfig.errorRate) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'Product not found' },
+            { status: 404 }
+          );
+        }
+    
+        const requestBody = await request.json() as Record<string, any>;
+        const entityId = params.id as string;
+        
+        // Get existing item from store
+        const existingItem = productDataStore.get(entityId);
+        if (!existingItem) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'Product not found' },
+            { status: 404 }
+          );
+        }
+        
+        // Update item in store
+        const updatedProduct = { ...existingItem, ...requestBody, id: entityId };
+        productDataStore.set(entityId, updatedProduct);
+        
+        return HttpResponse.json(updatedProduct);  }),
+  // delete /products/{id} - DELETE /products/{id}
+  http.delete(`${mockConfig.baseUrl}/products/:id`, async ({ params }) => {
+    await delay();
+    
+        // Error simulation based on configuration
+        if (faker.number.float() < mockConfig.errorRate) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'Product not found' },
+            { status: 404 }
+          );
+        }
+    
+        const entityId = params.id as string;
+        
+        // Check if item exists
+        if (!productDataStore.has(entityId)) {
+          return HttpResponse.json(
+            { error: 'Not found', message: 'Product not found' },
+            { status: 404 }
+          );
+        }
+        
+        // Remove from store
+        productDataStore.delete(entityId);
+        
+        return HttpResponse.json({ 
+          message: `Product ${entityId} deleted successfully` 
+        });  }),
 ];
