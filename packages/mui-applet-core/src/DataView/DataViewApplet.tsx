@@ -4,7 +4,7 @@ import {
   type DataViewConfig,
   type UseDataViewOptions,
 } from "@smbc/react-query-dataview";
-import { usePermissions, type PermissionDefinition } from "@smbc/applet-core";
+import { usePermissions, type PermissionDefinition, useHashParams } from "@smbc/applet-core";
 import { MuiDataView } from "./MuiDataView";
 import { ActionBar } from "../ActionBar";
 import {
@@ -40,6 +40,8 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
     error: any,
     item?: any,
   ) => void;
+  /** Enable URL hash parameter synchronization (default: false) */
+  enableUrlSync?: boolean;
   /** Optional initial state from URL or external source */
   initialState?: {
     filters?: Record<string, any>;
@@ -92,11 +94,20 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   permissionContext = "default",
   onSuccess,
   onError,
+  enableUrlSync = false,
   initialState,
   onStateChange,
   options,
 }: MuiDataViewAppletProps<T>) {
   const { hasPermission } = usePermissions();
+
+  // URL sync functionality
+  const urlState = useHashParams(
+    config.filters?.initialValues || {},
+    { page: 0, pageSize: config.pagination?.defaultPageSize || 10 },
+    enableUrlSync
+  );
+  
 
   // Layer 2: - convert PermissionDefinition to boolean
   const canCreate = config.permissions?.create
@@ -112,30 +123,64 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     actions: {}, // Layer 2 will process and filter actions based on permissions
   };
 
-  // Layer 2: State management - either custom (for URL sync) or let useDataView handle it
-  const useCustomState = onStateChange && !initialState;
-  const customFilterState = React.useState(config.filters?.initialValues || {});
-  const customPaginationState = React.useState({
-    page: 0,
-    pageSize: config.pagination?.defaultPageSize || 10,
-  });
+  // Layer 2: State management - URL sync, custom callback, or let useDataView handle it
+  const useCustomState = enableUrlSync || (onStateChange && !initialState);
+  
+  // Stabilize URL state setters to prevent focus loss
+  const setUrlFilters = React.useCallback(
+    (filters: any) => {
+      if (enableUrlSync) {
+        // Use updater function to completely replace filters, not merge
+        urlState.setFilters(() => filters);
+      }
+    },
+    [enableUrlSync, urlState.setFilters]
+  );
+  
+  const setUrlPagination = React.useCallback(
+    (paginationUpdateOrUpdater: any) => {
+      if (enableUrlSync) {
+        if (typeof paginationUpdateOrUpdater === 'function') {
+          // It's an updater function - pass it through
+          urlState.setPagination(paginationUpdateOrUpdater);
+        } else {
+          // It's an object - merge with previous state
+          urlState.setPagination((prev: any) => {
+            const newPagination = { ...prev, ...paginationUpdateOrUpdater };
+            return newPagination;
+          });
+        }
+      }
+    },
+    [enableUrlSync, urlState.setPagination]
+  );
+  
+  const customFilterState = enableUrlSync 
+    ? [urlState.filters, setUrlFilters] as const
+    : React.useState(config.filters?.initialValues || {});
+  const customPaginationState = enableUrlSync
+    ? [urlState.pagination, setUrlPagination] as const
+    : React.useState({
+        page: 0,
+        pageSize: config.pagination?.defaultPageSize || 10,
+      });
 
   // Inject URL state after component initializes (if initial state provided)
   React.useEffect(() => {
-    if (initialState?.filters && customFilterState[1]) {
+    if (initialState?.filters && !enableUrlSync && customFilterState[1]) {
       customFilterState[1](initialState.filters);
     }
-  }, [initialState?.filters]);
+  }, [initialState?.filters, enableUrlSync]);
 
   React.useEffect(() => {
-    if (initialState?.pagination && customPaginationState[1]) {
+    if (initialState?.pagination && !enableUrlSync && customPaginationState[1]) {
       customPaginationState[1](initialState.pagination);
     }
-  }, [initialState?.pagination]);
+  }, [initialState?.pagination, enableUrlSync]);
 
-  // Notify wrapper of state changes
+  // Notify wrapper of state changes (for non-URL sync cases)
   React.useEffect(() => {
-    if (onStateChange && useCustomState) {
+    if (onStateChange && useCustomState && !enableUrlSync) {
       onStateChange({
         filters: customFilterState[0],
         pagination: customPaginationState[0],
@@ -146,15 +191,20 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     customPaginationState[0],
     onStateChange,
     useCustomState,
+    enableUrlSync,
   ]);
 
   // Layer 1: Framework-agnostic data management (API calls, state, mutations)
   const dataView = useDataView(baseConfigWithoutActions, {
-    // Use custom state hooks only when doing URL sync without initial state override
-    useFilterState: useCustomState ? () => customFilterState : undefined,
-    usePaginationState: useCustomState
-      ? () => customPaginationState
-      : undefined,
+    // Use custom state when URL sync enabled or external state management needed
+    filterState: useCustomState ? {
+      filters: customFilterState[0],
+      setFilters: customFilterState[1]
+    } : undefined,
+    paginationState: useCustomState ? {
+      pagination: customPaginationState[0],
+      setPagination: customPaginationState[1]
+    } : undefined,
     transformFilters: config.options?.transformFilters,
     getActiveColumns: config.options?.getActiveColumns,
     onSuccess,

@@ -24,6 +24,8 @@ export interface DataViewApiConfig {
   responseRow?: (response: any) => any[]; // Extract data rows from response, defaults to response
   responseRowCount?: (response: any) => number; // Extract total row count, defaults to response.total or rows.length
   optimisticResponse?: (originalResponse: any, newRows: any[]) => any; // Reconstruct response with updated rows for optimistic updates
+  // Additional query parameters to include in all requests
+  apiParams?: Record<string, any>;
 }
 
 // Table column definition
@@ -104,43 +106,9 @@ export interface FormConfig<T> {
   cancelLabel?: string;
 }
 
-// Filter field configuration for DataView
-export interface DataViewFilterFieldConfig {
-  name: string;
-  label: string;
-  type:
-    | "text"
-    | "search"
-    | "select"
-    | "number"
-    | "boolean"
-    | "checkbox"
-    | "hidden";
-  placeholder?: string;
-  options?: Array<{ label: string; value: any }>;
-  defaultValue?: any;
-  required?: boolean;
-  disabled?: boolean;
-  hidden?: boolean;
-  fullWidth?: boolean;
-  size?: "small" | "medium";
-  debounceMs?: number;
-  /** Exclude this field from the active filter count */
-  excludeFromCount?: boolean;
-}
-
-// Filter specification for DataView
-export interface DataViewFilterSpec {
-  fields: DataViewFilterFieldConfig[];
-  initialValues: Record<string, any>;
-  title?: string;
-  visible?: boolean;
-  collapsible?: boolean;
-  defaultCollapsed?: boolean;
-  showClearButton?: boolean;
-  showFilterCount?: boolean;
-  debounceMs?: number;
-}
+// Filter configuration - whatever the renderer expects
+// The shape is defined by the renderer being used
+export type DataViewFilterSpec = any;
 
 // Component props interfaces
 export interface DataViewTableProps<T> {
@@ -209,11 +177,6 @@ export interface DataView<T> {
   FormComponent: React.ComponentType<DataViewFormProps<T>>;
   CreateButtonComponent: React.ComponentType<DataViewCreateButtonProps>;
   PaginationComponent: React.ComponentType<DataViewPaginationProps>;
-
-  // Transform functions for renderer-specific formats
-  mapColumns?: (columns: DataColumn<T>[]) => any;
-  mapFilters?: (filters: DataViewFilterSpec) => any;
-  mapFormFields?: (fields: DataField[]) => any;
 }
 
 // Main configuration interface

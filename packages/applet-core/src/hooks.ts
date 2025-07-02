@@ -304,11 +304,18 @@ export function useHashParams<
             pagination[cleanKey] = parsedValue;
           }
         } catch {
-          // Fallback to string value
+          // Fallback to string value, but coerce pagination numbers
           if (cleanKey in defaultFilters) {
             filters[cleanKey] = value;
           } else if (cleanKey in defaultPagination) {
-            pagination[cleanKey] = value;
+            // Type coerce pagination values based on default type
+            const defaultValue = (defaultPagination as any)[cleanKey];
+            if (typeof defaultValue === 'number') {
+              const numValue = parseInt(value, 10);
+              pagination[cleanKey] = isNaN(numValue) ? defaultValue : numValue;
+            } else {
+              pagination[cleanKey] = value;
+            }
           }
         }
       }

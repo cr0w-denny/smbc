@@ -114,16 +114,7 @@ function MuiDataTable<T extends Record<string, any>>({
           </TableRow>
         </TableHead>
         <TableBody>
-          {(() => {
-            console.log('MuiDataView: Table component rendering', {
-              dataCount: data.length,
-              hasActiveTransaction: transactionState?.hasActiveTransaction,
-              pendingStatesSize: transactionState?.pendingStates.size,
-              pendingStatesKeys: transactionState?.pendingStates ? Array.from(transactionState.pendingStates.keys()) : [],
-              dataItemIds: data.map((item: any) => item[primaryKey])
-            });
-            return data;
-          })().map((item, index) => {
+          {data.map((item, index) => {
             // Get pending state from transaction state (if any)
             const entityId = item[primaryKey] as string | number;
             const pendingStateInfo = transactionState?.hasActiveTransaction
@@ -131,21 +122,6 @@ function MuiDataTable<T extends Record<string, any>>({
               : null;
             const pendingState = pendingStateInfo?.state;
             
-            console.log('MuiDataView: Rendering table row', {
-              entityId,
-              pendingState,
-              hasPendingStateInfo: !!pendingStateInfo
-            });
-            
-            // Debug logging for pending state accumulation
-            if (transactionState?.hasActiveTransaction && pendingStateInfo) {
-              console.log('MuiDataView: Table rendering item with pending state', {
-                entityId,
-                pendingState,
-                operationId: pendingStateInfo.operationId,
-                data: pendingStateInfo.data
-              });
-            }
             
             // Create merged item with pending data (for edited items)
             const displayItem = pendingState === "edited" && pendingStateInfo?.data
@@ -460,10 +436,13 @@ function MuiDataPagination({
       page={page}
       rowsPerPage={pageSize}
       rowsPerPageOptions={pageSizeOptions}
-      onPageChange={(_, newPage) => onPageChange(newPage)}
-      onRowsPerPageChange={(e) =>
-        onPageSizeChange(parseInt(e.target.value, 10))
-      }
+      onPageChange={(_, newPage) => {
+        onPageChange(newPage);
+      }}
+      onRowsPerPageChange={(e) => {
+        const newPageSize = parseInt(e.target.value, 10);
+        onPageSizeChange(newPageSize);
+      }}
     />
   );
 }
@@ -481,29 +460,6 @@ function MuiCreateButton({
   );
 }
 
-// Map columns to MUI table format
-function mapColumnsForMui(columns: any[]) {
-  return columns.map((column) => ({
-    ...column,
-    // MUI-specific column properties could be added here
-  }));
-}
-
-// Map filters to MUI filter format
-function mapFiltersForMui(filters: any) {
-  return {
-    ...filters,
-    // MUI-specific filter properties could be added here
-  };
-}
-
-// Map form fields to MUI form field format
-function mapFormFieldsForMui(fields: any[]) {
-  return fields.map((field) => ({
-    ...field,
-    // MUI-specific field properties could be added here
-  }));
-}
 
 // Export the complete MUI renderer
 export const MuiDataView: DataView<any> = {
@@ -513,7 +469,4 @@ export const MuiDataView: DataView<any> = {
   FormComponent: MuiDataForm,
   CreateButtonComponent: MuiCreateButton,
   PaginationComponent: MuiDataPagination,
-  mapColumns: mapColumnsForMui,
-  mapFilters: mapFiltersForMui,
-  mapFormFields: mapFormFieldsForMui,
 };

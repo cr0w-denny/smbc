@@ -9,15 +9,8 @@ import type {
   OperationTrigger,
 } from "./transaction/types";
 import { TransactionRegistry } from "./transaction/TransactionRegistry";
-import { useHashParams } from "@smbc/applet-core";
 
 export interface UseDataViewOptions {
-  /** Custom hook for managing filter state (e.g., URL-synced filters) */
-  useFilterState?: (defaultFilters: any) => [any, (filters: any) => void];
-  /** Custom hook for managing pagination state (e.g., URL-synced pagination) */
-  usePaginationState?: (
-    defaultPagination: any,
-  ) => [any, (pagination: any) => void];
   /** Transform filter values for query keys and API requests */
   transformFilters?: (filters: any) => any;
   /** Function to determine which columns to show based on current filters */
@@ -31,10 +24,22 @@ export interface UseDataViewOptions {
   ) => void;
   /** Transaction configuration for batch operations */
   transaction?: TransactionConfig;
-  /** Enable URL hash synchronization for filters and pagination (default: true) */
-  hashParams?: boolean;
-  /** Namespace for hash params to avoid conflicts when multiple applets on same page */
-  hashNamespace?: string;
+  /** 
+   * External filter state (e.g., from useHashParams or other state management)
+   * If provided, useDataView will use this instead of internal state
+   */
+  filterState?: {
+    filters: any;
+    setFilters: (updates: any) => void;
+  };
+  /** 
+   * External pagination state (e.g., from useHashParams or other state management)
+   * If provided, useDataView will use this instead of internal state
+   */
+  paginationState?: {
+    pagination: any;
+    setPagination: (updates: any) => void;
+  };
 }
 
 export function useDataView<T extends Record<string, any>>(
@@ -120,27 +125,15 @@ export function useDataView<T extends Record<string, any>>(
     pageSize: paginationConfig.defaultPageSize || 10,
   };
 
-  // Use hash params by default unless disabled or custom hooks provided
-  const hashParamsEnabled =
-    options.hashParams !== false &&
-    !options.useFilterState &&
-    !options.usePaginationState;
+  // State management: use external state if provided, otherwise fall back to local state
+  const [localFilters, setLocalFilters] = useState(defaultFilters);
+  const [localPagination, setLocalPagination] = useState(defaultPagination);
 
-  const hashState = useHashParams(
-    defaultFilters,
-    defaultPagination,
-    hashParamsEnabled,
-    options.hashNamespace,
-  );
-
-  // Choose between hash params, custom hooks, or local state
-  const [filters, setFilters] = hashParamsEnabled
-    ? [hashState.filters, hashState.setFilters]
-    : (options.useFilterState || useState)(defaultFilters);
-
-  const [pagination, setPaginationState] = hashParamsEnabled
-    ? [hashState.pagination, hashState.setPagination]
-    : (options.usePaginationState || useState)(defaultPagination);
+  // Use external state if provided, otherwise use local state
+  const filters = options.filterState?.filters ?? localFilters;
+  const setFilters = options.filterState?.setFilters ?? setLocalFilters;
+  const pagination = options.paginationState?.pagination ?? localPagination;
+  const setPaginationState = options.paginationState?.setPagination ?? setLocalPagination;
 
   // Selection state (optional)
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -467,7 +460,7 @@ export function useDataView<T extends Record<string, any>>(
         page: pagination.page + 1,
         pageSize: pagination.pageSize,
         ...transformedFilters,
-        ...(config.options?.apiParams || {}),
+        ...(api.apiParams || {}),
       },
     },
   };
@@ -523,7 +516,8 @@ export function useDataView<T extends Record<string, any>>(
       }
       return response.data;
     },
-    enabled: !hasActiveTransaction, // Disable query during transactions
+    // Keep queries enabled during transactions to allow pagination
+    enabled: true,
   });
   
   // Preserve data when query becomes available
@@ -539,29 +533,15 @@ export function useDataView<T extends Record<string, any>>(
 
   // During transactions, use preserved data instead of empty cache
   const effectiveData = React.useMemo(() => {
-    if (hasActiveTransaction) {
-      // Try cache first, then fall back to last known data
-      const cachedData = queryClient.getQueryData(currentQueryKey);
-      const fallbackData = lastKnownDataRef.current;
-      const dataToUse = cachedData || fallbackData;
-      
-      console.log('UseDataView: Using data during transaction', {
-        hasCachedData: !!cachedData,
-        hasLastKnownData: !!fallbackData,
-        usingCached: !!cachedData,
-        usingFallback: !cachedData && !!fallbackData,
-        finalRowCount: dataToUse ? responseRow(dataToUse).length : 0,
-        currentQueryKey,
-        hasActiveTransaction
-      });
-      return dataToUse;
-    }
-    console.log('UseDataView: Using query data (no transaction)', {
+    // Always use fresh query data to allow pagination during transactions
+    // Transaction state is preserved separately in pendingStatesRef
+    console.log('UseDataView: Using fresh query data', {
       hasQueryData: !!queryData,
-      queryRowCount: queryData ? responseRow(queryData).length : 0
+      queryRowCount: queryData ? responseRow(queryData).length : 0,
+      hasActiveTransaction
     });
     return queryData;
-  }, [hasActiveTransaction, queryClient, currentQueryKey, queryData]);
+  }, [queryData, hasActiveTransaction]);
 
   // Return clean data and transaction state separately - let UI components handle merging
   const rawData = responseRow(effectiveData);
@@ -1184,9 +1164,7 @@ export function useDataView<T extends Record<string, any>>(
     return () =>
       React.createElement(Component, {
         data,
-        columns: renderer.mapColumns
-          ? renderer.mapColumns(activeColumns)
-          : activeColumns,
+        columns: activeColumns,
         actions: rowActions,
         isLoading,
         error,
@@ -1213,9 +1191,7 @@ export function useDataView<T extends Record<string, any>>(
 
     return () =>
       React.createElement(renderer.FilterComponent, {
-        spec: renderer.mapFilters
-          ? renderer.mapFilters(filterSpec)
-          : filterSpec,
+        spec: filterSpec,
         values: filters,
         onFiltersChange: setFilters,
         ...rendererOptions,
@@ -1231,9 +1207,7 @@ export function useDataView<T extends Record<string, any>>(
     return () =>
       React.createElement(renderer.FormComponent, {
         mode: "create",
-        fields: renderer.mapFormFields
-          ? renderer.mapFormFields(createForm.fields)
-          : createForm.fields,
+        fields: createForm.fields,
         onSubmit: handleCreateSubmit,
         onCancel: () => setCreateDialogOpen(false),
         isSubmitting: createMutation.isPending,
@@ -1258,9 +1232,7 @@ export function useDataView<T extends Record<string, any>>(
     return ({ item }: { item: T }) =>
       React.createElement(renderer.FormComponent, {
         mode: "edit",
-        fields: renderer.mapFormFields
-          ? renderer.mapFormFields(editForm.fields)
-          : editForm.fields,
+        fields: editForm.fields,
         initialValues: item,
         onSubmit: handleEditSubmit,
         onCancel: () => {
@@ -1285,12 +1257,17 @@ export function useDataView<T extends Record<string, any>>(
 
     return () =>
       React.createElement(renderer.PaginationComponent, {
-        page: pagination.page,
-        pageSize: pagination.pageSize,
+        page: pagination.page ?? 0,
+        pageSize: pagination.pageSize ?? (paginationConfig.defaultPageSize || 10),
         total,
-        onPageChange: (page: number) => setPagination({ page }),
-        onPageSizeChange: (pageSize: number) =>
-          setPagination({ pageSize, page: 0 }),
+        onPageChange: (page: number) => {
+          console.log('useDataView: setPagination called for page change', { page, currentPagination: pagination });
+          setPagination({ page });
+        },
+        onPageSizeChange: (pageSize: number) => {
+          console.log('useDataView: setPagination called for page size change', { pageSize, currentPagination: pagination });
+          setPagination({ pageSize, page: 0 });
+        },
         pageSizeOptions: paginationConfig.pageSizeOptions,
         ...rendererOptions,
       });

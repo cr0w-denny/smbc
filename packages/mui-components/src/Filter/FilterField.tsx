@@ -71,17 +71,20 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         <FormControl {...commonProps} sx={{ minWidth: 120 }}>
           <InputLabel shrink={true}>{field.label}</InputLabel>
           <Select
-            value={value || ""}
-            onChange={(e) => handleChange(e.target.value)}
+            value={value === undefined ? "" : value}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              // If selecting an empty option, pass undefined for "select all"
+              handleChange(newValue === "" ? undefined : newValue);
+            }}
             label={field.label}
             displayEmpty
             notched
             renderValue={(selected) => {
-              if (selected === "") {
-                const emptyOption = field.options?.find(
-                  (opt) => opt.value === "",
-                );
-                return emptyOption?.label || "None";
+              // Handle undefined/null as the first option (usually "All")
+              if (selected === "" || selected === undefined || selected === null) {
+                const firstOption = field.options?.[0];
+                return firstOption?.label || "All";
               }
               const option = field.options?.find(
                 (opt) => opt.value === selected,
