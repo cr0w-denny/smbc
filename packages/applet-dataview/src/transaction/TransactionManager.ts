@@ -109,14 +109,6 @@ export class SimpleTransactionManager<T = any>
 
     TransactionRegistry.notifyListeners();
 
-    // Check max operations limit for auto-commit
-    if (
-      this.currentTransaction!.config.maxPendingOperations &&
-      this.getOperations().length >= this.currentTransaction!.config.maxPendingOperations
-    ) {
-      // Auto-commit when max operations reached (bypass confirmation for auto-commits)
-      setTimeout(() => this.commit(true), 10);
-    }
 
     return id;
   }
