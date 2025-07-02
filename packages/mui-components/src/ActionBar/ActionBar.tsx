@@ -20,6 +20,18 @@ export interface ActionBarProps<T> {
   totalItems: number;
   /** Callback when selection is cleared */
   onClearSelection: () => void;
+  /** Transaction state for bulk action visibility calculations */
+  transactionState?: {
+    hasActiveTransaction: boolean;
+    pendingStates: Map<string | number, {
+      state: "added" | "edited" | "deleted";
+      operationId: string;
+      data?: Partial<T>;
+    }>;
+    pendingStatesVersion: number;
+  };
+  /** Primary key field name for transaction state lookups */
+  primaryKey?: keyof T;
 }
 
 /**
@@ -34,21 +46,46 @@ export function ActionBar<T>({
   selectedItems,
   totalItems,
   onClearSelection,
+  transactionState,
+  primaryKey = 'id' as keyof T,
 }: ActionBarProps<T>) {
   const theme = useTheme();
   const hasSelection = selectedItems.length > 0;
 
+  // Helper function to get effective item state for visibility calculations
+  const getEffectiveItem = (item: T) => {
+    if (!transactionState?.hasActiveTransaction || !transactionState.pendingStates.size) {
+      return item;
+    }
+    
+    const entityId = item[primaryKey] as string | number;
+    const pendingState = transactionState.pendingStates.get(entityId);
+    
+    if (pendingState?.state === "edited" && pendingState.data) {
+      // Merge pending changes for visibility calculations only
+      return { ...item, ...pendingState.data };
+    } else if (pendingState?.state === "deleted") {
+      // Mark item as having pending delete state
+      return { ...item, __pendingDelete: true } as T;
+    }
+    
+    return item;
+  };
+
   // Filter bulk actions based on selection and applicability
   const availableBulkActions = bulkActions.filter((action) => {
-    if (action.hidden?.(selectedItems)) return false;
+    // Get effective items that include pending transaction state for visibility calculations
+    const effectiveItems = selectedItems.map(getEffectiveItem);
+
+    if (action.hidden?.(effectiveItems)) return false;
 
     if (action.appliesTo) {
       if (action.requiresAllRows) {
-        // Only show if action applies to ALL selected items
-        return selectedItems.every((item) => action.appliesTo!(item));
+        // Only show if action applies to ALL selected items (using effective state)
+        return effectiveItems.every((item) => action.appliesTo!(item));
       } else {
-        // Show if action applies to ANY selected items
-        return selectedItems.some((item) => action.appliesTo!(item));
+        // Show if action applies to ANY selected items (using effective state)
+        return effectiveItems.some((item) => action.appliesTo!(item));
       }
     }
 
@@ -100,9 +137,9 @@ export function ActionBar<T>({
                   size="small"
                   color={action.color}
                   startIcon={action.icon ? <action.icon /> : undefined}
-                  onClick={async () => {
+                  onClick={() => {
                     try {
-                      await action.onClick?.(selectedItems);
+                      action.onClick?.(selectedItems);
                       // Don't automatically clear selections - let users manage their selections
                     } catch (error) {
                       console.error("Bulk action failed:", error);

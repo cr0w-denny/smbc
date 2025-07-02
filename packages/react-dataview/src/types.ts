@@ -164,6 +164,7 @@ export interface DataViewTableProps<T> {
     }>;
     pendingStatesVersion: number;
   };
+  primaryKey?: keyof T;
 }
 
 export interface DataViewFilterProps {
@@ -334,6 +335,7 @@ export interface DataViewResult<T> {
     trigger?: OperationTrigger,
     changedFields?: string[],
   ) => any;
+  getPendingData: (entityId: string | number) => any;
 
   // Transaction state (separate from data)
   transactionState: {

@@ -256,8 +256,15 @@ export function useDataView<T extends Record<string, any>>(
         console.log('🔄 Transaction completing - before clear:', {
           pendingStatesCount: pendingStatesRef.current.size,
           pendingStates: Array.from(pendingStatesRef.current.entries()),
-          results: results.map(r => ({ success: r.success, operationType: r.operation?.type, entityId: r.operation?.entityId }))
+          results: results.map(r => ({ 
+            success: r.success, 
+            operationType: r.operation?.type, 
+            entityId: r.operation?.entityId,
+            error: r.error 
+          }))
         });
+        
+        console.log('🔄 Transaction results details:', results);
         
         // Clear pending states Map
         updatePendingStates((map) => {
@@ -293,10 +300,12 @@ export function useDataView<T extends Record<string, any>>(
         }
 
         // Invalidate queries to get fresh data from server
+        console.log('🔄 About to invalidate queries for endpoint:', api.endpoint);
         queryClient.invalidateQueries({
           queryKey: ["get", api.endpoint],
           exact: false,
         });
+        console.log('🔄 Queries invalidated');
 
         // Clear selections since the transaction is complete
         clearSelection();
@@ -696,6 +705,25 @@ export function useDataView<T extends Record<string, any>>(
     isPending: false,
   };
 
+  // Helper function to get accumulated pending data for an entity
+  const getPendingData = useCallback((entityId: string | number) => {
+    if (!transactionManager || !transactionManager.hasOperations()) {
+      return null;
+    }
+    
+    const pendingState = pendingStatesRef.current.get(entityId);
+    console.log('🔍 getPendingData called:', {
+      entityId,
+      pendingState: pendingState ? {
+        state: pendingState.state,
+        operationId: pendingState.operationId,
+        data: pendingState.data
+      } : null
+    });
+    
+    return pendingState?.data || null;
+  }, [transactionManager]);
+
   // Helper function to add operations to transaction
   const addTransactionOperation = useCallback(
     async (
@@ -752,10 +780,23 @@ export function useDataView<T extends Record<string, any>>(
               data: entity,
             });
           } else {
+            // For updates, merge with existing pending data to accumulate changes
+            let mergedData = entity;
+            if (type === "update" && existingState?.state === "edited" && existingState.data) {
+              // Merge the new changes with existing pending changes
+              mergedData = { ...existingState.data, ...entity };
+              console.log('🔄 Accumulating changes for entity:', {
+                entityId,
+                existingData: existingState.data,
+                newData: entity,
+                mergedData
+              });
+            }
+            
             map.set(entityId, {
               state: type === "update" ? "edited" : "deleted",
               operationId,
-              data: type === "update" ? entity : undefined,
+              data: type === "update" ? mergedData : undefined,
             });
           }
         }
@@ -1187,5 +1228,6 @@ export function useDataView<T extends Record<string, any>>(
     // Transaction system
     transaction: transactionManager,
     addTransactionOperation,
+    getPendingData,
   };
 }

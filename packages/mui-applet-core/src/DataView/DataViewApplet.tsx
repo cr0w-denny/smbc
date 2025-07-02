@@ -194,6 +194,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
               createMutation: dataView.createMutation,
               transaction: dataView.transaction,
               addTransactionOperation: dataView.addTransactionOperation,
+              getPendingData: (dataView as any).getPendingData,
             });
           } catch (error) {
             // Fallback to original call
@@ -253,6 +254,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         },
         // Pass transaction state separately for UI components to handle merging
         transactionState: dataView.transactionState,
+        primaryKey: config.schema.primaryKey,
       });
   }, [
     dataView.data,
@@ -278,6 +280,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         selectedItems={dataView.selection.selectedItems}
         totalItems={dataView.data.length}
         onClearSelection={() => dataView.selection.setSelectedIds([])}
+        transactionState={dataView.transactionState}
+        primaryKey={config.schema.primaryKey}
       />
 
       {/* Layer 3: MUI table rendering with Layer 2 processed row actions */}

@@ -349,5 +349,6 @@ export function useDataView<T extends Record<string, any>>(
     // Transaction system (not implemented in applet-core)
     transaction: null,
     addTransactionOperation: () => {},
+    getPendingData: () => null,
   };
 }

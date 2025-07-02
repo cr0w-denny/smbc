@@ -47,6 +47,7 @@ function MuiDataTable<T extends Record<string, any>>({
   onRowClick,
   selection,
   transactionState,
+  primaryKey = 'id' as keyof T,
 }: DataViewTableProps<T>) {
   if (error) {
     return <Alert severity="error">{error.message}</Alert>;
@@ -69,7 +70,7 @@ function MuiDataTable<T extends Record<string, any>>({
               <TableCell padding="checkbox">
                 <Checkbox
                   indeterminate={(() => {
-                    const currentPageIds = data.map((item) => item.id);
+                    const currentPageIds = data.map((item) => item[primaryKey] as string | number);
                     const selectedOnPage = currentPageIds.filter((id) =>
                       selection.selectedIds.includes(id),
                     ).length;
@@ -77,13 +78,13 @@ function MuiDataTable<T extends Record<string, any>>({
                   })()}
                   checked={(() => {
                     if (data.length === 0) return false;
-                    const currentPageIds = data.map((item) => item.id);
+                    const currentPageIds = data.map((item) => item[primaryKey] as string | number);
                     return currentPageIds.every((id) =>
                       selection.selectedIds.includes(id),
                     );
                   })()}
                   onChange={(event) => {
-                    const currentPageIds = data.map((item) => item.id);
+                    const currentPageIds = data.map((item) => item[primaryKey] as string | number);
                     if (event.target.checked) {
                       // Add current page IDs to existing selection
                       const newSelection = [
@@ -115,10 +116,21 @@ function MuiDataTable<T extends Record<string, any>>({
         <TableBody>
           {data.map((item, index) => {
             // Get pending state from transaction state (if any)
+            const entityId = item[primaryKey] as string | number;
             const pendingStateInfo = transactionState?.hasActiveTransaction
-              ? transactionState.pendingStates.get(item.id)
+              ? transactionState.pendingStates.get(entityId)
               : null;
             const pendingState = pendingStateInfo?.state;
+            
+            // Debug logging for pending state accumulation
+            if (transactionState?.hasActiveTransaction && pendingStateInfo) {
+              console.log('🎯 Table rendering item with pending state:', {
+                entityId,
+                pendingState,
+                operationId: pendingStateInfo.operationId,
+                data: pendingStateInfo.data
+              });
+            }
             
             // Create merged item with pending data (for edited items)
             const displayItem = pendingState === "edited" && pendingStateInfo?.data
@@ -152,7 +164,7 @@ function MuiDataTable<T extends Record<string, any>>({
 
             return (
               <TableRow
-                key={item.id || index}
+                key={entityId || index}
                 onClick={onRowClick ? () => onRowClick(item) : undefined}
                 sx={{
                   cursor: onRowClick ? "pointer" : "default",
@@ -162,17 +174,17 @@ function MuiDataTable<T extends Record<string, any>>({
                 {selection?.enabled && (
                   <TableCell padding="checkbox">
                     <Checkbox
-                      checked={selection.selectedIds.includes(item.id)}
+                      checked={selection.selectedIds.includes(entityId)}
                       onChange={(event) => {
                         if (event.target.checked) {
                           selection.onSelectionChange([
                             ...selection.selectedIds,
-                            item.id,
+                            entityId,
                           ]);
                         } else {
                           selection.onSelectionChange(
                             selection.selectedIds.filter(
-                              (id) => id !== item.id,
+                              (id) => id !== entityId,
                             ),
                           );
                         }

@@ -9,6 +9,7 @@ interface ActionContext {
     trigger?: "user-edit" | "bulk-action" | "row-action",
     changedFields?: string[]
   ) => string;
+  getPendingData?: (entityId: string | number) => any;
 }
 
 /**
@@ -68,11 +69,37 @@ export function createBulkUpdateAction<T extends { id: string | number }>(
     onClick: async (items: T[], context?: ActionContext) => {
       if (context?.addTransactionOperation) {
         for (const item of items) {
-          const updatedItem = { ...item, ...updateData };
+          // Create a minimal entity with just the ID and the fields being updated
+          const partialUpdate = {
+            id: item.id,
+            ...updateData
+          } as T;
+          
           context.addTransactionOperation(
             "update",
-            updatedItem,
-            () => updateAPI(item.id, updateData),
+            partialUpdate,
+            () => {
+              console.log('🔨 Helper function mutation executing:', {
+                itemId: item.id,
+                updateData,
+                partialUpdate
+              });
+              
+              // Get the accumulated pending data at execution time
+              const accumulatedData = context?.getPendingData?.(item.id);
+              const dataToApply = accumulatedData || updateData;
+              
+              console.log('🔨 Applying accumulated data:', {
+                itemId: item.id,
+                originalUpdateData: updateData,
+                accumulatedData,
+                dataToApply
+              });
+              
+              const result = updateAPI(item.id, dataToApply);
+              console.log('🔨 Helper function mutation result:', result);
+              return result;
+            },
             "bulk-action",
             Object.keys(updateData)
           );
