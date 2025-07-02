@@ -173,8 +173,22 @@ export function ActivityNotifications({
     handleClose();
   };
 
-  const handleCommitClick = () => {
-    setCommitDialogOpen(true);
+  const handleCommitClick = async () => {
+    // Check if any transaction manager requires confirmation
+    const managers = TransactionRegistry.getAllManagers();
+    const requiresConfirmation = managers.some(manager => {
+      const transaction = manager.getTransaction();
+      return transaction?.config.requireConfirmation === true;
+    });
+
+    if (requiresConfirmation) {
+      // Show confirmation dialog
+      setCommitDialogOpen(true);
+    } else {
+      // Commit directly without confirmation
+      await TransactionRegistry.commitAll();
+      handleClose();
+    }
   };
 
   const handleCommitConfirm = async () => {

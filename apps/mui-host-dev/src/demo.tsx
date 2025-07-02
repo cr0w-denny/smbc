@@ -798,7 +798,7 @@ const TasksDemo = () => {
         // =============================================================================
         transaction: {
           enabled: true, // Enable batch transaction support
-          requireConfirmation: true, // Show confirmation dialog before commit
+          requireConfirmation: false, // Show confirmation dialog before commit
           emitActivities: true, // Emit activities when transactions are committed
         },
 

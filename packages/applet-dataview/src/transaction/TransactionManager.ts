@@ -114,8 +114,8 @@ export class SimpleTransactionManager<T = any>
       this.currentTransaction!.config.maxPendingOperations &&
       this.getOperations().length >= this.currentTransaction!.config.maxPendingOperations
     ) {
-      // Auto-commit when max operations reached
-      setTimeout(() => this.commit(), 10);
+      // Auto-commit when max operations reached (bypass confirmation for auto-commits)
+      setTimeout(() => this.commit(true), 10);
     }
 
     return id;
@@ -161,8 +161,8 @@ export class SimpleTransactionManager<T = any>
 
     // Check if confirmation is required and not forced
     if (transaction.config.requireConfirmation && !force) {
-      // This would typically trigger a confirmation dialog
-      // For now, we'll assume confirmation is handled externally
+      // Confirmation required but not forced - set status to reviewing
+      // and return empty array to indicate confirmation is needed
       transaction.status = "reviewing";
       return [];
     }
