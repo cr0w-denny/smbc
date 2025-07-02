@@ -190,16 +190,16 @@ export function ActivityNotifications({
       // Show confirmation dialog
       setCommitDialogOpen(true);
     } else {
-      // Commit directly without confirmation
-      await TransactionRegistry.commitAll();
+      // Close popover immediately and commit directly without confirmation
       handleClose();
+      await TransactionRegistry.commitAll();
     }
   };
 
   const handleCommitConfirm = async () => {
     setCommitDialogOpen(false);
+    handleClose(); // Close the popover immediately
     await TransactionRegistry.commitAll();
-    handleClose(); // Close the popover after committing
   };
 
   const handleCommitCancel = () => {
@@ -347,6 +347,14 @@ export function ActivityNotifications({
                 <Box sx={{ display: "flex", gap: 0.5 }}>
                   <IconButton
                     size="small"
+                    onClick={handleCommitClick}
+                    color="primary"
+                    title="Commit all changes"
+                  >
+                    <CommitIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
                     onClick={() => {
                       TransactionRegistry.cancelAll();
                       handleClose();
@@ -355,14 +363,6 @@ export function ActivityNotifications({
                     title="Cancel all changes"
                   >
                     <CancelIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={handleCommitClick}
-                    color="primary"
-                    title="Commit all changes"
-                  >
-                    <CommitIcon />
                   </IconButton>
                 </Box>
               )}

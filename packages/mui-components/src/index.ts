@@ -5,6 +5,10 @@ export type { LoadingTableProps } from "./LoadingTable";
 export { ConfirmationDialog } from "./ConfirmationDialog";
 export type { ConfirmationDialogProps } from "./ConfirmationDialog";
 
+// Keep TransactionProgressOverlay component for future advanced progress features
+// export { TransactionProgressOverlay } from "./TransactionProgressOverlay";
+// export type { TransactionProgressOverlayProps } from "./TransactionProgressOverlay";
+
 export { SearchInput } from "./SearchInput";
 export type { SearchInputProps } from "./SearchInput";
 

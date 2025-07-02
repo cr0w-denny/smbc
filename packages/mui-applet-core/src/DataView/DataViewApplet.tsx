@@ -162,6 +162,40 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     ...options,
   });
 
+  // Track if transaction is executing to show loading state
+  const [isTransactionExecuting, setIsTransactionExecuting] = React.useState(false);
+
+  // Listen for transaction execution to show table loading state
+  React.useEffect(() => {
+    if (!dataView.transaction) return;
+
+    // Poll transaction status to detect execution
+    const checkTransactionStatus = () => {
+      const transaction = dataView.transaction?.getTransaction();
+      const isExecuting = transaction?.status === "executing";
+      setIsTransactionExecuting(isExecuting || false);
+    };
+
+    // Check status every 100ms
+    const interval = setInterval(checkTransactionStatus, 100);
+
+    const handleExecutionEnd = () => {
+      setIsTransactionExecuting(false);
+    };
+
+    // Listen to completion events
+    dataView.transaction.on("onTransactionComplete", handleExecutionEnd);
+    dataView.transaction.on("onTransactionError", handleExecutionEnd);
+    dataView.transaction.on("onTransactionCancelled", handleExecutionEnd);
+
+    return () => {
+      clearInterval(interval);
+      dataView.transaction?.off("onTransactionComplete", handleExecutionEnd);
+      dataView.transaction?.off("onTransactionError", handleExecutionEnd);
+      dataView.transaction?.off("onTransactionCancelled", handleExecutionEnd);
+    };
+  }, [dataView.transaction]);
+
   // Layer 2: process row actions with permission filtering and connect to Layer 1 handlers
   const processedRowActions =
     config.actions?.row?.map((action) => ({
@@ -245,7 +279,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         data: dataView.data,
         columns: activeColumns,
         actions: processedRowActions,
-        isLoading: dataView.isLoading,
+        isLoading: dataView.isLoading || isTransactionExecuting,
         error: dataView.error,
         selection: {
           enabled: true,
@@ -266,6 +300,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     dataView.error,
     dataView.selection,
     dataView.transactionState,
+    isTransactionExecuting,
   ]);
 
   return (
