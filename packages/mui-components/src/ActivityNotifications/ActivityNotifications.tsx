@@ -149,19 +149,24 @@ export function ActivityNotifications({
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    // Mark all activities as viewed when opened
-    activities.forEach((activity: ActivityItem) => markAsViewed(activity.id));
 
     // Auto-focus tab with items: pending changes first, then recent activity
     if (pendingCount > 0) {
       setActiveTab(1); // Pending changes tab
     } else if (unviewedCount > 0 || activities.length > 0) {
       setActiveTab(0); // Recent activity tab
+      // Only mark activities as viewed if we're showing the recent activity tab
+      activities.forEach((activity: ActivityItem) => markAsViewed(activity.id));
     }
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
+    
+    // Mark activities as viewed when user switches to Recent Activity tab
+    if (newValue === 0) {
+      activities.forEach((activity: ActivityItem) => markAsViewed(activity.id));
+    }
   };
 
   const handleClose = () => {
