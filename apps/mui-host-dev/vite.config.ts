@@ -104,7 +104,7 @@ export default defineConfig(({ mode }) => {
               id.includes("@smbc/applet-core") ||
               id.includes("@smbc/mui-applet-core") ||
               id.includes("@smbc/mui-applet-host") ||
-              id.includes("@smbc/shared-query-client") ||
+              id.includes("@smbc/applet-query-client") ||
               id.includes("@smbc/mui-components") ||
               id.includes("@smbc/user-management-mui") ||
               id.includes("@smbc/product-catalog-mui")

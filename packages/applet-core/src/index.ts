@@ -57,5 +57,3 @@ export {
   useUrlFilters,
 } from "./filters/useAutoFilterWithUrl";
 
-// DataView utilities
-export * from "./dataview";

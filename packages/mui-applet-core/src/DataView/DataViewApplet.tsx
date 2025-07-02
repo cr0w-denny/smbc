@@ -3,7 +3,7 @@ import {
   useDataView,
   type DataViewConfig,
   type UseDataViewOptions,
-} from "@smbc/react-dataview";
+} from "@smbc/applet-dataview";
 import { usePermissions, type PermissionDefinition } from "@smbc/applet-core";
 import { MuiDataView, ActionBar } from "@smbc/mui-components";
 import {

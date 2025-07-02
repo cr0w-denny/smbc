@@ -29,7 +29,7 @@ export default defineConfig({
         "@smbc/mui-components",
         "@smbc/mui-applet-core",
         "@smbc/react-dataview",
-        "@smbc/shared-query-client",
+        "@smbc/applet-query-client",
         "@smbc/user-management-api",
         "@smbc/user-management-client",
       ]),

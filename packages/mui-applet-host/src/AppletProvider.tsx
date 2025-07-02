@@ -9,7 +9,7 @@ import {
   FeatureFlagProvider,
   useFeatureFlag,
 } from "@smbc/applet-core";
-import { SMBCQueryProvider } from "@smbc/shared-query-client";
+import { AppletQueryProvider } from "@smbc/applet-query-client";
 import { lightTheme, darkTheme } from "@smbc/mui-components";
 import { AppletProviderProps } from "./types";
 
@@ -90,9 +90,9 @@ function AppletProviderWithTheme({
     <ThemeProvider theme={currentTheme}>
       <CssBaseline />
       <AppProvider initialRoleConfig={roleConfig} initialUser={user}>
-        <SMBCQueryProvider enableMocks={mockEnabled}>
+        <AppletQueryProvider enableMocks={mockEnabled}>
           {children}
-        </SMBCQueryProvider>
+        </AppletQueryProvider>
       </AppProvider>
     </ThemeProvider>
   );

@@ -1,5 +1,5 @@
 /**
- * MSW integration for the shared query provider.
+ * MSW integration for the applet query provider.
  * This module provides MSW setup that can be dynamically imported to avoid bundling MSW in production.
  */
 
@@ -39,10 +39,10 @@ export function getRegisteredHandlers(): any[] {
 }
 
 /**
- * Sets up MSW for the shared provider with optional API configuration.
+ * Sets up MSW for the applet provider with optional API configuration.
  * This function is designed to be dynamically imported to avoid bundling MSW in production.
  */
-export async function setupMswForSharedProvider(
+export async function setupMswForAppletProvider(
   apiConfig?: ApiConfig,
 ): Promise<void> {
   // Check if we're in a browser environment
@@ -87,7 +87,7 @@ export async function setupMswForSharedProvider(
 /**
  * Stops the MSW worker if it's running.
  */
-export async function stopMswForSharedProvider(): Promise<void> {
+export async function stopMswForAppletProvider(): Promise<void> {
   if (globalMswWorker) {
     try {
       await globalMswWorker.stop();
@@ -102,14 +102,14 @@ export async function stopMswForSharedProvider(): Promise<void> {
  * Resets the MSW worker with new handlers (useful for testing or dynamic handler updates).
  */
 export async function resetMswWorker(): Promise<void> {
-  await stopMswForSharedProvider();
-  await setupMswForSharedProvider();
+  await stopMswForAppletProvider();
+  await setupMswForAppletProvider();
 }
 /**
- * Stops the MSW worker (alias for stopMswForSharedProvider for convenience).
+ * Stops the MSW worker (alias for stopMswForAppletProvider for convenience).
  */
 export async function stopMswWorker(): Promise<void> {
-  return stopMswForSharedProvider();
+  return stopMswForAppletProvider();
 }
 
 /**

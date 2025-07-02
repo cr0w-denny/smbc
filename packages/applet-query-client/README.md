@@ -1,4 +1,4 @@
-# @smbc/shared-query-client
+# @smbc/applet-query-client
 
 **Single QueryClient for All SMBC Applets**
 
@@ -9,11 +9,11 @@ A centralized TanStack Query provider that enables efficient data sharing, cachi
 Single QueryClient shared across all SMBC applets:
 
 ```typescript
-<SMBCQueryProvider>
+<AppletQueryProvider>
   <UserManagement />     // Shares the same QueryClient
   <ProductCatalog />     // Shares the same QueryClient
   {/* All applets */}    // All share the same instance
-</SMBCQueryProvider>
+</AppletQueryProvider>
 ```
 
 ## Key Features
@@ -34,7 +34,7 @@ Single QueryClient shared across all SMBC applets:
 
 ### 🔌 **Simple Integration**
 
-- **Drop-in Replacement**: Replace QueryClientProvider with SMBCQueryProvider
+- **Drop-in Replacement**: Replace QueryClientProvider with AppletQueryProvider
 - **Backward Compatible**: Existing TanStack Query code works unchanged
 - **Zero Configuration**: Works out of the box with sensible defaults
 
@@ -43,17 +43,17 @@ Single QueryClient shared across all SMBC applets:
 ### Basic Usage
 
 ```typescript
-import { SMBCQueryProvider } from '@smbc/shared-query-client';
+import { AppletQueryProvider } from '@smbc/applet-query-client';
 import { UserManagement } from '@smbc/user-management-mui';
 import { ProductCatalog } from '@smbc/product-catalog-mui';
 
 function App() {
   return (
-    <SMBCQueryProvider>
+    <AppletQueryProvider>
       <UserManagement />
       <ProductCatalog />
       {/* All applets automatically share the same QueryClient */}
-    </SMBCQueryProvider>
+    </AppletQueryProvider>
   );
 }
 ```
@@ -61,16 +61,16 @@ function App() {
 ### With External QueryClient
 
 ```typescript
-import { SMBCQueryProvider } from '@smbc/shared-query-client';
+import { AppletQueryProvider } from '@smbc/applet-query-client';
 import { QueryClient } from '@tanstack/react-query';
 
 const existingQueryClient = new QueryClient();
 
 function App() {
   return (
-    <SMBCQueryProvider queryClient={existingQueryClient}>
+    <AppletQueryProvider queryClient={existingQueryClient}>
       <YourApplets />
-    </SMBCQueryProvider>
+    </AppletQueryProvider>
   );
 }
 ```
@@ -78,7 +78,7 @@ function App() {
 ### Development with Mocks
 
 ```typescript
-<SMBCQueryProvider
+<AppletQueryProvider
   enableMocks={true}
   apiConfig={{
     baseUrl: 'http://localhost:8080',
@@ -86,7 +86,7 @@ function App() {
   }}
 >
   <YourApp />
-</SMBCQueryProvider>
+</AppletQueryProvider>
 ```
 
 ## Advanced Configuration
@@ -94,18 +94,18 @@ function App() {
 ### Custom Loading States
 
 ```typescript
-<SMBCQueryProvider
+<AppletQueryProvider
   loadingComponent={<CustomLoadingSpinner />}
   errorComponent={(error) => <CustomErrorDisplay error={error} />}
 >
   <YourApp />
-</SMBCQueryProvider>
+</AppletQueryProvider>
 ```
 
 ### Environment-Based Configuration
 
 ```typescript
-<SMBCQueryProvider
+<AppletQueryProvider
   enableMocks={import.meta.env.DEV}
   apiConfig={{
     baseUrl: import.meta.env.VITE_API_URL,
@@ -115,7 +115,7 @@ function App() {
   }}
 >
   <YourApp />
-</SMBCQueryProvider>
+</AppletQueryProvider>
 ```
 
 ## Cross-Applet Data Sharing
@@ -170,7 +170,7 @@ export const userManagementHandlers = [
   }),
 ];
 
-// Automatically aggregated by SMBCQueryProvider
+// Automatically aggregated by AppletQueryProvider
 // No manual setup required!
 ```
 
@@ -194,10 +194,10 @@ const isProduction = import.meta.env.VITE_DISABLE_MSW;
 
 ## API Reference
 
-### SMBCQueryProvider Props
+### AppletQueryProvider Props
 
 ```typescript
-interface SMBCQueryProviderProps {
+interface AppletQueryProviderProps {
   children: ReactNode;
 
   /** External QueryClient to use instead of creating new one */
@@ -220,10 +220,10 @@ interface SMBCQueryProviderProps {
 }
 ```
 
-### useSMBCQuery Hook
+### useAppletQuery Hook
 
 ```typescript
-const { queryClient, isReady, mswEnabled } = useSMBCQuery();
+const { queryClient, isReady, mswEnabled } = useAppletQuery();
 
 // queryClient: The shared QueryClient instance
 // isReady: Whether the provider is fully initialized

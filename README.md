@@ -79,10 +79,10 @@ npm run create:applet
 
 ### Core Infrastructure
 
-- **[@smbc/shared-query-client](./packages/shared-query-client/README.md)** - Single QueryClient architecture
+- **[@smbc/applet-query-client](./packages/shared-query-client/README.md)** - Single QueryClient architecture
 - **[@smbc/mui-components](./packages/mui-components/README.md)** - Shared MUI components
 - **[@smbc/applet-core](./packages/applet-core/README.md)** - Core applet infrastructure
-- **[@smbc/react-dataview](./packages/react-dataview/README.md)** - Data view and transaction management
+- **[@smbc/applet-dataview](./packages/react-dataview/README.md)** - Data view and transaction management
 - **[@smbc/typespec-core](./packages/typespec-core/README.md)** - TypeSpec core utilities
 - **[@smbc/design-tokens](./packages/design-tokens/README.md)** - Design token system
 - **[@smbc/mui-applet-host](./packages/mui-applet-host/README.md)** - Easy setup for React apps with applet system

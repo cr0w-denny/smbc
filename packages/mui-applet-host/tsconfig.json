@@ -10,7 +10,7 @@
   "exclude": ["dist", "node_modules"],
   "references": [
     { "path": "../design-tokens" },
-    { "path": "../shared-query-client" },
+    { "path": "../applet-query-client" },
     { "path": "../applet-core" },
     { "path": "../mui-applet-core" },
     { "path": "../mui-components" }

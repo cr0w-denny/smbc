@@ -25,8 +25,9 @@
   "exclude": ["node_modules", "dist", "**/dist", "**/node_modules"],
   "references": [
     { "path": "packages/design-tokens" },
-    { "path": "packages/shared-query-client" },
+    { "path": "packages/applet-query-client" },
     { "path": "packages/applet-core" },
+    { "path": "packages/react-dataview" },
     { "path": "packages/mui-applet-core" },
     { "path": "packages/mui-components" },
     { "path": "packages/mui-applet-host" },

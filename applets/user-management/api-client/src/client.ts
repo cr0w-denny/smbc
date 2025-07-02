@@ -1,4 +1,4 @@
-import { createFetchClient, createClient } from "@smbc/shared-query-client";
+import { createFetchClient, createClient } from "@smbc/applet-query-client";
 import type { paths } from "./generated/types.js";
 
 export interface ApiClientConfig {

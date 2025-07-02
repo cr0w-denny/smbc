@@ -35,7 +35,7 @@ import type {
   DataViewFormProps,
   DataViewPaginationProps,
   DataViewCreateButtonProps,
-} from "@smbc/react-dataview";
+} from "@smbc/applet-dataview";
 
 // MUI-specific table component
 function MuiDataTable<T extends Record<string, any>>({

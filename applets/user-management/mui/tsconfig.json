@@ -16,7 +16,7 @@
       "path": "../../../packages/design-tokens"
     },
     {
-      "path": "../../../packages/shared-query-client"
+      "path": "../../../packages/applet-query-client"
     },
     {
       "path": "../../../packages/mui-applet-core"

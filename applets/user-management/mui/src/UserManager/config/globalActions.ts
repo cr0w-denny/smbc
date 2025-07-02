@@ -3,7 +3,7 @@ import {
   Refresh as RefreshIcon,
   GetApp as ExportIcon,
 } from "@mui/icons-material";
-import type { GlobalAction } from "@smbc/applet-core";
+import type { GlobalAction } from "@smbc/applet-dataview";
 
 /**
  * Global action configuration for the UserManager component

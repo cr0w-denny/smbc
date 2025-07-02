@@ -6,6 +6,6 @@ import type {
   FilterFieldConfig,
   FilterValues,
   FilterSpec,
-} from "@smbc/react-dataview";
+} from "@smbc/applet-dataview";
 
 export type { FilterFieldConfig, FilterValues, FilterSpec };

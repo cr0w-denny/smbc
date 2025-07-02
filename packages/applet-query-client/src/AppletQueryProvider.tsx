@@ -7,15 +7,15 @@ import {
 } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import QueryClientManager from "./QueryClientManager";
-import { setupMswForSharedProvider, stopMswWorker } from "./msw-integration";
+import { setupMswForAppletProvider, stopMswWorker } from "./msw-integration";
 
-export interface SMBCQueryContextValue {
+export interface AppletQueryContextValue {
   queryClient: QueryClient;
   isReady: boolean;
   mswEnabled: boolean;
 }
 
-const SMBCQueryContext = createContext<SMBCQueryContextValue | null>(null);
+const AppletQueryContext = createContext<AppletQueryContextValue | null>(null);
 
 /**
  * Helper function to detect if we're in development mode.
@@ -45,7 +45,7 @@ function isDevelopmentMode(): boolean {
   return true;
 }
 
-export interface SMBCQueryProviderProps {
+export interface AppletQueryProviderProps {
   children: ReactNode;
   /**
    * External QueryClient to use. If provided, this will be used instead of creating a new one.
@@ -75,46 +75,46 @@ export interface SMBCQueryProviderProps {
 }
 
 /**
- * Shared QueryClient provider for all SMBC UI packages.
+ * QueryClient provider for applet packages.
  *
  * This provider:
  * 1. Creates or accepts a shared QueryClient instance
  * 2. Optionally enables MSW mocks for development
  * 3. Provides global API configuration
- * 4. Ensures all SMBC packages use the same QueryClient
+ * 4. Ensures all applet packages use the same QueryClient
  *
  * Usage patterns:
  *
  * 1. Standalone (creates own QueryClient):
  * ```tsx
- * <SMBCQueryProvider>
+ * <AppletQueryProvider>
  *   <UserTableWithApi />
  *   <ProductCatalog />
- * </SMBCQueryProvider>
+ * </AppletQueryProvider>
  * ```
  *
  * 2. Integration with existing QueryClient:
  * ```tsx
- * <SMBCQueryProvider queryClient={existingQueryClient}>
+ * <AppletQueryProvider queryClient={existingQueryClient}>
  *   <UserTableWithApi />
- * </SMBCQueryProvider>
+ * </AppletQueryProvider>
  * ```
  *
  * 3. Development with mocks:
  * ```tsx
- * <SMBCQueryProvider enableMocks={true}>
+ * <AppletQueryProvider enableMocks={true}>
  *   <UserTableWithApi />
- * </SMBCQueryProvider>
+ * </AppletQueryProvider>
  * ```
  */
-export function SMBCQueryProvider({
+export function AppletQueryProvider({
   children,
   queryClient: externalQueryClient,
   enableMocks = isDevelopmentMode(),
   loadingComponent,
   errorComponent,
   apiConfig,
-}: SMBCQueryProviderProps) {
+}: AppletQueryProviderProps) {
   const [mswStatus, setMswStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
@@ -147,7 +147,7 @@ export function SMBCQueryProvider({
 
       // Start MSW
       try {
-        await setupMswForSharedProvider(apiConfig);
+        await setupMswForAppletProvider(apiConfig);
         setMswStatus("ready");
         setIsReady(true);
       } catch (error) {
@@ -230,7 +230,7 @@ export function SMBCQueryProvider({
       )
     ) : null;
 
-  const contextValue: SMBCQueryContextValue = {
+  const contextValue: AppletQueryContextValue = {
     queryClient,
     isReady,
     mswEnabled: enableMocks && mswStatus === "ready",
@@ -239,32 +239,32 @@ export function SMBCQueryProvider({
   // If we're using an external QueryClient, don't wrap with QueryClientProvider
   if (externalQueryClient) {
     return (
-      <SMBCQueryContext.Provider value={contextValue}>
+      <AppletQueryContext.Provider value={contextValue}>
         {errorElement}
         {children}
-      </SMBCQueryContext.Provider>
+      </AppletQueryContext.Provider>
     );
   }
 
   // Otherwise, provide our own QueryClientProvider
   return (
     <QueryClientProvider client={queryClient}>
-      <SMBCQueryContext.Provider value={contextValue}>
+      <AppletQueryContext.Provider value={contextValue}>
         {errorElement}
         {children}
-      </SMBCQueryContext.Provider>
+      </AppletQueryContext.Provider>
     </QueryClientProvider>
   );
 }
 
 /**
- * Hook to access the shared SMBC QueryClient and related state
+ * Hook to access the applet QueryClient and related state
  */
-export function useSMBCQuery(): SMBCQueryContextValue {
-  const context = useContext(SMBCQueryContext);
+export function useAppletQuery(): AppletQueryContextValue {
+  const context = useContext(AppletQueryContext);
 
   if (!context) {
-    throw new Error("useSMBCQuery must be used within an SMBCQueryProvider");
+    throw new Error("useAppletQuery must be used within an AppletQueryProvider");
   }
 
   return context;

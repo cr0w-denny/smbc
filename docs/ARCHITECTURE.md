@@ -64,7 +64,7 @@ Common utilities and systems shared across all applets:
 ├── @smbc/mui-applet-core          # Core applet infrastructure
 ├── @smbc/mui-components           # Shared MUI components
 │   └── @smbc/design-tokens        # Design token system
-└── @smbc/shared-query-client      # Single QueryClient architecture
+└── @smbc/applet-query-client      # Single QueryClient architecture
     ├── @smbc/react-openapi-client # API client utilities
     └── @smbc/msw-utils            # Mock generation tools
 ```

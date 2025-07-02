@@ -25,7 +25,7 @@ export default defineConfig({
         '@smbc/mui-components',
         '@smbc/mui-applet-core',
         '@smbc/react-openapi-client',
-        '@smbc/shared-query-client',
+        '@smbc/applet-query-client',
       ]),
     },
   },

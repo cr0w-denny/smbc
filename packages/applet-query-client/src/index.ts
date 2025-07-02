@@ -1,15 +1,15 @@
 // Core exports
 export { default as QueryClientManager } from "./QueryClientManager";
-export { SMBCQueryProvider, useSMBCQuery } from "./SMBCQueryProvider";
+export { AppletQueryProvider, useAppletQuery } from "./AppletQueryProvider";
 export type {
-  SMBCQueryProviderProps,
-  SMBCQueryContextValue,
-} from "./SMBCQueryProvider";
+  AppletQueryProviderProps,
+  AppletQueryContextValue,
+} from "./AppletQueryProvider";
 
 // MSW integration
 export {
-  setupMswForSharedProvider,
-  stopMswForSharedProvider,
+  setupMswForAppletProvider,
+  stopMswForAppletProvider,
   registerMswHandlers,
   isMswAvailable,
 } from "./msw-integration";

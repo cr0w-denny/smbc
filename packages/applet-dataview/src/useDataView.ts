@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { useSMBCQuery } from "@smbc/shared-query-client";
+import { useAppletQuery } from "@smbc/applet-query-client";
 import type { DataViewConfig, DataViewResult } from "./types";
 import { useActivity } from "./activity";
 import { SimpleTransactionManager } from "./transaction/TransactionManager";
@@ -60,7 +60,7 @@ export function useDataView<T extends Record<string, any>>(
   const globalActions = actionConfig.global || [];
 
   // Get the shared query client
-  const { queryClient } = useSMBCQuery();
+  const { queryClient } = useAppletQuery();
 
   // Activity tracking (optional)
   let activityContext;

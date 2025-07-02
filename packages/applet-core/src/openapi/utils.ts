@@ -243,7 +243,7 @@ export function validateFilterValues(
         case "select":
           if (
             field.options &&
-            !field.options.some((opt) => opt.value === value)
+            !field.options.some((opt: any) => opt.value === value)
           ) {
             errors[field.name] =
               `${field.label} must be one of the available options`;

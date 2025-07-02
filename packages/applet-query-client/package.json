@@ -1,7 +1,7 @@
 {
-  "name": "@smbc/shared-query-client",
+  "name": "@smbc/applet-query-client",
   "version": "0.0.0",
-  "description": "Shared TanStack Query client provider and OpenAPI client utilities for all SMBC UI packages",
+  "description": "TanStack Query client provider and OpenAPI client utilities for applet packages",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -19,7 +19,7 @@
     "build": "tsc -b",
     "dev": "tsc -b --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "echo 'Lint: shared-query-client'",
+    "lint": "echo 'Lint: applet-query-client'",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

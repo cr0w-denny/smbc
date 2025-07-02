@@ -33,8 +33,8 @@ import {
   useActivity,
   useTransactionContext,
   TransactionRegistry,
-} from "@smbc/react-dataview";
-import type { ActivityItem } from "@smbc/react-dataview";
+} from "@smbc/applet-dataview";
+import type { ActivityItem } from "@smbc/applet-dataview";
 
 const ActivityTypeIcons = {
   create: AddIcon,

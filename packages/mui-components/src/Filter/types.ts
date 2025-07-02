@@ -2,7 +2,7 @@
  * Core filter types
  */
 
-import type { FilterFieldConfig, FilterValues } from "@smbc/react-dataview";
+import type { FilterFieldConfig, FilterValues } from "@smbc/applet-dataview";
 
 export type { FilterFieldConfig, FilterValues };
 

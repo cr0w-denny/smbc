@@ -20,9 +20,9 @@ import {
 } from "@smbc/mui-components";
 import {
   registerMswHandlers,
-  SMBCQueryProvider,
-} from "@smbc/shared-query-client";
-import { ActivityProvider, TransactionProvider } from "@smbc/react-dataview";
+  AppletQueryProvider,
+} from "@smbc/applet-query-client";
+import { ActivityProvider, TransactionProvider } from "@smbc/applet-dataview";
 
 // Import configuration
 import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
@@ -176,9 +176,9 @@ function AppWithMockToggle() {
   React.useEffect(() => {}, [mockEnabled, mswReady, actualMockState]);
 
   return (
-    <SMBCQueryProvider enableMocks={actualMockState}>
+    <AppletQueryProvider enableMocks={actualMockState}>
       <AppContentWithCacheInvalidation />
-    </SMBCQueryProvider>
+    </AppletQueryProvider>
   );
 }
 

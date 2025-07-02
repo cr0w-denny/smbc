@@ -23,7 +23,7 @@
     "@mui/icons-material": "^7.1.2",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
-    "@smbc/shared-query-client": "^1.0.1",
+    "@smbc/applet-query-client": "^1.0.1",
     "@tanstack/react-query": "^5.0.0"
   },
   "devDependencies": {

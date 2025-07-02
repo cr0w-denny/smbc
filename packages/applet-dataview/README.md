@@ -13,7 +13,7 @@ React hook for building data views with advanced transaction support, optimistic
 ## Quick Start
 
 ```tsx
-import { useDataView } from '@smbc/react-dataview';
+import { useDataView } from '@smbc/applet-dataview';
 
 function TasksTable() {
   const dataView = useDataView({
@@ -121,7 +121,7 @@ function TransactionUI({ dataView }) {
 ### Bulk Actions with Transactions
 
 ```tsx
-import { createBulkDeleteAction, createBulkUpdateAction } from "@smbc/react-dataview";
+import { createBulkDeleteAction, createBulkUpdateAction } from "@smbc/applet-dataview";
 
 const bulkActions = [
   createBulkDeleteAction(deleteAPI),
@@ -135,7 +135,7 @@ const bulkActions = [
 ### Row Actions with Transactions
 
 ```tsx
-import { createRowUpdateAction, createToggleStatusAction } from "@smbc/react-dataview";
+import { createRowUpdateAction, createToggleStatusAction } from "@smbc/applet-dataview";
 
 const rowActions = [
   createToggleStatusAction(updateAPI, "status", ["active", "inactive"], {

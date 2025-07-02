@@ -3,7 +3,7 @@ import {
   Block as BlockIcon,
   CheckCircle as ActivateIcon,
 } from "@mui/icons-material";
-import type { BulkAction } from "@smbc/applet-core";
+import type { BulkAction } from "@smbc/applet-dataview";
 import type { components } from "@smbc/user-management-client";
 
 type User = components["schemas"]["User"];

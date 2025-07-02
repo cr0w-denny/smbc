@@ -30,7 +30,7 @@ export default defineConfig({
         "@smbc/design-tokens",
         "@smbc/mui-components",
         "@smbc/mui-applet-core",
-        "@smbc/shared-query-client",
+        "@smbc/applet-query-client",
         "@smbc/product-catalog-api",
         "@smbc/product-catalog-client",
       ]),

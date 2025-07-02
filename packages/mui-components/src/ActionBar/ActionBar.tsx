@@ -7,7 +7,7 @@ import {
   Divider,
   useTheme,
 } from "@mui/material";
-import { BulkAction, GlobalAction } from "@smbc/react-dataview";
+import { BulkAction, GlobalAction } from "@smbc/applet-dataview";
 
 export interface ActionBarProps<T> {
   /** Global actions (right side) */
