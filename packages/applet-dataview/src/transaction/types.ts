@@ -1,19 +1,16 @@
 // Flexible transaction system for react-dataview
 
-export type TransactionMode =
-  | "all"
-  | "bulk-only";
-
 export interface TransactionConfig {
   enabled: boolean;
-  mode: TransactionMode;
 
   // Commit behavior
-  autoCommit: boolean; // Auto-commit individual operations
-  bulkAutoCommit?: boolean; // Auto-commit bulk actions (for hybrid mode)
+  autoCommit: boolean; // Auto-commit operations
 
   // User interaction
   requireConfirmation: boolean; // Show confirmation before commit
+
+  // Failure handling
+  allowPartialSuccess?: boolean; // Allow partial success instead of rolling back on any failure (default: false)
 
   // Activity behavior
   emitActivities?: boolean; // Emit activities for individual operations (default: false when transactions enabled)

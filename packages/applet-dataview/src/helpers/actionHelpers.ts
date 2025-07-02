@@ -10,6 +10,15 @@ interface ActionContext {
     changedFields?: string[]
   ) => string;
   getPendingData?: (entityId: string | number) => any;
+  deleteMutation?: {
+    mutateAsync: (params: { params: { path: { id: string | number } } }) => Promise<any>;
+  };
+  updateMutation?: {
+    mutateAsync: (params: { params: { path: { id: string | number } }; body: any }) => Promise<any>;
+  };
+  createMutation?: {
+    mutateAsync: (params: { body: any }) => Promise<any>;
+  };
 }
 
 /**
@@ -30,19 +39,53 @@ export function createBulkDeleteAction<T extends { id: string | number }>(
     icon: options?.icon,
     color: "error",
     onClick: async (items: T[], context?: ActionContext) => {
+      console.log('BulkDeleteHelper: Starting bulk delete operation', {
+        itemCount: items.length,
+        itemIds: items.map(i => i.id),
+        hasTransactionOperation: !!context?.addTransactionOperation,
+        hasDeleteMutation: !!context?.deleteMutation,
+        contextKeys: context ? Object.keys(context) : []
+      });
+
       if (context?.addTransactionOperation) {
+        console.log('BulkDeleteHelper: Using transaction system for bulk delete');
+        // Use transaction system - this handles pending states correctly
         for (const item of items) {
+          console.log('BulkDeleteHelper: Adding transaction operation for item', item.id);
           context.addTransactionOperation(
             "delete",
             item,
             async () => {
-              await deleteAPI(item.id);
+              console.log('BulkDeleteHelper: Transaction mutation executing for item', item.id);
+              // Use the framework's delete mutation instead of direct API call
+              // This ensures proper integration with the transaction system
+              if (context.deleteMutation) {
+                console.log('BulkDeleteHelper: Calling deleteMutation.mutateAsync for item', item.id);
+                await context.deleteMutation.mutateAsync({
+                  params: { path: { id: item.id } },
+                });
+                console.log('BulkDeleteHelper: deleteMutation.mutateAsync completed for item', item.id);
+              } else {
+                console.log('BulkDeleteHelper: No deleteMutation, falling back to direct API for item', item.id);
+                // Fallback to direct API call if mutation not available
+                await deleteAPI(item.id);
+              }
+              console.log('BulkDeleteHelper: Transaction mutation function completed for item', item.id);
               return {};
             },
             "bulk-action"
           );
         }
+        console.log('BulkDeleteHelper: All transaction operations added');
+      } else {
+        console.log('BulkDeleteHelper: No transaction support, using direct API calls');
+        // No transaction support, use direct API calls
+        for (const item of items) {
+          console.log('BulkDeleteHelper: Direct API call for item', item.id);
+          await deleteAPI(item.id);
+        }
       }
+      console.log('BulkDeleteHelper: Bulk delete operation completed');
     },
   } as BulkAction<T>;
 }
@@ -79,7 +122,7 @@ export function createBulkUpdateAction<T extends { id: string | number }>(
             "update",
             partialUpdate,
             () => {
-              console.log('🔨 Helper function mutation executing:', {
+              console.log('BulkUpdateHelper: mutation executing', {
                 itemId: item.id,
                 updateData,
                 partialUpdate
@@ -89,7 +132,7 @@ export function createBulkUpdateAction<T extends { id: string | number }>(
               const accumulatedData = context?.getPendingData?.(item.id);
               const dataToApply = accumulatedData || updateData;
               
-              console.log('🔨 Applying accumulated data:', {
+              console.log('BulkUpdateHelper: applying accumulated data', {
                 itemId: item.id,
                 originalUpdateData: updateData,
                 accumulatedData,
@@ -97,7 +140,7 @@ export function createBulkUpdateAction<T extends { id: string | number }>(
               });
               
               const result = updateAPI(item.id, dataToApply);
-              console.log('🔨 Helper function mutation result:', result);
+              console.log('BulkUpdateHelper: mutation result', result);
               return result;
             },
             "bulk-action",

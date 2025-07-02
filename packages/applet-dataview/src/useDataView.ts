@@ -253,7 +253,7 @@ export function useDataView<T extends Record<string, any>>(
       };
 
       const handleTransactionComplete = (results: any[]) => {
-        console.log('🔄 Transaction completing - before clear:', {
+        console.log('UseDataView: transaction completing - before clear', {
           pendingStatesCount: pendingStatesRef.current.size,
           pendingStates: Array.from(pendingStatesRef.current.entries()),
           results: results.map(r => ({ 
@@ -264,55 +264,95 @@ export function useDataView<T extends Record<string, any>>(
           }))
         });
         
-        console.log('🔄 Transaction results details:', results);
+        console.log('UseDataView: Transaction results details', results);
         
         // Clear pending states Map
         updatePendingStates((map) => {
-          console.log('🔄 Clearing pending states map');
+          console.log('UseDataView: Clearing pending states map');
           map.clear();
         });
 
-        // Emit activities for all successful operations on transaction commit (only if explicitly enabled)
+        // Emit aggregated activities for transaction commit (only if explicitly enabled)
         if (
           activityConfig?.enabled &&
           activityContext &&
           options.transaction?.emitActivities === true
         ) {
-          results.forEach((result: any) => {
-            if (result.success && result.operation) {
-              const operation = result.operation;
-              const entityType = activityConfig.entityType || "item";
-              const label = activityConfig.labelGenerator
-                ? activityConfig.labelGenerator(operation.entity)
-                : operation.label || `${operation.type} ${entityType}`;
-              const url = activityConfig.urlGenerator
+          // Group operations by type and success status for bulk activities
+          const operationsByType = results.reduce((acc: any, result: any) => {
+            if (result.operation) {
+              const type = result.operation.type;
+              if (!acc[type]) acc[type] = { successful: [], failed: [] };
+              
+              if (result.success) {
+                acc[type].successful.push(result.operation);
+              } else {
+                acc[type].failed.push(result.operation);
+              }
+            }
+            return acc;
+          }, {});
+
+          // Emit one activity per operation type
+          Object.entries(operationsByType).forEach(([type, ops]: [string, any]) => {
+            const entityType = activityConfig.entityType || "item";
+            const successCount = ops.successful.length;
+            const failCount = ops.failed.length;
+            const totalCount = successCount + failCount;
+            
+            let label: string;
+            let url: string | undefined;
+            
+            if (totalCount === 1) {
+              // Single operation
+              const operation = ops.successful[0] || ops.failed[0];
+              const status = ops.successful.length > 0 ? "" : " (failed)";
+              label = activityConfig.labelGenerator
+                ? activityConfig.labelGenerator(operation.entity) + status
+                : operation.label || `${type} ${entityType}${status}`;
+              url = activityConfig.urlGenerator && ops.successful.length > 0
                 ? activityConfig.urlGenerator(operation.entity)
                 : undefined;
-
-              activityContext.addActivity({
-                type: operation.type,
-                entityType,
-                label,
-                url,
-              });
+            } else {
+              // Multiple operations - show success/failure breakdown
+              const typeLabel = type === "delete" ? "Deleted" : type === "update" ? "Updated" : "Created";
+              
+              if (failCount === 0) {
+                // All successful
+                label = `${typeLabel} ${successCount} ${entityType}${successCount > 1 ? 's' : ''}`;
+              } else if (successCount === 0) {
+                // All failed
+                label = `Failed to ${type} ${failCount} ${entityType}${failCount > 1 ? 's' : ''}`;
+              } else {
+                // Mixed results
+                label = `${typeLabel} ${successCount} of ${totalCount} ${entityType}${totalCount > 1 ? 's' : ''} (${failCount} failed)`;
+              }
+              url = undefined;
             }
+
+            activityContext.addActivity({
+              type: type as "create" | "update" | "delete",
+              entityType,
+              label,
+              url,
+            });
           });
         }
 
         // Invalidate queries to get fresh data from server
-        console.log('🔄 About to invalidate queries for endpoint:', api.endpoint);
+        console.log('UseDataView: About to invalidate queries for endpoint', api.endpoint);
         queryClient.invalidateQueries({
           queryKey: ["get", api.endpoint],
           exact: false,
         });
-        console.log('🔄 Queries invalidated');
+        console.log('UseDataView: Queries invalidated');
 
         // Clear selections since the transaction is complete
         clearSelection();
 
         transactionSnapshot = null;
         
-        console.log('🔄 Transaction complete - after clear:', {
+        console.log('UseDataView: Transaction complete - after clear', {
           pendingStatesCount: pendingStatesRef.current.size,
           pendingStates: Array.from(pendingStatesRef.current.entries())
         });
@@ -322,7 +362,7 @@ export function useDataView<T extends Record<string, any>>(
         operationId: string,
         removedOperation?: any,
       ) => {
-        console.log('🔄 Operation removed:', {
+        console.log('UseDataView: operation removed', {
           operationId,
           removedOperation: removedOperation ? {
             type: removedOperation.type,
@@ -340,10 +380,10 @@ export function useDataView<T extends Record<string, any>>(
             
             // Only remove if the current pending state still has the same operation ID as the removed one
             if (currentPendingState && currentPendingState.operationId === operationId) {
-              console.log('🔄 Removing pending state for entity (current operation removed):', entityId);
+              console.log('UseDataView: removing pending state for entity (current operation removed)', entityId);
               map.delete(entityId);
             } else {
-              console.log('🔄 Keeping pending state - operation already replaced:', {
+              console.log('UseDataView: keeping pending state - operation already replaced', {
                 entityId,
                 removedOperationId: operationId,
                 currentOperationId: currentPendingState?.operationId
@@ -354,14 +394,14 @@ export function useDataView<T extends Record<string, any>>(
             let found = false;
             for (const [entityId, pendingState] of map.entries()) {
               if (pendingState.operationId === operationId) {
-                console.log('🔄 Removing pending state for entity (by operationId):', entityId);
+                console.log('UseDataView: removing pending state for entity (by operationId)', entityId);
                 map.delete(entityId);
                 found = true;
                 break;
               }
             }
             if (!found) {
-              console.log('🔄 Operation ID not found in pending states:', {
+              console.log('UseDataView: operation ID not found in pending states', {
                 operationId,
                 currentPendingStates: Array.from(map.entries())
               });
@@ -394,7 +434,7 @@ export function useDataView<T extends Record<string, any>>(
       };
 
       // Listen to transaction events for rollback
-      console.log('🔄 Registering transaction event handlers');
+      console.log('UseDataView: Registering transaction event handlers');
 
       transactionManager.on("onTransactionStart", handleTransactionStart);
       transactionManager.on(
@@ -404,7 +444,7 @@ export function useDataView<T extends Record<string, any>>(
       transactionManager.on("onTransactionComplete", handleTransactionComplete);
       transactionManager.on("onOperationRemoved", handleOperationRemoved);
       
-      console.log('🔄 Transaction event handlers registered');
+      console.log('UseDataView: Transaction event handlers registered');
 
       return () => {
         TransactionRegistry.unregister(managerId);
@@ -436,6 +476,26 @@ export function useDataView<T extends Record<string, any>>(
 
   // Track if transaction is active
   const hasActiveTransaction = transactionManager?.hasOperations() || false;
+  
+  // Log when transaction state changes
+  React.useEffect(() => {
+    console.log('UseDataView: Transaction state changed', {
+      hasActiveTransaction,
+      hasTransactionManager: !!transactionManager,
+      operationCount: transactionManager?.hasOperations() ? 'has ops' : 'no ops',
+      currentQueryKey
+    });
+    
+    // Check cache immediately when transaction state changes
+    if (hasActiveTransaction) {
+      const cachedData = queryClient.getQueryData(currentQueryKey);
+      console.log('UseDataView: Cache check on transaction start', {
+        hasCachedData: !!cachedData,
+        cachedRowCount: cachedData ? responseRow(cachedData).length : 0,
+        currentQueryKey
+      });
+    }
+  }, [hasActiveTransaction, transactionManager, currentQueryKey, queryClient]);
 
   // Separate pending state tracking - key: entity ID, value: pending state info
   const pendingStatesRef = React.useRef<Map<string | number, {
@@ -449,6 +509,9 @@ export function useDataView<T extends Record<string, any>>(
   
   
 
+  // Store the last known good data before transactions
+  const lastKnownDataRef = React.useRef(null);
+  
   const {
     data: queryData,
     isLoading,
@@ -460,19 +523,56 @@ export function useDataView<T extends Record<string, any>>(
     isLoading: false,
     error: null,
   };
+  
+  // Preserve data when query becomes available
+  React.useEffect(() => {
+    if (queryData && !hasActiveTransaction) {
+      lastKnownDataRef.current = queryData;
+      console.log('UseDataView: Preserving query data', {
+        rowCount: responseRow(queryData).length,
+        hasActiveTransaction
+      });
+    }
+  }, [queryData, hasActiveTransaction]);
 
-  // During transactions, get data from cache
+  // During transactions, use preserved data instead of empty cache
   const effectiveData = React.useMemo(() => {
     if (hasActiveTransaction) {
+      // Try cache first, then fall back to last known data
       const cachedData = queryClient.getQueryData(currentQueryKey);
-      return cachedData;
+      const fallbackData = lastKnownDataRef.current;
+      const dataToUse = cachedData || fallbackData;
+      
+      console.log('UseDataView: Using data during transaction', {
+        hasCachedData: !!cachedData,
+        hasLastKnownData: !!fallbackData,
+        usingCached: !!cachedData,
+        usingFallback: !cachedData && !!fallbackData,
+        finalRowCount: dataToUse ? responseRow(dataToUse).length : 0,
+        currentQueryKey,
+        hasActiveTransaction
+      });
+      return dataToUse;
     }
+    console.log('UseDataView: Using query data (no transaction)', {
+      hasQueryData: !!queryData,
+      queryRowCount: queryData ? responseRow(queryData).length : 0
+    });
     return queryData;
   }, [hasActiveTransaction, queryClient, currentQueryKey, queryData]);
 
   // Return clean data and transaction state separately - let UI components handle merging
   const rawData = responseRow(effectiveData);
   const data = rawData; // Always return clean data
+  
+  console.log('UseDataView: Data being returned to table', {
+    dataCount: data.length,
+    hasTransactionManager: !!transactionManager,
+    transactionHasOperations: transactionManager?.hasOperations(),
+    pendingStatesCount: pendingStatesRef.current.size,
+    pendingStateKeys: Array.from(pendingStatesRef.current.keys()),
+    dataItemIds: data.map((item: T) => item[schema.primaryKey])
+  });
   
   // Transaction state for UI components to use during rendering
   const transactionState = React.useMemo(() => {
@@ -491,7 +591,7 @@ export function useDataView<T extends Record<string, any>>(
     };
   }, [transactionManager, pendingStatesVersion]);
   
-  console.log('🔄 Providing separate data and transaction state to UI:', {
+  console.log('UseDataView: Providing separate data and transaction state to UI', {
     dataLength: data?.length || 0,
     hasActiveTransaction: transactionState.hasActiveTransaction,
     pendingStatesCount: transactionState.pendingStates.size,
@@ -653,11 +753,21 @@ export function useDataView<T extends Record<string, any>>(
     `${api.endpoint}/{id}`,
     {
       onMutate: async (variables: any) => {
+        console.log('UseDataView: Delete mutation onMutate start', {
+          itemId: variables.params?.path?.id,
+          hasTransactionManager: !!transactionManager,
+          deletingItem: deletingItem?.id,
+          currentQueryKey
+        });
+
         // Cancel any outgoing refetches
         await queryClient.cancelQueries({ queryKey: currentQueryKey });
 
         // Snapshot the previous value
         const previousData = queryClient.getQueryData(currentQueryKey);
+        console.log('UseDataView: Previous data snapshot', {
+          rowCount: previousData ? responseRow(previousData).length : 0
+        });
 
         // Optimistically remove the item from cache
         queryClient.setQueryData(currentQueryKey, (old: any) => {
@@ -667,14 +777,27 @@ export function useDataView<T extends Record<string, any>>(
           const primaryKey = schema.primaryKey;
           const itemId = variables.params?.path?.id;
 
+          console.log('UseDataView: Before optimistic removal', {
+            currentRowCount: currentRows.length,
+            removingItemId: itemId,
+            primaryKey
+          });
+
           const filteredRows = currentRows.filter(
             (item: T) => item[primaryKey] !== itemId,
           );
 
+          console.log('UseDataView: After optimistic removal', {
+            newRowCount: filteredRows.length,
+            removedCount: currentRows.length - filteredRows.length
+          });
+
           return optimisticResponse(old, filteredRows);
         });
 
-        return { previousData, deletedItem: deletingItem };
+        const result = { previousData, deletedItem: deletingItem };
+        console.log('UseDataView: Delete mutation onMutate end', result);
+        return result;
       },
       onError: (error: any, _variables: any, context: any) => {
         // Rollback optimistic update
@@ -712,7 +835,7 @@ export function useDataView<T extends Record<string, any>>(
     }
     
     const pendingState = pendingStatesRef.current.get(entityId);
-    console.log('🔍 getPendingData called:', {
+    console.log('UseDataView: getPendingData called', {
       entityId,
       pendingState: pendingState ? {
         state: pendingState.state,
@@ -733,25 +856,44 @@ export function useDataView<T extends Record<string, any>>(
       trigger: OperationTrigger = "user-edit",
       changedFields?: string[],
     ) => {
+      console.log('UseDataView: Add transaction operation start', {
+        type,
+        entityId: entity[schema.primaryKey],
+        trigger,
+        hasTransactionManager: !!transactionManager,
+        existingOperations: transactionManager?.hasOperations()
+      });
+
       if (!transactionManager) {
+        console.log('UseDataView: No transaction manager, executing immediately');
         // No transaction manager, execute immediately
         return mutation();
       }
 
       // Start transaction if this is the first operation (captures snapshot for rollback)
       if (!transactionManager.hasOperations()) {
+        console.log('UseDataView: Starting new transaction');
         transactionManager.begin();
       }
 
       // Generate a consistent operation ID that will be used for both the transaction and visual state
-      const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const operationId = `op_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
       const primaryKey = schema.primaryKey;
       const entityId = entity[primaryKey];
 
+      console.log('UseDataView: Generated operation', { operationId, entityId, primaryKey });
+
       // Store pending state in separate Map structure
       updatePendingStates((map) => {
-        console.log('🔄 Adding pending state:', {
+        console.log('UseDataView: Updating pending states', {
+          type,
+          entityId,
+          operationId,
+          currentMapSize: map.size,
+          currentKeys: Array.from(map.keys())
+        });
+        console.log('UseDataView: Adding pending state', {
           type,
           entityId,
           existingState: map.get(entityId),
@@ -773,7 +915,7 @@ export function useDataView<T extends Record<string, any>>(
           
           if (type === "update" && existingState?.state === "deleted") {
             // If we're updating a deleted item, it should become edited instead
-            console.log('🔄 Converting delete to edit for entity:', entityId);
+            console.log('UseDataView: converting delete to edit for entity', entityId);
             map.set(entityId, {
               state: "edited",
               operationId,
@@ -785,7 +927,7 @@ export function useDataView<T extends Record<string, any>>(
             if (type === "update" && existingState?.state === "edited" && existingState.data) {
               // Merge the new changes with existing pending changes
               mergedData = { ...existingState.data, ...entity };
-              console.log('🔄 Accumulating changes for entity:', {
+              console.log('UseDataView: accumulating changes for entity', {
                 entityId,
                 existingData: existingState.data,
                 newData: entity,

@@ -59,21 +59,21 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
  * ARCHITECTURE OVERVIEW:
  * This component implements a 3-layer architecture that separates concerns:
  *
- * Layer 1 (react-dataview): Framework-agnostic data management
+ * Layer 1 (applet-dataview)
  * - Handles API calls, caching, optimistic updates
  * - Manages filters, pagination, selections, CRUD operations
  * - Takes simple string permissions and any actions you provide
  * - No knowledge of SMBC business logic or MUI components
  * - Reusable across different UI frameworks (React Native, etc.)
  *
- * Layer 2 (mui-applet-core): SMBC business logic
+ * Layer 2 (mui-applet-core)
  * - Converts PermissionDefinitions to simple strings
  * - Filters and processes actions based on user permissions
  * - Handles URL-based state
  * - Connects generic data operations to specific business handlers
  * - No knowledge of specific UI components, but MUI-aware
  *
- * Layer 3 (MUI components): UI rendering
+ * Layer 3 (mui-components)
  * - Renders tables, forms, dialogs, action bars using MUI
  * - Handles user interactions and visual feedback
  * - No knowledge of data fetching or business logic
@@ -97,7 +97,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
 }: MuiDataViewAppletProps<T>) {
   const { hasPermission } = usePermissions();
 
-  // Layer 2: SMBC business logic - convert PermissionDefinition to boolean
+  // Layer 2: - convert PermissionDefinition to boolean
   const canCreate = config.permissions?.create
     ? hasPermission(permissionContext, config.permissions.create)
     : false;
@@ -162,7 +162,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     ...options,
   });
 
-  // Layer 2: SMBC business logic - process row actions with permission filtering and connect to Layer 1 handlers
+  // Layer 2: process row actions with permission filtering and connect to Layer 1 handlers
   const processedRowActions =
     config.actions?.row?.map((action) => ({
       ...action,
@@ -178,7 +178,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       },
     })) || [];
 
-  // Layer 2: SMBC business logic - process bulk actions with permission filtering
+  // Layer 2: process bulk actions with permission filtering
   const processedBulkActions =
     config.actions?.bulk?.map((action) => ({
       ...action,
@@ -204,7 +204,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       },
     })) || [];
 
-  // Layer 2: SMBC business logic - process global actions with permission filtering
+  // Layer 2: process global actions with permission filtering
   const processedGlobalActions =
     config.actions?.global?.map((action) => ({
       ...action,
@@ -218,7 +218,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       },
     })) || [];
 
-  // Layer 2: Add default create action based on SMBC permissions if none configured
+  // Layer 2: Add default create action based on permissions if none configured
   if (
     canCreate &&
     !processedGlobalActions.some((action) => action.key === "create")
@@ -270,10 +270,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
 
   return (
     <div className={className} style={style}>
-      {/* Layer 3: MUI filter rendering */}
       <dataView.FilterComponent />
 
-      {/* Layer 3: MUI action bar rendering with Layer 2 processed actions */}
       <ActionBar
         globalActions={processedGlobalActions}
         bulkActions={processedBulkActions}
@@ -284,13 +282,10 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         primaryKey={config.schema.primaryKey}
       />
 
-      {/* Layer 3: MUI table rendering with Layer 2 processed row actions */}
       <TableComponentWithActions />
 
-      {/* Layer 3: MUI pagination rendering */}
       {config.pagination?.enabled && <dataView.PaginationComponent />}
 
-      {/* Layer 3: MUI form dialog rendering */}
       {dataView.createDialogOpen && <dataView.CreateFormComponent />}
       {dataView.editDialogOpen && dataView.editingItem && (
         <dataView.EditFormComponent item={dataView.editingItem} />

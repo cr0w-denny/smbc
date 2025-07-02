@@ -114,7 +114,16 @@ function MuiDataTable<T extends Record<string, any>>({
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((item, index) => {
+          {(() => {
+            console.log('MuiDataView: Table component rendering', {
+              dataCount: data.length,
+              hasActiveTransaction: transactionState?.hasActiveTransaction,
+              pendingStatesSize: transactionState?.pendingStates.size,
+              pendingStatesKeys: transactionState?.pendingStates ? Array.from(transactionState.pendingStates.keys()) : [],
+              dataItemIds: data.map((item: any) => item[primaryKey])
+            });
+            return data;
+          })().map((item, index) => {
             // Get pending state from transaction state (if any)
             const entityId = item[primaryKey] as string | number;
             const pendingStateInfo = transactionState?.hasActiveTransaction
@@ -122,9 +131,15 @@ function MuiDataTable<T extends Record<string, any>>({
               : null;
             const pendingState = pendingStateInfo?.state;
             
+            console.log('MuiDataView: Rendering table row', {
+              entityId,
+              pendingState,
+              hasPendingStateInfo: !!pendingStateInfo
+            });
+            
             // Debug logging for pending state accumulation
             if (transactionState?.hasActiveTransaction && pendingStateInfo) {
-              console.log('🎯 Table rendering item with pending state:', {
+              console.log('MuiDataView: Table rendering item with pending state', {
                 entityId,
                 pendingState,
                 operationId: pendingStateInfo.operationId,

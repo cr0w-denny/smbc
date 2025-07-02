@@ -145,7 +145,7 @@ export class SimpleTransactionManager<T = any>
   }
 
   async commit(force: boolean = false): Promise<TransactionResult<T>[]> {
-    console.log('🔄 TransactionManager.commit() called', { 
+    console.log('TransactionManager: commit() called', { 
       hasTransaction: !!this.currentTransaction,
       operationsCount: this.currentTransaction?.operations.length || 0,
       force 
@@ -178,14 +178,14 @@ export class SimpleTransactionManager<T = any>
       transaction.completedAt = new Date();
       transaction.results = results;
 
-      console.log('🔄 TransactionManager emitting onTransactionComplete event', { 
+      console.log('TransactionManager: emitting onTransactionComplete event', { 
         resultsCount: results.length,
         hasListeners: this.eventHandlers.has("onTransactionComplete"),
         listenerCount: this.eventHandlers.get("onTransactionComplete")?.length || 0
       });
       this.emit("onTransactionComplete", results);
       
-      console.log('🔄 TransactionManager clearing transaction');
+      console.log('TransactionManager: clearing transaction');
       this.clear(); // Clear transaction after successful completion
 
       return results;
@@ -315,21 +315,8 @@ export class SimpleTransactionManager<T = any>
     }
   }
 
-  private shouldAutoCommit(operation: TransactionOperation<T>): boolean {
+  private shouldAutoCommit(_operation: TransactionOperation<T>): boolean {
     const config = this.currentTransaction!.config;
-
-    // all mode: never auto-commit
-    if (config.mode === "all") {
-      return false;
-    }
-
-    // bulk-only mode: only auto-commit non-bulk actions
-    if (config.mode === "bulk-only") {
-      if (operation.trigger === "bulk-action") {
-        return config.bulkAutoCommit ?? false; // Bulk actions default to batched
-      }
-      return true; // Row actions are immediate
-    }
 
     // Check max operations limit
     if (
@@ -380,19 +367,26 @@ export class SimpleTransactionManager<T = any>
       // Emit individual operation completion events
       allResults.forEach((result) => this.emit("onOperationComplete", result));
 
-      // Check if any operations failed and rollback if configured
+      // Check if any operations failed and handle according to config
       const failures = results.filter((r) => !r.success);
       if (failures.length > 0) {
-        // Always rollback all successful operations on any failure in batch mode
         const successes = results.filter((r) => r.success);
-        await this.rollbackOperations(successes);
+        
+        if (transaction.config.allowPartialSuccess) {
+          // Partial success mode - don't rollback, just report the mixed results
+          console.log(`TransactionManager: Partial success - ${successes.length} succeeded, ${failures.length} failed`);
+          // Continue with partial results - don't throw
+        } else {
+          // All-or-nothing mode - rollback all successful operations
+          await this.rollbackOperations(successes);
 
-        transaction.status = "rolledback";
-        this.emit("onRollbackComplete", transaction);
+          transaction.status = "rolledback";
+          this.emit("onRollbackComplete", transaction);
 
-        throw new Error(
-          `Transaction failed: ${failures.length} operations failed and all changes were rolled back.`,
-        );
+          throw new Error(
+            `Transaction failed: ${failures.length} operations failed and all changes were rolled back.`,
+          );
+        }
       }
     } catch (error) {
       transaction.status = "failed";

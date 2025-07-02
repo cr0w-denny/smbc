@@ -799,9 +799,9 @@ const TasksDemo = () => {
         // =============================================================================
         transaction: {
           enabled: true, // Enable batch transaction support
-          mode: "all", // Apply transactions to all operations
           autoCommit: false, // Require manual commit (not automatic)
           requireConfirmation: true, // Show confirmation dialog before commit
+          emitActivities: true, // Emit activities when transactions are committed
         },
 
         // Hash params are enabled by default for URL synchronization

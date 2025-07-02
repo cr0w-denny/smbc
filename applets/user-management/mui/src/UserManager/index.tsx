@@ -53,7 +53,10 @@ export function UserManager({
   });
 
   // Event handlers
-  const handleSuccess = (_action: "create" | "edit" | "delete", _item?: any) => {
+  const handleSuccess = (
+    _action: "create" | "edit" | "delete",
+    _item?: any,
+  ) => {
     // TODO: Add toast notification or snackbar
   };
 
@@ -72,6 +75,15 @@ export function UserManager({
       permissionContext={permissionContext}
       onSuccess={handleSuccess}
       onError={handleError}
+      options={{
+        transaction: {
+          enabled: true,
+          autoCommit: false,
+          requireConfirmation: true,
+          allowPartialSuccess: true,
+          emitActivities: true,
+        },
+      }}
     />
   );
 }
