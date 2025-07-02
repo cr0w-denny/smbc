@@ -1,14 +1,13 @@
 # User Management API Client
 
-A type-safe React Query client for the User Management API, built with `openapi-react-query` and `openapi-fetch`.
+Type-safe React Query client for the User Management API, built with `openapi-react-query` and `openapi-fetch`.
 
 ## Features
 
-- ✅ **100% Type-Safe**: All API endpoints, parameters, and responses are fully typed
-- ✅ **No Manual Typing**: Types are automatically generated from the OpenAPI schema
-- ✅ **React Query Integration**: Built-in hooks for queries, mutations, and infinite queries
-- ✅ **MSW Mocks**: Auto-generated mock handlers for development and testing
-- ✅ **Zero Configuration**: Works out of the box with sensible defaults
+- Type-safe API endpoints, parameters, and responses
+- Automatically generated types from OpenAPI schema
+- React Query integration with hooks for queries and mutations
+- Auto-generated MSW mock handlers for development and testing
 
 ## Installation
 
@@ -16,7 +15,7 @@ A type-safe React Query client for the User Management API, built with `openapi-
 npm install @smbc/user-management-client
 ```
 
-## Quick Start
+## Usage
 
 ```tsx
 import React from "react";
@@ -44,8 +43,6 @@ function UsersList() {
 
 ### Default Client
 
-The package exports a pre-configured client instance:
-
 ```tsx
 import { apiClient } from "@smbc/user-management-client";
 
@@ -57,8 +54,6 @@ apiClient.useSuspenseQuery(method, path, options);
 ```
 
 ### Custom Client
-
-Create a custom client with different configuration:
 
 ```tsx
 import { createApiClient } from "@smbc/user-management-client";
@@ -72,8 +67,6 @@ const customClient = createApiClient({
 ```
 
 ### Available Endpoints
-
-All endpoints are fully typed based on the OpenAPI schema:
 
 - `GET /users` - List users with pagination
 - `POST /users` - Create a new user
@@ -158,8 +151,6 @@ function UpdateUser({ userId }: { userId: string }) {
 
 ## Testing with MSW
 
-The package includes auto-generated MSW handlers for testing:
-
 ```tsx
 import { handlers } from "@smbc/user-management-client";
 import { setupServer } from "msw/node";
@@ -172,8 +163,6 @@ afterAll(() => server.close());
 ```
 
 ## Type Definitions
-
-All types are automatically generated and exported:
 
 ```tsx
 import type { paths, components } from "@smbc/user-management-client";
@@ -197,13 +186,6 @@ npm run dev
 ```
 
 ## Configuration
-
-### Base URL
-
-The client automatically detects the environment:
-
-- **Development**: `http://localhost:3000/api/v1`
-- **Production**: `https://api.smbc.com/api/v1`
 
 ### Custom Headers
 

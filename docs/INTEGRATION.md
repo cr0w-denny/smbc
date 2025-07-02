@@ -1,365 +1,237 @@
 # Integration Guide
 
-This guide covers advanced integration patterns for adding SMBC applets to existing applications, enterprise scenarios, and custom implementations.
+## Adding to Existing Applications
 
-## 🏢 Integration Patterns
-
-### Micro-Frontend Architecture
-
-Use a microfrontend approach without the module federation complexity:
+### Basic Integration
 
 ```typescript
-// main-app/src/App.tsx
-import { AppletProvider } from '@smbc/mui-applet-host'
-import { TeamARoutes, TeamBRoutes } from './routes'
+import { AppletProvider, AppletRoute } from '@smbc/mui-applet-host'
 
-function App() {
-  return (
-    <AppletProvider
-      applets={[
-        '@smbc/user-management-mui',
-        '@company/team-a-applets',
-        '@company/team-b-applets'
-      ]}
-      roles={enterpriseRoles}
-      user={authenticatedUser}
-    >
-      <MainLayout>
-        <Routes>
-          <Route path="/admin/*" element={<TeamARoutes />} />
-          <Route path="/operations/*" element={<TeamBRoutes />} />
-          <Route path="/users/*" element={<AppletRoute applet="user-management" />} />
-        </Routes>
-      </MainLayout>
-    </AppletProvider>
-  )
-}
-```
-
-### Gradual Migration
-
-Migrate existing applications piece by piece:
-
-```typescript
-// Phase 1: Add user management only
-<AppletProvider applets={['@smbc/user-management-mui']}>
+<AppletProvider applets={['@smbc/user-management-mui']} roles={roles} user={user}>
   <Routes>
-    {/* Existing routes */}
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/reports" element={<Reports />} />
-
-    {/* Applet route */}
     <Route path="/users/*" element={<AppletRoute applet="user-management" />} />
   </Routes>
 </AppletProvider>
-
-// Phase 2: Add more applets over time
 ```
 
-### Multi-Tenant SaaS
-
-Support multiple organizations with isolated data:
+### Multiple Applets
 
 ```typescript
-function TenantApp({ tenantId }: { tenantId: string }) {
-  return (
-    <AppletProvider
-      applets={['@smbc/user-management-mui']}
-      roles={tenantRoles}
-      user={tenantUser}
-      config={{
-        apiBaseUrl: `https://api.yourapp.com/tenant/${tenantId}`,
-        tenant: { id: tenantId, name: tenantName }
-      }}
-    >
-      <TenantLayout>
-        <AppletRoute applet="user-management" />
-      </TenantLayout>
-    </AppletProvider>
-  )
-}
-```
-
-## 🔐 Permission Integration
-
-### Custom Authentication
-
-Integrate with your existing auth system:
-
-```typescript
-import { AppletProvider } from '@smbc/mui-applet-host'
-import { useAuth } from './auth'
-
-function App() {
-  const { user, login, logout, isAuthenticated } = useAuth()
-
-  if (!isAuthenticated) {
-    return <LoginPage onLogin={login} />
-  }
-
-  return (
-    <AppletProvider
-      applets={['@smbc/user-management-mui']}
-      roles={user.roles}
-      user={user}
-      config={{
-        auth: {
-          onLogout: logout,
-          refreshToken: user.refreshToken
-        }
-      }}
-    >
-      <AuthenticatedApp />
-    </AppletProvider>
-  )
-}
-```
-
-### Simple Role-Based Permissions
-
-Applets use a straightforward role-based access control system:
-
-```typescript
-// Your existing role system
-const userRoles = ['COMPANY_ADMIN', 'DEPT_MANAGER', 'EMPLOYEE']
-
-// Map to applet permissions
-const permissionMappings = {
-  'user-management': {
-    'VIEW_USERS': ['COMPANY_ADMIN', 'DEPT_MANAGER'],
-    'EDIT_USERS': ['COMPANY_ADMIN', 'DEPT_MANAGER'],
-    'DELETE_USERS': ['COMPANY_ADMIN'],
-    'MANAGE_ROLES': ['COMPANY_ADMIN']
-  }
-}
-
 <AppletProvider
-  roles={userRoles}
-  config={{ permissions: { permissionMappings } }}
+  applets={[
+    '@smbc/user-management-mui',
+    '@company/product-catalog-mui',
+    '@company/analytics-mui'
+  ]}
+  roles={['Guest', 'Staff', 'Admin']}
+  user={authenticatedUser}
+>
+  <Routes>
+    <Route path="/users/*" element={<AppletRoute applet="user-management" />} />
+    <Route path="/products/*" element={<AppletRoute applet="product-catalog" />} />
+    <Route path="/analytics/*" element={<AppletRoute applet="analytics" />} />
+  </Routes>
+</AppletProvider>
+```
+
+## Custom API Configuration
+
+### API Base URL
+
+```typescript
+<AppletProvider
+  config={{
+    api: {
+      baseUrl: 'https://api.example.com',
+      headers: { 'Authorization': `Bearer ${token}` }
+    }
+  }}
 >
 ```
 
-### Dynamic Permissions
-
-Load permissions from your backend:
-
-```typescript
-function App() {
-  const [permissions, setPermissions] = useState(null)
-
-  useEffect(() => {
-    fetchUserPermissions(userId).then(setPermissions)
-  }, [userId])
-
-  if (!permissions) return <Loading />
-
-  return (
-    <AppletProvider
-      roles={permissions.roles}
-      config={{
-        permissions: {
-          permissionMappings: permissions.mappings
-        }
-      }}
-    >
-```
-
-## 📊 Data Integration
-
-### Custom API Configuration
-
-Point to your existing backend services:
+### Per-Applet API Configuration
 
 ```typescript
 <AppletProvider
-  applets={['@smbc/user-management-mui']}
   config={{
-    api: {
-      baseUrl: 'https://api.smbcgroup.com',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Company-ID': companyId
+    applets: {
+      'user-management': {
+        api: { baseUrl: 'https://users-api.example.com' }
       },
-      endpoints: {
-        'user-management': '/v2/users'
+      'product-catalog': {
+        api: { baseUrl: 'https://products-api.example.com' }
       }
     }
   }}
 >
 ```
 
-### Real-time Data Sync
+## Permission Integration
 
-Keep data synchronized across systems:
-
-```typescript
-import { useQueryClient } from "@tanstack/react-query";
-
-function useDataSync() {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const websocket = new WebSocket("wss://api.smbcgroup.com/sync");
-
-    websocket.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-
-      if (type === "user-updated") {
-        queryClient.invalidateQueries(["users"]);
-      }
-    };
-
-    return () => websocket.close();
-  }, [queryClient]);
-}
-```
-
-## 🎨 UI Integration
-
-### Custom Layout Components
-
-Wrap applets in your existing layout:
+### Role Mappings
 
 ```typescript
-import { AppletRoute } from '@smbc/mui-applet-host'
-
-function CompanyLayout({ children }) {
-  return (
-    <div className="company-layout">
-      <CompanyHeader />
-      <CompanySidebar />
-      <main className="content">
-        {children}
-      </main>
-    </div>
-  )
+const permissionMappings = {
+  'user-management': {
+    'VIEW_USERS': ['ADMIN', 'MANAGER'],
+    'EDIT_USERS': ['ADMIN'],
+    'DELETE_USERS': ['ADMIN']
+  },
+  'product-catalog': {
+    'VIEW_PRODUCTS': ['ADMIN', 'MANAGER', 'STAFF'],
+    'EDIT_PRODUCTS': ['ADMIN', 'MANAGER'],
+    'DELETE_PRODUCTS': ['ADMIN']
+  }
 }
 
-<Routes>
-  <Route path="/users/*" element={
-    <CompanyLayout>
-      <AppletRoute applet="user-management" />
-    </CompanyLayout>
-  } />
-</Routes>
+<AppletProvider permissionMappings={permissionMappings}>
 ```
 
-### Custom Navigation
-
-Integrate with your existing navigation:
+### Custom Permission Logic
 
 ```typescript
-import { useAppletNavigation } from '@smbc/mui-applet-host'
-
-function CompanySidebar() {
-  const { getAppletRoutes } = useAppletNavigation()
-  const userManagementRoutes = getAppletRoutes('user-management')
-
-  return (
-    <nav>
-      {/* Your existing nav items */}
-      <NavSection title="User Management">
-        {userManagementRoutes.map(route => (
-          <NavItem key={route.path} to={route.path}>
-            {route.label}
-          </NavItem>
-        ))}
-      </NavSection>
-    </nav>
-  )
+function hasPermission(user, applet, permission) {
+  const userRoles = user.roles
+  const allowedRoles = permissionMappings[applet]?.[permission] || []
+  return userRoles.some(role => allowedRoles.includes(role))
 }
+
+<AppletProvider customPermissionChecker={hasPermission}>
 ```
 
-## 🚀 Performance Optimization
+## Theme Integration
 
-### Code Splitting
-
-Load applets on demand:
+### Custom Theme
 
 ```typescript
-import { lazy, Suspense } from 'react'
+import { createTheme } from '@mui/material/styles'
 
-const UserManagement = lazy(() =>
-  import('@smbc/user-management-mui').then(module => ({
-    default: () => <AppletRoute applet="user-management" />
-  }))
-)
-
-<Route path="/users/*" element={
-  <Suspense fallback={<Loading />}>
-    <UserManagement />
-  </Suspense>
-} />
-```
-
-### Caching Strategy
-
-Optimize data fetching across applets:
-
-```typescript
-import { QueryClient } from '@tanstack/react-query'
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-    }
+const customTheme = createTheme({
+  palette: {
+    primary: { main: '#1976d2' },
+    secondary: { main: '#dc004e' }
   }
 })
 
-<AppletProvider queryClient={queryClient}>
+<ThemeProvider theme={customTheme}>
+  <AppletProvider applets={applets}>
+    <App />
+  </AppletProvider>
+</ThemeProvider>
 ```
 
-## 🧪 Testing Integration
-
-### E2E Testing
-
-Test applet integration in your app:
+### Design Token Override
 
 ```typescript
-// cypress/integration/user-management.spec.ts
-describe("User Management Integration", () => {
-  beforeEach(() => {
-    cy.login("admin@company.com");
-    cy.visit("/users");
-  });
-
-  it("should load user management applet", () => {
-    cy.get('[data-testid="user-table"]').should("be.visible");
-    cy.get('[data-testid="add-user-button"]').should("be.visible");
-  });
-
-  it("should respect permissions", () => {
-    cy.login("viewer@company.com");
-    cy.visit("/users");
-    cy.get('[data-testid="add-user-button"]').should("not.exist");
-  });
-});
+<AppletProvider
+  config={{
+    theme: {
+      tokens: {
+        'color-primary': '#custom-color',
+        'spacing-base': '8px'
+      }
+    }
+  }}
+>
 ```
 
-### Component Testing
+## State Management Integration
 
-Test applet components in isolation:
+### Redux Integration
 
 ```typescript
-import { render } from '@testing-library/react'
-import { AppletProvider } from '@smbc/mui-applet-host'
+import { useSelector, useDispatch } from 'react-redux'
 
-function renderWithAppletProvider(component, options = {}) {
-  return render(
-    <AppletProvider
-      applets={['@smbc/user-management-mui']}
-      roles={['Admin']}
-      {...options}
-    >
-      {component}
+function App() {
+  const user = useSelector(state => state.auth.user)
+  const roles = useSelector(state => state.auth.roles)
+  
+  return (
+    <AppletProvider applets={applets} user={user} roles={roles}>
+      <Routes />
     </AppletProvider>
   )
 }
+```
 
-test('user table renders correctly', () => {
-  renderWithAppletProvider(<AppletRoute applet="user-management" />)
-  // Test applet behavior
-})
+### Custom State
+
+```typescript
+function App() {
+  const [user, setUser] = useState(null)
+  const [roles, setRoles] = useState([])
+  
+  useEffect(() => {
+    // Load user data
+    authService.getCurrentUser().then(setUser)
+    authService.getUserRoles().then(setRoles)
+  }, [])
+  
+  return (
+    <AppletProvider applets={applets} user={user} roles={roles}>
+      <Routes />
+    </AppletProvider>
+  )
+}
+```
+
+## Error Handling
+
+### Global Error Boundary
+
+```typescript
+import { ErrorBoundary } from '@smbc/mui-components'
+
+<ErrorBoundary>
+  <AppletProvider applets={applets}>
+    <App />
+  </AppletProvider>
+</ErrorBoundary>
+```
+
+### Custom Error Handler
+
+```typescript
+<AppletProvider
+  onError={(error, applet) => {
+    console.error(`Error in ${applet}:`, error)
+    notificationService.error(`Failed to load ${applet}`)
+  }}
+>
+```
+
+## Performance Optimization
+
+### Lazy Loading
+
+```typescript
+const UserManagement = lazy(() => import('@smbc/user-management-mui'))
+
+<Route 
+  path="/users/*" 
+  element={
+    <Suspense fallback={<Loading />}>
+      <UserManagement />
+    </Suspense>
+  } 
+/>
+```
+
+### Code Splitting
+
+```typescript
+// Dynamically import applets based on user permissions
+const applets = useMemo(() => {
+  const availableApplets = []
+  
+  if (hasPermission('VIEW_USERS')) {
+    availableApplets.push('@smbc/user-management-mui')
+  }
+  
+  if (hasPermission('VIEW_PRODUCTS')) {
+    availableApplets.push('@company/product-catalog-mui')
+  }
+  
+  return availableApplets
+}, [user.permissions])
 ```

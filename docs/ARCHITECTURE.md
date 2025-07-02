@@ -1,223 +1,116 @@
 # Architecture Overview
 
-The SMBC Applets Platform is a **scalable, type-safe architecture** for building enterprise applications through independent, self-contained **applets** while maintaining consistency, performance, and developer experience.
+The platform uses a layered architecture with host applications coordinating independent applets.
 
-## 🏗️ Architecture Layers
+## Architecture Layers
 
 ### 1. Host Application Layer
 
-The host application provides the shell and coordinates applets:
+The host application provides routing, theme, and coordinates applets:
 
-```mermaid
-graph TB
-    subgraph "Host App"
-        HOST["Shell (Router, Theme)"]
-    end
-
-    subgraph "Applets"
-        APPLETS[User • Catalog • Analytics]
-    end
-
-    subgraph "Shared Infrastructure"
-        QUERY[Query Client]
-        DESIGN[Design System]
-        PERMS[Permissions]
-        MOCKS[Mock Services]
-    end
-
-    HOST --> APPLETS
-    APPLETS --> QUERY
-    APPLETS --> DESIGN
-    APPLETS --> PERMS
-    QUERY --> MOCKS
-
+```
+Host App (Shell)
+├── Router
+├── Theme Provider
+├── Permission Context
+└── Query Client
 ```
 
 ### 2. Applet Layer
 
-Each business domain is a complete, self-contained applet:
-
-```mermaid
-graph TB
-    subgraph "Applet"
-        API[📋 API Definition<br/>TypeSpec]
-        CLIENT[🔌 Generated Client<br/>TypeScript + TanStack Query]
-        UI[🎨 UI Components<br/>MUI + React]
-        BACKEND[⚙️ Backend Service<br/>Django/any framework]
-        MOCKS[🎭 Development Mocks<br/>MSW + Faker.js]
-    end
-
-    API --> CLIENT
-    CLIENT --> UI
-    CLIENT --> MOCKS
-    BACKEND --> API
-
-    UI --> HOST[Host Application]
-    MOCKS --> DEV[Development Environment]
-```
-
-### 3. Shared Infrastructure Layer
-
-Common utilities and systems shared across all applets:
+Each business domain is a self-contained applet:
 
 ```
-├── @smbc/mui-applet-core          # Core applet infrastructure
-├── @smbc/mui-components           # Shared MUI components
-│   └── @smbc/design-tokens        # Design token system
-└── @smbc/applet-query-client      # Single QueryClient architecture
-    ├── @smbc/react-openapi-client # API client utilities
-    └── @smbc/msw-utils            # Mock generation tools
+applets/domain-name/
+├── api/           # TypeSpec API definition
+├── api-client/    # Generated TypeScript client + mocks
+├── mui/           # React UI components
+└── django/        # Backend service
 ```
 
-## 📱 Applet Structure
+### 3. Shared Infrastructure
 
-Each applet follows a standardized structure:
+Common utilities shared across applets:
 
 ```
-applets/user-management/
-├── api/                   # TypeSpec API definition
-│   ├── main.tsp           # OpenAPI schema
-│   └── tsp-output/        # Generated OpenAPI JSON
-├── api-client/            # Generated TypeScript client
-│   ├── src/generated/     # Auto-generated types
-│   ├── src/mocks/         # MSW mock handlers
-│   └── src/client.ts      # Client configuration
-├── mui/                   # React UI components
-│   ├── src/components/    # Business components
-│   ├── src/permissions.ts # Permission definitions
-│   └── src/index.ts       # Applet export
-└── django/                # Backend implementation
-    ├── models.py          # Data models
-    ├── views.py           # API endpoints
-    └── urls.py            # URL routing
+packages/
+├── applet-query-client/  # Single QueryClient for all applets
+├── mui-components/       # Shared MUI components
+├── applet-core/          # Core utilities
+├── applet-dataview/      # Data management and transactions
+└── design-tokens/        # Design system tokens
 ```
 
-## 🚀 Easy Integration Paths
+## Package Architecture
 
-### Greenfield Implementation
+### Core Packages
 
-```mermaid
-graph TB
-    subgraph " "
-        G1[npm create vite]
-        G2[Install @smbc/mui-host]
-        G3[createApp with config]
-        G4[Full app shell provided]
-    end
-    G1 --> G2 --> G3 --> G4
+- **applet-query-client**: Centralized TanStack Query configuration
+- **mui-components**: Shared React components using Material-UI
+- **applet-core**: Authentication, permissions, navigation utilities
+- **applet-dataview**: Data tables, forms, CRUD operations with transaction support
+- **design-tokens**: CSS variables and design system definitions
+
+### Applet Structure
+
+Each applet follows this structure:
+
+```
+applets/business-domain/
+├── api/              # TypeSpec schema definitions
+│   ├── main.tsp      # API models and endpoints
+│   └── tsp-output/   # Generated OpenAPI specs
+├── api-client/       # TypeScript client
+│   ├── src/
+│   │   ├── client.ts     # API client configuration
+│   │   ├── generated/    # Auto-generated types
+│   │   └── mocks/        # MSW mock handlers
+│   └── dist/         # Built client library
+├── mui/              # React UI components
+│   ├── src/
+│   │   ├── components/   # UI components
+│   │   ├── config/       # Applet configuration
+│   │   └── index.ts      # Main export
+│   └── dist/         # Built UI library
+└── django/           # Backend implementation
+    ├── models.py     # Data models
+    ├── views.py      # API endpoints
+    └── urls.py       # URL routing
 ```
 
-```typescript
-import { createApp } from "@smbc/mui-host";
+## Data Flow
 
-createApp({
-  config: {
-    applets: ["@smbc/user-management-mui"],
-    roles: ["Guest", "Staff", "Admin"],
-    app: { name: "My SMBC App" },
-  },
-});
-```
+1. **TypeSpec Definition**: Define API schema in `api/main.tsp`
+2. **Code Generation**: Generate TypeScript types and OpenAPI spec
+3. **Client Generation**: Create TanStack Query hooks and mock handlers
+4. **UI Development**: Build React components using generated client
+5. **Backend Implementation**: Implement API endpoints matching schema
 
-### Existing App Integration
-
-```mermaid
-graph TB
-    subgraph " "
-        E1[Existing React app]
-        E2[Install @smbc/mui-host]
-        E3[Use AppletProvider]
-        E4[Mount applets in routes]
-    end
-    E1 --> E2 --> E3 --> E4
-```
-
-```typescript
-import { AppletProvider, AppletRoute } from '@smbc/mui-host'
-
-<AppletProvider applets={['@smbc/user-management-mui']} roles={roles} user={user}>
-  <Routes>
-    <Route path="/users/*" element={<AppletRoute applet="user-management" />} />
-  </Routes>
-</AppletProvider>
-```
-
-## 🔐 Permission System
+## Permission System
 
 Role-based permissions with applet-specific scoping:
 
-```mermaid
-graph TD
-    ROLES[User Roles]
-    APPLET[Applet Permissions]
-    CORE[Core Mapping<br/>Roles → Permissions]
-    ACCESS[Access Decision]
+- **Roles**: Defined at application level (e.g., Guest, Staff, Admin)
+- **Permissions**: Defined per applet (e.g., VIEW_USERS, EDIT_USERS)
+- **Mappings**: Configure which roles have which permissions per applet
 
-    ROLES --> CORE
-    APPLET --> CORE
-    CORE --> ACCESS
-
+```typescript
+const permissionMappings = {
+  'user-management': {
+    'VIEW_USERS': ['Staff', 'Admin'],
+    'EDIT_USERS': ['Admin']
+  }
+}
 ```
 
-## 🔄 Data Flow Architecture
+## Build System
 
-Single QueryClient pattern for optimal performance:
+The monorepo uses npm workspaces with TypeScript project references:
 
-```mermaid
-graph TB
-    subgraph "Data Architecture"
-        QP[Query Provider<br/>Single Instance]
-        A1[Applet 1]
-        A2[Applet 2]
-        A3[Applet 3]
-
-        QP --> A1
-        QP --> A2
-        QP --> A3
-
-        A1 --> CACHE[Shared Cache]
-        A2 --> CACHE
-        A3 --> CACHE
-
-        CACHE --> API1[API Service 1]
-        CACHE --> API2[API Service 2]
-        CACHE --> API3[API Service 3]
-    end
-
-    subgraph "Benefits"
-        B1[No Prop Drilling]
-        B2[Automatic Deduplication]
-        B3[Cross-Applet Caching]
-        B4[Optimistic Updates]
-    end
+```bash
+npm run build:libs        # Build shared packages first
+npm run build:apis        # Generate API specifications
+npm run build:api-clients # Build TypeScript clients
+npm run build:applets     # Build React UI components
+npm run build:apps        # Build host applications
 ```
-
-## 🎭 Development Experience
-
-API-first development with automatic mock generation:
-
-```mermaid
-graph LR
-    subgraph "API-First Development"
-        DEF[Define API<br/>TypeSpec]
-        GEN[Generate<br/>Client & Mocks]
-    end
-
-    DEF --> GEN
-
-    subgraph "Generated Assets"
-        TYPES[TypeScript Types]
-        CLIENT[API Client]
-        MOCKS[MSW Handlers]
-        DOCS[API Documentation]
-    end
-
-    GEN --> TYPES
-    GEN --> CLIENT
-    GEN --> MOCKS
-    GEN --> DOCS
-```
-
-## 📦 Package Dependencies
-
-Third party packages are externalized for optimal bundle management.

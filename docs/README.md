@@ -1,54 +1,50 @@
 # SMBC Applets Platform
 
-Welcome to the SMBC Applets Platform - a scalable, type-safe architecture for building enterprise applications through independent, self-contained applets.
+React applet system for modular business functionality.
 
-## 📚 Documentation Overview
+## Documentation
 
 ### Quick Start
 
-- **[Architecture Overview](./ARCHITECTURE.md)** - Understand the system design and patterns
-- **[Getting Started](./GETTING_STARTED.md)** - Create your first app in 5 minutes
+- **[Architecture Overview](./ARCHITECTURE.md)** - System design and patterns
+- **[Getting Started](./GETTING_STARTED.md)** - Installation and setup
 
-### For Developers
+### Development
 
-- **[Integration Guide](./INTEGRATION.md)** - Add applets to existing applications
-- **[Applet Development](./APPLET_DEVELOPMENT.md)** - Build applets from scratch
+- **[Integration Guide](./INTEGRATION.md)** - Adding applets to existing applications
+- **[Applet Development](./APPLET_DEVELOPMENT.md)** - Building new applets
 
 ### Implementation Details
 
-- **[Implementation Guides](./implementation/README.md)** - Technical setup, dependencies, and tooling
+- **[Implementation Guides](./implementation/README.md)** - Technical setup and tooling
 
-## 🚀 Two-Minute Quick Start
+## Quick Start
 
 ### New Application
 
 ```bash
 npm create vite@latest my-app -- --template react-ts
 cd my-app
-npm install @smbc/mui-host @smbc/user-management-mui
+npm install @smbc/mui-applet-host @smbc/user-management-mui
 ```
 
 ```typescript
 // src/main.ts
-import { createApp } from "@smbc/mui-host";
+import { createApp } from "@smbc/mui-applet-host";
 
 createApp({
   config: {
     applets: ["@smbc/user-management-mui"],
     roles: ["Guest", "Staff", "Admin"],
-    app: { name: "My SMBC App" },
+    app: { name: "My App" },
   },
 });
-```
-
-```bash
-npm run dev
 ```
 
 ### Existing Application
 
 ```typescript
-import { AppletProvider, AppletRoute } from '@smbc/mui-host'
+import { AppletProvider, AppletRoute } from '@smbc/mui-applet-host'
 
 <AppletProvider applets={['@smbc/user-management-mui']} roles={roles} user={user}>
   <Routes>
@@ -57,51 +53,23 @@ import { AppletProvider, AppletRoute } from '@smbc/mui-host'
 </AppletProvider>
 ```
 
-## 🏗️ What You Get
+## Available Applets
 
-- **Type-safe API client** generated from OpenAPI specifications
-- **MUI components** that follow your design system
-- **Mock data** for development without backend dependencies
-- **Permission-based access control** built into every component
-- **Hot reload** development experience with instant feedback
+| Package                     | Description                     |
+| --------------------------- | ------------------------------- |
+| `@smbc/user-management-mui` | User CRUD operations and roles  |
 
-## 🎯 Key Benefits
-
-### Independent Business Domains
-
-Each applet is a complete business domain - API, UI, backend, and mocks - that can be developed and deployed independently.
-
-### Enterprise-Ready
-
-Built-in permissions, role-based access, type safety, and scalable architecture designed to accommodate multiple business domains.
-
-### Developer Experience
-
-API-first development with auto-generated clients, realistic mock data, and comprehensive tooling.
-
-## 📦 Available Applets
-
-| Package                     | Description                     | Features                                      |
-| --------------------------- | ------------------------------- | --------------------------------------------- |
-| `@smbc/user-management-mui` | Complete user management system | User CRUD, roles, permissions, authentication |
-
-## 🛠️ Development Workflow
+## Commands
 
 ```bash
-# Start all development servers
-npm run dev
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-
-# Generate API clients
-npm run generate
+# Development
+npm run dev           # Start all development servers
+npm run build         # Build for production
+npm test             # Run tests
+npm run generate     # Generate API clients
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Basic Configuration
 
