@@ -7,7 +7,6 @@ import {
   MuiDataViewApplet,
   type MuiDataViewAppletConfig,
 } from "@smbc/mui-applet-core";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { faker } from "@faker-js/faker";
 import {
   createBulkUpdateAction,
@@ -122,176 +121,104 @@ let mockTasks = generateMockTasks(75);
  * Creates a mock API client that simulates real backend interactions.
  */
 const createTasksApiClient = () => {
-  /**
-   * Mock implementation of useQuery that simulates backend data fetching.
-   *
-   * Features demonstrated:
-   * - Query key generation for proper caching
-   * - Server-side filtering and pagination simulation
-   * - Initial data population
-   * - Realistic async behavior with Promise-based queries
-   *
-   * @param method - HTTP method (GET, POST, etc.)
-   * @param endpoint - API endpoint path
-   * @param params - Query parameters including filters and pagination
-   * @param options - Additional React Query options
-   */
-  const mockUseQuery = (
-    method: string,
-    endpoint: string,
-    params: any,
-    options?: any,
-  ) => {
-    const queryKey = [method, endpoint, params];
 
-    // Calculate initial data for this specific query
-    const filters = params?.params?.query || {};
-    const page = filters.page || 1;
-    const pageSize = filters.pageSize || 10;
-
-    // Apply simple filtering to get initial data
-    let filteredTasks = mockTasks;
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filteredTasks = mockTasks.filter(
-        (task) =>
-          task.title.toLowerCase().includes(searchLower) ||
-          task.assignee.toLowerCase().includes(searchLower),
-      );
-    }
-    if (filters.status) {
-      filteredTasks = filteredTasks.filter(
-        (task) => task.status === filters.status,
-      );
-    }
-    if (filters.priority) {
-      filteredTasks = filteredTasks.filter(
-        (task) => task.priority === filters.priority,
-      );
-    }
-
-    // Apply pagination
-    const startIndex = (page - 1) * pageSize;
-    const paginatedTasks = filteredTasks.slice(
-      startIndex,
-      startIndex + pageSize,
-    );
-
-    const initialData = {
-      data: paginatedTasks,
-      total: filteredTasks.length,
-      page,
-      pageSize,
-    };
-
-    return useQuery({
-      queryKey,
-      enabled: options?.enabled !== false,
-      queryFn: async () => {
-        console.log("📋 Query function executing - current mockTasks state:", {
-          totalTasks: mockTasks.length,
-          sampleTasks: mockTasks.slice(0, 3).map((t) => ({
-            id: t.id,
-            status: t.status,
-            priority: t.priority,
-          })),
-        });
-
-        // Apply filtering to current mockTasks state
-        let filteredTasks = mockTasks;
-        if (filters.search) {
-          const searchLower = filters.search.toLowerCase();
-          filteredTasks = mockTasks.filter(
-            (task) =>
-              task.title.toLowerCase().includes(searchLower) ||
-              task.assignee.toLowerCase().includes(searchLower),
-          );
-        }
-        if (filters.status) {
-          filteredTasks = filteredTasks.filter(
-            (task) => task.status === filters.status,
-          );
-        }
-        if (filters.priority) {
-          filteredTasks = filteredTasks.filter(
-            (task) => task.priority === filters.priority,
-          );
-        }
-
-        // Apply pagination
-        const startIndex = (page - 1) * pageSize;
-        const paginatedTasks = filteredTasks.slice(
-          startIndex,
-          startIndex + pageSize,
+  // Return openapi-fetch compatible interface
+  return {
+    GET: async (_endpoint: string, options: any) => {
+      const params = options?.params?.query || {};
+      console.log('Demo mock GET called:', { endpoint: _endpoint, params });
+      
+      // Apply filtering
+      let filteredTasks = mockTasks;
+      if (params.search) {
+        const searchLower = params.search.toLowerCase();
+        filteredTasks = mockTasks.filter(
+          (task) =>
+            task.title.toLowerCase().includes(searchLower) ||
+            task.assignee.toLowerCase().includes(searchLower),
         );
+      }
+      if (params.status) {
+        filteredTasks = filteredTasks.filter(
+          (task) => task.status === params.status,
+        );
+      }
+      if (params.priority) {
+        filteredTasks = filteredTasks.filter(
+          (task) => task.priority === params.priority,
+        );
+      }
 
-        const result = {
+      // Apply pagination
+      const page = params.page || 1;
+      const pageSize = params.pageSize || 10;
+      const startIndex = (page - 1) * pageSize;
+      const paginatedTasks = filteredTasks.slice(
+        startIndex,
+        startIndex + pageSize,
+      );
+
+      return {
+        data: {
           data: paginatedTasks,
           total: filteredTasks.length,
           page,
           pageSize,
+        },
+        error: null,
+      };
+    },
+    
+    POST: async (_endpoint: string, options: any) => {
+      const newTask = {
+        id: mockTasks.length + 1,
+        ...options.body,
+        createdAt: new Date().toISOString(),
+      };
+      mockTasks.unshift(newTask);
+      
+      return {
+        data: newTask,
+        error: null,
+      };
+    },
+    
+    PATCH: async (_endpoint: string, options: any) => {
+      const id = options.params?.path?.id;
+      const updates = options.body;
+      const taskIndex = mockTasks.findIndex((t) => t.id === id);
+      
+      if (taskIndex !== -1) {
+        mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates };
+        return {
+          data: mockTasks[taskIndex],
+          error: null,
         };
-
-        return result;
-      },
-      initialData, // Pre-populate the cache with mock data
-      staleTime: 0, // Allow refetching to get updated data
-    });
-  };
-
-  /**
-   * Mock implementation of useMutation for data modifications.
-   *
-   * Handles three types of mutations:
-   * 1. PATCH: Updates existing records
-   * 2. DELETE: Removes records
-   * 3. POST: Creates new records
-   *
-   * Updates the global mockTasks array to simulate backend persistence
-   */
-  const mockUseMutation = (
-    method: string,
-    endpoint: string,
-    options: any = {},
-  ) => {
-    return useMutation({
-      mutationFn: async (variables: any) => {
-        // Handle different mutation types
-        if (method === "patch" && endpoint.includes("{id}")) {
-          // Update mutation
-          const id = variables.params?.path?.id;
-          const updates = variables.body;
-          const taskIndex = mockTasks.findIndex((t) => t.id === id);
-          if (taskIndex !== -1) {
-            // Apply updates directly - data is already clean
-            mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates };
-          }
-        } else if (method === "delete" && endpoint.includes("{id}")) {
-          // Delete mutation
-          const id = variables.params?.path?.id;
-          mockTasks = mockTasks.filter((t) => t.id !== id);
-        } else if (method === "post") {
-          // Create mutation
-          // Apply new task data directly - data is already clean
-          const newTask = {
-            id: mockTasks.length + 1,
-            ...variables.body,
-            createdAt: new Date().toISOString(),
-          };
-          mockTasks.unshift(newTask);
-
-          return Promise.resolve(newTask);
-        }
-
-        return Promise.resolve(variables);
-      },
-      ...options,
-    });
-  };
-
-  return {
-    useQuery: mockUseQuery,
-    useMutation: mockUseMutation,
+      }
+      
+      return {
+        data: null,
+        error: { message: `Task with id ${id} not found` },
+      };
+    },
+    
+    DELETE: async (_endpoint: string, options: any) => {
+      const id = options.params?.path?.id;
+      const originalLength = mockTasks.length;
+      mockTasks = mockTasks.filter((t) => t.id !== id);
+      
+      if (mockTasks.length === originalLength) {
+        return {
+          data: null,
+          error: { message: `Task with id ${id} not found` },
+        };
+      }
+      
+      return {
+        data: {},
+        error: null,
+      };
+    },
   };
 };
 
@@ -792,6 +719,7 @@ const TasksDemo = () => {
     <MuiDataViewApplet
       config={config}
       permissionContext="tasks-demo"
+      enableUrlSync={true}
       options={{
         // =============================================================================
         // TRANSACTION SYSTEM CONFIGURATION
@@ -801,9 +729,6 @@ const TasksDemo = () => {
           requireConfirmation: false, // Show confirmation dialog before commit
           emitActivities: true, // Emit activities when transactions are committed
         },
-
-        // Hash params are enabled by default for URL synchronization
-        // This allows users to bookmark filtered/paginated views
       }}
     />
   );
