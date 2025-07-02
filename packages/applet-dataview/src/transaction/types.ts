@@ -3,9 +3,6 @@
 export interface TransactionConfig {
   enabled: boolean;
 
-  // Commit behavior
-  autoCommit: boolean; // Auto-commit operations
-
   // User interaction
   requireConfirmation: boolean; // Show confirmation before commit
 

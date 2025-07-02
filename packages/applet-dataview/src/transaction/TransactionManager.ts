@@ -109,10 +109,12 @@ export class SimpleTransactionManager<T = any>
 
     TransactionRegistry.notifyListeners();
 
-    // Auto-commit logic
-    const shouldAutoCommit = this.shouldAutoCommit(fullOperation);
-    if (shouldAutoCommit) {
-      // For auto-commit, we might want to delay slightly to allow batching
+    // Check max operations limit for auto-commit
+    if (
+      this.currentTransaction!.config.maxPendingOperations &&
+      this.getOperations().length >= this.currentTransaction!.config.maxPendingOperations
+    ) {
+      // Auto-commit when max operations reached
       setTimeout(() => this.commit(), 10);
     }
 
@@ -315,19 +317,6 @@ export class SimpleTransactionManager<T = any>
     }
   }
 
-  private shouldAutoCommit(_operation: TransactionOperation<T>): boolean {
-    const config = this.currentTransaction!.config;
-
-    // Check max operations limit
-    if (
-      config.maxPendingOperations &&
-      this.getOperations().length >= config.maxPendingOperations
-    ) {
-      return true;
-    }
-
-    return config.autoCommit;
-  }
 
 
   private async executeBatch(): Promise<TransactionResult<T>[]> {

@@ -78,7 +78,6 @@ export function UserManager({
       options={{
         transaction: {
           enabled: true,
-          autoCommit: false,
           requireConfirmation: true,
           allowPartialSuccess: true,
           emitActivities: true,

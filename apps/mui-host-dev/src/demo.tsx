@@ -629,7 +629,6 @@ const createTaskConfig = (
           // It does NOT mix with the clean data - it's only used for determining
           // which action buttons should be visible.
           //
-          // This maintains clean separation:
           // - Original data: Always remains unchanged
           // - Transaction state: Tracked separately in pendingStates Map
           // - UI calculations: Temporary mixing only for button visibility
@@ -760,7 +759,7 @@ const createTaskConfig = (
   activity: {
     enabled: true, // Enable activity/audit logging
     entityType: "task", // Entity type for activity records
-    labelGenerator: (item: any) => item.title, // Human-readable item labels
+    labelGenerator: (item: Task) => item.title, // Human-readable item labels
     // No URL generator for demo tasks since there's no detail view
     // In production: urlGenerator: (item) => `/tasks/${item.id}`
   },
@@ -799,7 +798,6 @@ const TasksDemo = () => {
         // =============================================================================
         transaction: {
           enabled: true, // Enable batch transaction support
-          autoCommit: false, // Require manual commit (not automatic)
           requireConfirmation: true, // Show confirmation dialog before commit
           emitActivities: true, // Emit activities when transactions are committed
         },
@@ -817,7 +815,7 @@ const TasksDemo = () => {
 
 /**
  * API specification for the demo applet.
- * In production, this would contain your actual OpenAPI/Swagger specification.
+ * This would contain your actual OpenAPI/Swagger specification.
  */
 const apiSpec = {
   name: "Tasks Demo API",

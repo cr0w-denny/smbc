@@ -79,8 +79,6 @@ export function useDataView<T extends Record<string, any>>(
 
     const defaultConfig: TransactionConfig = {
       enabled: true,
-      mode: "all",
-      autoCommit: false,
       requireConfirmation: true,
     };
 
