@@ -47,15 +47,27 @@ interface ApiResponse {
 /**
  * Creates API configuration for the UserManager component
  *
+ * NOTE: This applet serves as an example of handling non-standard API response formats.
+ * While the recommended pattern is to use PaginatedResponse<T> with an "items" field,
+ * this API returns a "users" field instead. The custom responseRow/responseRowCount
+ * functions below demonstrate how to adapt any response format to work with DataView.
+ *
+ * For new APIs, prefer the standard PaginatedResponse<T> format to avoid needing
+ * custom response adapters.
+ *
  * @param userType - Type of users to fetch ("all", "admins", or "non-admins")
  * @returns API configuration object for the data view applet
  */
 export const createApiConfig = (userType: "all" | "admins" | "non-admins") => ({
   endpoint: "/users" as const,
   client: apiClient,
+  // CUSTOM RESPONSE ADAPTERS EXAMPLE:
   // Extracts the users array from the TypeSpec-defined UserList response structure
   // The API returns { users: User[], total: number, page: number, pageSize: number }
   // as defined in applets/user-management/api/main.tsp (UserList model)
+  //
+  // This demonstrates how to handle APIs that don't follow the standard 
+  // PaginatedResponse<T> format (which expects "items" instead of "users").
   //
   // These functions are used by the DataView component to:
   // 1. Transform API responses into table rows
