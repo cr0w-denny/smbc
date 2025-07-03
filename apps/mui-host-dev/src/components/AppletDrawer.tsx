@@ -1,16 +1,16 @@
 import React from "react";
 import { Dashboard as DashboardIcon } from "@mui/icons-material";
 import {
-  AppletDrawer as BaseAppletDrawer,
-  type NavigationRoute,
-} from "@smbc/mui-components";
-import {
+  getAllRoutes,
   useHashNavigation,
   usePermissionFilteredRoutes,
   useRoleManagement,
   type HostAppletDefinition,
 } from "@smbc/applet-core";
-import { getAllRoutes } from "@smbc/applet-core";
+import {
+  AppletDrawer as BaseAppletDrawer,
+  type NavigationRoute,
+} from "@smbc/mui-components";
 
 interface AppletDrawerProps {
   applets: HostAppletDefinition[];
