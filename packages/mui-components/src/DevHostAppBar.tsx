@@ -15,8 +15,6 @@ import {
   LightMode as LightModeIcon,
   DarkMode as DarkModeIcon,
 } from "@mui/icons-material";
-// NOTE: ActivityNotifications moved to mui-applet-core
-// This component will need to be moved or refactored
 
 /**
  * Represents current applet information for API documentation
@@ -80,7 +78,6 @@ export function DevHostAppBar({
   mockEnabled,
   onMockToggle,
   onApiDocsOpen,
-  // onNavigate, // Removed - ActivityNotifications moved
   drawerWidth = 240,
   children,
   sx,
@@ -116,7 +113,6 @@ export function DevHostAppBar({
               </Button>
             </Tooltip>
           )}
-
 
           {/* Dark Mode Toggle */}
           <Tooltip title="Toggle dark mode">

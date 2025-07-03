@@ -46,6 +46,10 @@ export function useDataView<T extends Record<string, any>>(
   config: DataViewConfig<T>,
   options: UseDataViewOptions = {},
 ): DataViewResult<T> {
+  console.log('📊 useDataView render', { 
+    hasExternalFilterState: !!options.filterState, 
+    hasExternalPaginationState: !!options.paginationState 
+  });
   const {
     api,
     schema,

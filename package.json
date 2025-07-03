@@ -39,6 +39,7 @@
     "validate": "npm run type-check && npm run lint && npm run test",
     "generate": "./scripts/mock-generation/generate.ts",
     "create-applet": "tsx scripts/create-applet/cli.ts",
+    "create-host": "tsx scripts/create-host/cli.ts",
     "reboot": "npm run reset && npm install && npm run build",
     "reset": "./scripts/clean-slate.sh"
   },

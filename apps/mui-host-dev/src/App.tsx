@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,16 +20,19 @@ import {
 } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import { registerMswHandlers } from "@smbc/applet-devtools";
-import { ActivityProvider, TransactionProvider } from "@smbc/react-query-dataview";
+import {
+  ActivityProvider,
+  TransactionProvider,
+} from "@smbc/react-query-dataview";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Import configuration
-import { 
-  APP_CONSTANTS, 
-  APPLETS, 
-  demoUser, 
-  roleConfig, 
-  calculatePermissionsFromRoles 
+import {
+  APP_CONSTANTS,
+  APPLETS,
+  demoUser,
+  roleConfig,
+  calculatePermissionsFromRoles,
 } from "./app.config";
 
 // Feature flag configuration
@@ -57,10 +60,9 @@ async function initializeMswHandlers(): Promise<void> {
   }
   try {
     // Import MSW handlers from applet-devtools
-    const {
-      userManagementHandlers,
-      productCatalogHandlers,
-    } = await import("@smbc/applet-devtools");
+    const { userManagementHandlers, productCatalogHandlers } = await import(
+      "@smbc/applet-devtools"
+    );
 
     // Register all handlers
     const allHandlers = [...userManagementHandlers, ...productCatalogHandlers];
@@ -72,7 +74,6 @@ async function initializeMswHandlers(): Promise<void> {
   }
 }
 
-// No other initialization needed - direct applet imports
 
 function AppContentWithQueryAccess() {
   const handleNavigate = (url: string) => {
@@ -113,11 +114,6 @@ function Navigation() {
   const { currentPath } = useHashNavigation();
   const currentAppletInfo = getCurrentApplet(currentPath, APPLETS);
 
-  // Debug logging
-  React.useEffect(() => {
-    if (currentAppletInfo?.apiSpec) {
-    }
-  }, [currentPath, currentAppletInfo]);
 
   // Close API docs when switching between applets
   React.useEffect(() => {
@@ -176,10 +172,12 @@ function AppWithMockToggle() {
         console.log("Setting up MSW handlers...");
         await initializeMswHandlers();
         console.log("MSW handlers registered, initializing worker...");
-        
+
         // Start MSW worker
         try {
-          const { setupMswForAppletProvider } = await import("@smbc/applet-devtools");
+          const { setupMswForAppletProvider } = await import(
+            "@smbc/applet-devtools"
+          );
           await setupMswForAppletProvider();
           console.log("MSW worker started successfully");
           setMswReady(true);
@@ -191,7 +189,9 @@ function AppWithMockToggle() {
         // Stop MSW worker when mocks are disabled
         console.log("Stopping MSW worker...");
         try {
-          const { stopMswForAppletProvider } = await import("@smbc/applet-devtools");
+          const { stopMswForAppletProvider } = await import(
+            "@smbc/applet-devtools"
+          );
           await stopMswForAppletProvider();
           console.log("MSW worker stopped");
         } catch (error) {
@@ -200,13 +200,9 @@ function AppWithMockToggle() {
         setMswReady(false);
       }
     }
-    
+
     setupMsw();
   }, [mockEnabled]);
-
-  const actualMockState = mockEnabled && mswReady;
-
-  console.log("Mock state:", { mockEnabled, mswReady, actualMockState });
 
   return <AppContentWithCacheInvalidation />;
 }
@@ -236,8 +232,7 @@ const queryClient = new QueryClient({
         // Retry up to 3 times for other errors
         return failureCount < 3;
       },
-      retryDelay: (attemptIndex) =>
-        Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
       retry: (failureCount, error: any) => {
@@ -256,10 +251,6 @@ function AppWithThemeProvider() {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const currentTheme = isDarkMode ? darkTheme : lightTheme;
 
-  // Clear any stale localStorage that might interfere with role setup
-  useEffect(() => {
-    localStorage.removeItem("roleMapping-selectedRoles");
-  }, []);
 
   // Create user with calculated permissions
   const userWithPermissions = {
@@ -271,7 +262,10 @@ function AppWithThemeProvider() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
-        <AppProvider initialRoleConfig={roleConfig} initialUser={userWithPermissions}>
+        <AppProvider
+          initialRoleConfig={roleConfig}
+          initialUser={userWithPermissions}
+        >
           <AppWithMockToggle />
         </AppProvider>
       </ThemeProvider>
@@ -281,17 +275,7 @@ function AppWithThemeProvider() {
 
 export function App() {
   return (
-    <FeatureFlagProvider
-      configs={featureFlags}
-      storagePrefix="smbcHost"
-      onFlagChange={(key: string, value: unknown) => {
-        if (key === "mockData") {
-          if (value) {
-          } else {
-          }
-        }
-      }}
-    >
+    <FeatureFlagProvider configs={featureFlags} storagePrefix="smbcHost">
       <ActivityProvider>
         <TransactionProvider>
           <AppWithThemeProvider />
