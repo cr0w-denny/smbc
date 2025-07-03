@@ -263,7 +263,8 @@ export function cleanFilterValues(values: FilterValues): FilterValues {
   const cleaned: FilterValues = {};
 
   Object.entries(values).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
+    // Preserve undefined values (explicit "All" selections) but filter out null and empty strings
+    if (value !== null && value !== "") {
       cleaned[key] = value;
     }
   });

@@ -163,7 +163,7 @@ function Navigation() {
 
 function AppWithMockToggle() {
   const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-  const [mswReady, setMswReady] = React.useState(false);
+  const [, setMswReady] = React.useState(false);
 
   // Initialize MSW handlers when mocks are enabled
   React.useEffect(() => {

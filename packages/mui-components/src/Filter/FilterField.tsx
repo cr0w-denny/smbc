@@ -93,7 +93,10 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             }}
           >
             {field.options?.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
+              <MenuItem 
+                key={option.value ?? ""} 
+                value={option.value ?? ""}
+              >
                 {option.label}
               </MenuItem>
             ))}

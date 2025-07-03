@@ -135,12 +135,6 @@ export function useHashParams<
   // Memoize default values to prevent unnecessary re-renders
   const stableDefaultFilters = React.useMemo(() => defaultFilters, [JSON.stringify(defaultFilters)]);
   const stableDefaultPagination = React.useMemo(() => defaultPagination, [JSON.stringify(defaultPagination)]);
-  console.log('🏁 useHashParams render', { 
-    namespace, 
-    enabled, 
-    defaultFiltersStr: JSON.stringify(defaultFilters),
-    defaultPaginationStr: JSON.stringify(defaultPagination) 
-  });
   // Track if this is the initial mount
   const isInitialMount = useRef(true);
   const debounceTimeout = useRef<NodeJS.Timeout>();
@@ -148,14 +142,8 @@ export function useHashParams<
   // Track current state with refs to avoid unnecessary re-renders
   const currentFilters = useRef<TFilters>(defaultFilters);
   const currentPagination = useRef<TPagination>(defaultPagination);
+  
 
-  // Helper to add namespace prefix if provided
-  const addNamespace = useCallback(
-    (key: string) => {
-      return namespace ? `${namespace}_${key}` : key;
-    },
-    [namespace],
-  );
 
   // Helper to parse current hash params
   const parseHashParams = useCallback(() => {
@@ -304,10 +292,13 @@ export function useHashParams<
           }
         }
 
-        // Add filter params (skip default values)
+        // NOTE: We don't preserve old filter/pagination params - they get completely 
+        // replaced by the current state. This ensures removed filters (like selecting "All") 
+        // actually disappear from the URL.
+
+        // Add all filter params - just serialize current state, no clever logic
         Object.entries(newFilters).forEach(([key, value]) => {
-          const defaultValue = stableDefaultFilters[key];
-          if (value !== undefined && value !== null && value !== "" && value !== defaultValue) {
+          if (value !== undefined && value !== null && value !== "") {
             const paramValue =
               typeof value === "object" ? JSON.stringify(value) : String(value);
             const namespacedKey = namespace ? `${namespace}_${key}` : key;
@@ -315,10 +306,9 @@ export function useHashParams<
           }
         });
 
-        // Add pagination params (skip default values)
+        // Add all pagination params - just serialize current state  
         Object.entries(newPagination).forEach(([key, value]) => {
-          const defaultValue = stableDefaultPagination[key];
-          if (value !== undefined && value !== null && value !== "" && value !== defaultValue) {
+          if (value !== undefined && value !== null && value !== "") {
             const paramValue =
               typeof value === "object" ? JSON.stringify(value) : String(value);
             const namespacedKey = namespace ? `${namespace}_${key}` : key;
@@ -334,21 +324,15 @@ export function useHashParams<
 
         // Only update if hash actually changed
         if (newHash !== currentFullHash) {
-          console.log('🔄 updateHashParams: updating URL', { from: currentFullHash, to: newHash });
           // Use replaceState to avoid adding to browser history for every filter change
           const newUrl = `${window.location.pathname}${window.location.search}#${newHash}`;
           window.history.replaceState(null, "", newUrl);
-          console.log('🔄 updateHashParams: URL updated');
-        } else {
-          console.log('🔄 updateHashParams: no change needed', { hash: newHash });
         }
       } catch (error) {}
     },
     [
       enabled,
       namespace,
-      stableDefaultFilters,
-      stableDefaultPagination,
     ],
   );
 
@@ -369,21 +353,19 @@ export function useHashParams<
   // Filter setter
   const setFilters = useCallback(
     (updates: Partial<TFilters> | ((prev: TFilters) => TFilters)) => {
-      console.log('🔄 useHashParams setFilters called', { updates, namespace });
       setFiltersState((prev) => {
         const newFilters =
           typeof updates === "function"
             ? updates(prev)
             : { ...prev, ...updates };
 
-        console.log('🔄 useHashParams setFilters updating state', { prev, newFilters, namespace });
+
 
         // Update ref
         currentFilters.current = newFilters;
 
         // Update hash params (write-only, never read back)
         if (!isInitialMount.current) {
-          console.log('🔄 useHashParams triggering hash update', { newFilters, pagination: currentPagination.current, namespace });
           debouncedUpdateHash(newFilters, currentPagination.current);
         }
 
@@ -454,3 +436,24 @@ export const useUser = () => {
     availableRoles: roleUtils.roles,
   };
 };
+
+interface UseLocalStoragePersistenceProps {
+  selectedRoles: string[];
+  persistRoles: boolean;
+  localStorageKey: string;
+}
+
+export function useLocalStoragePersistence({
+  selectedRoles,
+  persistRoles,
+  localStorageKey,
+}: UseLocalStoragePersistenceProps) {
+  // Save selected roles to localStorage whenever they change
+  useEffect(() => {
+    if (!persistRoles) return;
+
+    try {
+      localStorage.setItem(localStorageKey, JSON.stringify(selectedRoles));
+    } catch (error) {}
+  }, [selectedRoles, persistRoles, localStorageKey]);
+}

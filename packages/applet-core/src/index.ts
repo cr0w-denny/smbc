@@ -28,8 +28,6 @@ export {
 
 export type { FilterFieldConfig, FilterValues, FilterSpec } from "./autofilter";
 
-// Hooks
-export { useLocalStoragePersistence } from "./hooks/useLocalStoragePersistence";
 
 // OpenAPI utilities
 export {

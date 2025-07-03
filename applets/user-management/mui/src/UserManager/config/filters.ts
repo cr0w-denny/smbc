@@ -15,7 +15,7 @@ export const createFiltersConfig = () => ({
       type: "select" as const,
       label: "Status",
       options: [
-        { label: "All Statuses", value: "" },
+        { label: "All Statuses", value: undefined },
         { label: "Active", value: "active" },
         { label: "Inactive", value: "inactive" },
       ],

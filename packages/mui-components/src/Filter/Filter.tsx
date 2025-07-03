@@ -105,16 +105,18 @@ export function Filter({
       debounceRef.current = setTimeout(() => {
         // Clean empty values before calling onChange, but preserve empty strings for text/search fields
         // so that useHashQueryParams can properly handle them (and remove from URL if they match defaults)
+        // ALSO preserve undefined values for "All" selections in select fields
         const cleaned = Object.entries(newDisplayValues).reduce(
           (acc, [key, val]) => {
             const field = fields.find((f) => f.name === key);
             const isTextualField =
               field && ["text", "search", "email"].includes(field.type);
+            const isSelectField = field && field.type === "select";
+
 
             if (
               val !== null &&
-              val !== undefined &&
-              (val !== "" || isTextualField)
+              (val !== "" || isTextualField || (isSelectField && val === undefined))
             ) {
               acc[key] = val;
             }
