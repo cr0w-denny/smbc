@@ -28,6 +28,7 @@
     "clean": "npm run clean --workspaces --if-present",
     "clean-console": "./scripts/clean-console.ts",
     "clean-console:dry": "./scripts/clean-console.ts --dry-run --verbose",
+    "review-changes": "./scripts/review-changes.ts",
     "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
     "lint": "npm run lint --workspaces --if-present",
     "type-check": "npm run type-check --workspaces --if-present",
