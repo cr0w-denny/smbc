@@ -58,7 +58,7 @@ export async function setupMswForAppletProvider(
     const allHandlers = getRegisteredHandlers();
 
     if (allHandlers.length === 0) {
-    } else {
+      console.warn("No MSW handlers registered. Add handlers using registerMswHandlers()");
     }
 
     // Setup the MSW worker
@@ -73,10 +73,12 @@ export async function setupMswForAppletProvider(
         },
       });
 
+      console.log(`🎭 MSW started with ${allHandlers.length} handlers`);
+
       // Apply any custom API configuration if provided
       if (apiConfig?.baseUrl) {
+        console.log(`🌐 MSW using base URL: ${apiConfig.baseUrl}`);
       }
-    } else {
     }
   } catch (error) {
     console.error("❌ Failed to setup MSW:", error);
@@ -92,6 +94,7 @@ export async function stopMswForAppletProvider(): Promise<void> {
     try {
       await globalMswWorker.stop();
       globalMswWorker = null;
+      console.log("🛑 MSW worker stopped");
     } catch (error) {
       console.error("❌ Failed to stop MSW worker:", error);
     }
@@ -105,6 +108,7 @@ export async function resetMswWorker(): Promise<void> {
   await stopMswForAppletProvider();
   await setupMswForAppletProvider();
 }
+
 /**
  * Stops the MSW worker (alias for stopMswForAppletProvider for convenience).
  */

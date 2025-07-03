@@ -4,13 +4,21 @@
   "description": "TypeSpec API definition for user management",
   "main": "tsp-output/@typespec/openapi3/openapi.json",
   "type": "module",
+  "exports": {
+    ".": "./tsp-output/@typespec/openapi3/openapi.json",
+    "./client": "./client.ts",
+    "./generated/types": "./generated/types.ts"
+  },
   "scripts": {
     "build": "tsp compile .",
     "dev": "tsp compile . --watch",
     "lint": "echo 'No linting configured for TypeSpec'",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf tsp-output",
-    "test": "echo 'No tests for API schemas'"
+    "clean": "rm -rf tsp-output generated",
+    "test": "echo 'No tests for API schemas'",
+    "generate:types": "openapi-typescript tsp-output/@typespec/openapi3/openapi.json -o generated/types.ts",
+    "generate:mocks": "../../../scripts/mock-generation/generate.ts --input tsp-output/@typespec/openapi3/openapi.json --output ../../../packages/applet-devtools/src/mocks/user-management.ts --base-url /api/v1",
+    "generate:all": "npm run generate:types && npm run generate:mocks"
   },
   "dependencies": {
     "@typespec/compiler": "^1.1.0",
@@ -21,9 +29,12 @@
     "@smbc/typespec-core": "*"
   },
   "devDependencies": {
+    "openapi-typescript": "^7.0.0",
     "typescript": "^5.8.3"
   },
   "files": [
-    "tsp-output/@typespec/openapi3/openapi.json"
+    "tsp-output/@typespec/openapi3/openapi.json",
+    "client.ts",
+    "generated/types.ts"
   ]
 }

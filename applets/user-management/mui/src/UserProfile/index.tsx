@@ -12,7 +12,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
-import { apiClient, type components } from "@smbc/user-management-client";
+import { apiClient } from "@smbc/user-management-api/client";
+import type { components } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 

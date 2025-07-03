@@ -8,7 +8,8 @@ import {
   createBulkDeleteAction,
   createBulkUpdateAction,
 } from "@smbc/react-query-dataview";
-import { apiClient, type components } from "@smbc/user-management-client";
+import { apiClient } from "@smbc/user-management-api/client";
+import type { components } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 

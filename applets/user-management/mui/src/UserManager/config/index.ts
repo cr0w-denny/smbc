@@ -17,7 +17,7 @@
  */
 
 import { type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
-import { type components } from "@smbc/user-management-client";
+import type { components } from "@smbc/user-management-api/generated/types";
 
 import { createApiConfig } from "./api";
 import { createSchemaConfig } from "./schema";

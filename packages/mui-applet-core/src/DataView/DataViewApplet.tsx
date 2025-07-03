@@ -207,8 +207,14 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     } : undefined,
     transformFilters: config.options?.transformFilters,
     getActiveColumns: config.options?.getActiveColumns,
-    onSuccess,
-    onError,
+    onSuccess: (action, item) => {
+      console.log(`DataView ${action} success:`, item);
+      onSuccess?.(action, item);
+    },
+    onError: (action, error, item) => {
+      console.error(`DataView ${action} error:`, error, item);
+      onError?.(action, error, item);
+    },
     // Merge in any additional options passed to the applet
     ...options,
   });

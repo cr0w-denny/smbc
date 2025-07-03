@@ -1,7 +1,7 @@
 {
-  "name": "@smbc/applet-query-client",
+  "name": "@smbc/applet-devtools",
   "version": "0.0.0",
-  "description": "TanStack Query client provider and OpenAPI client utilities for applet packages",
+  "description": "Development tools and mocks for SMBC applets",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -10,6 +10,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./src/mocks/*": {
+      "types": "./dist/mocks/*.d.ts",
+      "import": "./dist/mocks/*.js"
     }
   },
   "files": [
@@ -19,21 +23,17 @@
     "build": "tsc -b",
     "dev": "tsc -b --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "echo 'Lint: applet-query-client'",
+    "lint": "echo 'Lint: applet-devtools'",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {
-    "openapi-fetch": "^0.14.0"
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.81.0",
+    "@smbc/applet-core": "*",
+    "@tanstack/react-query": "^5.0.0",
+    "msw": "^2.0.0",
     "react": "^18.0.0"
-  },
-  "devDependencies": {
-    "@tanstack/react-query": "^5.81.2",
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "react": "^18.0.0",
-    "typescript": "^5.8.3"
   }
 }

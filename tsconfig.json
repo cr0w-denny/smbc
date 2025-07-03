@@ -25,8 +25,8 @@
   "exclude": ["node_modules", "dist", "**/dist", "**/node_modules"],
   "references": [
     { "path": "packages/ui-core" },
-    { "path": "packages/applet-query-client" },
     { "path": "packages/applet-core" },
+    { "path": "packages/applet-devtools" },
     { "path": "packages/react-query-dataview" },
     { "path": "packages/mui-applet-core" },
     { "path": "packages/mui-components" },

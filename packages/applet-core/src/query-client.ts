@@ -1,19 +1,29 @@
 // Re-export the openapi libraries for applets to use
 export { default as createFetchClient } from "openapi-fetch";
-
-// Utility function to create a typed API client with common configuration
 import createClientDefault from "openapi-fetch";
 
-export function createApiClient<
-  T extends Record<string, any> = Record<string, any>,
->(config: { baseUrl: string; headers?: Record<string, string> }) {
-  return createClientDefault<T>({
-    baseUrl: config.baseUrl,
+// API Client Configuration
+export interface ApiClientConfig {
+  baseUrl?: string;
+  headers?: Record<string, string>;
+}
+
+const defaultConfig: ApiClientConfig = {
+  baseUrl: "/api/v1",
+};
+
+export function createApiClient<T extends Record<string, any> = Record<string, any>>(
+  config: ApiClientConfig = {}
+) {
+  const finalConfig = {
+    baseUrl: config.baseUrl || defaultConfig.baseUrl!,
     headers: {
       "Content-Type": "application/json",
       ...config.headers,
     },
-  });
+  };
+  
+  return createClientDefault<T>(finalConfig);
 }
 
 // Common error handling utilities

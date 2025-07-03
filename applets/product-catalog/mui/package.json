@@ -22,9 +22,7 @@
   "dependencies": {
     "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
-    "@smbc/applet-query-client": "*",
-    "@smbc/product-catalog-api": "*",
-    "@smbc/product-catalog-client": "*"
+    "@smbc/product-catalog-api": "*"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

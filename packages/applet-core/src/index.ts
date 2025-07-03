@@ -56,3 +56,6 @@ export {
   useUrlFilters,
 } from "./filters/useAutoFilterWithUrl";
 
+// Query client utilities
+export { createFetchClient, createApiClient, ApiError, handleApiError, type ApiClientConfig } from "./query-client";
+

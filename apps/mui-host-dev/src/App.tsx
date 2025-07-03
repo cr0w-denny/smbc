@@ -19,11 +19,9 @@ import {
   darkTheme,
 } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
-import {
-  registerMswHandlers,
-  AppletQueryProvider,
-} from "@smbc/applet-query-client";
+import { registerMswHandlers } from "@smbc/applet-devtools";
 import { ActivityProvider, TransactionProvider } from "@smbc/react-query-dataview";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Import configuration
 import { 
@@ -54,23 +52,24 @@ const featureFlags = [
 async function initializeMswHandlers(): Promise<void> {
   // Skip MSW initialization if disabled via environment variable
   if (import.meta.env.VITE_DISABLE_MSW === "true") {
+    console.log("MSW disabled via environment variable");
     return;
   }
   try {
-    // Import MSW handlers from API client packages (separate mocks exports)
-    const [
-      { handlers: userManagementHandlers },
-      { handlers: productCatalogHandlers },
-    ] = await Promise.all([
-      import("@smbc/user-management-client/mocks"),
-      import("@smbc/product-catalog-client/mocks"),
-    ]);
+    // Import MSW handlers from applet-devtools
+    const {
+      userManagementHandlers,
+      productCatalogHandlers,
+    } = await import("@smbc/applet-devtools");
 
     // Register all handlers
     const allHandlers = [...userManagementHandlers, ...productCatalogHandlers];
+    console.log("Registering MSW handlers:", allHandlers.length);
 
     registerMswHandlers(allHandlers);
-  } catch (error) {}
+  } catch (error) {
+    console.error("Failed to initialize MSW handlers:", error);
+  }
 }
 
 // No other initialization needed - direct applet imports
@@ -172,26 +171,44 @@ function AppWithMockToggle() {
 
   // Initialize MSW handlers when mocks are enabled
   React.useEffect(() => {
-    if (mockEnabled) {
-      initializeMswHandlers().then(() => {
-        setMswReady(true);
-      });
-    } else {
-      // Reset MSW state when mocks are disabled
-      setMswReady(false);
+    async function setupMsw() {
+      if (mockEnabled) {
+        console.log("Setting up MSW handlers...");
+        await initializeMswHandlers();
+        console.log("MSW handlers registered, initializing worker...");
+        
+        // Start MSW worker
+        try {
+          const { setupMswForAppletProvider } = await import("@smbc/applet-devtools");
+          await setupMswForAppletProvider();
+          console.log("MSW worker started successfully");
+          setMswReady(true);
+        } catch (error) {
+          console.error("Failed to start MSW worker:", error);
+          setMswReady(false);
+        }
+      } else {
+        // Stop MSW worker when mocks are disabled
+        console.log("Stopping MSW worker...");
+        try {
+          const { stopMswForAppletProvider } = await import("@smbc/applet-devtools");
+          await stopMswForAppletProvider();
+          console.log("MSW worker stopped");
+        } catch (error) {
+          console.error("Failed to stop MSW worker:", error);
+        }
+        setMswReady(false);
+      }
     }
+    
+    setupMsw();
   }, [mockEnabled]);
 
   const actualMockState = mockEnabled && mswReady;
 
-  // Debug logging
-  React.useEffect(() => {}, [mockEnabled, mswReady, actualMockState]);
+  console.log("Mock state:", { mockEnabled, mswReady, actualMockState });
 
-  return (
-    <AppletQueryProvider enableMocks={actualMockState}>
-      <AppContentWithCacheInvalidation />
-    </AppletQueryProvider>
-  );
+  return <AppContentWithCacheInvalidation />;
 }
 
 function AppContentWithCacheInvalidation() {
@@ -205,6 +222,35 @@ function AppContentWithCacheInvalidation() {
 
   return <AppContentWithQueryAccess />;
 }
+
+// Create QueryClient with good defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors (client errors)
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        // Retry up to 3 times for other errors
+        return failureCount < 3;
+      },
+      retryDelay: (attemptIndex) =>
+        Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+    mutations: {
+      retry: (failureCount, error: any) => {
+        // Don't retry mutations on 4xx errors
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        // Retry once for network errors
+        return failureCount < 1;
+      },
+    },
+  },
+});
 
 function AppWithThemeProvider() {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
@@ -222,12 +268,14 @@ function AppWithThemeProvider() {
   };
 
   return (
-    <ThemeProvider theme={currentTheme}>
-      <CssBaseline />
-      <AppProvider initialRoleConfig={roleConfig} initialUser={userWithPermissions}>
-        <AppWithMockToggle />
-      </AppProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={currentTheme}>
+        <CssBaseline />
+        <AppProvider initialRoleConfig={roleConfig} initialUser={userWithPermissions}>
+          <AppWithMockToggle />
+        </AppProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

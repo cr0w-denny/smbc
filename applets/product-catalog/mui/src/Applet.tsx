@@ -41,7 +41,8 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete, Inventory } from "@mui/icons-material";
 import { LoadingTable, EmptyState, SearchInput } from "@smbc/mui-components";
-import { apiClient, type components } from "@smbc/product-catalog-client";
+import { apiClient } from "@smbc/product-catalog-api/client";
+import type { components } from "@smbc/product-catalog-api/generated/types";
 import { useHashParams } from "@smbc/applet-core";
 import { useQuery } from "@tanstack/react-query";
 

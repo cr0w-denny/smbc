@@ -24,9 +24,7 @@
     "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
     "@smbc/react-query-dataview": "*",
-    "@smbc/applet-query-client": "*",
-    "@smbc/user-management-api": "*",
-    "@smbc/user-management-client": "*"
+    "@smbc/user-management-api": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

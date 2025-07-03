@@ -22,7 +22,8 @@
  * - What query parameters to always include (apiParams)
  */
 
-import { apiClient, type components } from "@smbc/user-management-client";
+import { apiClient } from "@smbc/user-management-api/client";
+import type { components } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 
