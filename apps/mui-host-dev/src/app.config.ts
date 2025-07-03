@@ -125,7 +125,7 @@ export function calculatePermissionsFromRoles(
   const permissions: string[] = [];
   
   // Iterate through all permission mappings
-  Object.entries(roleConfig.permissionMappings).forEach(([appletId, appletPermissions]) => {
+  Object.entries(roleConfig.permissionMappings || {}).forEach(([appletId, appletPermissions]) => {
     Object.entries(appletPermissions).forEach(([permissionId, requiredRoles]) => {
       // Check if user has any of the required roles for this permission
       const hasPermission = userRoles.some(userRole => 
