@@ -190,10 +190,9 @@ async function createMuiPackage(config: AppletConfig, appletPath: string) {
   packageJson.name = `@smbc/${config.name}-mui`;
   packageJson.description = config.description;
 
-  // Update dependencies if API client will be included
+  // Add API dependency if API package will be included
   if (config.withApi) {
-    packageJson.dependencies[`@smbc/${config.name}-api`] = "^1.0.0";
-    packageJson.dependencies[`@smbc/${config.name}-client`] = "^1.0.0";
+    packageJson.dependencies[`@smbc/${config.name}-api`] = "*";
   }
 
   await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
@@ -208,24 +207,18 @@ async function createApiPackages(config: AppletConfig, appletPath: string) {
   await fs.ensureDir(apiPath);
   await fs.copy(path.join(__dirname, "templates/api"), apiPath);
 
-  // Create API Client package
-  const clientPath = path.join(appletPath, "api-client");
-  await fs.ensureDir(clientPath);
-  await fs.copy(path.join(__dirname, "templates/api-client"), clientPath);
-
   // Create Django package
   const djangoPath = path.join(appletPath, "django");
   await fs.ensureDir(djangoPath);
   await fs.copy(path.join(__dirname, "templates/django"), djangoPath);
 
   // Update package.json files
-  const packages = ["api", "api-client", "django"];
+  const packages = ["api", "django"];
   for (const pkg of packages) {
     const pkgPath = path.join(appletPath, pkg, "package.json");
     if (await fs.pathExists(pkgPath)) {
       const packageJson = await fs.readJson(pkgPath);
-      const suffix = pkg === "api-client" ? "client" : pkg;
-      packageJson.name = `@smbc/${config.name}-${suffix}`;
+      packageJson.name = `@smbc/${config.name}-${pkg}`;
       packageJson.description = `${config.description} - ${pkg}`;
       await fs.writeJson(pkgPath, packageJson, { spaces: 2 });
     }
@@ -233,7 +226,6 @@ async function createApiPackages(config: AppletConfig, appletPath: string) {
 
   // Replace placeholders in API files
   await replaceTemplatePlaceholders(apiPath, config);
-  await replaceTemplatePlaceholders(clientPath, config);
   await replaceTemplatePlaceholders(djangoPath, config);
 }
 
@@ -309,9 +301,9 @@ async function installDependencies(
     });
 
     if (config.withApi) {
-      // Install API client dependencies
+      // Install API dependencies
       execSync("pnpm install", {
-        cwd: path.join(appletPath, "api-client"),
+        cwd: path.join(appletPath, "api"),
         stdio: "ignore",
       });
     }
