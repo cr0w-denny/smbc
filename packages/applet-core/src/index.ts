@@ -10,7 +10,6 @@ export * from "./FeatureFlagProvider";
 export * from "./usePersistedRoles";
 export * from "./useAppletPermissions";
 export * from "./usePermissionFilteredRoutes";
-export * from "./useSimplePermissions";
 
 // Host utilities
 export * from "./host";
@@ -50,12 +49,7 @@ export type {
   UseAutoFilterParams,
 } from "./openapi/types";
 
-// Filter utilities
-export {
-  useAutoFilterWithUrl,
-  useUrlFilters,
-} from "./filters/useAutoFilterWithUrl";
 
 // Query client utilities
-export { createFetchClient, createApiClient, ApiError, handleApiError, type ApiClientConfig } from "./query-client";
+export { createFetchClient, createApiClient, type ApiClientConfig } from "./query-client";
 

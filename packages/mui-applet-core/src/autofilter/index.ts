@@ -40,8 +40,6 @@ export {
   commonOperationSchemas,
   smbcOperationSchemas,
   extractFieldsFromOpenAPIOperation,
-  useAutoFilterWithUrl,
-  useUrlFilters,
 } from "@smbc/applet-core";
 
 // Default export

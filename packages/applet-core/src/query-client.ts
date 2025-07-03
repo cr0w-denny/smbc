@@ -26,25 +26,3 @@ export function createApiClient<T extends Record<string, any> = Record<string, a
   return createClientDefault<T>(finalConfig);
 }
 
-// Common error handling utilities
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status?: number,
-    public response?: any,
-  ) {
-    super(message);
-    this.name = "ApiError";
-  }
-}
-
-export function handleApiError(error: any): ApiError {
-  if (error instanceof ApiError) {
-    return error;
-  }
-
-  const status = error?.status || error?.response?.status;
-  const message = error?.message || "An API error occurred";
-
-  return new ApiError(message, status, error?.response);
-}
