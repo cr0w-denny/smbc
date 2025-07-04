@@ -1,6 +1,5 @@
 import { FC, useRef } from "react";
-import { Box } from "@mui/material";
-import { AppletNavigation } from "@smbc/mui-components";
+import { Box, Tabs, Tab } from "@mui/material";
 import { useHashNavigation } from "@smbc/applet-core";
 import { UserManager } from "./UserManager";
 import { UserProfile } from "./UserProfile";
@@ -89,23 +88,15 @@ export const Applet: FC<AppletProps> = ({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Navigation - using tabs mode */}
+      {/* Navigation */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-        <AppletNavigation
-          currentPath={currentPath}
-          onNavigate={navigateTo}
-          routes={[
-            {
-              path: "/",
-              label: "User Management",
-            },
-            {
-              path: "/analytics",
-              label: "Analytics",
-            },
-          ]}
-          mode="tabs"
-        />
+        <Tabs
+          value={currentPath}
+          onChange={(_, newValue) => navigateTo(newValue)}
+        >
+          <Tab label="User Management" value="/" />
+          <Tab label="Analytics" value="/analytics" />
+        </Tabs>
       </Box>
 
       {/* Route content */}

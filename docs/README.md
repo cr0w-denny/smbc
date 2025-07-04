@@ -13,6 +13,7 @@ React applet system for modular business functionality.
 
 - **[Integration Guide](./INTEGRATION.md)** - Adding applets to existing applications
 - **[Applet Development](./APPLET_DEVELOPMENT.md)** - Building new applets
+- **[Routing Guide](./ROUTING_GUIDE.md)** - In-depth guide to the applet routing system
 
 ### Implementation Details
 

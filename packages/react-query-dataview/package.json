@@ -18,11 +18,12 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "@tanstack/react-query": "^5.0.0"
+    "@tanstack/react-query": "^5.0.0",
+    "react": "^18.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
+    "turbo": "^2.5.4",
     "typescript": "^5.0.0"
   }
 }

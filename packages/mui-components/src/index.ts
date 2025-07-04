@@ -31,12 +31,15 @@ export type { User, Permission, PermissionGroup } from "./RoleManagement";
 export { DevHostAppBar } from "./DevHostAppBar";
 export type { DevHostAppBarProps, CurrentAppletInfo } from "./DevHostAppBar";
 
-export { AppletDrawer, AppletNavigation } from "./AppletDrawer";
+export { AppletDrawer } from "./AppletDrawer";
+export { TreeMenu } from "./TreeMenu";
 export type {
   AppletDrawerProps,
-  AppletNavigationProps,
   NavigationRoute,
+  HierarchicalNavigationSection,
+  HierarchicalNavigationGroup,
 } from "./AppletDrawer";
+export type { TreeMenuProps } from "./TreeMenu";
 
 // Filter components and types
 export {

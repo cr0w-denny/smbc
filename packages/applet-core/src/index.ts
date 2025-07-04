@@ -51,3 +51,18 @@ export type {
 // Query client utilities
 export { createFetchClient, createApiClient, type ApiClientConfig } from "./query-client";
 
+// Route utilities for automatic mountPath injection
+export { withMountPath, processAppletRoutes, createAppletDefinition } from "./route-utils";
+// Deprecated alias for backward compatibility
+export { createAppletDefinition as createAppletConfig } from "./route-utils";
+
+// Navigation hooks
+export { useInternalNavigation, type InternalRouteConfig } from "./useInternalNavigation";
+export { useHostNavigation } from "./useHostNavigation";
+
+// Navigation utilities
+export { createNavigationExport, createSimpleNavigationExport, type NavigationConfig } from "./createNavigationExport";
+
+// Permission utilities
+export { calculatePermissionsFromRoles } from "./permission-utils";
+

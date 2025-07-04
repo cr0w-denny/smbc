@@ -1,9 +1,8 @@
 import React from "react";
 import { Dashboard as DashboardIcon } from "@mui/icons-material";
 import {
-  getAllRoutes,
   useHashNavigation,
-  usePermissionFilteredRoutes,
+  useHostNavigation,
   useRoleManagement,
   type HostAppletDefinition,
 } from "@smbc/applet-core";
@@ -22,42 +21,6 @@ interface AppletDrawerProps {
   permissionMapping?: Record<string, string>;
 }
 
-function useAppletRoutes(
-  applets: HostAppletDefinition[],
-  permissionMapping: Record<string, string> = {},
-): NavigationRoute[] {
-  const { hasAnyPermission, userRoles } = useRoleManagement();
-  const appletRoutes = getAllRoutes(applets);
-
-  const filteredAppletRoutes = usePermissionFilteredRoutes({
-    routes: appletRoutes,
-    applets,
-    hasAnyPermission,
-    userRoles,
-    permissionMapping,
-  });
-
-  return React.useMemo(
-    () => [
-      {
-        path: "/",
-        label: "Dashboard",
-        icon: DashboardIcon,
-        component: () => null,
-      },
-      ...filteredAppletRoutes.map(
-        (route: any): NavigationRoute => ({
-          path: route.path,
-          label: route.label,
-          icon: route.icon,
-          component: route.component,
-          requiredPermissions: route.requiredPermissions,
-        }),
-      ),
-    ],
-    [filteredAppletRoutes],
-  );
-}
 
 export function AppletDrawer({
   applets,
@@ -66,7 +29,55 @@ export function AppletDrawer({
   permissionMapping = {},
 }: AppletDrawerProps) {
   const { currentPath, navigateTo } = useHashNavigation();
-  const routes = useAppletRoutes(applets, permissionMapping);
+  const { hasAnyPermission } = useRoleManagement();
+  
+  const { rootRoute, appletSections } = useHostNavigation({
+    applets,
+    hasAnyPermission,
+    permissionMapping,
+    includeRootRoute: true,
+    rootRoute: { path: "/", label: "Dashboard", icon: DashboardIcon },
+    includeInternalRoutes: true
+  });
+
+  // Convert types to match BaseAppletDrawer expectations
+  const hierarchicalSections = React.useMemo(() => 
+    appletSections.map(section => ({
+      ...section,
+      groups: section.groups?.map(group => ({
+        ...group,
+        routes: group.routes.map(route => ({
+          ...route,
+          icon: typeof route.icon === 'string' 
+            ? () => <span>{route.icon}</span>
+            : route.icon,
+        }))
+      })),
+      directRoute: section.directRoute ? {
+        ...section.directRoute,
+        icon: typeof section.directRoute.icon === 'string' 
+          ? () => <span>{section.directRoute.icon}</span>
+          : section.directRoute.icon,
+      } : undefined,
+      homeRoute: section.homeRoute ? {
+        ...section.homeRoute,
+        icon: typeof section.homeRoute.icon === 'string' 
+          ? () => <span>{section.homeRoute.icon}</span>
+          : section.homeRoute.icon,
+      } : undefined,
+    })), 
+    [appletSections]
+  );
+
+  const convertedRootRoute = React.useMemo(() => 
+    rootRoute ? {
+      ...rootRoute,
+      icon: typeof rootRoute.icon === 'string' 
+        ? () => <span>{rootRoute.icon}</span>
+        : rootRoute.icon,
+    } : undefined, 
+    [rootRoute]
+  );
 
   return (
     <BaseAppletDrawer
@@ -74,7 +85,8 @@ export function AppletDrawer({
       width={constants.drawerWidth}
       currentPath={currentPath}
       onNavigate={navigateTo}
-      routes={routes}
+      rootRoute={convertedRootRoute}
+      appletSections={hierarchicalSections}
       showDebugInfo={true}
       totalApplets={applets.length}
     />

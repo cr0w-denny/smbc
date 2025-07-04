@@ -7,10 +7,8 @@ import { getSMBCExternals } from "../../../scripts/vite/externals.ts";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // @ts-ignore - Vite plugin type compatibility issue between monorepo and package node_modules
   plugins: [
     react(),
-    // @ts-ignore - Vite plugin type compatibility issue between monorepo and package node_modules
     dts({
       insertTypesEntry: true,
       tsconfigPath: "./tsconfig.json",

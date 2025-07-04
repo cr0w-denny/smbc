@@ -69,7 +69,7 @@ applets/business-domain/
 ├── mui/              # React UI components
 │   ├── src/
 │   │   ├── components/   # UI components
-│   │   ├── config/       # Applet configuration
+│   │   ├── config/       # Applet configuration files
 │   │   └── index.ts      # Main export
 │   └── dist/         # Built UI library
 └── django/           # Backend implementation

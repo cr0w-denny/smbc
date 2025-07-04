@@ -65,11 +65,47 @@ export interface AppState {
   appletRegistry?: Record<string, any>;
 }
 
-// Applet system types
-export interface AppletRoute {
+// Navigation types
+export interface InternalRoute {
   path: string; // Must include '/' as root route
   label: string; // Display name for menus
   component: React.ComponentType; // React component to render
+}
+
+export interface NavigationGroup {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
+}
+
+export interface HostRoute {
+  path: string;
+  label: string;
+  icon?: React.ComponentType | React.ElementType | string;
+  component?: React.ComponentType;
+  requiredPermissions?: string[];
+}
+
+export interface HostNavigationGroup {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
+  routes: HostRoute[];
+}
+
+export interface AppletNavigationSection {
+  appletId: string;
+  appletLabel: string;
+  appletIcon?: React.ComponentType | React.ElementType | string;
+  // If hasInternalNavigation is false, treat as a direct route
+  hasInternalNavigation: boolean;
+  // For direct routes (no internal navigation)
+  directRoute?: HostRoute;
+  // For applets with internal navigation
+  homeRoute?: HostRoute;
+  groups?: HostNavigationGroup[];
 }
 
 // Standard applet permissions (re-using PermissionDefinition from appletPermissions)
@@ -82,7 +118,7 @@ export interface Applet<
   TPermissions extends AppletPermissions = AppletPermissions,
 > {
   readonly permissions: TPermissions;
-  readonly routes: readonly AppletRoute[];
+  readonly routes: readonly InternalRoute[];
   readonly apiSpec?: {
     name: string;
     spec: any; // OpenAPI 3.0 spec object
@@ -105,6 +141,14 @@ export interface HostAppletDefinition {
   apiSpec?: {
     name: string;
     spec: any;
+  };
+  getHostNavigation?: (
+    mountPath: string, 
+    hasAnyPermission: (appletId: string, permissions: string[]) => boolean,
+    appletId: string
+  ) => {
+    homeRoute?: HostRoute;
+    groups: HostNavigationGroup[];
   };
 }
 

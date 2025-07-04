@@ -3,15 +3,18 @@ import {
   HostAppletDefinition,
   createPermissionRequirements,
   generatePermissionMappings,
+  createAppletDefinition,
 } from "@smbc/applet-core";
 import {
   People as PeopleIcon,
   Inventory as InventoryIcon,
+  Language as LanguageIcon,
 } from "@mui/icons-material";
 
 // Import applets directly from source during development
 import userManagementApplet from "../../../applets/user-management/mui/src";
 import productCatalogApplet from "../../../applets/product-catalog/mui/src";
+import helloApplet from "../../../applets/hello/mui/src";
 import demoTasksApplet from "./demo";
 
 // =============================================================================
@@ -40,7 +43,7 @@ export const demoUser = {
 // =============================================================================
 
 export const APP_CONSTANTS = {
-  drawerWidth: 240,
+  drawerWidth: 320,
   appName: "SMBC Applet Host",
 } as const;
 
@@ -99,6 +102,14 @@ const permissionRequirements = createPermissionRequirements({
       MANAGE_PRICING: "Manager",
     },
   },
+  hello: {
+    applet: helloApplet,
+    permissions: {
+      VIEW_ROUTE_ONE: "Guest",
+      VIEW_ROUTE_TWO: "Staff",
+      VIEW_ROUTE_THREE: "Manager",
+    },
+  },
 });
 
 // Auto-generate the verbose permission mappings
@@ -109,37 +120,6 @@ export const roleConfig: RoleConfig = {
     permissionRequirements,
   ),
 };
-
-// =============================================================================
-// FLAT PERMISSION SYSTEM (New approach)
-// =============================================================================
-
-/**
- * Convert user roles to a flat list of permissions
- * This bridges the current role system with the new flat permission approach
- */
-export function calculatePermissionsFromRoles(
-  userRoles: string[],
-  roleConfig: RoleConfig,
-): string[] {
-  const permissions: string[] = [];
-  
-  // Iterate through all permission mappings
-  Object.entries(roleConfig.permissionMappings || {}).forEach(([appletId, appletPermissions]) => {
-    Object.entries(appletPermissions).forEach(([permissionId, requiredRoles]) => {
-      // Check if user has any of the required roles for this permission
-      const hasPermission = userRoles.some(userRole => 
-        requiredRoles.includes(userRole)
-      );
-      
-      if (hasPermission) {
-        permissions.push(`${appletId}:${permissionId}`);
-      }
-    });
-  });
-  
-  return permissions;
-}
 
 // =============================================================================
 // APPLET DEFINITIONS
@@ -194,16 +174,22 @@ export const APPLETS: HostAppletDefinition[] = [
       },
     ],
   },
-  {
+  createAppletDefinition(productCatalogApplet, {
     id: "product-catalog",
     label: "Product Catalog",
-    apiSpec: productCatalogApplet.apiSpec,
-    routes: productCatalogApplet.routes.map((route: any) => ({
-      ...route,
-      path: "/product-catalog",
-      icon: InventoryIcon,
-      requiredPermissions: [productCatalogApplet.permissions.VIEW_PRODUCTS.id],
-    })),
+    path: "/product-catalog",
+    icon: InventoryIcon,
+    permissions: [productCatalogApplet.permissions.VIEW_PRODUCTS],
+  }),
+  {
+    ...createAppletDefinition(helloApplet, {
+      id: "hello",
+      label: "Hello",
+      path: "/hello",
+      icon: LanguageIcon,
+      permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
+    }),
+    getHostNavigation: helloApplet.getHostNavigation,
   },
   demoTasksApplet,
 ];

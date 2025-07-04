@@ -111,7 +111,17 @@ export function useAppletPermissions({
         const permissionMappings =
           roleConfig.permissionMappings?.[hostApplet.id];
         if (!permissionMappings) {
-          return null;
+          // Return a special card for applets without permissions
+          return {
+            id: hostApplet.id,
+            label: hostApplet.label,
+            icon: hostApplet.routes[0]?.icon,
+            permissions: [{
+              key: 'no-permissions',
+              label: 'No permissions defined',
+              hasAccess: false,
+            }],
+          };
         }
 
         // Helper function to check if any selected role has the permission

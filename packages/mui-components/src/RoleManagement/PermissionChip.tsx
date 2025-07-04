@@ -10,6 +10,8 @@ interface PermissionChipProps {
 }
 
 export function PermissionChip({ permission }: PermissionChipProps) {
+  const isNoPermissions = permission.key === 'no-permissions';
+  
   return (
     <StyledPermissionChip
       label={permission.label}
@@ -19,6 +21,8 @@ export function PermissionChip({ permission }: PermissionChipProps) {
       sx={{
         justifyContent: "center",
         width: "100%",
+        fontStyle: isNoPermissions ? "italic" : "normal",
+        opacity: isNoPermissions ? 0.7 : 1,
         "& .MuiChip-label": {
           textAlign: "center",
           overflow: "hidden",

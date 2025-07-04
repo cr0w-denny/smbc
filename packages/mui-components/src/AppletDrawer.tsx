@@ -2,18 +2,10 @@ import React from "react";
 import {
   Box,
   Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Typography,
   Toolbar,
-  Chip,
-  Tabs,
-  Tab,
 } from "@mui/material";
-import { Dashboard as DashboardIcon } from "@mui/icons-material";
+import { TreeMenu } from "./TreeMenu";
 
 /**
  * Navigation route interface
@@ -27,101 +19,26 @@ export interface NavigationRoute {
 }
 
 /**
- * Props for the AppletNavigation component
+ * Hierarchical navigation interfaces
  */
-export interface AppletNavigationProps {
-  /** Current active path */
-  currentPath: string;
-  /** Function to handle navigation */
-  onNavigate: (path: string) => void;
-  /** Array of navigation routes */
+export interface HierarchicalNavigationGroup {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
   routes: NavigationRoute[];
-  /** Navigation style mode */
-  mode?: "list" | "tabs";
-  /** Whether to show debug info (applet count chip) */
-  showDebugInfo?: boolean;
-  /** Number of total applets for debug display */
-  totalApplets?: number;
 }
 
-/**
- * Navigation component that renders a list of navigable routes
- * with proper selection highlighting and permission-based filtering
- */
-export function AppletNavigation({
-  currentPath,
-  onNavigate,
-  routes,
-  mode = "list",
-  showDebugInfo = false,
-  totalApplets = 0,
-}: AppletNavigationProps) {
-  const handleNavigation = (path: string) => {
-    onNavigate(path);
-  };
-
-  if (mode === "tabs") {
-    const currentIndex = routes.findIndex(
-      (route) => route.path === currentPath,
-    );
-    const tabValue = currentIndex === -1 ? 0 : currentIndex;
-
-    return (
-      <Tabs
-        value={tabValue}
-        onChange={(_, newValue) => {
-          const route = routes[newValue];
-          if (route) {
-            handleNavigation(route.path);
-          }
-        }}
-        aria-label="navigation tabs"
-      >
-        {routes.map((route) => (
-          <Tab
-            key={route.path}
-            label={route.label}
-            id={`nav-tab-${route.path}`}
-            aria-controls={`nav-tabpanel-${route.path}`}
-          />
-        ))}
-      </Tabs>
-    );
-  }
-
-  // Default list mode
-  return (
-    <List>
-      {routes.map((route) => {
-        const IconComponent = route.icon;
-        const isSelected = currentPath === route.path;
-
-        return (
-          <ListItem key={route.path} disablePadding>
-            <ListItemButton
-              selected={isSelected}
-              onClick={() => handleNavigation(route.path)}
-            >
-              <ListItemIcon>
-                {IconComponent ? <IconComponent /> : <DashboardIcon />}
-              </ListItemIcon>
-              <ListItemText primary={route.label} />
-              {/* Show applet count for debug */}
-              {route.path === "/" && showDebugInfo && (
-                <Chip
-                  label={totalApplets}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                />
-              )}
-            </ListItemButton>
-          </ListItem>
-        );
-      })}
-    </List>
-  );
+export interface HierarchicalNavigationSection {
+  appletId: string;
+  appletLabel: string;
+  appletIcon?: React.ComponentType | React.ElementType | string;
+  hasInternalNavigation: boolean;
+  directRoute?: NavigationRoute;
+  homeRoute?: NavigationRoute;
+  groups?: HierarchicalNavigationGroup[];
 }
+
 
 /**
  * Props for the AppletDrawer component
@@ -135,8 +52,10 @@ export interface AppletDrawerProps {
   currentPath: string;
   /** Function to handle navigation */
   onNavigate: (path: string) => void;
-  /** Array of navigation routes */
-  routes: NavigationRoute[];
+  /** Root route (usually Dashboard) */
+  rootRoute?: NavigationRoute;
+  /** Hierarchical applet sections */
+  appletSections: HierarchicalNavigationSection[];
   /** Whether to show debug info */
   showDebugInfo?: boolean;
   /** Number of total applets for debug display */
@@ -171,7 +90,8 @@ export function AppletDrawer({
   width = 240,
   currentPath,
   onNavigate,
-  routes,
+  rootRoute,
+  appletSections,
   showDebugInfo = false,
   totalApplets = 0,
   headerContent,
@@ -199,10 +119,11 @@ export function AppletDrawer({
 
       {headerContent && <Box sx={{ px: 2, py: 1 }}>{headerContent}</Box>}
 
-      <AppletNavigation
+      <TreeMenu
         currentPath={currentPath}
         onNavigate={onNavigate}
-        routes={routes}
+        rootRoute={rootRoute}
+        appletSections={appletSections}
         showDebugInfo={showDebugInfo}
         totalApplets={totalApplets}
       />

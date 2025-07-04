@@ -5,13 +5,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   AppProvider,
   FeatureFlagProvider,
+  calculatePermissionsFromRoles,
+  getCurrentApplet,
   useHashNavigation,
   useFeatureFlag,
   useFeatureFlagToggle,
 } from "@smbc/applet-core";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
-import { getCurrentApplet } from "@smbc/applet-core";
 import {
   ApiDocsModal,
   DevHostAppBar,
@@ -27,13 +28,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Import configuration
-import {
-  APP_CONSTANTS,
-  APPLETS,
-  demoUser,
-  roleConfig,
-  calculatePermissionsFromRoles,
-} from "./app.config";
+import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
 
 // Feature flag configuration
 const featureFlags = [
@@ -74,7 +69,6 @@ async function initializeMswHandlers(): Promise<void> {
   }
 }
 
-
 function AppContentWithQueryAccess() {
   const handleNavigate = (url: string) => {
     // Simple navigation for the demo - just use hash navigation
@@ -113,7 +107,6 @@ function Navigation() {
   // Get current path to determine which applet is active
   const { currentPath } = useHashNavigation();
   const currentAppletInfo = getCurrentApplet(currentPath, APPLETS);
-
 
   // Close API docs when switching between applets
   React.useEffect(() => {
@@ -250,7 +243,6 @@ const queryClient = new QueryClient({
 function AppWithThemeProvider() {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const currentTheme = isDarkMode ? darkTheme : lightTheme;
-
 
   // Create user with calculated permissions
   const userWithPermissions = {

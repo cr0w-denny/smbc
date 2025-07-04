@@ -93,9 +93,9 @@ export function UserList() {
 }
 ```
 
-## Applet Configuration
+## Applet Definition
 
-Export your applet configuration:
+Export your applet definition:
 
 ```typescript
 // mui/src/index.ts
