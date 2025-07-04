@@ -1,32 +1,11 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { resolve } from "path";
+import { defineConfig } from 'vite';
+import { createAppletConfig } from '@smbc/vite-config';
 
-export default defineConfig({
-  plugins: [react()],
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "HelloApplet",
-      fileName: "index",
-      formats: ["es"],
-    },
-    rollupOptions: {
-      external: [
-        "react",
-        "react-dom",
-        "react-router-dom",
-        "@mui/material",
-        "@mui/icons-material",
-        "@tanstack/react-query",
-      ],
-      output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
-          "react-router-dom": "ReactRouterDOM",
-        },
-      },
-    },
-  },
-});
+export default defineConfig(
+  createAppletConfig({
+    appletName: 'hello-applet',
+    rootDir: __dirname,
+    // Using defaults for most options
+    // This applet doesn't need any special configuration
+  })
+);
