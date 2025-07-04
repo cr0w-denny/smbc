@@ -5,39 +5,20 @@ export type { LoadingTableProps } from "./LoadingTable";
 export { ConfirmationDialog } from "./ConfirmationDialog";
 export type { ConfirmationDialogProps } from "./ConfirmationDialog";
 
-// Keep TransactionProgressOverlay component for future advanced progress features
-// export { TransactionProgressOverlay } from "./TransactionProgressOverlay";
-// export type { TransactionProgressOverlayProps } from "./TransactionProgressOverlay";
-
 export { SearchInput } from "./SearchInput";
 export type { SearchInputProps } from "./SearchInput";
 
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
 
-export { ApiDocsModal } from "./ApiDocsModal";
-export type { ApiDocsModalProps } from "./ApiDocsModal";
-
-export {
-  DashboardHeader,
-  CurrentUserInfo,
-  PermissionChip,
-  PermissionCard,
-  PermissionsGrid,
-} from "./RoleManagement";
-
-export type { User, Permission, PermissionGroup } from "./RoleManagement";
-
-export { DevHostAppBar } from "./DevHostAppBar";
-export type { DevHostAppBarProps, CurrentAppletInfo } from "./DevHostAppBar";
 
 export { AppletDrawer } from "./AppletDrawer";
 export { TreeMenu } from "./TreeMenu";
 export type {
   AppletDrawerProps,
   NavigationRoute,
-  HierarchicalNavigationSection,
-  HierarchicalNavigationGroup,
+  TreeMenuSection,
+  TreeMenuGroup,
 } from "./AppletDrawer";
 export type { TreeMenuProps } from "./TreeMenu";
 
@@ -87,11 +68,3 @@ export const getTheme = (mode: "light" | "dark" = "light") => {
       return lightTheme;
   }
 };
-
-// Components moved to mui-applet-core:
-// - MuiDataView (depends on applet-dataview)
-
-// Components moved to mui-applet-core:
-// - ActionBar
-// - ActivityNotifications  
-// - ActivitySnackbar

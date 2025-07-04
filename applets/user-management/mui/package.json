@@ -2,14 +2,14 @@
   "name": "@smbc/user-management-mui",
   "version": "0.0.0",
   "description": "User management applet for MUI hosts",
-  "main": "dist/index.es.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
-      "default": "./dist/index.es.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {

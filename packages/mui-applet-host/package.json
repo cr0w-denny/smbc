@@ -1,0 +1,48 @@
+{
+  "name": "@smbc/mui-applet-host",
+  "version": "0.1.0",
+  "description": "Complete MUI applet host package with all SMBC dependencies bundled",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "smbc",
+    "mui",
+    "applet",
+    "host",
+    "react"
+  ],
+  "dependencies": {
+    "@smbc/applet-core": "*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/react-query-dataview": "*",
+    "@smbc/ui-core": "*"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@mui/material": "^7.1.2",
+    "@mui/icons-material": "^7.1.2",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "rimraf": "^6.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -26,6 +26,7 @@ export const CORE_DEPS = {
 
   // State management
   "@tanstack/react-query": "^5.0.0",
+  "@tanstack/react-query-devtools": "^5.0.0",
 
   // Development tools
   "typescript": "^5.3.3",
@@ -33,6 +34,8 @@ export const CORE_DEPS = {
   "@vitejs/plugin-react": "^4.2.1",
   "vite-plugin-dts": "^4.5.4",
   "eslint": "^8.56.0",
+  "@typescript-eslint/eslint-plugin": "^6.0.0",
+  "@typescript-eslint/parser": "^6.0.0",
   "prettier": "^3.2.5",
   "@types/node": "^20.11.17",
 
@@ -58,6 +61,7 @@ export const SMBC_PACKAGES = [
   "@smbc/react-query-dataview",
   "@smbc/ui-core",
   "@smbc/vite-config",
+  "@smbc/mui-applet-host",
 ];
 
 // Core peer dependencies required by all applets (for click-to-copy)

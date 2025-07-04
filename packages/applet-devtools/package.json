@@ -14,10 +14,13 @@
     "./src/mocks/*": {
       "types": "./dist/mocks/*.d.ts",
       "import": "./dist/mocks/*.js"
-    }
+    },
+    "./scripts/setup-msw.js": "./scripts/setup-msw.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts",
+    "assets"
   ],
   "scripts": {
     "build": "tsc -b",

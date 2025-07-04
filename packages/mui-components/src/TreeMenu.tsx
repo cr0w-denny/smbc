@@ -21,9 +21,9 @@ export interface NavigationRoute {
 }
 
 /**
- * Hierarchical navigation interfaces
+ * Tree menu navigation interfaces
  */
-export interface HierarchicalNavigationGroup {
+export interface TreeMenuGroup {
   id: string;
   label: string;
   icon?: string;
@@ -31,14 +31,14 @@ export interface HierarchicalNavigationGroup {
   routes: NavigationRoute[];
 }
 
-export interface HierarchicalNavigationSection {
+export interface TreeMenuSection {
   appletId: string;
   appletLabel: string;
   appletIcon?: React.ComponentType | React.ElementType | string;
   hasInternalNavigation: boolean;
   directRoute?: NavigationRoute;
   homeRoute?: NavigationRoute;
-  groups?: HierarchicalNavigationGroup[];
+  groups?: TreeMenuGroup[];
 }
 
 /**
@@ -51,8 +51,8 @@ export interface TreeMenuProps {
   onNavigate: (path: string) => void;
   /** Root route (usually Dashboard) */
   rootRoute?: NavigationRoute;
-  /** Hierarchical applet sections */
-  appletSections: HierarchicalNavigationSection[];
+  /** Tree menu applet sections */
+  appletSections: TreeMenuSection[];
   /** Whether to show debug info (applet count chip) */
   showDebugInfo?: boolean;
   /** Number of total applets for debug display */

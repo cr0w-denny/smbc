@@ -1,13 +1,3 @@
-// Role Management
-export { RoleManagement, useLocalStoragePersistence } from "./RoleManagement";
-
-export type {
-  RoleManagementProps,
-  User,
-  Permission,
-  PermissionGroup,
-} from "./RoleManagement";
-
 // AutoFilter
 export {
   AutoFilter,

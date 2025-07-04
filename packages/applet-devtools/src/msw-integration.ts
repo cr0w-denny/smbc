@@ -25,6 +25,17 @@ export function registerMswHandlers(handlers: any[]): void {
 }
 
 /**
+ * Register host application mock overrides.
+ * These overrides take precedence over applet default handlers.
+ */
+export function registerHostMockOverrides(overrides: any[]): void {
+  if (Array.isArray(overrides)) {
+    // Add overrides at the end so they take precedence
+    handlerRegistry.push(...overrides);
+  }
+}
+
+/**
  * Clear all registered handlers (useful for testing)
  */
 export function clearRegisteredHandlers(): void {

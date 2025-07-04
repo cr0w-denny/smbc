@@ -2,9 +2,9 @@ import { resolve } from 'path';
 import type { UserConfig, Plugin, PluginOption } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
-import { suppressUseClientWarnings } from '../plugins/suppress-warnings';
-import { getExternals, getSMBCExternals } from '../externals';
-import { createBaseConfig } from './base';
+import { suppressUseClientWarnings } from '../plugins/suppress-warnings.js';
+import { getExternals, getSMBCExternals } from '../externals/index.js';
+import { createBaseConfig } from './base.js';
 
 export interface AppletConfigOptions {
   // Required
@@ -63,8 +63,9 @@ export function createAppletConfig(options: AppletConfigOptions): UserConfig {
     pluginOptions.push(dts({
       insertTypesEntry: true,
       include: ['src'],
-      outDir: resolve(rootDir, outDir, 'types'),
-      rollupTypes: true
+      outDir: resolve(rootDir, outDir),
+      rollupTypes: false,
+      copyDtsFiles: true
     }));
   }
 
@@ -85,7 +86,7 @@ export function createAppletConfig(options: AppletConfigOptions): UserConfig {
       lib: {
         entry: resolve(rootDir, entry),
         formats: ['es'],
-        fileName: () => 'index.es.js'
+        fileName: () => 'index.js'
       },
       rollupOptions: {
         external: externals,

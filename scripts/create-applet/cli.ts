@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import validatePackageName from "validate-npm-package-name";
 import { execSync } from "child_process";
+import { updatePackageJsonDependencies } from "../template-deps.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -190,12 +191,19 @@ async function createMuiPackage(config: AppletConfig, appletPath: string) {
   packageJson.name = `@smbc/${config.name}-mui`;
   packageJson.description = config.description;
 
+  // Determine dependency type based on template
+  const dependencyType = config.template === "full" ? "full-applet" : "basic-applet";
+  
+  // Update dependencies to use shared definitions
+  const updatedPackageJson = updatePackageJsonDependencies(packageJson, dependencyType);
+
   // Add API dependency if API package will be included
   if (config.withApi) {
-    packageJson.dependencies[`@smbc/${config.name}-api`] = "*";
+    updatedPackageJson.dependencies = updatedPackageJson.dependencies || {};
+    updatedPackageJson.dependencies[`@smbc/${config.name}-api`] = "*";
   }
 
-  await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+  await fs.writeJson(packageJsonPath, updatedPackageJson, { spaces: 2 });
 
   // Replace template placeholders in source files
   await replaceTemplatePlaceholders(muiPath, config);
@@ -220,7 +228,11 @@ async function createApiPackages(config: AppletConfig, appletPath: string) {
       const packageJson = await fs.readJson(pkgPath);
       packageJson.name = `@smbc/${config.name}-${pkg}`;
       packageJson.description = `${config.description} - ${pkg}`;
-      await fs.writeJson(pkgPath, packageJson, { spaces: 2 });
+      
+      // Update dependencies to use shared definitions for API packages
+      const updatedPackageJson = updatePackageJsonDependencies(packageJson, "api");
+      
+      await fs.writeJson(pkgPath, updatedPackageJson, { spaces: 2 });
     }
   }
 

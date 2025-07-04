@@ -6,11 +6,11 @@
  */
 
 // Main configuration functions
-export { createAppletConfig, type AppletConfigOptions } from './presets/applet';
-export { createBaseConfig } from './presets/base';
+export { createAppletConfig, type AppletConfigOptions } from './presets/applet.js';
+export { createBaseConfig } from './presets/base.js';
 
 // Plugins
-export { suppressUseClientWarnings } from './plugins/suppress-warnings';
+export { suppressUseClientWarnings } from './plugins/suppress-warnings.js';
 
 // External dependency management
 export {
@@ -21,7 +21,7 @@ export {
   API_EXTERNALS,
   SMBC_CORE_EXTERNALS,
   EXTERNALS_PRESETS
-} from './externals';
+} from './externals/index.js';
 
 // Re-export types for convenience
 export type { UserConfig, Plugin } from 'vite';

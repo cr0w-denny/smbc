@@ -81,3 +81,92 @@ export function mountApplet(
     ],
   };
 }
+
+/**
+ * Mounts multiple applets and generates both permission requirements and mounted applets.
+ * This is a convenience function that simplifies the common pattern of setting up applets.
+ * 
+ * @param appletConfigs Object mapping applet IDs to their configurations
+ * @returns Object containing both permissionRequirements and mountedApplets
+ * 
+ * @example
+ * const { permissionRequirements, mountedApplets } = mountApplets({
+ *   "user-management": {
+ *     applet: userManagementApplet,
+ *     label: "User Management", 
+ *     path: "/user-management",
+ *     icon: PeopleIcon,
+ *     permissions: {
+ *       VIEW_USERS: "Staff",
+ *       CREATE_USERS: "Manager",
+ *     }
+ *   },
+ *   "hello": {
+ *     applet: helloApplet,
+ *     label: "Hello World",
+ *     path: "/hello", 
+ *     icon: EmojiEmotionsIcon,
+ *     permissions: {
+ *       VIEW: "User"
+ *     }
+ *   }
+ * });
+ */
+export function mountApplets(appletConfigs: Record<string, {
+  applet: any;
+  label: string;
+  path: string;
+  icon?: any;
+  permissions: Record<string, string>;
+}>): {
+  permissionRequirements: Record<string, { applet: any; permissions: Record<string, string> }>;
+  mountedApplets: Record<string, AppletMount>;
+} {
+  const permissionRequirements: Record<string, { applet: any; permissions: Record<string, string> }> = {};
+  const mountedApplets: Record<string, AppletMount> = {};
+
+  for (const [id, config] of Object.entries(appletConfigs)) {
+    // Add to permission requirements
+    permissionRequirements[id] = {
+      applet: config.applet,
+      permissions: config.permissions,
+    };
+
+    // Add to mounted applets
+    mountedApplets[id] = mountApplet(config.applet, {
+      id,
+      label: config.label,
+      path: config.path,
+      icon: config.icon,
+    });
+  }
+
+  return {
+    permissionRequirements,
+    mountedApplets,
+  };
+}
+
+/**
+ * Converts mounted applets to the format expected by AppletDrawer.
+ * This eliminates the need for verbose manual mapping in App components.
+ * 
+ * @param applets Record of mounted applets from mountApplets()
+ * @returns Array of navigation sections for AppletDrawer
+ * 
+ * @example
+ * const appletSections = createAppletSections(APPLETS);
+ * <AppletDrawer appletSections={appletSections} ... />
+ */
+export function createAppletSections(applets: Record<string, AppletMount>) {
+  return Object.values(applets).map(applet => ({
+    appletId: applet.id,
+    appletLabel: applet.label,
+    hasInternalNavigation: false,
+    directRoute: applet.routes[0] ? {
+      path: applet.routes[0].path,
+      label: applet.routes[0].label,
+      icon: applet.routes[0].icon,
+    } : undefined,
+  }));
+}

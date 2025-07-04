@@ -10,7 +10,7 @@ import {
 import {
   AppletDrawer as BaseAppletDrawer,
   type NavigationRoute,
-  type HierarchicalNavigationSection,
+  type TreeMenuSection,
 } from "@smbc/mui-components";
 
 interface AppletDrawerProps {
@@ -85,7 +85,7 @@ export function AppletDrawer({
       }
       
       return null;
-    }).filter(Boolean) as HierarchicalNavigationSection[];
+    }).filter(Boolean) as TreeMenuSection[];
   }, [appletSections, searchTerm]);
 
   // Convert types to match BaseAppletDrawer expectations
