@@ -40,6 +40,22 @@ const APPLET_PACKAGE_MAP: Record<string, string> = {
 };
 
 /**
+ * Core peer dependencies required by all applets
+ * Version numbers should match what's in the monorepo
+ */
+const CORE_PEER_DEPS = {
+  "react": "^18.2.0",
+  "react-dom": "^18.2.0",
+  "@mui/material": "^5.14.0",
+  "@emotion/react": "^11.11.0",
+  "@emotion/styled": "^11.11.0",
+  "@tanstack/react-query": "^5.0.0",
+  "@smbc/applet-core": "^0.0.1",
+  "@smbc/mui-applet-core": "^0.0.1",
+  "@smbc/mui-components": "^0.0.1"
+};
+
+/**
  * Props for the DevHostAppBar component
  */
 export interface DevHostAppBarProps {
@@ -103,7 +119,12 @@ export function DevHostAppBar({
     const packageName = APPLET_PACKAGE_MAP[currentAppletInfo.id];
     if (!packageName) return;
 
-    const installCommand = `npm install ${packageName}`;
+    // Build install command with peer dependencies
+    const peerDeps = Object.entries(CORE_PEER_DEPS)
+      .map(([pkg, version]) => `${pkg}@${version.replace('^', '')}`)
+      .join(' ');
+    
+    const installCommand = `npm install ${packageName} ${peerDeps}`;
     
     try {
       await navigator.clipboard.writeText(installCommand);
@@ -139,12 +160,13 @@ export function DevHostAppBar({
         {/* Package Install Copy Component */}
         {currentAppletInfo?.id && APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Chip
-              label={APPLET_PACKAGE_MAP[currentAppletInfo.id]}
-              icon={<ContentCopyIcon />}
-              onClick={handleCopyPackage}
-              size="small"
-              sx={{
+            <Tooltip title="Copy install command with all required dependencies">
+              <Chip
+                label={APPLET_PACKAGE_MAP[currentAppletInfo.id]}
+                icon={<ContentCopyIcon />}
+                onClick={handleCopyPackage}
+                size="small"
+                sx={{
                 backgroundColor: 'rgba(255, 255, 255, 0.15)',
                 color: 'inherit',
                 fontFamily: 'monospace',
@@ -162,7 +184,8 @@ export function DevHostAppBar({
                   padding: '0 8px',
                 },
               }}
-            />
+              />
+            </Tooltip>
             
             {/* Feedback chip */}
             {copyFeedback && (
