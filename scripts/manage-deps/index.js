@@ -1,0 +1,407 @@
+#!/usr/bin/env node
+
+/**
+ * Dependency management tool for SMBC monorepo
+ * 
+ * Commands:
+ * - sync: Synchronize dependency versions across all packages
+ * - update <package@version>: Update a specific dependency across all packages
+ * - validate: Check for version conflicts and mismatches
+ * - list: Show all dependencies and their versions across packages
+ */
+
+import { readFileSync, writeFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { glob } from 'glob';
+import chalk from 'chalk';
+import { table } from 'table';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = join(__dirname, '../..');
+
+// Core dependencies that should be synchronized
+const CORE_DEPS = {
+  // React ecosystem
+  'react': '^18.2.0',
+  'react-dom': '^18.2.0',
+  '@types/react': '^18.2.0',
+  '@types/react-dom': '^18.2.0',
+  
+  // Material-UI
+  '@mui/material': '^5.14.0',
+  '@mui/icons-material': '^5.14.0',
+  '@mui/x-data-grid': '^6.19.0',
+  '@mui/x-tree-view': '^6.17.0',
+  '@emotion/react': '^11.11.0',
+  '@emotion/styled': '^11.11.0',
+  
+  // State management
+  '@tanstack/react-query': '^5.0.0',
+  
+  // Development tools
+  'typescript': '^5.3.3',
+  'vite': '^5.1.3',
+  '@vitejs/plugin-react': '^4.2.1',
+  'eslint': '^8.56.0',
+  'prettier': '^3.2.5',
+  
+  // Testing
+  'vitest': '^1.3.0',
+  '@testing-library/react': '^14.2.0',
+  '@testing-library/jest-dom': '^6.4.0',
+  
+  // API
+  'openapi-fetch': '^0.9.0',
+  'msw': '^2.2.0',
+};
+
+// SMBC packages that should reference workspace versions
+const SMBC_PACKAGES = [
+  '@smbc/applet-core',
+  '@smbc/mui-applet-core',
+  '@smbc/mui-components',
+  '@smbc/react-query-dataview',
+  '@smbc/ui-core',
+  '@smbc/vite-config',
+];
+
+/**
+ * Find all package.json files in the monorepo
+ */
+async function findPackageJsonFiles() {
+  const patterns = [
+    'package.json',
+    'packages/*/package.json',
+    'apps/*/package.json',
+    'applets/*/*/package.json',
+  ];
+  
+  const files = [];
+  for (const pattern of patterns) {
+    const matches = await glob(pattern, { cwd: rootDir });
+    files.push(...matches.map(f => join(rootDir, f)));
+  }
+  
+  return files;
+}
+
+/**
+ * Read and parse a package.json file
+ */
+function readPackageJson(filePath) {
+  try {
+    const content = readFileSync(filePath, 'utf-8');
+    return JSON.parse(content);
+  } catch (error) {
+    console.error(chalk.red(`Error reading ${filePath}: ${error.message}`));
+    return null;
+  }
+}
+
+/**
+ * Write a package.json file with proper formatting
+ */
+function writePackageJson(filePath, data) {
+  try {
+    writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n');
+    return true;
+  } catch (error) {
+    console.error(chalk.red(`Error writing ${filePath}: ${error.message}`));
+    return false;
+  }
+}
+
+/**
+ * Get package info from file path
+ */
+function getPackageInfo(filePath) {
+  const relativePath = filePath.replace(rootDir + '/', '');
+  const parts = relativePath.split('/');
+  
+  if (relativePath === 'package.json') {
+    return { type: 'root', name: 'monorepo root' };
+  } else if (parts[0] === 'packages') {
+    return { type: 'package', name: parts[1] };
+  } else if (parts[0] === 'apps') {
+    return { type: 'app', name: parts[1] };
+  } else if (parts[0] === 'applets') {
+    return { type: 'applet', name: `${parts[1]}/${parts[2]}` };
+  }
+  
+  return { type: 'unknown', name: relativePath };
+}
+
+/**
+ * Sync command - synchronize dependency versions
+ */
+async function syncDependencies() {
+  console.log(chalk.blue('🔄 Synchronizing dependency versions...\n'));
+  
+  const files = await findPackageJsonFiles();
+  let updatedCount = 0;
+  
+  for (const filePath of files) {
+    const pkg = readPackageJson(filePath);
+    if (!pkg) continue;
+    
+    const info = getPackageInfo(filePath);
+    let hasChanges = false;
+    
+    // Update dependencies
+    for (const depType of ['dependencies', 'devDependencies', 'peerDependencies']) {
+      if (!pkg[depType]) continue;
+      
+      for (const [depName, currentVersion] of Object.entries(pkg[depType])) {
+        // Handle core dependencies
+        if (CORE_DEPS[depName]) {
+          const targetVersion = CORE_DEPS[depName];
+          if (currentVersion !== targetVersion && !currentVersion.startsWith('workspace:')) {
+            console.log(chalk.yellow(
+              `  ${info.name}: ${depName} ${currentVersion} → ${targetVersion}`
+            ));
+            pkg[depType][depName] = targetVersion;
+            hasChanges = true;
+          }
+        }
+        
+        // Handle SMBC packages (use workspace protocol)
+        if (SMBC_PACKAGES.includes(depName) && info.type !== 'root') {
+          const targetVersion = 'workspace:*';
+          if (currentVersion !== targetVersion) {
+            console.log(chalk.yellow(
+              `  ${info.name}: ${depName} ${currentVersion} → ${targetVersion}`
+            ));
+            pkg[depType][depName] = targetVersion;
+            hasChanges = true;
+          }
+        }
+      }
+    }
+    
+    if (hasChanges) {
+      if (writePackageJson(filePath, pkg)) {
+        updatedCount++;
+      }
+    }
+  }
+  
+  console.log(chalk.green(`\n✅ Updated ${updatedCount} package.json files`));
+}
+
+/**
+ * Update command - update a specific dependency
+ */
+async function updateDependency(packageSpec) {
+  const match = packageSpec.match(/^(@?[^@]+)@(.+)$/);
+  if (!match) {
+    console.error(chalk.red('Invalid package specification. Use format: package@version'));
+    process.exit(1);
+  }
+  
+  const [, packageName, version] = match;
+  console.log(chalk.blue(`📦 Updating ${packageName} to ${version}...\n`));
+  
+  const files = await findPackageJsonFiles();
+  let updatedCount = 0;
+  
+  for (const filePath of files) {
+    const pkg = readPackageJson(filePath);
+    if (!pkg) continue;
+    
+    const info = getPackageInfo(filePath);
+    let hasChanges = false;
+    
+    for (const depType of ['dependencies', 'devDependencies', 'peerDependencies']) {
+      if (!pkg[depType]) continue;
+      
+      if (pkg[depType][packageName]) {
+        const currentVersion = pkg[depType][packageName];
+        if (currentVersion !== version && !currentVersion.startsWith('workspace:')) {
+          console.log(chalk.yellow(
+            `  ${info.name}: ${depType} - ${currentVersion} → ${version}`
+          ));
+          pkg[depType][packageName] = version;
+          hasChanges = true;
+        }
+      }
+    }
+    
+    if (hasChanges) {
+      if (writePackageJson(filePath, pkg)) {
+        updatedCount++;
+      }
+    }
+  }
+  
+  console.log(chalk.green(`\n✅ Updated ${updatedCount} package.json files`));
+}
+
+/**
+ * Validate command - check for version conflicts
+ */
+async function validateDependencies() {
+  console.log(chalk.blue('🔍 Validating dependency versions...\n'));
+  
+  const files = await findPackageJsonFiles();
+  const depVersions = new Map(); // dep -> Map(version -> locations[])
+  let hasConflicts = false;
+  
+  // Collect all dependency versions
+  for (const filePath of files) {
+    const pkg = readPackageJson(filePath);
+    if (!pkg) continue;
+    
+    const info = getPackageInfo(filePath);
+    
+    for (const depType of ['dependencies', 'devDependencies', 'peerDependencies']) {
+      if (!pkg[depType]) continue;
+      
+      for (const [depName, version] of Object.entries(pkg[depType])) {
+        if (!depVersions.has(depName)) {
+          depVersions.set(depName, new Map());
+        }
+        
+        const versionMap = depVersions.get(depName);
+        if (!versionMap.has(version)) {
+          versionMap.set(version, []);
+        }
+        
+        versionMap.get(version).push({
+          location: info.name,
+          type: info.type,
+          depType
+        });
+      }
+    }
+  }
+  
+  // Check for conflicts
+  for (const [depName, versionMap] of depVersions) {
+    if (versionMap.size > 1) {
+      // Skip workspace dependencies
+      const versions = Array.from(versionMap.keys()).filter(v => !v.startsWith('workspace:'));
+      if (versions.length <= 1) continue;
+      
+      hasConflicts = true;
+      console.log(chalk.red(`\n❌ Conflict found for ${depName}:`));
+      
+      for (const [version, locations] of versionMap) {
+        if (version.startsWith('workspace:')) continue;
+        console.log(chalk.yellow(`  ${version}:`));
+        for (const loc of locations) {
+          console.log(`    - ${loc.location} (${loc.depType})`);
+        }
+      }
+    }
+  }
+  
+  if (!hasConflicts) {
+    console.log(chalk.green('✅ No version conflicts found!'));
+  } else {
+    console.log(chalk.red('\n❌ Version conflicts detected. Run "sync" to fix.'));
+    process.exit(1);
+  }
+}
+
+/**
+ * List command - show all dependencies
+ */
+async function listDependencies() {
+  console.log(chalk.blue('📋 Listing all dependencies...\n'));
+  
+  const files = await findPackageJsonFiles();
+  const depVersions = new Map(); // dep -> Set(versions)
+  
+  // Collect all unique dependencies
+  for (const filePath of files) {
+    const pkg = readPackageJson(filePath);
+    if (!pkg) continue;
+    
+    for (const depType of ['dependencies', 'devDependencies', 'peerDependencies']) {
+      if (!pkg[depType]) continue;
+      
+      for (const [depName, version] of Object.entries(pkg[depType])) {
+        if (!depVersions.has(depName)) {
+          depVersions.set(depName, new Set());
+        }
+        depVersions.get(depName).add(version);
+      }
+    }
+  }
+  
+  // Prepare table data
+  const tableData = [['Package', 'Versions', 'Status']];
+  
+  const sortedDeps = Array.from(depVersions.entries()).sort(([a], [b]) => a.localeCompare(b));
+  
+  for (const [depName, versions] of sortedDeps) {
+    const versionArray = Array.from(versions);
+    const nonWorkspaceVersions = versionArray.filter(v => !v.startsWith('workspace:'));
+    
+    let status = '✅';
+    let versionDisplay = versionArray.join(', ');
+    
+    if (nonWorkspaceVersions.length > 1) {
+      status = '⚠️';
+      versionDisplay = chalk.yellow(versionDisplay);
+    }
+    
+    tableData.push([depName, versionDisplay, status]);
+  }
+  
+  console.log(table(tableData, {
+    columns: {
+      0: { width: 40 },
+      1: { width: 30 },
+      2: { width: 5, alignment: 'center' }
+    }
+  }));
+}
+
+/**
+ * Main CLI
+ */
+async function main() {
+  const command = process.argv[2];
+  const args = process.argv.slice(3);
+  
+  switch (command) {
+    case 'sync':
+      await syncDependencies();
+      break;
+      
+    case 'update':
+      if (args.length === 0) {
+        console.error(chalk.red('Please specify a package: update <package@version>'));
+        process.exit(1);
+      }
+      await updateDependency(args[0]);
+      break;
+      
+    case 'validate':
+      await validateDependencies();
+      break;
+      
+    case 'list':
+      await listDependencies();
+      break;
+      
+    default:
+      console.log(chalk.blue('SMBC Dependency Manager\n'));
+      console.log('Commands:');
+      console.log('  sync                    - Synchronize dependency versions');
+      console.log('  update <package@version> - Update a specific dependency');
+      console.log('  validate                - Check for version conflicts');
+      console.log('  list                    - Show all dependencies');
+      console.log('\nExample:');
+      console.log('  node scripts/manage-deps sync');
+      console.log('  node scripts/manage-deps update react@18.3.0');
+      break;
+  }
+}
+
+main().catch(error => {
+  console.error(chalk.red(`Error: ${error.message}`));
+  process.exit(1);
+});

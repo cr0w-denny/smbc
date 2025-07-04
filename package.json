@@ -44,6 +44,10 @@
     "generate": "./scripts/mock-generation/generate.ts",
     "create-applet": "tsx scripts/create-applet/cli.ts",
     "create-host": "tsx scripts/create-host/cli.ts",
+    "deps:sync": "node scripts/manage-deps sync",
+    "deps:validate": "node scripts/manage-deps validate",
+    "deps:list": "node scripts/manage-deps list",
+    "deps:update": "node scripts/manage-deps update",
     "reboot": "npm run reset && npm install && npm run build",
     "reset": "./scripts/clean-slate.sh"
   },
