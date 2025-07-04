@@ -56,7 +56,8 @@ const CORE_DEPS = {
   'msw': '^2.2.0',
 };
 
-// SMBC packages that should reference workspace versions
+// SMBC packages - in npm workspaces these are automatically resolved
+// We'll track them to ensure consistent versions when specified
 const SMBC_PACKAGES = [
   '@smbc/applet-core',
   '@smbc/mui-applet-core',
@@ -156,7 +157,7 @@ async function syncDependencies() {
         // Handle core dependencies
         if (CORE_DEPS[depName]) {
           const targetVersion = CORE_DEPS[depName];
-          if (currentVersion !== targetVersion && !currentVersion.startsWith('workspace:')) {
+          if (currentVersion !== targetVersion) {
             console.log(chalk.yellow(
               `  ${info.name}: ${depName} ${currentVersion} → ${targetVersion}`
             ));
@@ -165,15 +166,14 @@ async function syncDependencies() {
           }
         }
         
-        // Handle SMBC packages (use workspace protocol)
+        // For SMBC packages, npm workspaces will handle resolution automatically
+        // We just log if we see version mismatches for awareness
         if (SMBC_PACKAGES.includes(depName) && info.type !== 'root') {
-          const targetVersion = 'workspace:*';
-          if (currentVersion !== targetVersion) {
-            console.log(chalk.yellow(
-              `  ${info.name}: ${depName} ${currentVersion} → ${targetVersion}`
+          // If it has a specific version (not ^0.0.1), it might need attention
+          if (currentVersion !== '^0.0.1' && !currentVersion.startsWith('file:')) {
+            console.log(chalk.blue(
+              `  ${info.name}: ${depName} has version ${currentVersion} (npm workspace will resolve)`
             ));
-            pkg[depType][depName] = targetVersion;
-            hasChanges = true;
           }
         }
       }
@@ -217,7 +217,7 @@ async function updateDependency(packageSpec) {
       
       if (pkg[depType][packageName]) {
         const currentVersion = pkg[depType][packageName];
-        if (currentVersion !== version && !currentVersion.startsWith('workspace:')) {
+        if (currentVersion !== version) {
           console.log(chalk.yellow(
             `  ${info.name}: ${depType} - ${currentVersion} → ${version}`
           ));
@@ -279,15 +279,15 @@ async function validateDependencies() {
   // Check for conflicts
   for (const [depName, versionMap] of depVersions) {
     if (versionMap.size > 1) {
-      // Skip workspace dependencies
-      const versions = Array.from(versionMap.keys()).filter(v => !v.startsWith('workspace:'));
-      if (versions.length <= 1) continue;
+      // Skip SMBC packages - npm workspaces handles these
+      if (SMBC_PACKAGES.includes(depName)) {
+        continue;
+      }
       
       hasConflicts = true;
       console.log(chalk.red(`\n❌ Conflict found for ${depName}:`));
       
       for (const [version, locations] of versionMap) {
-        if (version.startsWith('workspace:')) continue;
         console.log(chalk.yellow(`  ${version}:`));
         for (const loc of locations) {
           console.log(`    - ${loc.location} (${loc.depType})`);

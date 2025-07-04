@@ -22,7 +22,7 @@ node scripts/manage-deps sync
 
 This will:
 - Update all core dependencies to their standard versions
-- Convert SMBC package references to use `workspace:*`
+- Report any non-standard SMBC package versions (npm workspaces handles resolution)
 - Report all changes made
 
 ### Update a Specific Dependency
@@ -81,7 +81,7 @@ The tool maintains standard versions for core dependencies:
 
 ### SMBC Packages
 
-All SMBC packages (`@smbc/*`) are automatically set to use `workspace:*` protocol for internal references.
+All SMBC packages (`@smbc/*`) are automatically resolved by npm workspaces. The tool will notify you if any packages have non-standard versions specified, but won't change them as npm handles the resolution.
 
 ## Adding to CI
 
