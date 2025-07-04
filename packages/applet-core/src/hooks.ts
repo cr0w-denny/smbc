@@ -131,6 +131,7 @@ export function useHashParams<
   setPagination: (
     updates: Partial<TPagination> | ((prev: TPagination) => TPagination),
   ) => void;
+  syncHash: () => void;
 } {
   // Memoize default values to prevent unnecessary re-renders
   const stableDefaultFilters = React.useMemo(() => defaultFilters, [JSON.stringify(defaultFilters)]);
@@ -142,6 +143,7 @@ export function useHashParams<
   // Track current state with refs to avoid unnecessary re-renders
   const currentFilters = useRef<TFilters>(defaultFilters);
   const currentPagination = useRef<TPagination>(defaultPagination);
+  
   
 
 
@@ -407,6 +409,13 @@ export function useHashParams<
     }
   }, []);
 
+  // Sync hash function that can be called externally
+  const syncHash = useCallback(() => {
+    if (!enabled || typeof window === "undefined" || isInitialMount.current) return;
+    updateHashParams(filters, pagination);
+  }, [enabled, filters, pagination, updateHashParams]);
+
+
   // Cleanup debounce timeout
   useEffect(() => {
     return () => {
@@ -421,8 +430,10 @@ export function useHashParams<
     setFilters,
     pagination,
     setPagination,
+    syncHash,
   };
 }
+
 
 // Hook for user management
 export const useUser = () => {

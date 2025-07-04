@@ -107,6 +107,7 @@ export function useInternalNavigation({
     return buildNavigationGroups(allowedRoutes, navigationGroups, mountPath);
   }, [allowedRoutes, navigationGroups, mountPath]);
 
+
   return {
     currentPath,
     navigateTo,

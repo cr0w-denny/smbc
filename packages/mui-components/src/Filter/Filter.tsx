@@ -132,15 +132,23 @@ export function Filter({
   );
 
   const handleClearFilters = useCallback(() => {
-    // Build cleared values, preserving default values for text fields
+    // Build cleared values, setting all fields to their default/empty values
     const clearedValues = fields.reduce((acc, field) => {
       const isTextualField = ["text", "search", "email"].includes(field.type);
+      const isSelectField = field.type === "select";
+      
       if (isTextualField && field.defaultValue !== undefined) {
         acc[field.name] = field.defaultValue;
       } else if (isTextualField) {
         acc[field.name] = ""; // Default to empty string for text fields
+      } else if (isSelectField) {
+        // For select fields, use the first option's value (usually empty string for "All")
+        const firstOption = field.options?.[0];
+        acc[field.name] = firstOption?.value ?? "";
+      } else {
+        // For other field types, use empty string as default
+        acc[field.name] = "";
       }
-      // For other field types, omit them entirely (they'll use their defaults)
       return acc;
     }, {} as FilterValues);
 

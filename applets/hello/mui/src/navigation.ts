@@ -1,10 +1,10 @@
-import { createNavigationExport } from '@smbc/applet-core';
-import permissions from './permissions';
+import { createNavigationExport } from "@smbc/applet-core";
+import permissions from "./permissions";
 
 // Navigation groups for organizing routes
 export const navigationGroups = [
   { id: "basic", label: "Basic Features", icon: "⚡", order: 1 },
-  { id: "advanced", label: "Advanced Features", icon: "🔧", order: 2 }
+  { id: "advanced", label: "Advanced Features", icon: "🔧", order: 2 },
 ];
 
 // Internal routes used by the applet
@@ -17,7 +17,7 @@ export const internalRoutes = [
     group: "basic",
   },
   {
-    path: "/route-two", 
+    path: "/route-two",
     permission: permissions.VIEW_ROUTE_TWO,
     label: "Route Two",
     icon: "🌟",
@@ -26,7 +26,7 @@ export const internalRoutes = [
   {
     path: "/route-three",
     permission: permissions.VIEW_ROUTE_THREE,
-    label: "Route Three", 
+    label: "Route Three",
     icon: "🎉",
     group: "advanced",
   },
@@ -38,6 +38,6 @@ export const getHostNavigation = createNavigationExport({
   routes: internalRoutes,
   homeRoute: {
     label: "Home",
-    icon: "🏠"
-  }
+    icon: "🏠",
+  },
 });
