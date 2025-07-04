@@ -28,7 +28,7 @@
   "devDependencies": {
     "@smbc/design-tokens": "*",
     "@smbc/applet-core": "*",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.11.17",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "react": "^18.2.0",

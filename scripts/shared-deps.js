@@ -31,13 +31,19 @@ export const CORE_DEPS = {
   "typescript": "^5.3.3",
   "vite": "^5.1.3",
   "@vitejs/plugin-react": "^4.2.1",
+  "vite-plugin-dts": "^4.5.4",
   "eslint": "^8.56.0",
   "prettier": "^3.2.5",
+  "@types/node": "^20.11.17",
 
   // Testing
   "vitest": "^1.3.0",
   "@testing-library/react": "^14.2.0",
   "@testing-library/jest-dom": "^6.4.0",
+
+  // Documentation
+  "swagger-ui-react": "^5.25.2",
+  "@types/swagger-ui-react": "^5.18.0",
 
   // API
   "openapi-fetch": "^0.9.0",
