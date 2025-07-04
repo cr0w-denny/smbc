@@ -13,16 +13,16 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "@smbc/applet-core": "*",
-    "@mui/material": "^7.0.0"
+    "@mui/material": "^7.1.2"
   },
   "devDependencies": {
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "@vitejs/plugin-react": "^4.6.0",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.3"
   }
 }

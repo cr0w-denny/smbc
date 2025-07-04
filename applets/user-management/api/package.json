@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "openapi-typescript": "^7.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.3.3"
   },
   "files": [
     "tsp-output/@typespec/openapi3/openapi.json",

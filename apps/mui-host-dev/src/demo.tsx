@@ -121,13 +121,12 @@ let mockTasks = generateMockTasks(75);
  * Creates a mock API client that simulates real backend interactions.
  */
 const createTasksApiClient = () => {
-
   // Return openapi-fetch compatible interface
   return {
     GET: async (_endpoint: string, options: any) => {
       const params = options?.params?.query || {};
-      console.log('Demo mock GET called:', { endpoint: _endpoint, params });
-      
+      console.log("Demo mock GET called:", { endpoint: _endpoint, params });
+
       // Apply filtering
       let filteredTasks = mockTasks;
       if (params.search) {
@@ -168,7 +167,7 @@ const createTasksApiClient = () => {
         error: null,
       };
     },
-    
+
     POST: async (_endpoint: string, options: any) => {
       const newTask = {
         id: mockTasks.length + 1,
@@ -176,18 +175,18 @@ const createTasksApiClient = () => {
         createdAt: new Date().toISOString(),
       };
       mockTasks.unshift(newTask);
-      
+
       return {
         data: newTask,
         error: null,
       };
     },
-    
+
     PATCH: async (_endpoint: string, options: any) => {
       const id = options.params?.path?.id;
       const updates = options.body;
       const taskIndex = mockTasks.findIndex((t) => t.id === id);
-      
+
       if (taskIndex !== -1) {
         mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates };
         return {
@@ -195,25 +194,25 @@ const createTasksApiClient = () => {
           error: null,
         };
       }
-      
+
       return {
         data: null,
         error: { message: `Task with id ${id} not found` },
       };
     },
-    
+
     DELETE: async (_endpoint: string, options: any) => {
       const id = options.params?.path?.id;
       const originalLength = mockTasks.length;
       mockTasks = mockTasks.filter((t) => t.id !== id);
-      
+
       if (mockTasks.length === originalLength) {
         return {
           data: null,
           error: { message: `Task with id ${id} not found` },
         };
       }
-      
+
       return {
         data: {},
         error: null,
@@ -739,22 +738,12 @@ const TasksDemo = () => {
 // =============================================================================
 
 /**
- * API specification for the demo applet.
- * This would contain your actual OpenAPI/Swagger specification.
- */
-const apiSpec = {
-  name: "Tasks Demo API",
-  baseUrl: "",
-  spec: {}, // Empty for demo - would contain actual API spec in production
-};
-
-/**
  * Applet configuration for registration with the host application.
  * This defines how the applet appears in navigation and routing.
  */
 export default {
   id: "demo-tasks", // Unique identifier for this applet
   label: "Demo Tasks", // Display name in navigation
-  apiSpec, // API specification reference
+  // apiSpec, // optional API specification reference
   component: TasksDemo, // React component to render
 };

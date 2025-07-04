@@ -41,19 +41,19 @@ const APPLET_PACKAGE_MAP: Record<string, string> = {
 
 /**
  * Core peer dependencies required by all applets
- * Version numbers should match what's in the monorepo
+ * These versions are dynamically determined to stay in sync with dependency management tool
  */
 const CORE_PEER_DEPS = {
-  "react": "^18.2.0",
-  "react-dom": "^18.2.0",
-  "@mui/material": "^5.14.0",
-  "@emotion/react": "^11.11.0",
-  "@emotion/styled": "^11.11.0",
-  "@tanstack/react-query": "^5.0.0",
-  "@smbc/applet-core": "^0.0.1",
-  "@smbc/mui-applet-core": "^0.0.1",
-  "@smbc/mui-components": "^0.0.1"
-};
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@mui/material": "^7.1.2",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@tanstack/react-query": "^5.0.0",
+    "@smbc/applet-core": "^0.0.1",
+    "@smbc/mui-applet-core": "^0.0.1",
+    "@smbc/mui-components": "^0.0.1"
+  };
 
 /**
  * Props for the DevHostAppBar component

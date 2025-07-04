@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+/**
+ * Utility script to get peer dependencies for the DevHostAppBar
+ * This bridges the gap between the shared-deps.js file and React components
+ */
+
+import { CORE_PEER_DEPS } from "./shared-deps.js";
+
+// Output as JSON so it can be consumed by other tools
+console.log(JSON.stringify(CORE_PEER_DEPS, null, 2));
