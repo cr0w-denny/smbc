@@ -756,13 +756,5 @@ export default {
   id: "demo-tasks", // Unique identifier for this applet
   label: "Demo Tasks", // Display name in navigation
   apiSpec, // API specification reference
-  routes: [
-    {
-      path: "/demo", // URL path for this route
-      label: "Demo Tasks", // Route label in navigation
-      component: TasksDemo, // React component to render
-      icon: TaskIcon, // Icon for navigation
-      requiredPermissions: [], // No special permissions required for demo
-    },
-  ],
+  component: TasksDemo, // React component to render
 };

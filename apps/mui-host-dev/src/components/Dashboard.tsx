@@ -6,13 +6,13 @@ import {
   usePersistedRoles,
   useAppletPermissions,
   type RoleConfig,
-  type HostAppletDefinition,
+  type AppletMount,
 } from "@smbc/applet-core";
 import { RoleManagement } from "@smbc/mui-applet-core";
 import type { PermissionGroup } from "@smbc/mui-components";
 
 interface DashboardProps {
-  hostApplets: HostAppletDefinition[];
+  hostApplets: AppletMount[];
   roleConfig: RoleConfig;
 }
 

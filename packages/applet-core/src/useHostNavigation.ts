@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import type { HostAppletDefinition, HostRoute, AppletNavigationSection } from './types';
+import type { AppletMount, HostRoute, AppletNavigationSection } from './types';
 
 export interface UseHostNavigationOptions {
-  applets: HostAppletDefinition[];
+  applets: AppletMount[];
   hasAnyPermission: (appletId: string, permissions: string[]) => boolean;
   permissionMapping?: Record<string, string>;
   includeRootRoute?: boolean;

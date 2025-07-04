@@ -5,7 +5,7 @@ import {
   useHashNavigation,
   useHostNavigation,
   useRoleManagement,
-  type HostAppletDefinition,
+  type AppletMount,
 } from "@smbc/applet-core";
 import {
   AppletDrawer as BaseAppletDrawer,
@@ -14,7 +14,7 @@ import {
 } from "@smbc/mui-components";
 
 interface AppletDrawerProps {
-  applets: HostAppletDefinition[];
+  applets: AppletMount[];
   constants: {
     drawerWidth: number;
     appName: string;

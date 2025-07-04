@@ -1,6 +1,6 @@
 import {
   RoleConfig,
-  HostAppletDefinition,
+  AppletMount,
   createPermissionRequirements,
   generatePermissionMappings,
 } from "@smbc/applet-core";
@@ -47,7 +47,7 @@ export const HOST_ROLES = ["User", "Admin"] as const;
 // Add your applets here following this pattern:
 // import yourApplet from "path/to/your/applet";
 //
-// export const appletDefinitions: Record<string, HostAppletDefinition> = {
+// export const appletDefinitions: Record<string, AppletMount> = {
 //   "your-applet": {
 //     applet: yourApplet,
 //     permissions: {
@@ -57,7 +57,7 @@ export const HOST_ROLES = ["User", "Admin"] as const;
 //   },
 // };
 
-export const appletDefinitions: Record<string, HostAppletDefinition> = {};
+export const appletDefinitions: Record<string, AppletMount> = {};
 
 // =============================================================================
 // PERMISSION REQUIREMENTS

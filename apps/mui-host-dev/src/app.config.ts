@@ -1,9 +1,9 @@
 import {
   RoleConfig,
-  HostAppletDefinition,
+  AppletMount,
   createPermissionRequirements,
   generatePermissionMappings,
-  createAppletDefinition,
+  mountApplet,
 } from "@smbc/applet-core";
 import {
   People as PeopleIcon,
@@ -140,7 +140,7 @@ const AdminUsers = () =>
   });
 
 // All applets configured for this host
-export const APPLETS: HostAppletDefinition[] = [
+export const APPLETS: AppletMount[] = [
   // Standard mounting: applet at /user-management
   {
     id: "user-management",
@@ -174,22 +174,24 @@ export const APPLETS: HostAppletDefinition[] = [
       },
     ],
   },
-  createAppletDefinition(productCatalogApplet, {
+  mountApplet(productCatalogApplet, {
     id: "product-catalog",
     label: "Product Catalog",
     path: "/product-catalog",
     icon: InventoryIcon,
     permissions: [productCatalogApplet.permissions.VIEW_PRODUCTS],
   }),
-  {
-    ...createAppletDefinition(helloApplet, {
-      id: "hello",
-      label: "Hello",
-      path: "/hello",
-      icon: LanguageIcon,
-      permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
-    }),
-    getHostNavigation: helloApplet.getHostNavigation,
-  },
-  demoTasksApplet,
+  mountApplet(helloApplet, {
+    id: "hello",
+    label: "Hello",
+    path: "/hello",
+    icon: LanguageIcon,
+    permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
+  }),
+  mountApplet(demoTasksApplet, {
+    id: "demo-tasks",
+    label: "Demo Tasks",
+    path: "/demo-tasks",
+    permissions: [],
+  }),
 ];

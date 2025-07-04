@@ -52,9 +52,7 @@ export type {
 export { createFetchClient, createApiClient, type ApiClientConfig } from "./query-client";
 
 // Route utilities for automatic mountPath injection
-export { withMountPath, processAppletRoutes, createAppletDefinition } from "./route-utils";
-// Deprecated alias for backward compatibility
-export { createAppletDefinition as createAppletConfig } from "./route-utils";
+export { withMountPath, processAppletRoutes, mountApplet } from "./route-utils";
 
 // Navigation hooks
 export { useInternalNavigation, type InternalRouteConfig } from "./useInternalNavigation";

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { HostAppletDefinition } from './types';
+import type { AppletMount } from './types';
 
 /**
  * Wraps an applet component to automatically inject the mountPath prop
@@ -25,7 +25,7 @@ export function withMountPath<P extends { mountPath: string }>(
  * @param applet The applet definition with routes
  * @returns A new applet definition with wrapped components
  */
-export function processAppletRoutes(applet: HostAppletDefinition): HostAppletDefinition {
+export function processAppletRoutes(applet: AppletMount): AppletMount {
   return {
     ...applet,
     routes: applet.routes.map(route => ({
@@ -37,12 +37,12 @@ export function processAppletRoutes(applet: HostAppletDefinition): HostAppletDef
 }
 
 /**
- * Creates a host applet definition with automatic mountPath handling.
+ * Mounts an applet in the host application at a specific path with configuration.
  * Use this instead of manually wrapping components.
  * 
  * @example
  * export const APPLETS = [
- *   createAppletDefinition(helloWorldApplet, {
+ *   mountApplet(helloWorldApplet, {
  *     id: "hello-world",
  *     label: "Hello World",
  *     path: "/hello-world",
@@ -51,8 +51,8 @@ export function processAppletRoutes(applet: HostAppletDefinition): HostAppletDef
  *   })
  * ];
  */
-export function createAppletDefinition(
-  applet: { component: any; apiSpec?: any; permissions?: any },
+export function mountApplet(
+  applet: { component: any; apiSpec?: any; permissions?: any; getHostNavigation?: any },
   config: {
     id: string;
     label: string;
@@ -60,7 +60,7 @@ export function createAppletDefinition(
     icon?: any;
     permissions?: any[];
   }
-): HostAppletDefinition {
+): AppletMount {
   if (!applet.component) {
     throw new Error(`Applet ${config.id} must export a component`);
   }
@@ -69,6 +69,7 @@ export function createAppletDefinition(
     id: config.id,
     label: config.label,
     apiSpec: applet.apiSpec,
+    getHostNavigation: applet.getHostNavigation,
     routes: [
       {
         path: config.path,

@@ -185,8 +185,8 @@ export function DevHostAppBar({
         )}
 
         <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 2 }}>
-          {/* API Docs button - only show when in an applet and callback is provided */}
-          {currentAppletInfo && onApiDocsOpen && (
+          {/* API Docs button - only show when applet has API spec and callback is provided */}
+          {currentAppletInfo && currentAppletInfo.apiSpec && onApiDocsOpen && (
             <Tooltip
               title={`View ${currentAppletInfo.label} API Documentation`}
             >

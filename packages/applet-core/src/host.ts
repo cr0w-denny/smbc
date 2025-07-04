@@ -51,13 +51,13 @@ export const useNavigation = () => {
 export { useUser } from "./hooks";
 
 // Host utility functions
-import { HostAppletDefinition, HostAppletRoute } from "./types";
+import { AppletMount, HostAppletRoute } from "./types";
 
 /**
  * Get all routes from all applets
  */
 export function getAllRoutes(
-  applets: HostAppletDefinition[],
+  applets: AppletMount[],
 ): HostAppletRoute[] {
   const appletRoutes = applets.flatMap((applet) => applet.routes);
   return appletRoutes;
@@ -68,7 +68,7 @@ export function getAllRoutes(
  */
 export function getCurrentApplet(
   path: string,
-  applets: HostAppletDefinition[],
+  applets: AppletMount[],
 ) {
   // Check if path matches any route in any applet
   for (const hostApplet of applets) {

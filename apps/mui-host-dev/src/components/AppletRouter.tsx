@@ -1,11 +1,11 @@
 import React from "react";
 import { Box, Toolbar } from "@mui/material";
-import { useHashNavigation, type HostAppletDefinition } from "@smbc/applet-core";
+import { useHashNavigation, type AppletMount } from "@smbc/applet-core";
 import { getAllRoutes } from "@smbc/applet-core";
 import { Dashboard } from "./Dashboard";
 
 interface AppletRouterProps {
-  applets: HostAppletDefinition[];
+  applets: AppletMount[];
   roleConfig: any;
   constants: {
     drawerWidth: number;

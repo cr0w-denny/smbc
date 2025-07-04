@@ -143,7 +143,7 @@ export interface HostAppletRoute {
   requiredPermissions?: string[];
 }
 
-export interface HostAppletDefinition {
+export interface AppletMount {
   id: string;
   label: string;
   routes: HostAppletRoute[];
