@@ -4,13 +4,6 @@ import { getHostNavigation } from "./navigation";
 
 export default {
   permissions,
-  routes: [
-    {
-      path: "/",
-      label: "Hello",
-      component: Applet,
-    },
-  ],
   component: Applet,
   getHostNavigation,
 };

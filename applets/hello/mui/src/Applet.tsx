@@ -24,7 +24,6 @@ const routes = internalRoutes.map((route) => ({
 }));
 
 export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
-  // Filter state persists at applet level across route navigation
   const { filters: filterValues, setFilters: setFilterValues } = useHashParams(
     {
       search: "",
@@ -145,8 +144,10 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
                 component="pre"
                 variant="body2"
                 sx={{
-                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.100',
-                  color: (theme) => theme.palette.mode === 'dark' ? 'grey.100' : 'text.primary',
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === "dark" ? "grey.800" : "grey.100",
+                  color: (theme) =>
+                    theme.palette.mode === "dark" ? "grey.100" : "text.primary",
                   p: 2,
                   borderRadius: 1,
                   fontFamily: "monospace",

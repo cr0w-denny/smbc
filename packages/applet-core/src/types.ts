@@ -1,3 +1,4 @@
+import React from "react";
 import { PermissionDefinition } from "./permissions";
 
 // Role configuration types
@@ -118,10 +119,18 @@ export interface Applet<
   TPermissions extends AppletPermissions = AppletPermissions,
 > {
   readonly permissions: TPermissions;
-  readonly routes: readonly InternalRoute[];
+  readonly component: React.ComponentType<{ mountPath: string }>;
   readonly apiSpec?: {
     name: string;
     spec: any; // OpenAPI 3.0 spec object
+  };
+  readonly getHostNavigation?: (
+    mountPath: string, 
+    hasAnyPermission: (appletId: string, permissions: string[]) => boolean,
+    appletId: string
+  ) => {
+    homeRoute?: HostRoute;
+    groups: HostNavigationGroup[];
   };
 }
 

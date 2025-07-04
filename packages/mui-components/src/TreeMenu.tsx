@@ -57,6 +57,8 @@ export interface TreeMenuProps {
   showDebugInfo?: boolean;
   /** Number of total applets for debug display */
   totalApplets?: number;
+  /** Current search term for auto-expanding matching nodes */
+  searchTerm?: string;
 }
 
 /**
@@ -139,6 +141,7 @@ export function TreeMenu({
   appletSections,
   showDebugInfo = false,
   totalApplets = 0,
+  searchTerm = "",
 }: TreeMenuProps) {
   const [expandedItems, setExpandedItems] = React.useState<string[]>([
     ...appletSections.map((section) => `applet:${section.appletId}`),
@@ -146,6 +149,68 @@ export function TreeMenu({
       (section) => section.groups?.map((group) => `group:${group.id}`) || [],
     ),
   ]);
+
+  // Auto-expand nodes when searching
+  React.useEffect(() => {
+    if (!searchTerm.trim()) return;
+
+    const search = searchTerm.toLowerCase();
+    const nodesToExpand = new Set<string>();
+
+    appletSections.forEach((section) => {
+      let hasMatchingContent = false;
+
+      // Check if applet label matches
+      if (section.appletLabel.toLowerCase().includes(search)) {
+        hasMatchingContent = true;
+      }
+
+      // Check direct route
+      if (section.directRoute?.label.toLowerCase().includes(search)) {
+        hasMatchingContent = true;
+      }
+
+      // Check home route
+      if (section.homeRoute?.label.toLowerCase().includes(search)) {
+        hasMatchingContent = true;
+      }
+
+      // Check groups and their routes
+      section.groups?.forEach((group) => {
+        let groupHasMatches = false;
+
+        // Check group label
+        if (group.label.toLowerCase().includes(search)) {
+          groupHasMatches = true;
+          hasMatchingContent = true;
+        }
+
+        // Check routes in group
+        group.routes.forEach((route) => {
+          if (route.label.toLowerCase().includes(search)) {
+            groupHasMatches = true;
+            hasMatchingContent = true;
+          }
+        });
+
+        // If group has matches, expand it
+        if (groupHasMatches) {
+          nodesToExpand.add(`group:${group.id}`);
+        }
+      });
+
+      // If applet has matching content, expand it
+      if (hasMatchingContent) {
+        nodesToExpand.add(`applet:${section.appletId}`);
+      }
+    });
+
+    // Update expanded items to include nodes with matches
+    setExpandedItems((prev) => {
+      const newExpanded = new Set([...prev, ...nodesToExpand]);
+      return Array.from(newExpanded);
+    });
+  }, [searchTerm, appletSections]);
 
   const handleItemClick = (_event: React.SyntheticEvent, itemId: string) => {
     // Extract path from itemId (format: "path:/some/path")
@@ -166,7 +231,7 @@ export function TreeMenu({
     if (!hasChildren) return null;
 
     const isExpanded = expandedItems.includes(itemId);
-    const Icon = isExpanded ? ExpandMore : ExpandLess;
+    const Icon = isExpanded ? ExpandLess : ExpandMore;
 
     return (
       <Icon

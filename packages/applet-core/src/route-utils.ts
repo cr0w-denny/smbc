@@ -52,7 +52,7 @@ export function processAppletRoutes(applet: HostAppletDefinition): HostAppletDef
  * ];
  */
 export function createAppletDefinition(
-  applet: { component?: any; routes?: any[]; apiSpec?: any; permissions?: any },
+  applet: { component: any; apiSpec?: any; permissions?: any },
   config: {
     id: string;
     label: string;
@@ -61,9 +61,7 @@ export function createAppletDefinition(
     permissions?: any[];
   }
 ): HostAppletDefinition {
-  const component = applet.component || applet.routes?.[0]?.component;
-  
-  if (!component) {
+  if (!applet.component) {
     throw new Error(`Applet ${config.id} must export a component`);
   }
 
@@ -75,7 +73,7 @@ export function createAppletDefinition(
       {
         path: config.path,
         label: config.label,
-        component: withMountPath(component, config.path),
+        component: withMountPath(applet.component, config.path),
         icon: config.icon,
         requiredPermissions: config.permissions?.map(p => p.id) || [],
       },

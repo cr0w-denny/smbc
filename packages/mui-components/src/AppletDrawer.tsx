@@ -66,6 +66,8 @@ export interface AppletDrawerProps {
   footerContent?: React.ReactNode;
   /** Custom styling for the drawer */
   sx?: any;
+  /** Current search term for auto-expanding matching nodes */
+  searchTerm?: string;
 }
 
 /**
@@ -97,6 +99,7 @@ export function AppletDrawer({
   headerContent,
   footerContent,
   sx,
+  searchTerm,
 }: AppletDrawerProps) {
   return (
     <Drawer
@@ -126,6 +129,7 @@ export function AppletDrawer({
         appletSections={appletSections}
         showDebugInfo={showDebugInfo}
         totalApplets={totalApplets}
+        searchTerm={searchTerm}
       />
 
       {footerContent && (

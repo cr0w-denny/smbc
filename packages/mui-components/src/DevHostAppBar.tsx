@@ -9,22 +9,35 @@ import {
   Switch,
   FormControlLabel,
   Typography,
+  Chip,
 } from "@mui/material";
 import {
   Api as ApiIcon,
   LightMode as LightModeIcon,
   DarkMode as DarkModeIcon,
+  ContentCopy as ContentCopyIcon,
 } from "@mui/icons-material";
 
 /**
  * Represents current applet information for API documentation
  */
 export interface CurrentAppletInfo {
+  id: string;
   label: string;
   apiSpec?: {
     spec: any;
   };
 }
+
+/**
+ * Mapping of applet IDs to their npm package names
+ */
+const APPLET_PACKAGE_MAP: Record<string, string> = {
+  "hello": "@smbc/hello-applet",
+  "user-management": "@smbc/user-management-mui",
+  "admin-users": "@smbc/user-management-mui",
+  "product-catalog": "@smbc/product-catalog-mui",
+};
 
 /**
  * Props for the DevHostAppBar component
@@ -82,6 +95,37 @@ export function DevHostAppBar({
   children,
   sx,
 }: DevHostAppBarProps) {
+  const [copyFeedback, setCopyFeedback] = React.useState(false);
+
+  const handleCopyPackage = async () => {
+    if (!currentAppletInfo?.id) return;
+    
+    const packageName = APPLET_PACKAGE_MAP[currentAppletInfo.id];
+    if (!packageName) return;
+
+    const installCommand = `npm install ${packageName}`;
+    
+    try {
+      await navigator.clipboard.writeText(installCommand);
+      setCopyFeedback(true);
+      setTimeout(() => setCopyFeedback(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = installCommand;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopyFeedback(true);
+        setTimeout(() => setCopyFeedback(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
   return (
     <AppBar
       position="fixed"
@@ -92,6 +136,54 @@ export function DevHostAppBar({
       }}
     >
       <Toolbar>
+        {/* Package Install Copy Component */}
+        {currentAppletInfo?.id && APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Chip
+              label={APPLET_PACKAGE_MAP[currentAppletInfo.id]}
+              icon={<ContentCopyIcon />}
+              onClick={handleCopyPackage}
+              size="small"
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                color: 'inherit',
+                fontFamily: 'monospace',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                },
+                '& .MuiChip-icon': {
+                  color: 'inherit',
+                  fontSize: '1rem',
+                },
+                '& .MuiChip-label': {
+                  padding: '0 8px',
+                },
+              }}
+            />
+            
+            {/* Feedback chip */}
+            {copyFeedback && (
+              <Chip
+                label="Copied!"
+                size="small"
+                sx={{
+                  backgroundColor: 'success.main',
+                  color: 'success.contrastText',
+                  fontSize: '0.75rem',
+                  animation: 'fadeIn 0.2s ease-in',
+                  '@keyframes fadeIn': {
+                    from: { opacity: 0, transform: 'scale(0.8)' },
+                    to: { opacity: 1, transform: 'scale(1)' },
+                  },
+                }}
+              />
+            )}
+          </Box>
+        )}
+
         <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 2 }}>
           {/* API Docs button - only show when in an applet and callback is provided */}
           {currentAppletInfo && onApiDocsOpen && (
