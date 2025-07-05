@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   Typography,
@@ -5,33 +6,104 @@ import {
   GridLegacy as Grid,
   Chip,
 } from "@mui/material";
-import { useUser } from "@smbc/applet-core";
+import {
+  useUser,
+  useApp,
+} from "@smbc/applet-core";
+
+// Extended permission type for DevDashboard with role info
+interface DevPermission {
+  key: string;
+  name: string;
+  label: string;
+  requiredRole: string;
+  hasAccess: boolean;
+}
+
+interface DevPermissionGroup {
+  id: string;
+  label: string;
+  icon?: any;
+  permissions: DevPermission[];
+}
 
 export interface DevDashboardProps {
   appName: string;
   applets: Record<string, any>;
 }
 
-export function DevDashboard({ appName, applets }: DevDashboardProps) {
-  const { user, availableRoles } = useUser();
+export function DevDashboard({ appName: _, applets }: DevDashboardProps) {
+  const { user, availableRoles, setRoles } = useUser();
+  const { roleUtils } = useApp();
+
+  // Track selected roles in state for the RoleManager
+  const [selectedRoles, setSelectedRoles] = React.useState<string[]>(
+    user?.roles || [],
+  );
+
+  // Update selected roles when user changes
+  React.useEffect(() => {
+    if (user?.roles) {
+      setSelectedRoles(user.roles);
+    }
+  }, [user?.roles]);
+
+  // Handle role toggle
+  const toggleRole = (role: string) => {
+    const newRoles = selectedRoles.includes(role)
+      ? selectedRoles.filter((r) => r !== role)
+      : [...selectedRoles, role];
+    setSelectedRoles(newRoles);
+    setRoles(newRoles);
+  };
+
+  // Convert applets to permission groups for the DevDashboard
+  const appletPermissions: DevPermissionGroup[] = React.useMemo(() => {
+    return Object.entries(applets).map(([key, appletData]) => {
+      // Get the applet info from the configuration
+      const appletConfig = appletData as any;
+
+      // Get permissions from the configuration
+      const permissions = appletConfig.permissions || {};
+
+      return {
+        id: appletConfig.id || key,
+        label: appletConfig.label || key,
+        icon: appletConfig.icon,
+        permissions: Object.entries(permissions).map(
+          ([permName, requiredRole]) => {
+            // Check if user has required role or higher in hierarchy
+            const requiredRoleIndex = roleUtils.roles.indexOf(requiredRole as string);
+            const hasAccess = selectedRoles.some(userRole => {
+              const userRoleIndex = roleUtils.roles.indexOf(userRole);
+              return userRoleIndex >= requiredRoleIndex;
+            });
+            
+            return {
+              key: permName,
+              name: permName,
+              label: permName
+                .replace(/_/g, " ")
+                .toLowerCase()
+                .replace(/\b\w/g, (l) => l.toUpperCase()),
+              requiredRole: requiredRole as string,
+              hasAccess,
+            };
+          },
+        ),
+      };
+    });
+  }, [applets, selectedRoles, roleUtils]);
 
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          {appName} - Development Dashboard
-        </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Development tools and information for inspecting your host application
-        </Typography>
-      </Box>
-
       <Grid container spacing={3}>
-        {/* Current User Section */}
-        <Grid item xs={12} md={6}>
+
+        {/* Current User & Role Selection */}
+        <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              Current User
+              Current User & Roles
             </Typography>
             {user ? (
               <Box>
@@ -45,15 +117,31 @@ export function DevDashboard({ appName, applets }: DevDashboardProps) {
                   <strong>Roles:</strong>
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                  {user.roles?.map((role) => (
+                  {availableRoles.map((role) => (
                     <Chip
                       key={role}
                       label={role}
                       size="small"
-                      color="primary"
+                      color={
+                        selectedRoles.includes(role) ? "primary" : "default"
+                      }
+                      variant={
+                        selectedRoles.includes(role) ? "filled" : "outlined"
+                      }
+                      onClick={() => toggleRole(role)}
+                      sx={{
+                        cursor: "pointer",
+                      }}
                     />
                   ))}
                 </Box>
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  sx={{ mt: 2, display: "block" }}
+                >
+                  Click roles to toggle them on/off
+                </Typography>
               </Box>
             ) : (
               <Typography color="textSecondary">
@@ -63,65 +151,40 @@ export function DevDashboard({ appName, applets }: DevDashboardProps) {
           </Paper>
         </Grid>
 
-        {/* Available Roles */}
-        <Grid item xs={12} md={6}>
+        {/* Full Permissions Matrix */}
+        <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              Available Roles
+              Permissions Matrix
             </Typography>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {availableRoles.map((role) => (
-                <Chip key={role} label={role} size="small" variant="outlined" />
+            <Box
+              sx={{
+                display: "grid",
+                gap: 2,
+                gridTemplateColumns: "repeat(6, 1fr)",
+              }}
+            >
+              {appletPermissions.map((applet) => (
+                <Paper key={applet.id} variant="outlined" sx={{ p: 2 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+                    {applet.label}
+                  </Typography>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
+                  >
+                    {applet.permissions.map((perm) => (
+                      <Chip
+                        key={perm.key}
+                        label={perm.label}
+                        size="small"
+                        color={perm.hasAccess ? "success" : "default"}
+                        variant={perm.hasAccess ? "filled" : "outlined"}
+                      />
+                    ))}
+                  </Box>
+                </Paper>
               ))}
             </Box>
-          </Paper>
-        </Grid>
-
-        {/* Available Applets */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Available Applets ({Object.keys(applets).length})
-            </Typography>
-            {Object.keys(applets).length === 0 ? (
-              <Typography color="textSecondary">
-                Add applets to your configuration in{" "}
-                <code>src/app.config.ts</code>
-              </Typography>
-            ) : (
-              <Grid container spacing={2}>
-                {Object.values(applets).map((applet: any) => (
-                  <Grid item key={applet.id} xs={12} sm={6} md={4}>
-                    <Paper variant="outlined" sx={{ p: 2 }}>
-                      <Typography variant="subtitle2" gutterBottom>
-                        {applet.label}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        sx={{ mb: 1 }}
-                      >
-                        Path: {applet.path}
-                      </Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        ID: {applet.id}
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            )}
-          </Paper>
-        </Grid>
-
-        {/* Quick Info */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2, backgroundColor: "grey.50" }}>
-            <Typography variant="body2" color="textSecondary">
-              💡 This development dashboard is provided by{" "}
-              <code>@smbc/mui-applet-devtools</code>. It helps you inspect user
-              roles, permissions, and available applets during development.
-            </Typography>
           </Paper>
         </Grid>
       </Grid>

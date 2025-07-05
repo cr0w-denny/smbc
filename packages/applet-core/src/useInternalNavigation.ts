@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useHashNavigation, usePermissions } from './hooks';
 import type { PermissionDefinition } from './permissions';
-import type { NavigationGroup } from './types';
+import type { NavigationGroup, NavigationGroupDefinition } from './types';
 
 export interface InternalRouteConfig {
   path: string;
@@ -16,7 +16,7 @@ export interface UseInternalNavigationOptions {
   appletId: string;
   mountPath: string;
   routes: InternalRouteConfig[];
-  navigationGroups?: NavigationGroup[];
+  navigationGroups?: NavigationGroupDefinition[];
 }
 
 /**
@@ -49,19 +49,22 @@ export interface UseInternalNavigationOptions {
 
 function buildNavigationGroups(
   allowedRoutes: InternalRouteConfig[],
-  groups: NavigationGroup[] = [],
+  groups: NavigationGroupDefinition[] = [],
   mountPath: string
-): Array<NavigationGroup & { routes: InternalRouteConfig[] }> {
+): NavigationGroup[] {
   // Group routes by their group property
   const routesByGroup = allowedRoutes.reduce((acc, route) => {
     const groupId = route.group || 'default';
     if (!acc[groupId]) acc[groupId] = [];
     acc[groupId].push({
-      ...route,
-      path: `${mountPath}${route.path}`
+      path: `${mountPath}${route.path}`,
+      label: route.label,
+      icon: route.icon,
+      component: undefined, // InternalRouteConfig doesn't have component
+      requiredPermissions: [], // We'll handle permissions separately
     });
     return acc;
-  }, {} as Record<string, InternalRouteConfig[]>);
+  }, {} as Record<string, any[]>);
 
   // Only return groups that have accessible routes
   return groups

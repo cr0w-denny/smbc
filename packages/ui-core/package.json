@@ -32,7 +32,7 @@
     "build": "style-dictionary build --config style-dictionary.config.js && rm -f tsconfig.tsbuildinfo && tsc -b",
     "dev": "style-dictionary build --config style-dictionary.config.js && concurrently \"chokidar 'tokens/**/*.json' -c 'style-dictionary build --config style-dictionary.config.js'\" \"tsc -b --watch\"",
     "clean": "rm -rf dist tsconfig.tsbuildinfo src/tokens.generated.ts",
-    "lint": "echo 'Lint: design-tokens'",
+    "lint": "echo 'Lint: ui-core'",
     "type-check": "tsc --noEmit",
     "tokens:build": "style-dictionary build --config style-dictionary.config.js",
     "tokens:watch": "style-dictionary build --watch"

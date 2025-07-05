@@ -11,7 +11,7 @@ import {
   useFeatureFlagToggle,
   useHashNavigation,
   getAllRoutes,
-  createAppletSections,
+  useHostNavigation,
 } from "@smbc/applet-core";
 import {
   getTheme,
@@ -116,6 +116,17 @@ function AppContent() {
 
   const { currentPath, navigateTo } = useHashNavigation();
   const allRoutes = React.useMemo(() => getAllRoutes(Object.values(APPLETS)), []);
+  
+  // Use the proper navigation hook with permission filtering
+  const { menuSections } = useHostNavigation({
+    applets: Object.values(APPLETS),
+    hasAnyPermission: (appletId: string, permissions: string[]) => {
+      // Simple permission check - in real apps this would check user permissions
+      return true;
+    },
+    includeRootRoute: false,
+    includeInternalRoutes: false,
+  });
 
   return (
     <ActivityProvider>
@@ -160,7 +171,7 @@ function AppContent() {
                     label: "Home",
                     icon: undefined 
                   }}
-                  appletSections={createAppletSections(APPLETS)}
+                  menuSections={menuSections}
                 />
                 
                 <Box

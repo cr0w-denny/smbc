@@ -19,12 +19,12 @@ applets/domain-name/
 ```
 smbc/
 ├── applets/                   # Business Domain Modules
-│   ├── user-management/          
+│   ├── user-management/
 │   │   ├── api/                  # TypeSpec API definition
 │   │   ├── api-client/           # Generated TS client + mocks
 │   │   ├── mui/                  # React components
 │   │   └── django/               # Backend implementation
-│   └── product-catalog/          
+│   └── product-catalog/
 │       └── ...                   # Same structure
 ├── apps/                      # Host Applications
 │   └── mui-host-dev/             # Development environment
@@ -33,7 +33,7 @@ smbc/
 │   ├── mui-components/           # Shared MUI components
 │   ├── mui-applet-core/          # Core utilities for React applications
 │   ├── applet-dataview/          # Data view and transaction management
-│   ├── design-tokens/            # Design token system
+│   ├── ui-core/            # Design token system
 │   └── create-applet/            # Applet creation CLI
 └── docs/                      # Documentation
 ```
@@ -71,7 +71,7 @@ npm run create:applet
 - **[@smbc/mui-components](./packages/mui-components/README.md)** - Shared MUI components
 - **[@smbc/applet-core](./packages/applet-core/README.md)** - Core applet infrastructure
 - **[@smbc/applet-dataview](./packages/applet-dataview/README.md)** - Data view and transaction management
-- **[@smbc/design-tokens](./packages/design-tokens/README.md)** - Design token system
+- **[@smbc/ui-core](./packages/ui-core/README.md)** - Design token system
 - **[@smbc/mui-applet-host](./packages/mui-applet-host/README.md)** - Host application setup
 - **[create-applet script](./scripts/create-applet/README.md)** - Applet creation CLI
 

@@ -1,4 +1,4 @@
-# @smbc/design-tokens
+# @smbc/ui-core
 
 Design token system for the SMBC Applets Platform.
 
@@ -9,7 +9,7 @@ This package provides a centralized design token system for consistent styling a
 ## Installation
 
 ```bash
-npm install @smbc/design-tokens
+npm install @smbc/ui-core
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ import {
   spacing,
   getSemanticColor,
   getSemanticShadow,
-} from "@smbc/design-tokens";
+} from "@smbc/ui-core";
 
 // Base colors
 const primaryColor = colors.primary[500]; // '#335500'
@@ -45,7 +45,7 @@ const mediumSpacing = spacing[4]; // 16
 
 ```css
 /* Manual import of generated CSS */
-@import "@smbc/design-tokens/src/tokens.css";
+@import "@smbc/ui-core/src/tokens.css";
 
 .my-component {
   background-color: var(--color-primary-500);
@@ -90,18 +90,18 @@ const mediumSpacing = spacing[4]; // 16
 
 ```typescript
 // Automatically used in @smbc/mui-components themes
-import { lightTheme, darkTheme } from '@smbc/mui-components'
+import { lightTheme, darkTheme } from "@smbc/mui-components";
 
 // Themes use design tokens internally
 <ThemeProvider theme={lightTheme}>
   <App />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ### In Custom Components
 
 ```typescript
-import { getSemanticColor, getSemanticShadow } from "@smbc/design-tokens";
+import { getSemanticColor, getSemanticShadow } from "@smbc/ui-core";
 
 const MyComponent = styled.div`
   background-color: ${getSemanticColor("background.primary", "light")};
@@ -129,7 +129,7 @@ npm run tokens:build
 ### File Structure
 
 ```
-packages/design-tokens/
+packages/ui-core/
 ├── tokens/                 # Source JSON definitions
 │   ├── color.json         # Color tokens
 │   ├── size.json          # Spacing, border radius, etc.

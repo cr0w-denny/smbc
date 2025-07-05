@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { AppletMount, HostRoute, AppletNavigationSection } from './types';
+import type { AppletMount, HostRoute, MenuNavigationSection } from './types';
 
 export interface UseHostNavigationOptions {
   applets: AppletMount[];
@@ -34,9 +34,9 @@ export function useHostNavigation({
   includeRootRoute = false,
   rootRoute = { path: "/", label: "Dashboard" },
   includeInternalRoutes = false,
-}: UseHostNavigationOptions): { rootRoute?: HostRoute; appletSections: AppletNavigationSection[] } {
+}: UseHostNavigationOptions): { rootRoute?: HostRoute; menuSections: MenuNavigationSection[] } {
   const navigationStructure = useMemo(() => {
-    const appletSections: AppletNavigationSection[] = [];
+    const menuSections: MenuNavigationSection[] = [];
 
     applets.forEach(applet => {
       const appletId = permissionMapping[applet.id] || applet.id;
@@ -61,20 +61,38 @@ export function useHostNavigation({
 
         // Only create section if there are groups or home route
         if (internalNav.groups.length > 0 || internalNav.homeRoute) {
-          appletSections.push({
-            appletId: applet.id,
-            appletLabel: applet.label,
-            appletIcon: topLevelRoute?.icon,
+          menuSections.push({
+            sectionId: applet.id,
+            sectionLabel: applet.label,
+            sectionIcon: topLevelRoute?.icon,
             hasInternalNavigation: true,
-            homeRoute: internalNav.homeRoute,
-            groups: internalNav.groups,
+            homeRoute: internalNav.homeRoute ? {
+              path: internalNav.homeRoute.path,
+              label: internalNav.homeRoute.label,
+              icon: internalNav.homeRoute.icon,
+              component: internalNav.homeRoute.component,
+              requiredPermissions: internalNav.homeRoute.requiredPermissions || [],
+            } : undefined,
+            groups: internalNav.groups.map(group => ({
+              id: group.id,
+              label: group.label,
+              icon: group.icon,
+              order: group.order,
+              routes: group.routes.map(route => ({
+                path: route.path,
+                label: route.label,
+                icon: route.icon,
+                component: route.component,
+                requiredPermissions: route.requiredPermissions || [],
+              })),
+            })),
           });
         } else {
           // No accessible internal routes, fall back to direct route
-          appletSections.push({
-            appletId: applet.id,
-            appletLabel: applet.label,
-            appletIcon: topLevelRoute?.icon,
+          menuSections.push({
+            sectionId: applet.id,
+            sectionLabel: applet.label,
+            sectionIcon: topLevelRoute?.icon,
             hasInternalNavigation: false,
             directRoute: {
               path: appletMountPath,
@@ -87,10 +105,10 @@ export function useHostNavigation({
         }
       } else {
         // No internal navigation - create direct route
-        appletSections.push({
-          appletId: applet.id,
-          appletLabel: applet.label,
-          appletIcon: topLevelRoute?.icon,
+        menuSections.push({
+          sectionId: applet.id,
+          sectionLabel: applet.label,
+          sectionIcon: topLevelRoute?.icon,
           hasInternalNavigation: false,
           directRoute: {
             path: appletMountPath,
@@ -110,7 +128,7 @@ export function useHostNavigation({
         component: () => null,
         ...rootRoute,
       } : undefined,
-      appletSections,
+      menuSections,
     };
   }, [applets, hasAnyPermission, permissionMapping, includeRootRoute, rootRoute, includeInternalRoutes]);
 

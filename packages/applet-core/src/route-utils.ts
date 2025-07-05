@@ -133,12 +133,15 @@ export function mountApplets(appletConfigs: Record<string, {
     };
 
     // Add to mounted applets
-    mountedApplets[id] = mountApplet(config.applet, {
-      id,
-      label: config.label,
-      path: config.path,
-      icon: config.icon,
-    });
+    mountedApplets[id] = {
+      ...mountApplet(config.applet, {
+        id,
+        label: config.label,
+        path: config.path,
+        icon: config.icon,
+      }),
+      permissions: config.permissions, // Include permissions for DevDashboard
+    };
   }
 
   return {
@@ -147,26 +150,3 @@ export function mountApplets(appletConfigs: Record<string, {
   };
 }
 
-/**
- * Converts mounted applets to the format expected by AppletDrawer.
- * This eliminates the need for verbose manual mapping in App components.
- * 
- * @param applets Record of mounted applets from mountApplets()
- * @returns Array of navigation sections for AppletDrawer
- * 
- * @example
- * const appletSections = createAppletSections(APPLETS);
- * <AppletDrawer appletSections={appletSections} ... />
- */
-export function createAppletSections(applets: Record<string, AppletMount>) {
-  return Object.values(applets).map(applet => ({
-    appletId: applet.id,
-    appletLabel: applet.label,
-    hasInternalNavigation: false,
-    directRoute: applet.routes[0] ? {
-      path: applet.routes[0].path,
-      label: applet.routes[0].label,
-      icon: applet.routes[0].icon,
-    } : undefined,
-  }));
-}

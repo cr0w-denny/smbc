@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
 import { suppressUseClientWarnings } from "../../scripts/vite/suppress-warnings.ts";
 
 // https://vitejs.dev/config/
@@ -34,8 +33,6 @@ export default defineConfig(({ mode }) => {
       ...productionDefines,
       // Define environment flags for conditional imports
       __DEV__: !isProduction,
-      __ENABLE_API_DOCS__:
-        !isProduction || process.env.VITE_ENABLE_API_DOCS === "true",
     },
     plugins: [react(), suppressUseClientWarnings()],
     server: {
@@ -55,11 +52,6 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           manualChunks: (id) => {
-            // Force devtools into separate chunks for dynamic loading
-            if (id.includes("@smbc/applet-devtools") || id.includes("@smbc/mui-applet-devtools")) {
-              return "devtools";
-            }
-            
             // Vendor libraries that rarely change
             if (
               id.includes("node_modules/react") ||
@@ -79,50 +71,21 @@ export default defineConfig(({ mode }) => {
             if (id.includes("node_modules/msw")) {
               return "msw-vendor";
             }
-            if (
-              id.includes("node_modules/swagger-ui-react") ||
-              id.includes("node_modules/@swagger-api") ||
-              id.includes("node_modules/swagger-client") ||
-              id.includes("node_modules/@swaggerexpert")
-            ) {
-              return "swagger-vendor";
-            }
-            // Break out other potentially large dependencies
-            if (
-              id.includes("node_modules/openapi") ||
-              id.includes("node_modules/@redocly") ||
-              id.includes("node_modules/yaml") ||
-              id.includes("node_modules/json-schema")
-            ) {
-              return "openapi-vendor";
-            }
-            // Development/testing utilities
-            if (
-              id.includes("node_modules/@faker-js") ||
-              id.includes("node_modules/autolinker") ||
-              id.includes("node_modules/highlight.js")
-            ) {
-              return "dev-utils-vendor";
-            }
 
             // SMBC shared libraries - change more frequently
             if (
               id.includes("@smbc/ui-core") ||
               id.includes("@smbc/applet-core") ||
               id.includes("@smbc/mui-applet-core") ||
-              id.includes("@smbc/mui-applet-host") ||
-              id.includes("@smbc/applet-query-client") ||
               id.includes("@smbc/mui-components") ||
-              id.includes("@smbc/user-management-mui") ||
-              id.includes("@smbc/product-catalog-mui")
+              id.includes("@smbc/react-query-dataview") ||
+              id.includes("@smbc/applet-devtools")
             ) {
               return "smbc-shared";
             }
 
-            // Debug: log what's going into vendor-misc
+            // Other vendor dependencies
             if (id.includes("node_modules")) {
-              if (process.env.VITE_CHUNK_DEBUG) {
-              }
               return "vendor-misc";
             }
           },
@@ -140,17 +103,6 @@ export default defineConfig(({ mode }) => {
         "@emotion/styled",
         "@tanstack/react-query",
         "@tanstack/react-query-devtools",
-        // Treat linked SMBC packages as dependencies, not source code
-        "@smbc/applet-core",
-        "@smbc/mui-applet-core",
-        "@smbc/mui-components",
-        "@smbc/react-query-dataview",
-        "@smbc/mui-applet-devtools",
-      ],
-      // Exclude MSW mocks from optimization - they contain TypeScript files
-      exclude: [
-        "@smbc/user-management-client/mocks",
-        "@smbc/product-catalog-client/mocks",
       ],
     },
   };

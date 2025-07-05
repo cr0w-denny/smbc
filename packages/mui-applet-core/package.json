@@ -26,7 +26,7 @@
     "@smbc/mui-components": "*"
   },
   "devDependencies": {
-    "@smbc/design-tokens": "*",
+    "@smbc/ui-core": "*",
     "@smbc/applet-core": "*",
     "@types/node": "^20.11.17",
     "@types/react": "^18.2.0",
@@ -40,7 +40,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^7.1.2",
     "@mui/material": "^7.1.2",
-    "@smbc/design-tokens": "*",
+    "@smbc/ui-core": "*",
     "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
     "react": "^18.2.0",

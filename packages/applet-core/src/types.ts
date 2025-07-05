@@ -73,12 +73,6 @@ export interface InternalRoute {
   component: React.ComponentType; // React component to render
 }
 
-export interface NavigationGroup {
-  id: string;
-  label: string;
-  icon?: string;
-  order?: number;
-}
 
 export interface HostRoute {
   path: string;
@@ -96,17 +90,45 @@ export interface HostNavigationGroup {
   routes: HostRoute[];
 }
 
-export interface AppletNavigationSection {
-  appletId: string;
-  appletLabel: string;
-  appletIcon?: React.ComponentType | React.ElementType | string;
+
+// Navigation route interface for TreeMenu component
+export interface NavigationRoute {
+  path: string;
+  label: string;
+  icon?: React.ComponentType | React.ElementType | string;
+  component?: React.ComponentType;
+  requiredPermissions?: string[];
+}
+
+// Navigation group definition (input for building navigation)
+export interface NavigationGroupDefinition {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
+}
+
+// Navigation group interface for TreeMenu component (output)
+export interface NavigationGroup {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
+  routes: NavigationRoute[];
+}
+
+// Generic menu section interface for TreeMenu component
+export interface MenuNavigationSection {
+  sectionId: string;
+  sectionLabel: string;
+  sectionIcon?: React.ComponentType | React.ElementType | string;
   // If hasInternalNavigation is false, treat as a direct route
   hasInternalNavigation: boolean;
   // For direct routes (no internal navigation)
-  directRoute?: HostRoute;
+  directRoute?: NavigationRoute;
   // For applets with internal navigation
-  homeRoute?: HostRoute;
-  groups?: HostNavigationGroup[];
+  homeRoute?: NavigationRoute;
+  groups?: NavigationGroup[];
 }
 
 // Standard applet permissions (re-using PermissionDefinition from appletPermissions)
@@ -147,6 +169,7 @@ export interface AppletMount {
   id: string;
   label: string;
   routes: HostAppletRoute[];
+  permissions?: Record<string, string>; // Permission name to required role mapping
   apiSpec?: {
     name: string;
     spec: any;

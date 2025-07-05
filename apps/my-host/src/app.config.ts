@@ -4,10 +4,14 @@ import {
   generatePermissionMappings,
   mountApplets,
 } from "@smbc/applet-core";
-{{ICON_IMPORTS}}
+import {
+  People as PeopleIcon,
+  EmojiEmotions as EmojiEmotionsIcon,
+} from "@mui/icons-material";
 
 // Import applets
-{{APPLET_IMPORTS}}
+import usermanagementApplet from "@smbc/user-management-mui";
+import helloApplet from "@smbc/hello-mui";
 
 // =============================================================================
 // DEMO USER CONFIGURATION
@@ -15,7 +19,7 @@ import {
 
 export const demoUser = {
   id: "1",
-  email: "user@{{HOST_NAME}}.com",
+  email: "user@my-host.com",
   name: "Demo User",
   roles: ["User"],
   preferences: {
@@ -35,7 +39,8 @@ export const demoUser = {
 // =============================================================================
 
 export const APP_CONSTANTS = {
-  appName: "{{HOST_DISPLAY_NAME}}",
+  appName: "My Host",
+  drawerWidth: 320,
 } as const;
 
 // =============================================================================
@@ -51,7 +56,30 @@ export const HOST_ROLES = ["Guest", "User", "Staff", "Admin"] as const;
 // TODO: Customize permission-to-role mappings below based on your host's roles
 // By default, all applet permissions are mapped to "User" role
 const { permissionRequirements, mountedApplets } = mountApplets({
-{{APPLET_CONFIGS}}
+  "user-management": {
+    applet: usermanagementApplet,
+    label: "User Management",
+    path: "/user-management",
+    icon: PeopleIcon,
+    permissions: {
+      VIEW_USERS: "Guest",
+      CREATE_USERS: "Admin",
+      EDIT_USERS: "Admin",
+      DELETE_USERS: "Admin",
+      MANAGE_ROLES: "Admin",
+    },
+  },
+  hello: {
+    applet: helloApplet,
+    label: "Hello World",
+    path: "/hello",
+    icon: EmojiEmotionsIcon,
+    permissions: {
+      VIEW_ROUTE_ONE: "Guest",
+      VIEW_ROUTE_TWO: "User",
+      VIEW_ROUTE_THREE: "Staff",
+    },
+  },
 });
 
 export const APPLETS = mountedApplets;
@@ -64,4 +92,3 @@ export const roleConfig: RoleConfig = {
     createPermissionRequirements(permissionRequirements),
   ),
 };
-

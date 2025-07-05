@@ -9,7 +9,7 @@ export default defineConfig({
       include: ["src/**/*"],
       exclude: ["src/**/*.test.*"],
       rollupTypes: true,
-      bundledPackages: ["@smbc/design-tokens", "@smbc/mui-applet-core"],
+      bundledPackages: ["@smbc/ui-core", "@smbc/mui-applet-core"],
     }),
   ],
   build: {
@@ -24,7 +24,7 @@ export default defineConfig({
         "react",
         "react-dom",
         "@mui/material",
-        "@smbc/design-tokens",
+        "@smbc/ui-core",
         "@smbc/mui-applet-core",
       ],
       output: {

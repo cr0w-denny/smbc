@@ -8,7 +8,7 @@ export default defineConfig({
     dts({
       mode: "build",
       tsconfigPath: "./tsconfig.json",
-      cacheDir: "./.tsBuildCache-design-tokens",
+      cacheDir: "./.tsBuildCache-ui-core",
     }),
     // Custom plugin to preserve Style Dictionary outputs
     {

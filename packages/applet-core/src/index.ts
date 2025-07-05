@@ -52,7 +52,7 @@ export type {
 export { createFetchClient, createApiClient, type ApiClientConfig } from "./query-client";
 
 // Route utilities for automatic mountPath injection
-export { withMountPath, processAppletRoutes, mountApplet, mountApplets, createAppletSections } from "./route-utils";
+export { withMountPath, processAppletRoutes, mountApplet, mountApplets } from "./route-utils";
 
 // Navigation hooks
 export { useInternalNavigation, type InternalRouteConfig } from "./useInternalNavigation";

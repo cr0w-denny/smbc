@@ -8,7 +8,6 @@ import {
   Tooltip,
   Switch,
   FormControlLabel,
-  Typography,
   Chip,
 } from "@mui/material";
 import {
@@ -21,14 +20,9 @@ import {
   useFeatureFlag,
   useFeatureFlagToggle,
 } from "@smbc/applet-core";
-import {
-  isMswAvailable,
-  setupMswForAppletProvider,
-  stopMswForAppletProvider,
-} from "@smbc/applet-devtools";
 
 /**
- * Represents current applet information for API documentation
+ * Represents current applet information
  */
 export interface CurrentAppletInfo {
   id: string;
@@ -50,62 +44,53 @@ const APPLET_PACKAGE_MAP: Record<string, string> = {
 
 /**
  * Core peer dependencies required by all applets
- * These versions are dynamically determined to stay in sync with dependency management tool
  */
 const CORE_PEER_DEPS = {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@mui/material": "^7.1.2",
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "@tanstack/react-query": "^5.0.0",
-    "@smbc/applet-core": "^0.0.1",
-    "@smbc/mui-applet-core": "^0.0.1",
-    "@smbc/mui-components": "^0.0.1"
-  };
+  "react": "^18.2.0",
+  "react-dom": "^18.2.0",
+  "@mui/material": "^7.1.2",
+  "@emotion/react": "^11.11.0",
+  "@emotion/styled": "^11.11.0",
+  "@tanstack/react-query": "^5.0.0",
+  "@smbc/applet-core": "^0.0.1",
+  "@smbc/mui-applet-core": "^0.0.1",
+  "@smbc/mui-components": "^0.0.1"
+};
 
 /**
- * Props for the DevHostAppBar component
+ * Props for the HostAppBar component
  */
-export interface DevHostAppBarProps {
-  /** Current applet information for API docs button */
+export interface HostAppBarProps {
+  /** Current applet information for package copy */
   currentAppletInfo?: CurrentAppletInfo | null;
   /** Whether dark mode is enabled */
   isDarkMode: boolean;
   /** Function to toggle dark mode */
   onDarkModeToggle: () => void;
-  /** Function to handle API docs opening */
+  /** Function to handle API docs opening (dev mode only) */
   onApiDocsOpen?: () => void;
-  /** Function to handle navigation (for activity notifications) */
-  // onNavigate?: (url: string) => void; // Removed - ActivityNotifications moved
   /** Width of the drawer for calculating AppBar width */
   drawerWidth?: number;
   /** Additional content to render in the toolbar */
   children?: React.ReactNode;
   /** Custom styling for the AppBar */
   sx?: any;
+  /** Devtools functions (passed in dev mode, undefined in production) */
+  devTools?: {
+    isMswAvailable: () => Promise<boolean>;
+    setupMswForAppletProvider: () => Promise<void>;
+    stopMswForAppletProvider: () => Promise<void>;
+  };
 }
 
 /**
- * A development/host application bar component that provides development-specific controls
- * including dark mode toggle, mock data toggle, and API documentation access.
+ * A host application bar component that provides essential host app controls
+ * including dark mode toggle, package installation help, and development features.
  *
- * This component is specifically designed for development environments and host applications.
- *
- * @example
- * ```tsx
- * <DevHostAppBar
- *   currentAppletInfo={currentAppletInfo}
- *   isDarkMode={isDarkMode}
- *   onDarkModeToggle={toggleDarkMode}
- *   mockEnabled={mockEnabled}
- *   onMockToggle={setMockEnabled}
- *   onApiDocsOpen={handleApiDocsOpen}
- *   drawerWidth={240}
- * />
- * ```
+ * In development, this component includes API docs and mock data controls.
+ * In production, these development features are excluded via tree-shaking.
  */
-export function DevHostAppBar({
+export function HostAppBar({
   currentAppletInfo,
   isDarkMode,
   onDarkModeToggle,
@@ -113,43 +98,44 @@ export function DevHostAppBar({
   drawerWidth = 240,
   children,
   sx,
-}: DevHostAppBarProps) {
+  devTools,
+}: HostAppBarProps) {
   const [copyFeedback, setCopyFeedback] = React.useState(false);
-  const mockEnabled = useFeatureFlag("mockData");
-  const toggleMockData = useFeatureFlagToggle("mockData");
-
-  const [mswStatus, setMswStatus] = React.useState<{
-    available: boolean;
-    active: boolean;
-    initialized: boolean;
-  }>({
+  const [mswStatus, setMswStatus] = React.useState({
     available: false,
     active: false,
     initialized: false,
   });
 
-  // Check MSW availability on mount
-  React.useEffect(() => {
-    const checkMswStatus = async () => {
-      const available = await isMswAvailable();
-      setMswStatus((prev) => ({
-        ...prev,
-        available,
-        initialized: true,
-      }));
-    };
+  const mockEnabled = useFeatureFlag("mockData");
+  const toggleMockData = useFeatureFlagToggle("mockData");
 
-    checkMswStatus();
-  }, []);
+  // Check MSW availability when dev tools are loaded
+  React.useEffect(() => {
+    console.log("HostAppBar: devTools effect", { devTools: !!devTools, initialized: mswStatus.initialized });
+    if (devTools && !mswStatus.initialized) {
+      console.log("HostAppBar: Checking MSW availability...");
+      devTools.isMswAvailable().then((available: boolean) => {
+        console.log("HostAppBar: MSW available:", available);
+        setMswStatus((prev) => ({
+          ...prev,
+          available,
+          initialized: true,
+        }));
+      });
+    }
+  }, [devTools, mswStatus.initialized]);
 
   // Handle mock toggle
   const handleMockToggle = async (enabled: boolean) => {
+    if (!devTools) return;
+
     try {
       if (enabled) {
-        await setupMswForAppletProvider();
+        await devTools.setupMswForAppletProvider();
         setMswStatus((prev) => ({ ...prev, active: true }));
       } else {
-        await stopMswForAppletProvider();
+        await devTools.stopMswForAppletProvider();
         setMswStatus((prev) => ({ ...prev, active: false }));
       }
       toggleMockData();
@@ -160,12 +146,12 @@ export function DevHostAppBar({
 
   // Update active status when mock flag changes
   React.useEffect(() => {
-    if (mswStatus.initialized && mockEnabled && !mswStatus.active) {
-      setupMswForAppletProvider()
-        .then(() => setMswStatus((prev) => ({ ...prev, active: true })))
+    if (devTools && mswStatus.initialized && mockEnabled && !mswStatus.active) {
+      devTools.setupMswForAppletProvider()
+        .then(() => setMswStatus((prev: any) => ({ ...prev, active: true })))
         .catch(console.error);
     }
-  }, [mockEnabled, mswStatus.initialized, mswStatus.active]);
+  }, [devTools, mockEnabled, mswStatus.initialized, mswStatus.active]);
 
   const handleCopyPackage = async () => {
     if (!currentAppletInfo?.id) return;
@@ -192,7 +178,7 @@ export function DevHostAppBar({
       textArea.focus();
       textArea.select();
       try {
-        document.execCommand('copy');
+        document.execCommand('copy'); // @ts-ignore - deprecated but needed for fallback
         setCopyFeedback(true);
         setTimeout(() => setCopyFeedback(false), 2000);
       } catch (err) {
@@ -201,6 +187,7 @@ export function DevHostAppBar({
       document.body.removeChild(textArea);
     }
   };
+
   return (
     <AppBar
       position="fixed"
@@ -221,23 +208,23 @@ export function DevHostAppBar({
                 onClick={handleCopyPackage}
                 size="small"
                 sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                color: 'inherit',
-                fontFamily: 'monospace',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
-                },
-                '& .MuiChip-icon': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   color: 'inherit',
-                  fontSize: '1rem',
-                },
-                '& .MuiChip-label': {
-                  padding: '0 8px',
-                },
-              }}
+                  fontFamily: 'monospace',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  },
+                  '& .MuiChip-icon': {
+                    color: 'inherit',
+                    fontSize: '1rem',
+                  },
+                  '& .MuiChip-label': {
+                    padding: '0 8px',
+                  },
+                }}
               />
             </Tooltip>
             
@@ -261,12 +248,10 @@ export function DevHostAppBar({
           </Box>
         )}
 
-        <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 2 }}>
-          {/* API Docs button - only show when applet has API spec and callback is provided */}
-          {currentAppletInfo && currentAppletInfo.apiSpec && onApiDocsOpen && (
-            <Tooltip
-              title={`View ${currentAppletInfo.label} API Documentation`}
-            >
+        <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1.5 }}>
+          {/* API Docs button - only in development and when applet has API spec */}
+          {process.env.NODE_ENV !== 'production' && currentAppletInfo?.apiSpec && onApiDocsOpen && (
+            <Tooltip title={`View ${currentAppletInfo.label} API Documentation`}>
               <Button
                 color="inherit"
                 startIcon={<ApiIcon />}
@@ -283,6 +268,33 @@ export function DevHostAppBar({
             </Tooltip>
           )}
 
+          {/* Mock Data Toggle - only in development and when MSW is available */}
+          {process.env.NODE_ENV !== 'production' && mswStatus.initialized && mswStatus.available && (
+            <Tooltip
+              title={`${mockEnabled ? "Using mock data for development" : "Using real API endpoints"} - Toggle to switch between mock and real data`}
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={Boolean(mockEnabled)}
+                    onChange={(e) => handleMockToggle(e.target.checked)}
+                    size="small"
+                    color="secondary"
+                  />
+                }
+                label="Mock"
+                sx={{
+                  color: "inherit",
+                  m: 0,
+                  "& .MuiFormControlLabel-label": { 
+                    fontSize: "0.875rem",
+                    ml: 0.5
+                  },
+                }}
+              />
+            </Tooltip>
+          )}
+
           {/* Dark Mode Toggle */}
           <Tooltip title="Toggle dark mode">
             <IconButton
@@ -296,45 +308,6 @@ export function DevHostAppBar({
               {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
           </Tooltip>
-
-          {/* Mock Data Toggle - only show if MSW is available */}
-          {mswStatus.initialized && mswStatus.available && (
-            <Tooltip
-              title={`${mockEnabled ? "Using mock data for development" : "Using real API endpoints"} - Toggle to switch between mock and real data`}
-            >
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={Boolean(mockEnabled)}
-                    onChange={(e) => handleMockToggle(e.target.checked)}
-                    size="small"
-                    color="secondary"
-                  />
-                }
-                label={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <Typography variant="body2" sx={{ color: "inherit" }}>
-                      Mock Data
-                    </Typography>
-                    <Chip
-                      label={mockEnabled ? "On" : "Off"}
-                      size="small"
-                      color={mockEnabled ? "success" : "default"}
-                      sx={{ 
-                        height: 18, 
-                        fontSize: "0.625rem",
-                        "& .MuiChip-label": { px: 1 }
-                      }}
-                    />
-                  </Box>
-                }
-                sx={{
-                  color: "inherit",
-                  "& .MuiFormControlLabel-label": { fontSize: "0.875rem" },
-                }}
-              />
-            </Tooltip>
-          )}
 
           {/* Additional content */}
           {children}

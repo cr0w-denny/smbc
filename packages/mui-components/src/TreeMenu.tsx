@@ -15,7 +15,7 @@ import { TreeItem, treeItemClasses } from "@mui/x-tree-view/TreeItem";
 export interface NavigationRoute {
   path: string;
   label: string;
-  icon?: React.ComponentType | React.ElementType;
+  icon?: React.ComponentType | React.ElementType | string;
   component?: React.ComponentType;
   requiredPermissions?: string[];
 }
@@ -32,9 +32,9 @@ export interface TreeMenuGroup {
 }
 
 export interface TreeMenuSection {
-  appletId: string;
-  appletLabel: string;
-  appletIcon?: React.ComponentType | React.ElementType | string;
+  sectionId: string;
+  sectionLabel: string;
+  sectionIcon?: React.ComponentType | React.ElementType | string;
   hasInternalNavigation: boolean;
   directRoute?: NavigationRoute;
   homeRoute?: NavigationRoute;
@@ -51,12 +51,12 @@ export interface TreeMenuProps {
   onNavigate: (path: string) => void;
   /** Root route (usually Dashboard) */
   rootRoute?: NavigationRoute;
-  /** Tree menu applet sections */
-  appletSections: TreeMenuSection[];
-  /** Whether to show debug info (applet count chip) */
+  /** Tree menu sections */
+  menuSections: TreeMenuSection[];
+  /** Whether to show debug info (section count chip) */
   showDebugInfo?: boolean;
-  /** Number of total applets for debug display */
-  totalApplets?: number;
+  /** Number of total sections for debug display */
+  totalSections?: number;
   /** Current search term for auto-expanding matching nodes */
   searchTerm?: string;
 }
@@ -138,17 +138,59 @@ export function TreeMenu({
   currentPath,
   onNavigate,
   rootRoute,
-  appletSections,
+  menuSections,
   showDebugInfo = false,
-  totalApplets = 0,
+  totalSections = 0,
   searchTerm = "",
 }: TreeMenuProps) {
   const [expandedItems, setExpandedItems] = React.useState<string[]>([
-    ...appletSections.map((section) => `applet:${section.appletId}`),
-    ...appletSections.flatMap(
+    ...menuSections.map((section) => `section:${section.sectionId}`),
+    ...menuSections.flatMap(
       (section) => section.groups?.map((group) => `group:${group.id}`) || [],
     ),
   ]);
+
+  // Auto-expand newly visible sections when menuSections changes (e.g., role switching)
+  React.useEffect(() => {
+    const currentAppletIds = new Set(
+      menuSections.map((section) => `section:${section.sectionId}`)
+    );
+    const currentGroupIds = new Set(
+      menuSections.flatMap(
+        (section) => section.groups?.map((group) => `group:${group.id}`) || []
+      )
+    );
+
+    setExpandedItems((prev) => {
+      const prevSet = new Set(prev);
+      const newExpandedItems = [...prev];
+
+      // Add newly visible applet sections
+      for (const appletId of currentAppletIds) {
+        if (!prevSet.has(appletId)) {
+          newExpandedItems.push(appletId);
+        }
+      }
+
+      // Add newly visible groups
+      for (const groupId of currentGroupIds) {
+        if (!prevSet.has(groupId)) {
+          newExpandedItems.push(groupId);
+        }
+      }
+
+      // Remove items that are no longer present
+      return newExpandedItems.filter((itemId) => {
+        if (itemId.startsWith("section:")) {
+          return currentAppletIds.has(itemId);
+        }
+        if (itemId.startsWith("group:")) {
+          return currentGroupIds.has(itemId);
+        }
+        return true; // Keep other items (like path: items)
+      });
+    });
+  }, [menuSections]);
 
   // Auto-expand nodes when searching
   React.useEffect(() => {
@@ -157,11 +199,11 @@ export function TreeMenu({
     const search = searchTerm.toLowerCase();
     const nodesToExpand = new Set<string>();
 
-    appletSections.forEach((section) => {
+    menuSections.forEach((section) => {
       let hasMatchingContent = false;
 
       // Check if applet label matches
-      if (section.appletLabel.toLowerCase().includes(search)) {
+      if (section.sectionLabel.toLowerCase().includes(search)) {
         hasMatchingContent = true;
       }
 
@@ -201,7 +243,7 @@ export function TreeMenu({
 
       // If applet has matching content, expand it
       if (hasMatchingContent) {
-        nodesToExpand.add(`applet:${section.appletId}`);
+        nodesToExpand.add(`section:${section.sectionId}`);
       }
     });
 
@@ -210,7 +252,7 @@ export function TreeMenu({
       const newExpanded = new Set([...prev, ...nodesToExpand]);
       return Array.from(newExpanded);
     });
-  }, [searchTerm, appletSections]);
+  }, [searchTerm, menuSections]);
 
   const handleItemClick = (_event: React.SyntheticEvent, itemId: string) => {
     // Extract path from itemId (format: "path:/some/path")
@@ -263,7 +305,7 @@ export function TreeMenu({
               <span>{rootRoute.label}</span>
               {showDebugInfo && (
                 <Chip
-                  label={totalApplets}
+                  label={totalSections}
                   size="small"
                   color="primary"
                   variant="outlined"
@@ -289,7 +331,7 @@ export function TreeMenu({
     }
 
     // Applet sections
-    appletSections.forEach((section) => {
+    menuSections.forEach((section) => {
       // Simple applet without internal navigation
       if (!section.hasInternalNavigation && section.directRoute) {
         items.push(
@@ -384,21 +426,21 @@ export function TreeMenu({
 
         items.push(
           <CustomTreeItem
-            key={`applet:${section.appletId}`}
-            itemId={`applet:${section.appletId}`}
+            key={`section:${section.sectionId}`}
+            itemId={`section:${section.sectionId}`}
             label={
               <Box
                 sx={{ display: "flex", alignItems: "center", width: "100%" }}
               >
-                <span>{section.appletLabel}</span>
+                <span>{section.sectionLabel}</span>
                 {renderExpandButton(
-                  `applet:${section.appletId}`,
+                  `section:${section.sectionId}`,
                   children.length > 0,
                 )}
               </Box>
             }
             slots={{
-              icon: () => renderIcon(section.appletIcon),
+              icon: () => renderIcon(section.sectionIcon),
             }}
           >
             {children}

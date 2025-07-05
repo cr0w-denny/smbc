@@ -1,9 +1,7 @@
-import { Switch, FormControlLabel } from '@mui/material';
+import { Switch } from '@mui/material';
 import { useFeatureFlag, useFeatureFlagToggle } from '@smbc/applet-core';
 
 export interface MockToggleProps {
-  /** Custom label for the toggle */
-  label?: string;
   /** Size of the switch */
   size?: 'small' | 'medium';
   /** Color of the switch */
@@ -17,7 +15,6 @@ export interface MockToggleProps {
  * Manages the 'mockData' feature flag
  */
 export function MockToggle({
-  label = "Mock",
   size = "small",
   color = "default",
   sx,
@@ -26,16 +23,11 @@ export function MockToggle({
   const toggleMockData = useFeatureFlagToggle("mockData");
 
   return (
-    <FormControlLabel
-      control={
-        <Switch
-          checked={Boolean(mockEnabled)}
-          onChange={toggleMockData}
-          color={color}
-          size={size}
-        />
-      }
-      label={label}
+    <Switch
+      checked={Boolean(mockEnabled)}
+      onChange={toggleMockData}
+      color={color}
+      size={size}
       sx={{ color: 'inherit', ...sx }}
     />
   );

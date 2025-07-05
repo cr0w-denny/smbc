@@ -8,8 +8,7 @@ import {
   type RoleConfig,
   type AppletMount,
 } from "@smbc/applet-core";
-import { RoleManagement } from "@smbc/mui-applet-core";
-import type { PermissionGroup } from "@smbc/mui-components";
+import { RoleManager, type PermissionGroup } from "@smbc/mui-applet-core";
 
 interface DashboardProps {
   hostApplets: AppletMount[];
@@ -39,7 +38,7 @@ export const Dashboard = React.memo(function Dashboard({
   });
 
   return (
-    <RoleManagement
+    <RoleManager
       user={user || undefined}
       availableRoles={availableRoles}
       selectedRoles={selectedRoles}

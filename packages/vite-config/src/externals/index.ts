@@ -32,6 +32,7 @@ export const API_EXTERNALS = [
   'msw/browser'
 ];
 
+
 // SMBC packages
 export const SMBC_CORE_EXTERNALS = [
   '@smbc/applet-core',

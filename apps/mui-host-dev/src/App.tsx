@@ -13,14 +13,10 @@ import {
 } from "@smbc/applet-core";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
-import {
-  ApiDocsModal,
-  DevHostAppBar,
-  lightTheme,
-  darkTheme,
-} from "@smbc/mui-components";
+import { HostAppBar } from "@smbc/mui-applet-core";
+import { ApiDocsWrapper } from "./components/ApiDocsWrapper";
+import { lightTheme, darkTheme } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
-import { registerMswHandlers } from "@smbc/applet-devtools";
 import {
   ActivityProvider,
   TransactionProvider,
@@ -29,6 +25,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Import configuration
 import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
+
+// Static imports for development - these will be excluded in production templates
+import {
+  registerMswHandlers,
+  setupMswForAppletProvider,
+  stopMswForAppletProvider,
+  isMswAvailable,
+  userManagementHandlers,
+  productCatalogHandlers,
+} from "@smbc/mui-applet-devtools";
 
 // Feature flag configuration
 const featureFlags = [
@@ -46,28 +52,30 @@ const featureFlags = [
   },
 ];
 
-// Register MSW handlers from applets
-async function initializeMswHandlers(): Promise<void> {
+// Register MSW handlers - static imports make this much simpler
+function initializeMswHandlers(): void {
   // Skip MSW initialization if disabled via environment variable
   if (import.meta.env.VITE_DISABLE_MSW === "true") {
     console.log("MSW disabled via environment variable");
     return;
   }
+  
   try {
-    // Import MSW handlers from applet-devtools
-    const { userManagementHandlers, productCatalogHandlers } = await import(
-      "@smbc/applet-devtools"
-    );
-
     // Register all handlers
     const allHandlers = [...userManagementHandlers, ...productCatalogHandlers];
     console.log("Registering MSW handlers:", allHandlers.length);
-
     registerMswHandlers(allHandlers);
   } catch (error) {
     console.error("Failed to initialize MSW handlers:", error);
   }
 }
+
+// Create devtools object to pass to components
+const devToolsConfig = {
+  isMswAvailable,
+  setupMswForAppletProvider,
+  stopMswForAppletProvider,
+};
 
 function AppContentWithQueryAccess() {
   const handleNavigate = (url: string) => {
@@ -100,8 +108,6 @@ function AppContentWithQueryAccess() {
 function Navigation() {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const toggleDarkMode = useFeatureFlagToggle("darkMode");
-  const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-  const toggleMockData = useFeatureFlagToggle("mockData");
   const [apiDocsOpen, setApiDocsOpen] = React.useState(false);
 
   // Get current path to determine which applet is active
@@ -128,21 +134,20 @@ function Navigation() {
 
   return (
     <>
-      <DevHostAppBar
+      <HostAppBar
         currentAppletInfo={currentAppletInfo}
         isDarkMode={isDarkMode}
         onDarkModeToggle={toggleDarkMode}
-        mockEnabled={mockEnabled}
-        onMockToggle={toggleMockData}
         onApiDocsOpen={handleApiDocsOpen}
         drawerWidth={APP_CONSTANTS.drawerWidth}
+        devTools={devToolsConfig}
       >
         <ActivityNotifications onNavigate={handleNavigate} />
-      </DevHostAppBar>
+      </HostAppBar>
 
-      {/* API Documentation Modal */}
+      {/* API Documentation Modal - dynamically loaded */}
       {currentAppletInfo && currentAppletInfo.apiSpec && (
-        <ApiDocsModal
+        <ApiDocsWrapper
           open={apiDocsOpen}
           onClose={handleApiDocsClose}
           appletName={currentAppletInfo.label}
@@ -163,14 +168,11 @@ function AppWithMockToggle() {
     async function setupMsw() {
       if (mockEnabled) {
         console.log("Setting up MSW handlers...");
-        await initializeMswHandlers();
+        initializeMswHandlers();
         console.log("MSW handlers registered, initializing worker...");
 
         // Start MSW worker
         try {
-          const { setupMswForAppletProvider } = await import(
-            "@smbc/applet-devtools"
-          );
           await setupMswForAppletProvider();
           console.log("MSW worker started successfully");
           setMswReady(true);
@@ -182,9 +184,6 @@ function AppWithMockToggle() {
         // Stop MSW worker when mocks are disabled
         console.log("Stopping MSW worker...");
         try {
-          const { stopMswForAppletProvider } = await import(
-            "@smbc/applet-devtools"
-          );
           await stopMswForAppletProvider();
           console.log("MSW worker stopped");
         } catch (error) {

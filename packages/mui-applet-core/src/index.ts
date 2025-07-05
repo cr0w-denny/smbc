@@ -58,3 +58,24 @@ export { ActivitySnackbar } from "./ActivitySnackbar";
 // Internal components exported for Storybook only
 // @internal - Do not use directly, use MuiDataViewApplet instead
 export { MuiDataView } from "./DataView/MuiDataView";
+
+// Role management components
+export {
+  RoleManager,
+  DashboardHeader,
+  CurrentUserInfo,
+  PermissionChip,
+  PermissionCard,
+  PermissionsGrid,
+} from "./RoleManager";
+
+export type {
+  RoleManagerProps,
+  User,
+  Permission,
+  PermissionGroup,
+} from "./RoleManager";
+
+// Host application bar
+export { HostAppBar } from "./HostAppBar";
+export type { HostAppBarProps, CurrentAppletInfo } from "./HostAppBar";

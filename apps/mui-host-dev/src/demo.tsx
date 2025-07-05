@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Task as TaskIcon,
   Edit as EditIcon,
@@ -7,7 +8,7 @@ import {
   MuiDataViewApplet,
   type MuiDataViewAppletConfig,
 } from "@smbc/mui-applet-core";
-import { faker } from "@faker-js/faker";
+// Dynamic faker import to prevent including it in main bundle
 import {
   createBulkUpdateAction,
   createBulkDeleteAction,
@@ -82,8 +83,22 @@ interface Task {
  *
  * @param count - Number of tasks to generate (default: 50)
  * @returns Array of mock Task objects
+ * 
+ * NOTE: We dynamically import faker here rather than importing from applet-devtools
+ * to maintain architectural separation. While this means faker is included in two
+ * separate chunks (demo chunk and devtools chunk), this is acceptable because:
+ * 1. Both chunks are only loaded dynamically when needed, never on initial page load
+ * 2. Demo and devtools serve different purposes and may be used independently
+ * 3. Production users never load either chunk - they only affect developers
+ * 4. Keeping them separate allows the demo to work even if devtools aren't loaded
  */
-const generateMockTasks = (count: number = 50): Task[] => {
+const generateMockTasks = async (count: number = 50): Promise<Task[]> => {
+  // Dynamically import faker to prevent including it in main bundle
+  const { faker } = await import(/* @vite-ignore */ "@faker-js/faker");
+  
+  // Set a consistent seed for faker to make demo predictable
+  faker.seed(12345);
+
   const statuses: Task["status"][] = ["pending", "in-progress", "completed"];
   const priorities: Task["priority"][] = ["low", "medium", "high"];
 
@@ -99,10 +114,6 @@ const generateMockTasks = (count: number = 50): Task[] => {
   }));
 };
 
-// Set a consistent seed for faker to make demo predictable
-// This ensures the same data appears every time for consistent testing
-faker.seed(12345);
-
 /**
  * Global mock data store simulating a backend database.
  *
@@ -111,7 +122,7 @@ faker.seed(12345);
  *
  * Mutations directly modify this array to simulate API calls
  */
-let mockTasks = generateMockTasks(75);
+let mockTasks: Task[] = [];
 
 // =============================================================================
 // MOCK API CLIENT IMPLEMENTATION
@@ -711,6 +722,24 @@ const createTaskConfig = (
  * - Comprehensive error handling
  */
 const TasksDemo = () => {
+  const [initialized, setInitialized] = React.useState(false);
+
+  // Initialize mock data asynchronously to avoid including faker in main bundle
+  React.useEffect(() => {
+    async function initializeMockData() {
+      if (mockTasks.length === 0) {
+        mockTasks = await generateMockTasks(75);
+      }
+      setInitialized(true);
+    }
+    initializeMockData();
+  }, []);
+
+  // Show loading state while initializing mock data
+  if (!initialized) {
+    return <div>Loading demo data...</div>;
+  }
+
   const apiClient = createTasksApiClient();
   const config = createTaskConfig(apiClient);
 

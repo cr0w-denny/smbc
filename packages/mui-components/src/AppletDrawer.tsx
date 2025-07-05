@@ -5,39 +5,11 @@ import {
   Typography,
   Toolbar,
 } from "@mui/material";
-import { TreeMenu } from "./TreeMenu";
+import { TreeMenu, NavigationRoute, TreeMenuSection } from "./TreeMenu";
 
-/**
- * Navigation route interface
- */
-export interface NavigationRoute {
-  path: string;
-  label: string;
-  icon?: React.ComponentType | React.ElementType;
-  component?: React.ComponentType;
-  requiredPermissions?: string[];
-}
-
-/**
- * Tree menu navigation interfaces
- */
-export interface TreeMenuGroup {
-  id: string;
-  label: string;
-  icon?: string;
-  order?: number;
-  routes: NavigationRoute[];
-}
-
-export interface TreeMenuSection {
-  appletId: string;
-  appletLabel: string;
-  appletIcon?: React.ComponentType | React.ElementType | string;
-  hasInternalNavigation: boolean;
-  directRoute?: NavigationRoute;
-  homeRoute?: NavigationRoute;
-  groups?: TreeMenuGroup[];
-}
+// Re-export types from TreeMenu for convenience
+export type { NavigationRoute, TreeMenuSection } from "./TreeMenu";
+export type { TreeMenuGroup } from "./TreeMenu";
 
 
 /**
@@ -54,12 +26,12 @@ export interface AppletDrawerProps {
   onNavigate: (path: string) => void;
   /** Root route (usually Dashboard) */
   rootRoute?: NavigationRoute;
-  /** Tree menu applet sections */
-  appletSections: TreeMenuSection[];
+  /** Tree menu sections */
+  menuSections: TreeMenuSection[];
   /** Whether to show debug info */
   showDebugInfo?: boolean;
-  /** Number of total applets for debug display */
-  totalApplets?: number;
+  /** Number of total sections for debug display */
+  totalSections?: number;
   /** Custom content to render above navigation */
   headerContent?: React.ReactNode;
   /** Custom content to render below navigation */
@@ -93,9 +65,9 @@ export function AppletDrawer({
   currentPath,
   onNavigate,
   rootRoute,
-  appletSections,
+  menuSections,
   showDebugInfo = false,
-  totalApplets = 0,
+  totalSections = 0,
   headerContent,
   footerContent,
   sx,
@@ -126,9 +98,9 @@ export function AppletDrawer({
         currentPath={currentPath}
         onNavigate={onNavigate}
         rootRoute={rootRoute}
-        appletSections={appletSections}
+        menuSections={menuSections}
         showDebugInfo={showDebugInfo}
-        totalApplets={totalApplets}
+        totalSections={totalSections}
         searchTerm={searchTerm}
       />
 
