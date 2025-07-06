@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
 /**
  * Dependency management tool for SMBC monorepo
@@ -16,7 +16,14 @@ import { fileURLToPath } from "url";
 import { glob } from "glob";
 import chalk from "chalk";
 import { table } from "table";
-import { CORE_DEPS, SMBC_PACKAGES } from "../shared-deps.js";
+import { CORE_DEPS, SMBC_PACKAGES } from "./shared-deps.js";
+
+interface PackageJson {
+  name?: string;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "../..");
@@ -24,7 +31,7 @@ const rootDir = join(__dirname, "../..");
 /**
  * Find all package.json files in the monorepo
  */
-async function findPackageJsonFiles() {
+async function findPackageJsonFiles(): Promise<string[]> {
   const patterns = [
     "package.json",
     "packages/*/package.json",
@@ -156,7 +163,7 @@ async function syncDependencies() {
   // Also sync the DevHostAppBar dependencies
   try {
     const { execSync } = await import('child_process');
-    execSync('node ../sync-devbar-deps.js', { 
+    execSync('tsx ./sync-devbar-deps.ts', { 
       cwd: __dirname,
       stdio: 'inherit'
     });

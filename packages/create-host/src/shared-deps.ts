@@ -9,7 +9,7 @@
  */
 
 // Core dependencies that should be synchronized across the monorepo
-export const CORE_DEPS = {
+export const CORE_DEPS: Record<string, string> = {
   // React ecosystem
   "react": "^18.2.0",
   "react-dom": "^18.2.0",
@@ -54,7 +54,7 @@ export const CORE_DEPS = {
 };
 
 // SMBC packages - npm workspaces handles resolution automatically
-export const SMBC_PACKAGES = [
+export const SMBC_PACKAGES: string[] = [
   "@smbc/applet-core",
   "@smbc/mui-applet-core", 
   "@smbc/mui-components",

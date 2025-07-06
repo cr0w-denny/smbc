@@ -1,0 +1,21 @@
+// vite.config.ts
+import { defineConfig } from "file:///Users/developer/ws-cr0w/zzz/node_modules/vite/dist/node/index.js";
+import { createAppletConfig } from "file:///Users/developer/ws-cr0w/zzz/packages/vite-config/dist/index.js";
+var __vite_injected_original_dirname = "/Users/developer/ws-cr0w/zzz/applets/user-management/mui";
+var vite_config_default = defineConfig(
+  createAppletConfig({
+    appletName: "user-management",
+    rootDir: __vite_injected_original_dirname,
+    // This applet uses additional SMBC packages
+    additionalSMBCPackages: ["activity-utils"],
+    // Pre-bundle certain dependencies for better dev performance
+    optimizeDeps: [
+      "@mui/x-data-grid",
+      "@tanstack/react-query"
+    ]
+  })
+);
+export {
+  vite_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZS5jb25maWcudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImNvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9kaXJuYW1lID0gXCIvVXNlcnMvZGV2ZWxvcGVyL3dzLWNyMHcvenp6L2FwcGxldHMvdXNlci1tYW5hZ2VtZW50L211aVwiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9maWxlbmFtZSA9IFwiL1VzZXJzL2RldmVsb3Blci93cy1jcjB3L3p6ei9hcHBsZXRzL3VzZXItbWFuYWdlbWVudC9tdWkvdml0ZS5jb25maWcudHNcIjtjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfaW1wb3J0X21ldGFfdXJsID0gXCJmaWxlOi8vL1VzZXJzL2RldmVsb3Blci93cy1jcjB3L3p6ei9hcHBsZXRzL3VzZXItbWFuYWdlbWVudC9tdWkvdml0ZS5jb25maWcudHNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tICd2aXRlJztcbmltcG9ydCB7IGNyZWF0ZUFwcGxldENvbmZpZyB9IGZyb20gJ0BzbWJjL3ZpdGUtY29uZmlnJztcblxuZXhwb3J0IGRlZmF1bHQgZGVmaW5lQ29uZmlnKFxuICBjcmVhdGVBcHBsZXRDb25maWcoe1xuICAgIGFwcGxldE5hbWU6ICd1c2VyLW1hbmFnZW1lbnQnLFxuICAgIHJvb3REaXI6IF9fZGlybmFtZSxcbiAgICBcbiAgICAvLyBUaGlzIGFwcGxldCB1c2VzIGFkZGl0aW9uYWwgU01CQyBwYWNrYWdlc1xuICAgIGFkZGl0aW9uYWxTTUJDUGFja2FnZXM6IFsnYWN0aXZpdHktdXRpbHMnXSxcbiAgICBcbiAgICAvLyBQcmUtYnVuZGxlIGNlcnRhaW4gZGVwZW5kZW5jaWVzIGZvciBiZXR0ZXIgZGV2IHBlcmZvcm1hbmNlXG4gICAgb3B0aW1pemVEZXBzOiBbXG4gICAgICAnQG11aS94LWRhdGEtZ3JpZCcsXG4gICAgICAnQHRhbnN0YWNrL3JlYWN0LXF1ZXJ5J1xuICAgIF1cbiAgfSlcbik7Il0sCiAgIm1hcHBpbmdzIjogIjtBQUEwVixTQUFTLG9CQUFvQjtBQUN2WCxTQUFTLDBCQUEwQjtBQURuQyxJQUFNLG1DQUFtQztBQUd6QyxJQUFPLHNCQUFRO0FBQUEsRUFDYixtQkFBbUI7QUFBQSxJQUNqQixZQUFZO0FBQUEsSUFDWixTQUFTO0FBQUE7QUFBQSxJQUdULHdCQUF3QixDQUFDLGdCQUFnQjtBQUFBO0FBQUEsSUFHekMsY0FBYztBQUFBLE1BQ1o7QUFBQSxNQUNBO0FBQUEsSUFDRjtBQUFBLEVBQ0YsQ0FBQztBQUNIOyIsCiAgIm5hbWVzIjogW10KfQo=

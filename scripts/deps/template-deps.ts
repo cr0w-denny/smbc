@@ -6,10 +6,15 @@
 
 import { CORE_DEPS, SMBC_PACKAGES } from './shared-deps.js';
 
+interface DependencyGroup {
+  dependencies: Record<string, string>;
+  devDependencies: Record<string, string>;
+}
+
 /**
  * Get dependencies for a host application
  */
-export function getHostDependencies() {
+export function getHostDependencies(): DependencyGroup {
   return {
     dependencies: {
       // Core React

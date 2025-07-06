@@ -9,7 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import validatePackageName from "validate-npm-package-name";
 import { execSync } from "child_process";
-import { updatePackageJsonDependencies } from "../template-deps.js";
+import { updatePackageJsonDependencies } from "../deps/template-deps.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -13,7 +13,6 @@ import {
 } from "@smbc/applet-core";
 import {
   AppletDrawer as BaseAppletDrawer,
-  type NavigationRoute,
   type TreeMenuSection,
 } from "@smbc/mui-components";
 

@@ -39,10 +39,10 @@ export const demoUser = {
 };
 
 // =============================================================================
-// APP CONSTANTS
+// HOST CONSTANTS
 // =============================================================================
 
-export const APP_CONSTANTS = {
+export const HOST = {
   drawerWidth: 320,
   appName: "SMBC Applet Host",
 } as const;

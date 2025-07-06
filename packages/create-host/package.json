@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "prebuild": "cp ../../scripts/shared-deps.js src/shared-deps.ts && cp -r ../../scripts/template-deps.js src/template-deps.ts",
+    "prebuild": "cp ../../scripts/deps/shared-deps.ts src/shared-deps.ts && cp -r ../../scripts/deps/template-deps.ts src/template-deps.ts",
     "build": "tsc && cp -r templates dist/",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build"

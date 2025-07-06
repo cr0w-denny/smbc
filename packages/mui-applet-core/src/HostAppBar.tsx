@@ -81,6 +81,8 @@ export interface HostAppBarProps {
     setupMswForAppletProvider: () => Promise<void>;
     stopMswForAppletProvider: () => Promise<void>;
   };
+  /** Whether to show development features like click-to-copy */
+  showDevelopmentFeatures: boolean;
 }
 
 /**
@@ -99,6 +101,7 @@ export function HostAppBar({
   children,
   sx,
   devTools,
+  showDevelopmentFeatures,
 }: HostAppBarProps) {
   const [copyFeedback, setCopyFeedback] = React.useState(false);
   const [mswStatus, setMswStatus] = React.useState({
@@ -199,7 +202,7 @@ export function HostAppBar({
     >
       <Toolbar>
         {/* Package Install Copy Component */}
-        {currentAppletInfo?.id && APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
+        {showDevelopmentFeatures && currentAppletInfo?.id && APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Tooltip title="Copy install command with all required dependencies">
               <Chip

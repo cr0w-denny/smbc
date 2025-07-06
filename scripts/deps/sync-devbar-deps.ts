@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
 /**
  * Sync DevHostAppBar dependencies with shared dependency definitions
@@ -13,7 +13,7 @@ import { CORE_PEER_DEPS } from "./shared-deps.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const devBarPath = join(__dirname, "../packages/mui-components/src/DevHostAppBar.tsx");
 
-function updateDevBarDependencies() {
+function updateDevBarDependencies(): void {
   const content = readFileSync(devBarPath, "utf-8");
   
   // Generate the CORE_PEER_DEPS object string

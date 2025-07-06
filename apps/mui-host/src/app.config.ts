@@ -1,16 +1,13 @@
 import {
   RoleConfig,
-  createPermissionRequirements,
+  AppletMount,
   generatePermissionMappings,
-  mountApplets,
+  createPermissionRequirements,
+  mountApplet,
 } from "@smbc/applet-core";
-import {
-  People as PeopleIcon,
-  EmojiEmotions as EmojiEmotionsIcon,
-} from "@mui/icons-material";
+import { Language as LanguageIcon } from "@mui/icons-material";
 
-// Import applets
-import usermanagementApplet from "@smbc/user-management-mui";
+// Import hello applet
 import helloApplet from "@smbc/hello-mui";
 
 // =============================================================================
@@ -19,8 +16,8 @@ import helloApplet from "@smbc/hello-mui";
 
 export const demoUser = {
   id: "1",
-  email: "user@my-host.com",
-  name: "Demo User",
+  email: "user@company.com",
+  name: "Production User",
   roles: ["User"],
   preferences: {
     theme: "light" as const,
@@ -35,60 +32,62 @@ export const demoUser = {
 };
 
 // =============================================================================
-// APP CONSTANTS
+// HOST CONSTANTS
 // =============================================================================
 
-export const APP_CONSTANTS = {
-  appName: "My Host",
-  drawerWidth: 320,
+export const HOST = {
+  drawerWidth: 240,
+  appName: "SMBC Applet Host",
 } as const;
 
 // =============================================================================
 // HOST APPLICATION ROLES
 // =============================================================================
 
-export const HOST_ROLES = ["Guest", "User", "Staff", "Admin"] as const;
+export const HOST_ROLES = [
+  "Guest",
+  "User",
+  "Admin",
+] as const;
+
+export type HostRole = (typeof HOST_ROLES)[number];
 
 // =============================================================================
-// APPLET CONFIGURATION
+// PERMISSION CONFIGURATION
 // =============================================================================
 
-// TODO: Customize permission-to-role mappings below based on your host's roles
-// By default, all applet permissions are mapped to "User" role
-const { permissionRequirements, mountedApplets } = mountApplets({
-  "user-management": {
-    applet: usermanagementApplet,
-    label: "User Management",
-    path: "/user-management",
-    icon: PeopleIcon,
-    permissions: {
-      VIEW_USERS: "Guest",
-      CREATE_USERS: "Admin",
-      EDIT_USERS: "Admin",
-      DELETE_USERS: "Admin",
-      MANAGE_ROLES: "Admin",
-    },
-  },
+// Define minimum required roles for each permission
+const permissionRequirements = createPermissionRequirements({
   hello: {
     applet: helloApplet,
-    label: "Hello World",
-    path: "/hello",
-    icon: EmojiEmotionsIcon,
     permissions: {
       VIEW_ROUTE_ONE: "Guest",
       VIEW_ROUTE_TWO: "User",
-      VIEW_ROUTE_THREE: "Staff",
+      VIEW_ROUTE_THREE: "Admin",
     },
   },
 });
-
-export const APPLETS = mountedApplets;
 
 // Auto-generate the verbose permission mappings
 export const roleConfig: RoleConfig = {
   roles: [...HOST_ROLES],
   permissionMappings: generatePermissionMappings(
     HOST_ROLES,
-    createPermissionRequirements(permissionRequirements),
+    permissionRequirements,
   ),
 };
+
+// =============================================================================
+// APPLET DEFINITIONS
+// =============================================================================
+
+// All applets configured for this host
+export const APPLETS: AppletMount[] = [
+  mountApplet(helloApplet, {
+    id: "hello",
+    label: "Hello",
+    path: "/hello",
+    icon: LanguageIcon,
+    permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
+  }),
+];

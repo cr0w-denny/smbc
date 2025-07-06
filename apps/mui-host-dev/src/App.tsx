@@ -24,7 +24,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Import configuration
-import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
+import { HOST, APPLETS, demoUser, roleConfig } from "./app.config";
 
 // Static imports for development - these will be excluded in production templates
 import {
@@ -89,14 +89,14 @@ function AppContentWithQueryAccess() {
         <Navigation />
         <AppletDrawer
           applets={APPLETS}
-          constants={APP_CONSTANTS}
+          constants={HOST}
           permissionMapping={{ "admin-users": "user-management" }}
-          title={APP_CONSTANTS.appName}
+          title={HOST.appName}
         />
         <AppletRouter
           applets={APPLETS}
           roleConfig={roleConfig}
-          constants={APP_CONSTANTS}
+          constants={HOST}
         />
       </Box>
       <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
@@ -139,8 +139,9 @@ function Navigation() {
         isDarkMode={isDarkMode}
         onDarkModeToggle={toggleDarkMode}
         onApiDocsOpen={handleApiDocsOpen}
-        drawerWidth={APP_CONSTANTS.drawerWidth}
+        drawerWidth={HOST.drawerWidth}
         devTools={devToolsConfig}
+        showDevelopmentFeatures={true}
       >
         <ActivityNotifications onNavigate={handleNavigate} />
       </HostAppBar>
