@@ -3,6 +3,9 @@
 # Test script to simulate external package installation
 echo "🧪 Testing external package scenario..."
 
+# Store monorepo root path
+MONOREPO_ROOT="$(pwd)"
+
 # Create temp directory outside monorepo
 TEMP_DIR="/tmp/smbc-host-test"
 rm -rf $TEMP_DIR
@@ -95,12 +98,10 @@ EOF
 echo "📥 Installing dependencies (external + local SMBC packages)..."
 npm install
 
-# Copy host source files
-echo "📋 Copying host source files..."
-mkdir -p src/components
-cp -r /Users/developer/ws-cr0w/zzz/apps/host/src/* ./src/
-cp /Users/developer/ws-cr0w/zzz/apps/host/index.html .
-cp /Users/developer/ws-cr0w/zzz/apps/host/vite.config.ts .
+# Generate host using create-host CLI
+echo "📋 Generating host using create-host..."
+cd $MONOREPO_ROOT
+npx create-host test-host --directory $TEMP_DIR --display-name "Test Host" --description "Test host for external packages" --applets "hello-mui" --no-install
 
 # Create minimal tsconfig (no project references)
 cat > tsconfig.json << 'EOF'
@@ -130,7 +131,7 @@ EOF
 
 # Test the build to verify everything works
 echo "🧪 Testing production build..."
-cd $TEMP_DIR
+cd $TEMP_DIR/test-host
 if npm run build; then
   echo ""
   echo "✅ External package test successful!"

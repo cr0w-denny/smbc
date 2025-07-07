@@ -108,6 +108,7 @@ const permissionRequirements = createPermissionRequirements({
       VIEW_ROUTE_ONE: "Guest",
       VIEW_ROUTE_TWO: "Staff",
       VIEW_ROUTE_THREE: "Manager",
+      VIEW_ROUTE_FOUR: "Admin",
     },
   },
 });

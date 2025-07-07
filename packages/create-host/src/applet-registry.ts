@@ -69,12 +69,11 @@ export function generateAppletImport(applet: AppletRegistryEntry): string {
 }
 
 /**
- * Generate unified applet configuration for mountApplets() call
- * Maps all applet permissions to "Admin" role by default - hosts should customize this
+ * Generate unified applet configuration for createPermissionRequirements() call
+ * Maps all applet permissions to "User" role by default - hosts should customize this
  */
 export function generateAppletConfig(applet: AppletRegistryEntry): string {
   const varName = applet.id.replace(/-/g, '') + 'Applet';
-  const iconImport = applet.icon ? `${applet.icon}Icon` : 'undefined';
   
   // Default all permissions to "User" role - hosts should customize these mappings
   const permissions = applet.permissions
@@ -83,11 +82,24 @@ export function generateAppletConfig(applet: AppletRegistryEntry): string {
     
   return `  "${applet.id}": {
     applet: ${varName},
-    label: "${applet.name}",
-    path: "/${applet.id}",
-    icon: ${iconImport},
     permissions: {
 ${permissions}
     },
   }`;
+}
+
+/**
+ * Generate mountApplet call for APPLETS array
+ */
+export function generateMountedApplet(applet: AppletRegistryEntry): string {
+  const varName = applet.id.replace(/-/g, '') + 'Applet';
+  const iconImport = applet.icon ? `${applet.icon}Icon` : 'undefined';
+  
+  return `  mountApplet(${varName}, {
+    id: "${applet.id}",
+    label: "${applet.name}",
+    path: "/${applet.id}",
+    icon: ${iconImport},
+    permissions: [${varName}.permissions.${applet.permissions[0]}],
+  })`;
 }

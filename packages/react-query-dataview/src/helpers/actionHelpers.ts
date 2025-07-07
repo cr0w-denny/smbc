@@ -112,20 +112,20 @@ export function createBulkUpdateAction<T extends { id: string | number }>(
     onClick: async (items: T[], context?: ActionContext) => {
       if (context?.addTransactionOperation) {
         for (const item of items) {
-          // Create a minimal entity with just the ID and the fields being updated
-          const partialUpdate = {
-            id: item.id,
+          // Create updated entity with full original data plus updates for activity tracking
+          const updatedEntity = {
+            ...item,
             ...updateData
           } as T;
           
           context.addTransactionOperation(
             "update",
-            partialUpdate,
+            updatedEntity,
             () => {
               console.log('BulkUpdateHelper: mutation executing', {
                 itemId: item.id,
                 updateData,
-                partialUpdate
+                updatedEntity
               });
               
               // Get the accumulated pending data at execution time

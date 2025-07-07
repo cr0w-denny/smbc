@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 import validatePackageName from "validate-npm-package-name";
 import { execSync } from "child_process";
 import { updatePackageJsonDependencies } from "./template-deps.js";
-import { AVAILABLE_APPLETS, type AppletRegistryEntry, generateAppletImport, generateAppletConfig } from "./applet-registry.js";
+import { AVAILABLE_APPLETS, type AppletRegistryEntry, generateAppletImport, generateAppletConfig, generateMountedApplet } from "./applet-registry.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +22,7 @@ interface HostConfig {
   framework: "mui";
   installDeps: boolean;
   selectedApplets: AppletRegistryEntry[];
+  directory?: string;
 }
 
 const program = new Command();
@@ -33,6 +34,10 @@ program
   .argument("[host-name]", "name of the host application")
   .option("-f, --framework <framework>", "framework to use (mui)", "mui")
   .option("--no-install", "skip installing dependencies")
+  .option("-d, --directory <directory>", "output directory (default: current directory)")
+  .option("--display-name <name>", "display name for the host")
+  .option("--description <description>", "description for the host")
+  .option("--applets <applets>", "comma-separated list of applets to include")
   .action(async (hostName?: string, options = {}) => {
     const config = await gatherHostConfig(hostName, options);
     await createHost(config);
@@ -69,66 +74,92 @@ async function gatherHostConfig(
   }
 
   // Display name
-  questions.push({
-    type: "text",
-    name: "displayName",
-    message: "What is the display name for your host application?",
-    initial: (_prev, values) => {
-      const name = hostName || values.name;
-      return name
-        .split("-")
-        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    },
-  });
+  if (!options.displayName) {
+    questions.push({
+      type: "text",
+      name: "displayName",
+      message: "What is the display name for your host application?",
+      initial: (_prev, values) => {
+        const name = hostName || values.name;
+        return name
+          .split("-")
+          .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      },
+    });
+  }
 
   // Description
-  questions.push({
-    type: "text",
-    name: "description",
-    message: "Brief description of your host application:",
-    initial: (_prev, values) => {
-      const displayName = values.displayName;
-      return `${displayName} - SMBC applet host application`;
-    },
-  });
+  if (!options.description) {
+    questions.push({
+      type: "text",
+      name: "description",
+      message: "Brief description of your host application:",
+      initial: (_prev, values) => {
+        const displayName = options.displayName || values.displayName;
+        return `${displayName} - SMBC applet host application`;
+      },
+    });
+  }
 
   // Applet selection
-  questions.push({
-    type: "multiselect",
-    name: "selectedApplets",
-    message: "Select applets to include (optional):",
-    choices: AVAILABLE_APPLETS.map(applet => ({
-      title: applet.name,
-      description: applet.description,
-      value: applet,
-      selected: false,
-    })),
-    hint: "Space to select, Enter to confirm",
-  });
+  if (!options.applets) {
+    questions.push({
+      type: "multiselect",
+      name: "selectedApplets",
+      message: "Select applets to include (optional):",
+      choices: AVAILABLE_APPLETS.map(applet => ({
+        title: applet.name,
+        description: applet.description,
+        value: applet,
+        selected: false,
+      })),
+      hint: "Space to select, Enter to confirm",
+    });
+  }
 
   // Install dependencies
-  questions.push({
-    type: "confirm",
-    name: "installDeps",
-    message: "Install dependencies?",
-    initial: options.install !== false,
-  });
+  if (options.install !== false) {
+    questions.push({
+      type: "confirm",
+      name: "installDeps",
+      message: "Install dependencies?",
+      initial: options.install !== false,
+    });
+  }
 
   const answers = questions.length > 0 ? await prompts(questions) : {};
 
+  // Parse applets from comma-separated string
+  let selectedApplets = answers.selectedApplets || [];
+  if (options.applets) {
+    const appletNames = options.applets.split(',').map((name: string) => name.trim());
+    selectedApplets = AVAILABLE_APPLETS.filter(applet => 
+      appletNames.includes(applet.name) || appletNames.includes(applet.importPath)
+    );
+  }
+
+  // Generate display name if not provided
+  const name = hostName || answers.name;
+  const displayName = options.displayName || answers.displayName || 
+    name.split("-").map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+
   return {
-    name: hostName || answers.name,
-    displayName: answers.displayName,
-    description: answers.description,
+    name,
+    displayName,
+    description: options.description || answers.description || `${displayName} - SMBC applet host application`,
     framework: options.framework || "mui",
-    installDeps: answers.installDeps !== false,
-    selectedApplets: answers.selectedApplets || [],
+    installDeps: options.install !== false && answers.installDeps !== false,
+    selectedApplets,
+    directory: options.directory,
   };
 }
 
 async function createHost(config: HostConfig) {
-  const hostPath = path.resolve(process.cwd(), "apps", config.name);
+  const baseDir = config.directory || process.cwd();
+  const hostPath = config.directory 
+    ? path.resolve(baseDir, config.name)
+    : path.resolve(process.cwd(), "apps", config.name);
 
   // Check if directory already exists
   if (await fs.pathExists(hostPath)) {
@@ -139,6 +170,9 @@ async function createHost(config: HostConfig) {
   const spinner = ora("Creating host application...").start();
 
   try {
+    // Detect if we're in the monorepo
+    const isInMonorepo = await detectMonorepo();
+    
     // Create host directory structure
     await fs.ensureDir(hostPath);
 
@@ -154,7 +188,14 @@ async function createHost(config: HostConfig) {
     packageJson.description = config.description;
 
     // Update dependencies to use shared definitions
-    const updatedPackageJson = updatePackageJsonDependencies(packageJson, 'host');
+    const updatedPackageJson = updatePackageJsonDependencies(packageJson, 'host', isInMonorepo, config.framework);
+
+    // Add selected applets as dependencies
+    if (config.selectedApplets.length > 0) {
+      config.selectedApplets.forEach(applet => {
+        updatedPackageJson.dependencies[applet.importPath] = isInMonorepo ? "*" : "^0.1.0";
+      });
+    }
 
     await fs.writeJson(packageJsonPath, updatedPackageJson, { spaces: 2 });
 
@@ -245,15 +286,22 @@ async function processDirectory(dirPath: string, config: HostConfig) {
           .map(applet => generateAppletConfig(applet))
           .join(',\n');
 
+        // Generate mounted applets
+        const mountedApplets = config.selectedApplets
+          .map(applet => generateMountedApplet(applet))
+          .join(',\n');
+
         // Replace applet placeholders
         content = content.replace(/{{APPLET_IMPORTS}}/g, appletImports);
         content = content.replace(/{{ICON_IMPORTS}}/g, iconImportStatement);
         content = content.replace(/{{APPLET_CONFIGS}}/g, appletConfigs);
+        content = content.replace(/{{MOUNTED_APPLETS}}/g, mountedApplets);
       } else {
         // No applets selected - use empty placeholders
         content = content.replace(/{{APPLET_IMPORTS}}/g, '');
         content = content.replace(/{{ICON_IMPORTS}}/g, '');
         content = content.replace(/{{APPLET_CONFIGS}}/g, '');
+        content = content.replace(/{{MOUNTED_APPLETS}}/g, '  // TODO: Add your applets here\n  // Example:\n  // mountApplet(myApplet, {\n  //   id: "my-applet",\n  //   label: "My Applet",\n  //   path: "/my-applet",\n  //   icon: MyIcon,\n  //   permissions: [myApplet.permissions.VIEW],\n  // }),');
       }
 
       await fs.writeFile(fullPath, content);
@@ -293,6 +341,34 @@ function toPascalCase(str: string): string {
     .split("-")
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
     .join("");
+}
+
+async function detectMonorepo(): Promise<boolean> {
+  try {
+    // Look for monorepo package.json by traversing up the directory tree
+    let currentDir = process.cwd();
+    const root = path.parse(currentDir).root;
+    
+    while (currentDir !== root) {
+      const packageJsonPath = path.join(currentDir, "package.json");
+      
+      if (await fs.pathExists(packageJsonPath)) {
+        const packageJson = await fs.readJson(packageJsonPath);
+        
+        // Check if this is the SMBC monorepo
+        if (packageJson.name === "@smbc/monorepo" && packageJson.workspaces) {
+          return true;
+        }
+      }
+      
+      currentDir = path.dirname(currentDir);
+    }
+    
+    return false;
+  } catch (error) {
+    // If we can't detect, assume external usage for safety
+    return false;
+  }
 }
 
 // Handle process termination

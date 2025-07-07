@@ -75,14 +75,10 @@ export interface HostAppBarProps {
   children?: React.ReactNode;
   /** Custom styling for the AppBar */
   sx?: any;
-  /** Devtools functions (passed in dev mode, undefined in production) */
-  devTools?: {
-    isMswAvailable: () => Promise<boolean>;
-    setupMswForAppletProvider: () => Promise<void>;
-    stopMswForAppletProvider: () => Promise<void>;
-  };
-  /** Whether to show development features like click-to-copy */
-  showDevelopmentFeatures: boolean;
+  /** Whether to show applet click-to-copy feature */
+  showAppletClickToCopy?: boolean;
+  /** Whether to show MSW mock controls */
+  showMockControls?: boolean;
 }
 
 /**
@@ -100,61 +96,12 @@ export function HostAppBar({
   drawerWidth = 240,
   children,
   sx,
-  devTools,
-  showDevelopmentFeatures,
+  showAppletClickToCopy = false,
+  showMockControls = false,
 }: HostAppBarProps) {
   const [copyFeedback, setCopyFeedback] = React.useState(false);
-  const [mswStatus, setMswStatus] = React.useState({
-    available: false,
-    active: false,
-    initialized: false,
-  });
-
   const mockEnabled = useFeatureFlag("mockData");
   const toggleMockData = useFeatureFlagToggle("mockData");
-
-  // Check MSW availability when dev tools are loaded
-  React.useEffect(() => {
-    console.log("HostAppBar: devTools effect", { devTools: !!devTools, initialized: mswStatus.initialized });
-    if (devTools && !mswStatus.initialized) {
-      console.log("HostAppBar: Checking MSW availability...");
-      devTools.isMswAvailable().then((available: boolean) => {
-        console.log("HostAppBar: MSW available:", available);
-        setMswStatus((prev) => ({
-          ...prev,
-          available,
-          initialized: true,
-        }));
-      });
-    }
-  }, [devTools, mswStatus.initialized]);
-
-  // Handle mock toggle
-  const handleMockToggle = async (enabled: boolean) => {
-    if (!devTools) return;
-
-    try {
-      if (enabled) {
-        await devTools.setupMswForAppletProvider();
-        setMswStatus((prev) => ({ ...prev, active: true }));
-      } else {
-        await devTools.stopMswForAppletProvider();
-        setMswStatus((prev) => ({ ...prev, active: false }));
-      }
-      toggleMockData();
-    } catch (error) {
-      console.error("Failed to toggle MSW:", error);
-    }
-  };
-
-  // Update active status when mock flag changes
-  React.useEffect(() => {
-    if (devTools && mswStatus.initialized && mockEnabled && !mswStatus.active) {
-      devTools.setupMswForAppletProvider()
-        .then(() => setMswStatus((prev: any) => ({ ...prev, active: true })))
-        .catch(console.error);
-    }
-  }, [devTools, mockEnabled, mswStatus.initialized, mswStatus.active]);
 
   const handleCopyPackage = async () => {
     if (!currentAppletInfo?.id) return;
@@ -202,7 +149,7 @@ export function HostAppBar({
     >
       <Toolbar>
         {/* Package Install Copy Component */}
-        {showDevelopmentFeatures && currentAppletInfo?.id && APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
+        {showAppletClickToCopy && currentAppletInfo?.id && APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Tooltip title="Copy install command with all required dependencies">
               <Chip
@@ -271,8 +218,8 @@ export function HostAppBar({
             </Tooltip>
           )}
 
-          {/* Mock Data Toggle - only in development and when MSW is available */}
-          {process.env.NODE_ENV !== 'production' && mswStatus.initialized && mswStatus.available && (
+          {/* Mock Data Toggle - only when explicitly enabled */}
+          {showMockControls && (
             <Tooltip
               title={`${mockEnabled ? "Using mock data for development" : "Using real API endpoints"} - Toggle to switch between mock and real data`}
             >
@@ -280,7 +227,7 @@ export function HostAppBar({
                 control={
                   <Switch
                     checked={Boolean(mockEnabled)}
-                    onChange={(e) => handleMockToggle(e.target.checked)}
+                    onChange={() => toggleMockData()}
                     size="small"
                     color="secondary"
                   />

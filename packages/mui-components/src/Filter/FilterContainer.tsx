@@ -85,9 +85,15 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          {showClearButton && activeFilterCount > 0 && onClearFilters && (
+          {showClearButton && onClearFilters && (
             <Tooltip title="Clear all filters">
-              <IconButton size="small" onClick={onClearFilters}>
+              <IconButton
+                onClick={onClearFilters}
+                sx={{
+                  visibility: activeFilterCount > 0 ? "visible" : "hidden",
+                  p: "0 !important",
+                }}
+              >
                 <ClearIcon />
               </IconButton>
             </Tooltip>

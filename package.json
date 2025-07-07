@@ -23,7 +23,7 @@
     "clean": "npm run clean --workspaces --if-present",
     "clean-console": "./scripts/clean-console.ts",
     "clean-console:dry": "./scripts/clean-console.ts --dry-run --verbose",
-    "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
+    "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -not -name 'vite-env.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
     "create-applet": "tsx scripts/create-applet/cli.ts",
     "create-host": "node packages/create-host/dist/cli.js",
     "deps:sync": "tsx scripts/deps/manage-deps.ts sync",

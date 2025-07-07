@@ -429,11 +429,15 @@ function MuiDataPagination({
   onPageSizeChange,
   pageSizeOptions = [5, 10, 25, 50],
 }: DataViewPaginationProps) {
+  // Fix for pagination out of range error
+  // When total is 0, ensure page is also 0
+  const safePage = total === 0 ? 0 : Math.min(page, Math.floor((total - 1) / pageSize));
+  
   return (
     <TablePagination
       component="div"
       count={total}
-      page={page}
+      page={safePage}
       rowsPerPage={pageSize}
       rowsPerPageOptions={pageSizeOptions}
       onPageChange={(_, newPage) => {

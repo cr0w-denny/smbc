@@ -37,6 +37,15 @@ export default defineConfig(({ mode }) => {
       __ENABLE_API_DOCS__:
         !isProduction || process.env.VITE_ENABLE_API_DOCS === "true",
     },
+    resolve: {
+      alias: {
+        // Point to source files for HMR during development
+        "@smbc/mui-components": path.resolve(__dirname, "../../packages/mui-components/src"),
+        "@smbc/applet-core": path.resolve(__dirname, "../../packages/applet-core/src"),
+        "@smbc/mui-applet-core": path.resolve(__dirname, "../../packages/mui-applet-core/src"),
+        "@smbc/react-query-dataview": path.resolve(__dirname, "../../packages/react-query-dataview/src"),
+      },
+    },
     plugins: [react(), suppressUseClientWarnings()],
     server: {
       port: 3000,
@@ -140,15 +149,15 @@ export default defineConfig(({ mode }) => {
         "@emotion/styled",
         "@tanstack/react-query",
         "@tanstack/react-query-devtools",
-        // Treat linked SMBC packages as dependencies, not source code
+      ],
+      // Exclude local SMBC packages from optimization to enable HMR
+      exclude: [
         "@smbc/applet-core",
         "@smbc/mui-applet-core",
         "@smbc/mui-components",
         "@smbc/react-query-dataview",
         "@smbc/mui-applet-devtools",
-      ],
-      // Exclude MSW mocks from optimization - they contain TypeScript files
-      exclude: [
+        // MSW mocks contain TypeScript files
         "@smbc/user-management-client/mocks",
         "@smbc/product-catalog-client/mocks",
       ],

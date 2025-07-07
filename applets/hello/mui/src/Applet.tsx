@@ -1,15 +1,11 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  Stack,
-  Typography,
-  Card,
-  CardContent,
-} from "@mui/material";
-import { Filter } from "@smbc/mui-components";
-import { useInternalNavigation, useHashParams } from "@smbc/applet-core";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { useInternalNavigation } from "@smbc/applet-core";
 import { navigationGroups, internalRoutes } from "./navigation";
+import { NavigationRoute } from "./components/NavigationRoute";
+import { FilteringRoute } from "./components/FilteringRoute";
+import { PermissionsRoute } from "./components/PermissionsRoute";
+import { DataViewRoute } from "./components/DataViewRoute";
 
 export interface AppletProps {
   mountPath: string;
@@ -24,17 +20,6 @@ const routes = internalRoutes.map((route) => ({
 }));
 
 export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
-  const { filters: filterValues, setFilters: setFilterValues } = useHashParams(
-    {
-      search: "",
-      status: "",
-      priority: "",
-      assignee: "",
-      category: "",
-    },
-    {}, // No pagination needed for this demo
-  );
-
   const {
     currentPath,
     navigateTo,
@@ -50,122 +35,31 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
     navigationGroups,
   });
 
-  // Clear filter state when user navigates away from route-two
-  React.useEffect(() => {
-    if (currentPath !== "/route-two") {
-      setFilterValues({
-        search: "",
-        status: "",
-        priority: "",
-        assignee: "",
-        category: "",
-      });
-    }
-  }, [currentPath, setFilterValues]);
-
   // Demo: Log navigation groups for host consumption
   console.log("Host Navigation Groups:", hostNavigationGroups);
 
   const renderContent = () => {
     // Filter Demo for route-two
     if (currentPath === "/route-two" && canAccess(currentPath)) {
-      return (
-        <Box sx={{ mt: 4 }}>
-          <Filter
-            spec={{
-              fields: [
-                {
-                  name: "search",
-                  label: "Search",
-                  type: "search",
-                  placeholder: "Search anything...",
-                  fullWidth: true,
-                },
-                {
-                  name: "status",
-                  label: "Status",
-                  type: "select",
-                  options: [
-                    { label: "All", value: "" },
-                    { label: "Active", value: "active" },
-                    { label: "Inactive", value: "inactive" },
-                    { label: "Pending", value: "pending" },
-                  ],
-                },
-                {
-                  name: "priority",
-                  label: "Priority",
-                  type: "select",
-                  options: [
-                    { label: "Any", value: "" },
-                    { label: "Low", value: "low" },
-                    { label: "Medium", value: "medium" },
-                    { label: "High", value: "high" },
-                  ],
-                },
-                {
-                  name: "assignee",
-                  label: "Assignee",
-                  type: "text",
-                  placeholder: "Enter assignee name",
-                },
-                {
-                  name: "category",
-                  label: "Category",
-                  type: "select",
-                  options: [
-                    { label: "All Categories", value: "" },
-                    { label: "Development", value: "dev" },
-                    { label: "Design", value: "design" },
-                    { label: "Marketing", value: "marketing" },
-                    { label: "Sales", value: "sales" },
-                  ],
-                },
-              ],
-              initialValues: {
-                search: "",
-                status: "",
-                priority: "",
-                assignee: "",
-                category: "",
-              },
-              title: "Demo Filters",
-            }}
-            onFiltersChange={setFilterValues}
-            values={filterValues}
-          />
-
-          <Card sx={{ mt: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Current Filter Values:
-              </Typography>
-              <Typography
-                component="pre"
-                variant="body2"
-                sx={{
-                  backgroundColor: (theme) =>
-                    theme.palette.mode === "dark" ? "grey.800" : "grey.100",
-                  color: (theme) =>
-                    theme.palette.mode === "dark" ? "grey.100" : "text.primary",
-                  p: 2,
-                  borderRadius: 1,
-                  fontFamily: "monospace",
-                  overflow: "auto",
-                }}
-              >
-                {JSON.stringify(filterValues, null, 2)}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2, fontStyle: "italic" }}>
-                Notice how the URL hash updates as you change filter values
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-      );
+      return <FilteringRoute />;
     }
 
-    // Check if we have a current route and can access it
+    // Hash Navigation Overview for route-one
+    if (currentPath === "/route-one" && canAccess(currentPath)) {
+      return <NavigationRoute />;
+    }
+
+    // Permission and Role Mappings Overview for route-three
+    if (currentPath === "/route-three" && canAccess(currentPath)) {
+      return <PermissionsRoute currentRoute={currentRoute} />;
+    }
+
+    // DataView Component Overview for route-four
+    if (currentPath === "/route-four" && canAccess(currentPath)) {
+      return <DataViewRoute />;
+    }
+
+    // Check if we have a current route and can access it (for other routes)
     if (currentRoute && canAccess(currentPath)) {
       return (
         <Box sx={{ textAlign: "center", mt: 4 }}>
@@ -198,7 +92,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
           👋
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          Select a route above to see different views
+          Select a route above to explore different features
         </Typography>
       </Box>
     );

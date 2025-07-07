@@ -4,47 +4,32 @@
   "description": "{{HOST_DESCRIPTION}}",
   "type": "module",
   "scripts": {
-    "build:libs": "echo 'N/A - Application package'",
-    "dev:api": "echo 'N/A - Application package'",
-    "dev:libs": "echo 'N/A - Application package'",
-    "dev:apps": "vite",
-    "generate:api": "echo 'N/A - Application package'",
-    "generate:api:watch": "echo 'N/A - Application package'",
     "build": "vite build",
     "dev": "vite",
-    "dev:hash": "vite --mode hash",
     "preview": "vite preview",
-    "preview:static": "vite preview --mode hash",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^7.1.2",
     "@mui/material": "^7.1.2",
-    "@smbc/ui-core": "*",
-    "@smbc/mui-components": "*",
-    "@smbc/applet-core": "*",
-    "@smbc/mui-applet-core": "*",
-    "@smbc/react-query-dataview": "*",
-    "@smbc/applet-devtools": "*",
     "@tanstack/react-query": "^5.0.0",
-    "@tanstack/react-query-devtools": "^5.0.0",
-    "msw": "^2.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@smbc/mui-applet-host": "*"
   },
   "devDependencies": {
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react": "^4.6.0",
-    "eslint": "^8.35.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.0",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "typescript": "^5.3.3",
+    "vite": "^5.1.3"
   }
 }

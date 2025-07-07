@@ -1,8 +1,9 @@
 import {
   RoleConfig,
-  createPermissionRequirements,
+  AppletMount,
   generatePermissionMappings,
-  mountApplets,
+  createPermissionRequirements,
+  mountApplet,
 } from "@smbc/applet-core";
 {{ICON_IMPORTS}}
 
@@ -31,10 +32,11 @@ export const demoUser = {
 };
 
 // =============================================================================
-// APP CONSTANTS
+// HOST CONSTANTS
 // =============================================================================
 
-export const APP_CONSTANTS = {
+export const HOST = {
+  drawerWidth: 240,
   appName: "{{HOST_DISPLAY_NAME}}",
 } as const;
 
@@ -42,26 +44,37 @@ export const APP_CONSTANTS = {
 // HOST APPLICATION ROLES
 // =============================================================================
 
-export const HOST_ROLES = ["Guest", "User", "Staff", "Admin"] as const;
+export const HOST_ROLES = [
+  "Guest",
+  "User",
+  "Admin",
+] as const;
+
+export type HostRole = (typeof HOST_ROLES)[number];
 
 // =============================================================================
-// APPLET CONFIGURATION
+// PERMISSION CONFIGURATION
 // =============================================================================
 
-// TODO: Customize permission-to-role mappings below based on your host's roles
-// By default, all applet permissions are mapped to "User" role
-const { permissionRequirements, mountedApplets } = mountApplets({
-{{APPLET_CONFIGS}}
+// Define minimum required roles for each permission
+const permissionRequirements = createPermissionRequirements({
+  {{APPLET_CONFIGS}}
 });
-
-export const APPLETS = mountedApplets;
 
 // Auto-generate the verbose permission mappings
 export const roleConfig: RoleConfig = {
   roles: [...HOST_ROLES],
   permissionMappings: generatePermissionMappings(
     HOST_ROLES,
-    createPermissionRequirements(permissionRequirements),
+    permissionRequirements,
   ),
 };
 
+// =============================================================================
+// APPLET DEFINITIONS
+// =============================================================================
+
+// All applets configured for this host
+export const APPLETS: AppletMount[] = [
+{{MOUNTED_APPLETS}}
+];

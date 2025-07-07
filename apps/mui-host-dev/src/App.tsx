@@ -31,7 +31,6 @@ import {
   registerMswHandlers,
   setupMswForAppletProvider,
   stopMswForAppletProvider,
-  isMswAvailable,
   userManagementHandlers,
   productCatalogHandlers,
 } from "@smbc/mui-applet-devtools";
@@ -70,12 +69,6 @@ function initializeMswHandlers(): void {
   }
 }
 
-// Create devtools object to pass to components
-const devToolsConfig = {
-  isMswAvailable,
-  setupMswForAppletProvider,
-  stopMswForAppletProvider,
-};
 
 function AppContentWithQueryAccess() {
   const handleNavigate = (url: string) => {
@@ -140,8 +133,8 @@ function Navigation() {
         onDarkModeToggle={toggleDarkMode}
         onApiDocsOpen={handleApiDocsOpen}
         drawerWidth={HOST.drawerWidth}
-        devTools={devToolsConfig}
-        showDevelopmentFeatures={true}
+        showMockControls={true}
+        showAppletClickToCopy={true}
       >
         <ActivityNotifications onNavigate={handleNavigate} />
       </HostAppBar>

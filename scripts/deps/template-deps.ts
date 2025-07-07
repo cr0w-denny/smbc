@@ -12,9 +12,9 @@ interface DependencyGroup {
 }
 
 /**
- * Get dependencies for a host application
+ * Get dependencies for a MUI host application
  */
-export function getHostDependencies(): DependencyGroup {
+export function getMuiHostDependencies(): DependencyGroup {
   return {
     dependencies: {
       // Core React
@@ -29,13 +29,9 @@ export function getHostDependencies(): DependencyGroup {
       
       // State management
       "@tanstack/react-query": CORE_DEPS["@tanstack/react-query"],
-      "@tanstack/react-query-devtools": CORE_DEPS["@tanstack/react-query-devtools"],
       
       // SMBC Host Meta-Package (installs all SMBC packages)
       "@smbc/mui-applet-host": "*",
-      
-      // Development/Testing tools
-      "msw": CORE_DEPS["msw"],
     },
     
     devDependencies: {
@@ -54,6 +50,23 @@ export function getHostDependencies(): DependencyGroup {
       "@typescript-eslint/parser": CORE_DEPS["@typescript-eslint/parser"],
     }
   };
+}
+
+/**
+ * Get dependencies for a host application (framework-agnostic wrapper)
+ */
+export function getHostDependencies(framework: string = 'mui'): DependencyGroup {
+  switch (framework) {
+    case 'mui':
+      return getMuiHostDependencies();
+    // Future frameworks can be added here:
+    // case 'vue':
+    //   return getVueHostDependencies();
+    // case 'angular':
+    //   return getAngularHostDependencies();
+    default:
+      throw new Error(`Unsupported framework: ${framework}. Supported frameworks: mui`);
+  }
 }
 
 /**
@@ -143,12 +156,12 @@ export function getApiDependencies() {
 /**
  * Update a package.json object with the correct dependencies
  */
-export function updatePackageJsonDependencies(packageJson, dependencyType) {
+export function updatePackageJsonDependencies(packageJson, dependencyType, isInMonorepo = false, framework = 'mui') {
   let deps;
   
   switch (dependencyType) {
     case 'host':
-      deps = getHostDependencies();
+      deps = getHostDependencies(framework);
       break;
     case 'basic-applet':
       deps = getBasicAppletDependencies();
@@ -161,6 +174,17 @@ export function updatePackageJsonDependencies(packageJson, dependencyType) {
       break;
     default:
       throw new Error(`Unknown dependency type: ${dependencyType}`);
+  }
+  
+  // If external usage, replace SMBC workspace references with actual versions
+  if (!isInMonorepo) {
+    if (deps.dependencies) {
+      Object.keys(deps.dependencies).forEach(key => {
+        if (key.startsWith('@smbc/') && deps.dependencies[key] === '*') {
+          deps.dependencies[key] = '^0.1.0';
+        }
+      });
+    }
   }
   
   return {

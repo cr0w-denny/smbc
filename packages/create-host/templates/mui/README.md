@@ -14,133 +14,40 @@
    npm run dev
    ```
 
-3. Open your browser to `http://localhost:3000`
+3. Open your browser to `http://localhost:5173`
 
 ## Adding Applets
 
 To add applets to your host application:
 
-1. Import your applet in `src/app.config.ts`:
+1. Install the applet package:
+   ```bash
+   npm install @smbc/my-applet-mui
+   ```
+
+2. Import your applet in `src/app.config.ts`:
    ```typescript
    import myApplet from "@smbc/my-applet-mui";
    ```
 
-2. Add it to the `mountApplets` configuration:
+3. Add it to the `APPLETS` array:
    ```typescript
-   const { permissionRequirements, mountedApplets } = mountApplets({
-     "my-applet": {
-       applet: myApplet,
+   export const APPLETS: AppletMount[] = [
+     mountApplet(myApplet, {
+       id: "my-applet",
        label: "My Applet",
        path: "/my-applet", 
        icon: MyAppletIcon,
-       permissions: {
-         VIEW: "User",
-         EDIT: "Admin",
-       },
-     },
-   });
+       permissions: [myApplet.permissions.VIEW],
+     }),
+   ];
    ```
-
-3. The applet will automatically be available in your host application with navigation and routing.
 
 ## Configuration
 
 - **User roles**: Edit the `HOST_ROLES` array in `src/app.config.ts`
 - **Demo user**: Modify the `demoUser` object in `src/app.config.ts`
-- **App settings**: Update `APP_CONSTANTS` in `src/app.config.ts`
-
-## Development Features
-
-### Automatic Development Dashboard
-
-When you install development tools, the home page automatically becomes a development dashboard:
-
-```bash
-npm install @smbc/mui-applet-devtools
-```
-
-The dashboard shows:
-- Current user information and roles
-- Available applets in your configuration  
-- Development tools and controls
-
-### Mock Data Support
-
-To set up mock data support:
-
-1. Install the devtools package:
-   ```bash
-   npm install @smbc/mui-applet-devtools
-   ```
-
-2. Run the setup command from your host app directory:
-   ```bash
-   npx setup-mocks
-   ```
-
-This creates:
-- **MSW Service Worker**: Auto-installed in your public directory
-- **Mock Override System**: Per-applet mock files in `src/mocks/`
-- **Easy Integration**: Ready-to-use setup helpers
-
-#### Using Mock Overrides
-
-After installation, you'll find:
-- `src/mocks/setup.ts` - Integration helper
-- `src/mocks/[applet-name].mocks.ts` - Per-applet override files
-- `src/mocks/index.ts` - Aggregates all overrides
-
-Example mock override:
-```typescript
-// src/mocks/user-management.mocks.ts
-export const usermanagementMockOverrides = [
-  http.get('/api/user-management/users', () => {
-    return HttpResponse.json([
-      { id: 1, name: 'Custom User', email: 'custom@example.com' }
-    ]);
-  }),
-];
-```
-
-#### Enabling Mocks in Your App
-
-Add to your `App.tsx`:
-```typescript
-import { initializeMockOverrides } from './mocks/setup';
-
-function App() {
-  const mockEnabled = useFeatureFlag('mockData');
-  
-  React.useEffect(() => {
-    if (mockEnabled) {
-      initializeMockOverrides();
-    }
-  }, [mockEnabled]);
-  
-  // ... rest of your app
-}
-```
-
-### Feature Flags
-
-The template includes a `mockData` feature flag for toggling mock mode. Add more flags as needed:
-
-```typescript
-const featureFlags = [
-  {
-    key: "darkMode",
-    defaultValue: false,
-    description: "Enable dark mode theme",
-    persist: true,
-  },
-  {
-    key: "mockData", 
-    defaultValue: false,
-    description: "Enable mock data for development",
-    persist: true,
-  },
-];
-```
+- **Host settings**: Update `HOST` constants in `src/app.config.ts`
 
 ## Building for Production
 
