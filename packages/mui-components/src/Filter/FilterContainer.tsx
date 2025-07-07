@@ -59,7 +59,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          mb: collapsible || !isCollapsed ? 1 : 0,
+          mb: 0,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -101,7 +101,11 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
 
           {collapsible && (
             <Tooltip title={isCollapsed ? "Show filters" : "Hide filters"}>
-              <IconButton size="small" onClick={toggleCollapsed}>
+              <IconButton
+                size="small"
+                onClick={toggleCollapsed}
+                sx={{ p: "0 !important" }}
+              >
                 {isCollapsed ? <ExpandMoreIcon /> : <ExpandLessIcon />}
               </IconButton>
             </Tooltip>
@@ -112,7 +116,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       {/* Filter Fields */}
       <Collapse in={!isCollapsed} timeout={200}>
         <Box>
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ mt: 1, mb: 2 }} />
           {children}
         </Box>
       </Collapse>
