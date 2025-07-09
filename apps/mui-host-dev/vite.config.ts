@@ -62,10 +62,16 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: "dist",
+      sourcemap: false, // Disable sourcemaps for production to avoid warnings
       rollupOptions: {
         onwarn(warning, warn) {
-          // Suppress sourcemap warnings from node_modules
+          // Suppress all sourcemap warnings from node_modules
           if (warning.code === "SOURCEMAP_ERROR") return;
+          if (warning.message && warning.message.includes("Can't resolve original location of error")) return;
+          if (warning.message && warning.message.includes("sourcemap")) return;
+          if (warning.message && warning.message.includes("node_modules")) return;
+          // Suppress warnings from specific libraries that have sourcemap issues
+          if (warning.loc && warning.loc.file && warning.loc.file.includes("node_modules")) return;
           warn(warning);
         },
         output: {
