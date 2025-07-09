@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { useHashNavigation, usePermissions } from './hooks';
-import type { PermissionDefinition } from './permissions';
-import type { NavigationGroup, NavigationGroupDefinition } from './types';
+import { useHashNavigation, usePermissions } from './index';
+import type { PermissionDefinition } from '../permissions';
+import type { NavigationGroup, NavigationGroupDefinition } from '../types';
 
 export interface InternalRouteConfig {
   path: string;

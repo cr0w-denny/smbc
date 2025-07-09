@@ -303,7 +303,7 @@ export class TemplateMockGenerator {
                   (mockConfig.strategy as
                     | "exact"
                     | "partial-match"
-                    | "boolean-inverse") || "exact",
+                    | "boolean-choice") || "exact",
                 field: mockConfig.field || param.name,
               }
             : undefined,

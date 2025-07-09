@@ -1,7 +1,8 @@
-import { defineConfig } from "vite";
+import { defineConfig, mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { suppressUseClientWarnings } from "../../scripts/vite/suppress-warnings.ts";
+import { sharedViteConfig } from "../../vite.shared.config.ts";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -27,7 +28,7 @@ export default defineConfig(({ mode }) => {
       }
     : {};
 
-  return {
+  const appSpecificConfig = defineConfig({
     ...envConfig,
     define: {
       ...envConfig.define,
@@ -44,18 +45,24 @@ export default defineConfig(({ mode }) => {
         "@smbc/applet-core": path.resolve(__dirname, "../../packages/applet-core/src"),
         "@smbc/mui-applet-core": path.resolve(__dirname, "../../packages/mui-applet-core/src"),
         "@smbc/react-query-dataview": path.resolve(__dirname, "../../packages/react-query-dataview/src"),
+        "@smbc/applet-devtools": path.resolve(__dirname, "../../packages/applet-devtools/src"),
+        "@smbc/mui-applet-devtools": path.resolve(__dirname, "../../packages/mui-applet-devtools/src"),
       },
     },
     plugins: [react(), suppressUseClientWarnings()],
     server: {
       port: 3000,
       open: true,
+      hmr: {
+        overlay: true,
+      },
+      watch: {
+        // Watch workspace packages for changes
+        ignored: ['!**/node_modules/@smbc/**'],
+      },
     },
     build: {
       outDir: "dist",
-      sourcemap: !isProduction,
-      // Increase chunk size warning limit
-      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         onwarn(warning, warn) {
           // Suppress sourcemap warnings from node_modules
@@ -68,99 +75,26 @@ export default defineConfig(({ mode }) => {
             if (id.includes("@smbc/applet-devtools") || id.includes("@smbc/mui-applet-devtools")) {
               return "devtools";
             }
-            
-            // Vendor libraries that rarely change
-            if (
-              id.includes("node_modules/react") ||
-              id.includes("node_modules/react-dom")
-            ) {
-              return "react-vendor";
-            }
-            if (
-              id.includes("node_modules/@mui") ||
-              id.includes("node_modules/@emotion")
-            ) {
-              return "mui-vendor";
-            }
-            if (id.includes("node_modules/@tanstack")) {
-              return "tanstack-vendor";
-            }
-            if (id.includes("node_modules/msw")) {
-              return "msw-vendor";
-            }
-            if (
-              id.includes("node_modules/swagger-ui-react") ||
-              id.includes("node_modules/@swagger-api") ||
-              id.includes("node_modules/swagger-client") ||
-              id.includes("node_modules/@swaggerexpert")
-            ) {
-              return "swagger-vendor";
-            }
-            // Break out other potentially large dependencies
-            if (
-              id.includes("node_modules/openapi") ||
-              id.includes("node_modules/@redocly") ||
-              id.includes("node_modules/yaml") ||
-              id.includes("node_modules/json-schema")
-            ) {
-              return "openapi-vendor";
-            }
-            // Development/testing utilities
-            if (
-              id.includes("node_modules/@faker-js") ||
-              id.includes("node_modules/autolinker") ||
-              id.includes("node_modules/highlight.js")
-            ) {
-              return "dev-utils-vendor";
-            }
-
-            // SMBC shared libraries - change more frequently
-            if (
-              id.includes("@smbc/ui-core") ||
-              id.includes("@smbc/applet-core") ||
-              id.includes("@smbc/mui-applet-core") ||
-              id.includes("@smbc/mui-applet-host") ||
-              id.includes("@smbc/applet-query-client") ||
-              id.includes("@smbc/mui-components") ||
-              id.includes("@smbc/user-management-mui") ||
-              id.includes("@smbc/product-catalog-mui")
-            ) {
-              return "smbc-shared";
-            }
-
-            // Debug: log what's going into vendor-misc
-            if (id.includes("node_modules")) {
-              if (process.env.VITE_CHUNK_DEBUG) {
-              }
-              return "vendor-misc";
-            }
+            // Let shared config handle the rest
           },
         },
       },
     },
     optimizeDeps: {
-      // Pre-bundle these dependencies to avoid issues and improve dev server startup
-      include: [
-        "react",
-        "react-dom",
-        "@mui/material",
-        "@mui/icons-material",
-        "@emotion/react",
-        "@emotion/styled",
-        "@tanstack/react-query",
-        "@tanstack/react-query-devtools",
-      ],
       // Exclude local SMBC packages from optimization to enable HMR
       exclude: [
         "@smbc/applet-core",
         "@smbc/mui-applet-core",
         "@smbc/mui-components",
         "@smbc/react-query-dataview",
+        "@smbc/applet-devtools",
         "@smbc/mui-applet-devtools",
         // MSW mocks contain TypeScript files
         "@smbc/user-management-client/mocks",
         "@smbc/product-catalog-client/mocks",
       ],
     },
-  };
+  });
+
+  return mergeConfig(sharedViteConfig, appSpecificConfig);
 });

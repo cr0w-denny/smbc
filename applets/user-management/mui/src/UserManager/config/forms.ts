@@ -9,6 +9,12 @@ export const createFormsConfig = (permissions: {
     ? {
         fields: [
           {
+            name: "username",
+            type: "string" as const,
+            label: "Username",
+            required: true,
+          },
+          {
             name: "firstName",
             type: "string" as const,
             label: "First Name",
@@ -26,6 +32,12 @@ export const createFormsConfig = (permissions: {
             label: "Email",
             required: true,
           },
+          {
+            name: "isActive",
+            type: "boolean" as const,
+            label: "Active",
+            defaultValue: true,
+          },
         ],
         title: "Create New User",
         submitLabel: "Create",
@@ -35,6 +47,12 @@ export const createFormsConfig = (permissions: {
   edit: permissions.canEdit
     ? {
         fields: [
+          {
+            name: "username",
+            type: "string" as const,
+            label: "Username",
+            required: true,
+          },
           {
             name: "firstName",
             type: "string" as const,

@@ -1,7 +1,6 @@
 import React from "react";
 import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   AppProvider,
   FeatureFlagProvider,
@@ -10,6 +9,7 @@ import {
   useHashNavigation,
   useFeatureFlag,
   useFeatureFlagToggle,
+  configureApplets,
 } from "@smbc/applet-core";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
@@ -24,13 +24,14 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Import configuration
-import { HOST, APPLETS, demoUser, roleConfig } from "./app.config";
+import { HOST, APPLETS, DEMO_USER, ROLE_CONFIG } from "./app.config";
 
 // Static imports for development - these will be excluded in production templates
 import {
   registerMswHandlers,
   setupMswForAppletProvider,
   stopMswForAppletProvider,
+  resetAllMocks,
   userManagementHandlers,
   productCatalogHandlers,
 } from "@smbc/mui-applet-devtools";
@@ -51,24 +52,70 @@ const featureFlags = [
   },
 ];
 
-// Register MSW handlers - static imports make this much simpler
+// Mapping of applet IDs to their mock handlers
+const APPLET_HANDLERS = {
+  "user-management": userManagementHandlers,
+  "product-catalog": productCatalogHandlers,
+  // Add new applets here
+};
+
+// Create QueryClient with good defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors (client errors)
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        // Retry up to 3 times for other errors
+        return failureCount < 3;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+    mutations: {
+      retry: (failureCount, error: any) => {
+        // Don't retry mutations on 4xx errors
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        // Retry once for network errors
+        return failureCount < 1;
+      },
+    },
+  },
+});
+
+// Register MSW handlers based on available applets
 function initializeMswHandlers(): void {
   // Skip MSW initialization if disabled via environment variable
   if (import.meta.env.VITE_DISABLE_MSW === "true") {
     console.log("MSW disabled via environment variable");
     return;
   }
-  
+
   try {
-    // Register all handlers
-    const allHandlers = [...userManagementHandlers, ...productCatalogHandlers];
+    // Collect handlers for all configured applets
+    const allHandlers = [];
+
+    for (const applet of APPLETS) {
+      const handlers =
+        APPLET_HANDLERS[applet.id as keyof typeof APPLET_HANDLERS];
+      if (handlers && Array.isArray(handlers)) {
+        allHandlers.push(...handlers);
+        console.log(`Loaded ${handlers.length} handlers for ${applet.id}`);
+      } else {
+        console.warn(`No handlers found for applet: ${applet.id}`);
+      }
+    }
+
     console.log("Registering MSW handlers:", allHandlers.length);
     registerMswHandlers(allHandlers);
   } catch (error) {
     console.error("Failed to initialize MSW handlers:", error);
   }
 }
-
 
 function AppContentWithQueryAccess() {
   const handleNavigate = (url: string) => {
@@ -88,7 +135,7 @@ function AppContentWithQueryAccess() {
         />
         <AppletRouter
           applets={APPLETS}
-          roleConfig={roleConfig}
+          roleConfig={ROLE_CONFIG}
           constants={HOST}
         />
       </Box>
@@ -134,7 +181,7 @@ function Navigation() {
         onApiDocsOpen={handleApiDocsOpen}
         drawerWidth={HOST.drawerWidth}
         showMockControls={true}
-        showAppletClickToCopy={true}
+        showAppletInstallation={true}
       >
         <ActivityNotifications onNavigate={handleNavigate} />
       </HostAppBar>
@@ -155,83 +202,77 @@ function Navigation() {
 
 function AppWithMockToggle() {
   const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-  const [, setMswReady] = React.useState(false);
+  const [mswReady, setMswReady] = React.useState(!mockEnabled); // Ready immediately if mocks disabled
 
-  // Initialize MSW handlers when mocks are enabled
+  // Configure applets with their API URLs
   React.useEffect(() => {
+    configureApplets(APPLETS);
+  }, []);
+
+  // Handle MSW worker based on mock toggle
+  React.useEffect(() => {
+    setMswReady(false); // Reset ready state when toggling
+
     async function setupMsw() {
       if (mockEnabled) {
-        console.log("Setting up MSW handlers...");
+        console.log("🎭 Setting up mock environment...");
+
+        // Reset all mock data stores for fresh start
+        resetAllMocks();
+
+        // Initialize MSW handlers
         initializeMswHandlers();
         console.log("MSW handlers registered, initializing worker...");
 
         // Start MSW worker
         try {
           await setupMswForAppletProvider();
-          console.log("MSW worker started successfully");
+          console.log("✅ MSW worker started successfully");
           setMswReady(true);
         } catch (error) {
-          console.error("Failed to start MSW worker:", error);
+          console.error("❌ Failed to start MSW worker:", error);
           setMswReady(false);
         }
       } else {
+        console.log("🌐 Setting up real API environment...");
+
         // Stop MSW worker when mocks are disabled
         console.log("Stopping MSW worker...");
         try {
           await stopMswForAppletProvider();
-          console.log("MSW worker stopped");
+          console.log("✅ MSW worker stopped");
+          setMswReady(true); // Ready for real API calls
         } catch (error) {
-          console.error("Failed to stop MSW worker:", error);
+          console.error("❌ Failed to stop MSW worker:", error);
+          setMswReady(true); // Still allow real API calls even if stop failed
         }
-        setMswReady(false);
       }
     }
 
     setupMsw();
   }, [mockEnabled]);
 
-  return <AppContentWithCacheInvalidation />;
-}
-
-function AppContentWithCacheInvalidation() {
-  const queryClient = useQueryClient();
-  const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-
-  // Clear all cached data when switching between mock and real data
-  React.useEffect(() => {
-    queryClient.clear(); // Completely clear cache, not just invalidate
-  }, [mockEnabled, queryClient]);
+  // Don't render app content until MSW is ready (when mocks are enabled)
+  if (!mswReady) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+        flexDirection="column"
+        gap={2}
+      >
+        <div>Setting up mock environment...</div>
+        <div style={{ fontSize: "0.8em", opacity: 0.7 }}>
+          Initializing MSW worker
+        </div>
+      </Box>
+    );
+  }
 
   return <AppContentWithQueryAccess />;
 }
-
-// Create QueryClient with good defaults
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors (client errors)
-        if (error?.status >= 400 && error?.status < 500) {
-          return false;
-        }
-        // Retry up to 3 times for other errors
-        return failureCount < 3;
-      },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    },
-    mutations: {
-      retry: (failureCount, error: any) => {
-        // Don't retry mutations on 4xx errors
-        if (error?.status >= 400 && error?.status < 500) {
-          return false;
-        }
-        // Retry once for network errors
-        return failureCount < 1;
-      },
-    },
-  },
-});
 
 function AppWithThemeProvider() {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
@@ -239,8 +280,8 @@ function AppWithThemeProvider() {
 
   // Create user with calculated permissions
   const userWithPermissions = {
-    ...demoUser,
-    permissions: calculatePermissionsFromRoles(demoUser.roles, roleConfig),
+    ...DEMO_USER,
+    permissions: calculatePermissionsFromRoles(DEMO_USER.roles, ROLE_CONFIG),
   };
 
   return (
@@ -248,7 +289,7 @@ function AppWithThemeProvider() {
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
         <AppProvider
-          initialRoleConfig={roleConfig}
+          initialRoleConfig={ROLE_CONFIG}
           initialUser={userWithPermissions}
         >
           <AppWithMockToggle />

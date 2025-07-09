@@ -252,7 +252,7 @@ describe("TemplateMockGenerator", () => {
                   schema: { type: "string" },
                   "x-mock-filter": {
                     field: "isActive",
-                    strategy: "boolean-inverse",
+                    strategy: "boolean-choice",
                   },
                 },
               ],
@@ -268,7 +268,7 @@ describe("TemplateMockGenerator", () => {
       expect(listOp?.filters).toHaveLength(1);
       expect(listOp?.filters[0].name).toBe("status");
       expect(listOp?.filters[0].field).toBe("isActive");
-      expect(listOp?.filters[0].config?.strategy).toBe("boolean-inverse");
+      expect(listOp?.filters[0].config?.strategy).toBe("boolean-choice");
     });
 
     it("should handle x-mock-response discrimination", () => {

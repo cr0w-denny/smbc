@@ -22,8 +22,9 @@
  * - What query parameters to always include (apiParams)
  */
 
-import { apiClient } from "@smbc/user-management-api/client";
+import { getApiClient } from "@smbc/applet-core";
 import type { components } from "@smbc/user-management-api/generated/types";
+import type { paths } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 
@@ -61,7 +62,7 @@ interface ApiResponse {
  */
 export const createApiConfig = (userType: "all" | "admins" | "non-admins") => ({
   endpoint: "/users" as const,
-  client: apiClient,
+  client: getApiClient<paths>("user-management"),
   // CUSTOM RESPONSE ADAPTERS EXAMPLE:
   // Extracts the users array from the TypeSpec-defined UserList response structure
   // The API returns { users: User[], total: number, page: number, pageSize: number }

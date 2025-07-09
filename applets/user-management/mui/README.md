@@ -2,12 +2,6 @@
 
 React MUI applet for user management operations.
 
-## Installation
-
-```bash
-npm install @smbc/user-management-mui
-```
-
 ## Features
 
 - Full CRUD operations (Create, Read, Update, Delete)
@@ -46,12 +40,12 @@ The applet defines these permissions:
 
 ```typescript
 const permissionMappings = {
-  'user-management': {
-    'VIEW_USERS': ['Staff', 'Admin'],
-    'EDIT_USERS': ['Admin'],
-    'DELETE_USERS': ['Admin']
-  }
-}
+  "user-management": {
+    VIEW_USERS: ["Staff", "Admin"],
+    EDIT_USERS: ["Admin"],
+    DELETE_USERS: ["Admin"],
+  },
+};
 ```
 
 ## Development

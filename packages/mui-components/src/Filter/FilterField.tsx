@@ -74,8 +74,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             value={value === undefined ? "" : value}
             onChange={(e) => {
               const newValue = e.target.value;
-              // If selecting an empty option, pass undefined for "select all"
-              handleChange(newValue === "" ? undefined : newValue);
+              handleChange(newValue);
             }}
             label={field.label}
             displayEmpty

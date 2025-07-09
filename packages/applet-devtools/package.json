@@ -37,6 +37,10 @@
     "@smbc/applet-core": "*",
     "@tanstack/react-query": "^5.0.0",
     "msw": "^2.2.0",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "@mui/material": "^7.1.2",
+    "@mui/icons-material": "^7.1.2",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0"
   }
 }

@@ -16,7 +16,7 @@ import { fileURLToPath } from "url";
 import { glob } from "glob";
 import chalk from "chalk";
 import { table } from "table";
-import { CORE_DEPS, SMBC_PACKAGES } from "./shared-deps.js";
+import { CORE_DEPS, SMBC_PACKAGES } from "../../packages/shared-deps/src/index.js";
 
 interface PackageJson {
   name?: string;

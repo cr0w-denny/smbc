@@ -40,6 +40,45 @@ export function TransactionProvider({
     };
   }, []);
 
+  // Clear all transactions when navigating away
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      const hasActiveTransactions = TransactionRegistry.getAllManagers().some(
+        manager => manager.getOperations().length > 0
+      );
+      
+      if (hasActiveTransactions) {
+        // Cancel all pending transactions
+        TransactionRegistry.cancelAll();
+        
+        // Show browser confirmation dialog
+        const message = "You have unsaved changes. Are you sure you want to leave?";
+        event.returnValue = message;
+        return message;
+      }
+    };
+
+    const handleHashChange = () => {
+      const hasActiveTransactions = TransactionRegistry.getAllManagers().some(
+        manager => manager.getOperations().length > 0
+      );
+      
+      if (hasActiveTransactions) {
+        // Cancel all pending transactions on hash navigation
+        TransactionRegistry.cancelAll();
+        console.log("Cancelled all transactions due to navigation");
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
   const contextValue = {
     managers: new Map(), // Not used with global registry
     registerManager: TransactionRegistry.register.bind(TransactionRegistry),

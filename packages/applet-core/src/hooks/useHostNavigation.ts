@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { AppletMount, HostRoute, MenuNavigationSection } from './types';
+import type { AppletMount, HostRoute, MenuNavigationSection } from '../types';
 
 export interface UseHostNavigationOptions {
   applets: AppletMount[];

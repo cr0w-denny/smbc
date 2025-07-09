@@ -11,6 +11,9 @@ export type { ApiDocsModalProps } from './ApiDocsModal';
 export { DevDashboard } from './DevDashboard';
 export type { DevDashboardProps } from './DevDashboard';
 
+export { InstallationModal } from './InstallationModal/InstallationModal';
+export { MarkdownRenderer } from './InstallationModal/MarkdownRenderer';
+
 // Role management dev tools
 export {
   DashboardHeader,
@@ -35,5 +38,6 @@ export {
   isMswAvailable,
   userManagementHandlers,
   productCatalogHandlers,
+  resetAllMocks,
 } from '@smbc/applet-devtools';
 export type { ApiConfig } from '@smbc/applet-devtools';

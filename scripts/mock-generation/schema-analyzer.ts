@@ -391,7 +391,7 @@ export class SchemaAnalyzer {
       case "email":
         return "faker.internet.email()";
       case "username":
-        return "faker.internet.username()";
+        return "faker.internet.userName()";
       case "firstName":
         return "faker.person.firstName()";
       case "lastName":

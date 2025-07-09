@@ -32,8 +32,8 @@
     if ({{name}} !== null) {
       filteredItems = filteredItems.filter((item: any) => {
 {{#if config}}
-        {{!-- Boolean inverse strategy: map 'active'/'inactive' to true/false --}}
-        {{#if (eq config.strategy "boolean-inverse")}}
+        {{!-- Boolean choice strategy: map string choices like 'active'/'inactive' to true/false --}}
+        {{#if (eq config.strategy "boolean-choice")}}
         const fieldValue = item.{{config.field}};
         return ({{name}} === 'active' && fieldValue) || ({{name}} === 'inactive' && !fieldValue);
         {{else}}

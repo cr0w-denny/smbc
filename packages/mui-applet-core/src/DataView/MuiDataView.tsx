@@ -114,7 +114,42 @@ function MuiDataTable<T extends Record<string, any>>({
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((item, index) => {
+          {/* Merge pending created items with existing data */}
+          {(() => {
+            let displayData = [...data];
+            
+            // If we have an active transaction, prepend pending created items
+            if (transactionState?.hasActiveTransaction && transactionState.pendingStates) {
+              const pendingCreatedItems: T[] = [];
+              
+              transactionState.pendingStates.forEach((stateInfo, id) => {
+                // For 'added' state, always include
+                if (stateInfo.state === 'added' && stateInfo.data) {
+                  // Only add if this item isn't already in the data (shouldn't happen but be safe)
+                  if (!data.some(item => item[primaryKey] === id)) {
+                    pendingCreatedItems.push({
+                      ...stateInfo.data,
+                      [primaryKey]: id
+                    } as T);
+                  }
+                }
+                // For 'edited' state, only include if the item doesn't exist in regular data
+                // (meaning it was originally a pending created item that got edited)
+                else if (stateInfo.state === 'edited' && stateInfo.data) {
+                  if (!data.some(item => item[primaryKey] === id)) {
+                    pendingCreatedItems.push({
+                      ...stateInfo.data,
+                      [primaryKey]: id
+                    } as T);
+                  }
+                }
+              });
+              
+              // Prepend pending created items to the beginning
+              displayData = [...pendingCreatedItems, ...displayData];
+            }
+            
+            return displayData.map((item, index) => {
             // Get pending state from transaction state (if any)
             const entityId = item[primaryKey] as string | number;
             const pendingStateInfo = transactionState?.hasActiveTransaction
@@ -239,7 +274,8 @@ function MuiDataTable<T extends Record<string, any>>({
                 )}
               </TableRow>
             );
-          })}
+          });
+          })()}
         </TableBody>
       </Table>
     </TableContainer>

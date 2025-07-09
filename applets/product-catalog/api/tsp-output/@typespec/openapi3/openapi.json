@@ -50,6 +50,15 @@
               "type": "string"
             },
             "explode": false
+          },
+          {
+            "name": "inStock",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "explode": false
           }
         ],
         "responses": {

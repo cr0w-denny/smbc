@@ -4,7 +4,7 @@
  * as defined in shared-deps.js
  */
 
-import { CORE_DEPS, SMBC_PACKAGES } from './shared-deps.js';
+import { CORE_DEPS, SMBC_PACKAGES } from '../../packages/shared-deps/src/index.js';
 
 interface DependencyGroup {
   dependencies: Record<string, string>;

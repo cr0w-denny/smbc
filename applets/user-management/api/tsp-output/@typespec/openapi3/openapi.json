@@ -89,6 +89,23 @@
             "explode": false
           },
           {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "x-mock-filter": {
+                "field": "username",
+                "strategy": "partial-match"
+              }
+            },
+            "x-mock-filter": {
+              "field": "username",
+              "strategy": "partial-match"
+            },
+            "explode": false
+          },
+          {
             "name": "isAdmin",
             "in": "query",
             "required": false,
@@ -134,12 +151,12 @@
               ],
               "x-mock-filter": {
                 "field": "isActive",
-                "strategy": "boolean-inverse"
+                "strategy": "boolean-choice"
               }
             },
             "x-mock-filter": {
               "field": "isActive",
-              "strategy": "boolean-inverse"
+              "strategy": "boolean-choice"
             },
             "explode": false
           },
@@ -345,11 +362,15 @@
       "CreateUserRequest": {
         "type": "object",
         "required": [
+          "username",
           "email",
           "firstName",
           "lastName"
         ],
         "properties": {
+          "username": {
+            "type": "string"
+          },
           "email": {
             "type": "string"
           },
@@ -384,6 +405,9 @@
       "UpdateUserRequest": {
         "type": "object",
         "properties": {
+          "username": {
+            "type": "string"
+          },
           "firstName": {
             "type": "string"
           },
@@ -400,6 +424,7 @@
         "type": "object",
         "required": [
           "id",
+          "username",
           "email",
           "firstName",
           "lastName",
@@ -413,6 +438,13 @@
             "type": "string",
             "x-mock-data": {
               "faker": "string.uuid"
+            }
+          },
+          "username": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "internet.userName",
+              "unique": true
             }
           },
           "email": {
@@ -471,6 +503,7 @@
         "type": "object",
         "required": [
           "id",
+          "username",
           "email",
           "firstName",
           "lastName",
@@ -486,6 +519,13 @@
             "type": "string",
             "x-mock-data": {
               "faker": "string.uuid"
+            }
+          },
+          "username": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "internet.userName",
+              "unique": true
             }
           },
           "email": {
@@ -585,12 +625,16 @@
         "type": "object",
         "required": [
           "id",
+          "username",
           "name",
           "email",
           "status"
         ],
         "properties": {
           "id": {
+            "type": "string"
+          },
+          "username": {
             "type": "string"
           },
           "name": {

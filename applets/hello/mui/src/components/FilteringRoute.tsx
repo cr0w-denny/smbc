@@ -12,7 +12,7 @@ export const FilteringRoute: React.FC = () => {
       assignee: "",
       category: "",
     },
-    {}, // No pagination needed for this demo
+    {},
   );
   return (
     <Box sx={{ mt: 4 }}>

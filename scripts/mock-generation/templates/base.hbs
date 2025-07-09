@@ -28,6 +28,17 @@ async function delay() {
 
 {{/each}}
 
+// Reset function to clear all data stores and initialization flags
+export function resetMocks() {
+{{#each schemas}}
+  // Reset {{name}} data
+  {{lowerName}}DataStore.clear();
+  {{lowerName}}DataInitialized = false;
+{{/each}}
+  
+  console.log('{{apiName}} mock data stores reset');
+}
+
 // Export MSW handlers
 export const handlers = [
 {{#each operations}}

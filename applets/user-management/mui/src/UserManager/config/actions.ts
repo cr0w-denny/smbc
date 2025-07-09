@@ -38,6 +38,8 @@ export const createActionsConfig = (
       label: "Edit",
       icon: EditIcon,
       color: "primary" as const,
+      // Hide edit for items that are pending deletion
+      hidden: (user: any) => Boolean(user.__pendingDelete),
       // onClick handled by MuiDataViewApplet
     });
   }
@@ -49,6 +51,8 @@ export const createActionsConfig = (
       label: "Delete",
       icon: DeleteIcon,
       color: "error" as const,
+      // Hide delete for items that are already pending deletion
+      hidden: (user: any) => Boolean(user.__pendingDelete),
       // onClick handled by MuiDataViewApplet
     });
   }

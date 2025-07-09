@@ -12,8 +12,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
-import { apiClient } from "@smbc/user-management-api/client";
-import type { components } from "@smbc/user-management-api/generated/types";
+import { getApiClient } from "@smbc/applet-core";
+import type { components, paths } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 
@@ -54,7 +54,7 @@ export const UserProfile: FC<UserProfileProps> = ({
   } = useQuery({
     queryKey: ['user', userId || 'current'],
     queryFn: async () => {
-      const result = await apiClient.GET("/users/{id}", {
+      const result = await getApiClient<paths>("user-management").GET("/users/{id}", {
         params: { path: { id: userId || "current" } },
       });
       

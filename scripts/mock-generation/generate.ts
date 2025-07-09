@@ -1,8 +1,9 @@
 #!/usr/bin/env tsx
 
 // CLI tool for generating mocks using the template-based approach
+/// <reference types="node" />
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { resolve, dirname, join } from "path";
+import { resolve, dirname } from "path";
 import {
   TemplateMockGenerator,
   type TemplateConfig,
@@ -156,6 +157,5 @@ Examples:
   writeFileSync(resolve(options.output), mockCode, "utf-8");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
+// Run main function when script is executed directly
+main();

@@ -59,6 +59,7 @@ export function mountApplet(
     path: string;
     icon?: any;
     permissions?: any[];
+    apiBaseUrl?: string;
   }
 ): AppletMount {
   if (!applet.component) {
@@ -69,6 +70,7 @@ export function mountApplet(
     id: config.id,
     label: config.label,
     apiSpec: applet.apiSpec,
+    apiBaseUrl: config.apiBaseUrl,
     getHostNavigation: applet.getHostNavigation,
     routes: [
       {

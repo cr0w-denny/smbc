@@ -8,8 +8,8 @@ import {
   createBulkDeleteAction,
   createBulkUpdateAction,
 } from "@smbc/react-query-dataview";
-import { apiClient } from "@smbc/user-management-api/client";
-import type { components } from "@smbc/user-management-api/generated/types";
+import { getApiClient } from "@smbc/applet-core";
+import type { components, paths } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 
@@ -30,7 +30,7 @@ export const createBulkActionsConfig = (permissions: {
     const activateAction = createBulkUpdateAction<User>(
       async (id: string | number, data: Partial<User>) => {
         // Use the generated API client to update the user
-        const result = await apiClient.PATCH("/users/{id}", {
+        const result = await getApiClient<paths>("user-management").PATCH("/users/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -60,7 +60,7 @@ export const createBulkActionsConfig = (permissions: {
     const deactivateAction = createBulkUpdateAction<User>(
       async (id: string | number, data: Partial<User>) => {
         // Use the generated API client to update the user
-        const result = await apiClient.PATCH("/users/{id}", {
+        const result = await getApiClient<paths>("user-management").PATCH("/users/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -91,7 +91,7 @@ export const createBulkActionsConfig = (permissions: {
     const deleteAction = createBulkDeleteAction<User>(
       async (id: string | number) => {
         // Use the generated API client to delete the user
-        const result = await apiClient.DELETE("/users/{id}", {
+        const result = await getApiClient<paths>("user-management").DELETE("/users/{id}", {
           params: { path: { id: id as string } },
         });
 

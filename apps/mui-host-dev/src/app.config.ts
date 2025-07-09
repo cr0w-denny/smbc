@@ -11,6 +11,9 @@ import {
   Language as LanguageIcon,
 } from "@mui/icons-material";
 
+// API Configuration
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1";
+
 // Import applets directly from source during development
 import userManagementApplet from "../../../applets/user-management/mui/src";
 import productCatalogApplet from "../../../applets/product-catalog/mui/src";
@@ -21,7 +24,7 @@ import demoTasksApplet from "./demo";
 // DEMO USER CONFIGURATION
 // =============================================================================
 
-export const demoUser = {
+export const DEMO_USER = {
   id: "1",
   email: "staff@smbc.com",
   name: "Demo Staff",
@@ -114,7 +117,7 @@ const permissionRequirements = createPermissionRequirements({
 });
 
 // Auto-generate the verbose permission mappings
-export const roleConfig: RoleConfig = {
+export const ROLE_CONFIG: RoleConfig = {
   roles: [...HOST_ROLES],
   permissionMappings: generatePermissionMappings(
     HOST_ROLES,
@@ -147,6 +150,7 @@ export const APPLETS: AppletMount[] = [
     id: "user-management",
     label: "User Management",
     apiSpec: userManagementApplet.apiSpec,
+    apiBaseUrl: `${API_BASE_URL}/user-management`, // Full namespaced URL
     routes: [
       {
         path: "/user-management",
@@ -165,6 +169,7 @@ export const APPLETS: AppletMount[] = [
     id: "admin-users",
     label: "Admin Users",
     apiSpec: userManagementApplet.apiSpec,
+    apiBaseUrl: `${API_BASE_URL}/user-management`, // Same API as user-management
     routes: [
       {
         path: "/admin/users",
@@ -181,6 +186,7 @@ export const APPLETS: AppletMount[] = [
     path: "/product-catalog",
     icon: InventoryIcon,
     permissions: [productCatalogApplet.permissions.VIEW_PRODUCTS],
+    apiBaseUrl: `${API_BASE_URL}/product-catalog`, // Full namespaced URL
   }),
   mountApplet(helloApplet, {
     id: "hello",

@@ -1,5 +1,5 @@
 // Generated mock handlers for User Management API
-// Generated at: 2025-07-07T01:57:36.425Z
+// Generated at: 2025-07-08T16:17:11.139Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 
 // Configuration for mock responses
 const mockConfig = {
-  baseUrl: '/api/v1',
+  baseUrl: '*/api/v1/user-management', // Use wildcard to match any host with applet namespace
   delay: { min: 0, max: 200 },
   errorRate: 0.05,
   dataSetSize: { min: 10, max: 50 },
@@ -32,6 +32,7 @@ let createuserrequestDataInitialized = false;
 // Mock generator for CreateUserRequest
 function generateCreateUserRequest(overrides = {}) {
   return {
+    username: faker.internet.userName(),
     email: faker.internet.email(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
@@ -116,6 +117,7 @@ let updateuserrequestDataInitialized = false;
 // Mock generator for UpdateUserRequest
 function generateUpdateUserRequest(overrides = {}) {
   return {
+    username: faker.internet.userName(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     isActive: faker.datatype.boolean(),
@@ -159,6 +161,7 @@ let userDataInitialized = false;
 function generateUser(overrides = {}) {
   return {
     id: faker.string.uuid(),
+    username: faker.helpers.unique(() => faker.internet.userName()),
     email: faker.helpers.unique(() => faker.internet.email()),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
@@ -202,6 +205,7 @@ function transformUserToSchema(item: any, targetSchema: string): any {
       return {
         ...generatedUserSummary,
         id: item.id,
+        username: item.username,
         name: `${item.firstName} ${item.lastName}`,
         email: item.email,
         status: item.isActive ? "active" : "inactive",
@@ -232,6 +236,7 @@ let userdetailedDataInitialized = false;
 function generateUserDetailed(overrides = {}) {
   return {
     id: faker.string.uuid(),
+    username: faker.helpers.unique(() => faker.internet.userName()),
     email: faker.helpers.unique(() => faker.internet.email()),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
@@ -324,6 +329,7 @@ let usersummaryDataInitialized = false;
 function generateUserSummary(overrides = {}) {
   return {
     id: faker.number.int({ min: 1, max: 100000 }),
+    username: faker.internet.userName(),
     name: faker.person.fullName(),
     email: faker.internet.email(),
     status: faker.helpers.arrayElement(["active", "inactive", "pending"]),
@@ -356,6 +362,33 @@ function getAllUserSummarys(): any[] {
 
 
 
+// Reset function to clear all data stores and initialization flags
+export function resetMocks() {
+  // Reset CreateUserRequest data
+  createuserrequestDataStore.clear();
+  createuserrequestDataInitialized = false;
+  // Reset ErrorResponse data
+  errorresponseDataStore.clear();
+  errorresponseDataInitialized = false;
+  // Reset UpdateUserRequest data
+  updateuserrequestDataStore.clear();
+  updateuserrequestDataInitialized = false;
+  // Reset User data
+  userDataStore.clear();
+  userDataInitialized = false;
+  // Reset UserDetailed data
+  userdetailedDataStore.clear();
+  userdetailedDataInitialized = false;
+  // Reset UserList data
+  userlistDataStore.clear();
+  userlistDataInitialized = false;
+  // Reset UserSummary data
+  usersummaryDataStore.clear();
+  usersummaryDataInitialized = false;
+  
+  console.log('User Management API mock data stores reset');
+}
+
 // Export MSW handlers
 export const handlers = [
   // get /users - Get all users with pagination
@@ -378,6 +411,7 @@ export const handlers = [
         const sortBy = url.searchParams.get('sortBy');
         const sortOrder = url.searchParams.get('sortOrder') || 'asc';
         const search = url.searchParams.get('search');
+        const username = url.searchParams.get('username');
         const isAdmin = url.searchParams.get('isAdmin');
         const email = url.searchParams.get('email');
         const status = url.searchParams.get('status');
@@ -396,8 +430,14 @@ export const handlers = [
           );
         }
     
+        // Apply username filter
+        if (username && username.trim()) {
+          filteredItems = filteredItems.filter((item: any) => {
+            return item.username?.toString().toLowerCase().includes(username.toLowerCase());
+          });
+        }
         // Apply isAdmin filter
-        if (isAdmin !== null) {
+        if (isAdmin && isAdmin.trim()) {
           filteredItems = filteredItems.filter((item: any) => {
             if (isAdmin === 'true' || isAdmin === 'false') {
               return item.isAdmin === (isAdmin === 'true');
@@ -406,13 +446,13 @@ export const handlers = [
           });
         }
         // Apply email filter
-        if (email !== null) {
+        if (email && email.trim()) {
           filteredItems = filteredItems.filter((item: any) => {
             return item.email?.toString().toLowerCase().includes(email.toLowerCase());
           });
         }
         // Apply status filter
-        if (status !== null) {
+        if (status && status.trim()) {
           filteredItems = filteredItems.filter((item: any) => {
             const fieldValue = item.isActive;
             return (status === 'active' && fieldValue) || (status === 'inactive' && !fieldValue);

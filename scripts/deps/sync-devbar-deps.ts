@@ -8,7 +8,7 @@
 import { readFileSync, writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { CORE_PEER_DEPS } from "./shared-deps.js";
+import { CORE_PEER_DEPS } from "../../packages/shared-deps/src/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const devBarPath = join(__dirname, "../packages/mui-components/src/DevHostAppBar.tsx");

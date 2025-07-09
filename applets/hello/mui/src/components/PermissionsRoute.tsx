@@ -26,7 +26,7 @@ export const PermissionsRoute: React.FC<PermissionsRouteProps> = ({
             How Permissions Work
           </Typography>
           <Typography variant="body1" sx={{ mb: 2 }}>
-            SMBC uses a{" "}
+            SMBC applets use a{" "}
             <strong>hierarchical role-based permission system</strong> where
             permissions are mapped to minimum required roles. Each applet
             defines its own permissions, and hosts map these to their role

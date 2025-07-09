@@ -64,7 +64,8 @@ interface Products {
     @query page?: int32 = 1,
     @query pageSize?: int32 = 10,
     @query category?: string,
-    @query search?: string
+    @query search?: string,
+    @query inStock?: boolean
   ): ProductList | ErrorResponse;
 
   @post

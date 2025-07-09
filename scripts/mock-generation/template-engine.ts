@@ -97,7 +97,7 @@ export interface FilterContext {
   field: string;
   isBooleanField: boolean;
   config?: {
-    strategy: "exact" | "partial-match" | "boolean-inverse";
+    strategy: "exact" | "partial-match" | "boolean-choice";
     field: string;
   };
 }
@@ -171,6 +171,11 @@ export class TemplateEngine {
       if (str.endsWith("s") || str.endsWith("sh") || str.endsWith("ch"))
         return str + "es";
       return str + "s";
+    });
+
+    // Helper for camelCase conversion
+    this.handlebars.registerHelper("camelCase", (str: string) => {
+      return str.charAt(0).toLowerCase() + str.slice(1);
     });
   }
 

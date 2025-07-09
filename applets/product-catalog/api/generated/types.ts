@@ -101,6 +101,7 @@ export interface operations {
                 pageSize?: number;
                 category?: string;
                 search?: string;
+                inStock?: boolean;
             };
             header?: never;
             path?: never;

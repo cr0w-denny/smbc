@@ -174,6 +174,7 @@ export interface AppletMount {
     name: string;
     spec: any;
   };
+  apiBaseUrl?: string; // Optional API base URL for this applet
   getHostNavigation?: (
     mountPath: string, 
     hasAnyPermission: (appletId: string, permissions: string[]) => boolean,

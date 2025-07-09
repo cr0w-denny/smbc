@@ -21,6 +21,11 @@ type UserWithOptionalFields = User & {
  */
 export const createColumnsConfig = () => [
   {
+    key: "username",
+    label: "Username",
+    sortable: true,
+  },
+  {
     key: "firstName",
     label: "First Name",
     sortable: true,
@@ -107,6 +112,7 @@ export const getActiveColumns = (
 ) => {
   // Default columns (summary view)
   const defaultColumns = [
+    "username",
     "firstName",
     "lastName",
     "email",
@@ -117,6 +123,7 @@ export const getActiveColumns = (
 
   // Additional columns for detailed view
   const detailedColumns = [
+    "username",
     "firstName",
     "lastName",
     "email",

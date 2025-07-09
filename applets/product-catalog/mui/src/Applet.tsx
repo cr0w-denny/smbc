@@ -40,11 +40,11 @@ import {
   TablePagination,
 } from "@mui/material";
 import { Add, Edit, Delete, Inventory } from "@mui/icons-material";
-import { LoadingTable, EmptyState, SearchInput } from "@smbc/mui-components";
-import { apiClient } from "@smbc/product-catalog-api/client";
-import type { components } from "@smbc/product-catalog-api/generated/types";
-import { useHashParams } from "@smbc/applet-core";
+import { LoadingTable, EmptyState, Filter } from "@smbc/mui-components";
+import type { components, paths } from "@smbc/product-catalog-api/generated/types";
+import { useHashParams, getApiClient } from "@smbc/applet-core";
 import { useQuery } from "@tanstack/react-query";
+import { createProductFiltersConfig, transformProductFilters } from "./config/filters";
 
 // Define types from the client
 type Product = components["schemas"]["Product"];
@@ -55,6 +55,7 @@ interface ProductsQuery {
   pageSize?: number;
   category?: string;
   search?: string;
+  inStock?: boolean;
 }
 
 const getStatusChip = (inStock: boolean) => {
@@ -102,6 +103,7 @@ export function Applet({
     { 
       search: searchQuery || "",
       category: categoryFilter || "",
+      inStock: undefined,
     },
     { 
       page: 0, 
@@ -112,43 +114,45 @@ export function Applet({
   );
 
   // Use URL-synced search if not overridden by external prop
-  const effectiveSearch = React.useMemo(() => 
-    searchQuery !== undefined ? searchQuery : filters.search
-  , [searchQuery, filters.search]);
-  const effectiveCategory = React.useMemo(() => 
-    categoryFilter !== undefined ? categoryFilter : filters.category
-  , [categoryFilter, filters.category]);
+  const effectiveFilters = React.useMemo(() => ({
+    search: searchQuery !== undefined ? searchQuery : filters.search,
+    category: categoryFilter !== undefined ? categoryFilter : filters.category,
+    inStock: filters.inStock,
+  }), [searchQuery, filters.search, categoryFilter, filters.category, filters.inStock]);
 
-  // Handle search changes - update URL state
-  const handleSearchChange = useCallback((value: string) => {
-    setFilters({ search: value });
-    // Reset to first page when searching
+  // Filter configuration - stable reference
+  const filterConfig = React.useMemo(() => createProductFiltersConfig(), []);
+
+  // Handle filter changes - stable callback
+  const handleFiltersChange = useCallback((newFilters: any) => {
+    setFilters(newFilters);
+    // Reset to first page when filtering
     setPagination({ page: 0 });
   }, [setFilters, setPagination]);
 
-  const searchInput = React.useMemo(() => {
-    if (!showSearch || searchQuery !== undefined) return null;
-    
-    return (
-      <Box mb={2}>
-        <SearchInput
-          key="stable-search" // Stable key
-          value={effectiveSearch}
-          onChange={handleSearchChange}
-          placeholder="Search products by name, SKU, or description..."
-          fullWidth
+  // Always render filter container but conditionally show content
+  const filterComponent = (
+    <Box mb={2}>
+      {(showSearch && searchQuery === undefined) && (
+        <Filter 
+          key="product-catalog-filter" // Stable key to maintain component identity
+          spec={filterConfig}
+          values={effectiveFilters}
+          onFiltersChange={handleFiltersChange}
         />
-      </Box>
-    );
-  }, [showSearch, searchQuery, effectiveSearch, handleSearchChange]);
+      )}
+    </Box>
+  );
 
-  // Build query parameters using URL state
-  const queryParams: ProductsQuery = {
-    page: pagination.page + 1,
-    pageSize: pagination.pageSize,
-    ...(effectiveSearch && { search: effectiveSearch }),
-    ...(effectiveCategory && { category: effectiveCategory }),
-  };
+  // Build query parameters using URL state  
+  const queryParams: ProductsQuery = React.useMemo(() => {
+    const transformedFilters = transformProductFilters(effectiveFilters);
+    return {
+      page: pagination.page + 1,
+      pageSize: pagination.pageSize,
+      ...transformedFilters,
+    };
+  }, [effectiveFilters, pagination.page, pagination.pageSize]);
 
 
   // API queries using React Query + openapi-fetch
@@ -159,7 +163,7 @@ export function Applet({
   } = useQuery({
     queryKey: ['products', queryParams],
     queryFn: async () => {
-      const response = await apiClient.GET("/products", {
+      const response = await getApiClient<paths>("product-catalog").GET("/products", {
         params: {
           query: {
             page: queryParams.page || 1,
@@ -199,25 +203,13 @@ export function Applet({
     );
   }
 
-  if (isLoading) {
-    return (
-      <Box>
-        <Typography variant="h5" component="h2">
-          Products
-        </Typography>
-        <LoadingTable rows={5} columns={6} />
-      </Box>
-    );
-  }
-
   const products = productsData?.products || [];
   const total = productsData?.total || 0;
 
   return (
     <Box>
-      
-      {/* Search Section */}
-      {searchInput}
+      {/* Filter Section - Always render to maintain stable DOM structure */}
+      {filterComponent}
       
       <Box
         display="flex"
@@ -231,16 +223,31 @@ export function Applet({
           </Button>
         )}
       </Box>
-      {products.length === 0 ? (
+
+      {/* Loading state within consistent structure */}
+      {isLoading && (
+        <LoadingTable rows={5} columns={6} />
+      )}
+
+      {/* Error state */}
+      {error && (
+        <Alert severity="error">
+          Failed to load products. Please try again later.
+        </Alert>
+      )}
+
+      {/* Content when loaded and not loading */}
+      {!isLoading && !error && (
+        products.length === 0 ? (
         <EmptyState
           icon={<Inventory sx={{ fontSize: 64, color: "text.secondary" }} />}
-          title={effectiveSearch ? "No products found" : "No products yet"}
+          title={effectiveFilters.search ? "No products found" : "No products yet"}
           description={
-            effectiveSearch
+            effectiveFilters.search
               ? "Try adjusting your search criteria to find products."
               : "Get started by adding your first product to the catalog."
           }
-          type={effectiveSearch ? "search" : "create"}
+          type={effectiveFilters.search ? "search" : "create"}
           primaryAction={
             showCreate && onCreate
               ? {
@@ -250,10 +257,10 @@ export function Applet({
               : undefined
           }
           secondaryAction={
-            effectiveSearch && searchQuery === undefined
+            effectiveFilters.search && searchQuery === undefined
               ? {
-                  label: "Clear Search",
-                  onClick: () => setFilters({ search: "" }),
+                  label: "Clear Filters",
+                  onClick: () => setFilters({ search: "", category: undefined, inStock: undefined }),
                   variant: "outlined",
                 }
               : undefined
@@ -270,7 +277,7 @@ export function Applet({
                   <TableCell>Category</TableCell>
                   <TableCell align="right">Price</TableCell>
                   <TableCell>Status</TableCell>
-                  {showActions && <TableCell align="right">Actions</TableCell>}
+                  {showActions && (onEdit || onDelete) && <TableCell align="right">Actions</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -297,7 +304,7 @@ export function Applet({
                       ${Number(product.price).toFixed(2)}
                     </TableCell>
                     <TableCell>{getStatusChip(product.inStock)}</TableCell>
-                    {showActions && (
+                    {showActions && (onEdit || onDelete) && (
                       <TableCell align="right">
                         {onEdit && (
                           <IconButton
@@ -337,6 +344,7 @@ export function Applet({
             />
           )}
         </>
+        )
       )}
     </Box>
   );

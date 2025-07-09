@@ -112,20 +112,21 @@ export function createBulkUpdateAction<T extends { id: string | number }>(
     onClick: async (items: T[], context?: ActionContext) => {
       if (context?.addTransactionOperation) {
         for (const item of items) {
-          // Create updated entity with full original data plus updates for activity tracking
-          const updatedEntity = {
-            ...item,
-            ...updateData
+          // For bulk updates, we need to merge with existing item data to preserve all fields
+          // This is especially important for "added" items that have full data in pending state
+          const entityUpdate = {
+            ...item, // Start with the full item
+            ...updateData, // Apply the bulk update changes
+            id: item.id // Always include the primary key for identification
           } as T;
           
           context.addTransactionOperation(
             "update",
-            updatedEntity,
+            entityUpdate,
             () => {
               console.log('BulkUpdateHelper: mutation executing', {
                 itemId: item.id,
-                updateData,
-                updatedEntity
+                updateData
               });
               
               // Get the accumulated pending data at execution time

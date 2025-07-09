@@ -61,7 +61,10 @@ export function ActionBar<T>({
     const entityId = item[primaryKey] as string | number;
     const pendingState = transactionState.pendingStates.get(entityId);
     
-    if (pendingState?.state === "edited" && pendingState.data) {
+    if (pendingState?.state === "added" && pendingState.data) {
+      // For newly added items, use the pending data as the base
+      return { ...item, ...pendingState.data };
+    } else if (pendingState?.state === "edited" && pendingState.data) {
       // Merge pending changes for visibility calculations only
       return { ...item, ...pendingState.data };
     } else if (pendingState?.state === "deleted") {
@@ -76,6 +79,14 @@ export function ActionBar<T>({
   const availableBulkActions = bulkActions.filter((action) => {
     // Get effective items that include pending transaction state for visibility calculations
     const effectiveItems = selectedItems.map(getEffectiveItem);
+
+    console.log(`Bulk action ${action.key}:`, {
+      selectedItems: selectedItems.length,
+      effectiveItems: effectiveItems.map(item => ({ id: item[primaryKey], isActive: (item as any).isActive, __pendingDelete: (item as any).__pendingDelete })),
+      hidden: action.hidden?.(effectiveItems),
+      appliesTo: action.appliesTo ? effectiveItems.map(item => action.appliesTo!(item)) : 'no appliesTo',
+      requiresAllRows: action.requiresAllRows
+    });
 
     if (action.hidden?.(effectiveItems)) return false;
 

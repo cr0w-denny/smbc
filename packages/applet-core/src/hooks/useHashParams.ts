@@ -1,110 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 
-import { useApp } from "./AppContext";
-import type { PermissionDefinition } from "./permissions";
-
-// Hook for permission-based access control - for applets
-export const usePermissions = () => {
-  const { state, roleUtils } = useApp();
-  const userRoles = state.user?.roles ?? [roleUtils.roles[0]]; // Default to first role (usually Guest)
-
-  return {
-    hasPermission: (appletId: string, permission: PermissionDefinition) =>
-      roleUtils.hasPermission(userRoles, appletId, permission.id),
-    hasAnyPermission: (appletId: string, permissions: PermissionDefinition[]) =>
-      roleUtils.hasAnyPermission(
-        userRoles,
-        appletId,
-        permissions.map((p) => p.id),
-      ),
-    hasAllPermissions: (
-      appletId: string,
-      permissions: PermissionDefinition[],
-    ) =>
-      roleUtils.hasAllPermissions(
-        userRoles,
-        appletId,
-        permissions.map((p) => p.id),
-      ),
-  };
-};
-
-/**
- * Custom hook for hash-based navigation with query parameter support
- * Provides clean URLs like #/path?param=value instead of #?route=path&param=value
- *
- * @param mountPath Optional mount path for scoped navigation within applets
- * @returns Object with currentPath and navigateTo function
- *
- * @example
- * // Global navigation (for host system)
- * const { currentPath, navigateTo } = useHashNavigation();
- *
- * // Scoped navigation (for applets)
- * const { currentPath, navigateTo } = useHashNavigation("/user-management");
- */
-export function useHashNavigation(mountPath?: string) {
-  const [globalPath, setGlobalPath] = useState(() => {
-    // Extract path from hash (e.g., "#/user-management?param=value" -> "/user-management")
-    const hash = window.location.hash;
-    if (!hash || hash === "#") return "/";
-
-    const hashContent = hash.slice(1); // Remove the #
-    const queryIndex = hashContent.indexOf("?");
-    return queryIndex >= 0 ? hashContent.slice(0, queryIndex) : hashContent;
-  });
-
-  const globalNavigateTo = useCallback((path: string) => {
-    // Navigate to the new path, resetting any existing query parameters
-    window.location.hash = path;
-    setGlobalPath(path);
-  }, []);
-
-  // Listen for hash changes
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (!hash || hash === "#") {
-        setGlobalPath((prev) => prev === "/" ? prev : "/");
-        return;
-      }
-
-      const hashContent = hash.slice(1);
-      const queryIndex = hashContent.indexOf("?");
-      const path =
-        queryIndex >= 0 ? hashContent.slice(0, queryIndex) : hashContent;
-      
-      // Only update state if the path actually changed
-      setGlobalPath((prev) => prev === path ? prev : path);
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
-  // If mountPath is provided, return scoped navigation
-  if (mountPath) {
-    const currentPath = globalPath.startsWith(mountPath)
-      ? globalPath.slice(mountPath.length) || "/"
-      : "/";
-
-    const navigateTo = useCallback(
-      (relativePath: string) => {
-        const fullPath =
-          relativePath === "/" ? mountPath : `${mountPath}${relativePath}`;
-        globalNavigateTo(fullPath);
-      },
-      [mountPath, globalNavigateTo],
-    );
-
-    return { currentPath, navigateTo };
-  }
-
-  // Default: return global navigation
-  return { currentPath: globalPath, navigateTo: globalNavigateTo };
-}
-
-
 /**
  * Write-only URL hash synchronization hook (client-side routing format: #/path?param1=x&...)
  * 
@@ -116,10 +11,10 @@ export function useHashNavigation(mountPath?: string) {
  */
 export function useHashParams<
   TFilters extends Record<string, any>,
-  TPagination extends Record<string, any>,
+  TPagination extends Record<string, any> = {},
 >(
   defaultFilters: TFilters,
-  defaultPagination: TPagination,
+  defaultPagination?: TPagination,
   enabled: boolean = true,
   namespace?: string,
 ): {
@@ -135,17 +30,16 @@ export function useHashParams<
 } {
   // Memoize default values to prevent unnecessary re-renders
   const stableDefaultFilters = React.useMemo(() => defaultFilters, [JSON.stringify(defaultFilters)]);
-  const stableDefaultPagination = React.useMemo(() => defaultPagination, [JSON.stringify(defaultPagination)]);
+  const stableDefaultPagination = React.useMemo(() => defaultPagination || ({} as TPagination), [JSON.stringify(defaultPagination)]);
   // Track if this is the initial mount
   const isInitialMount = useRef(true);
   const debounceTimeout = useRef<NodeJS.Timeout>();
   
   // Track current state with refs to avoid unnecessary re-renders
   const currentFilters = useRef<TFilters>(defaultFilters);
-  const currentPagination = useRef<TPagination>(defaultPagination);
+  const currentPagination = useRef<TPagination>(stableDefaultPagination);
   
   
-
 
   // Helper to parse current hash params
   const parseHashParams = useCallback(() => {
@@ -180,9 +74,17 @@ export function useHashParams<
           continue;
         }
 
+        // Handle special string values that should be converted
+        let processedValue: any = value;
+        if (value === "undefined") {
+          processedValue = undefined;
+        } else if (value === "null") {
+          processedValue = null;
+        }
+
         try {
-          // Try to parse as JSON for complex values
-          const parsedValue = JSON.parse(value);
+          // Try to parse as JSON for complex values (but not for the special string "undefined")
+          const parsedValue = value === "undefined" ? undefined : JSON.parse(value);
 
           // Check if it's a filter key (exists in stableDefaultFilters)
           if (cleanKey in stableDefaultFilters) {
@@ -193,9 +95,9 @@ export function useHashParams<
             pagination[cleanKey] = parsedValue;
           }
         } catch {
-          // Fallback to string value, but coerce pagination numbers
+          // Fallback to processed value, but coerce pagination numbers
           if (cleanKey in stableDefaultFilters) {
-            filters[cleanKey] = value;
+            filters[cleanKey] = processedValue;
           } else if (cleanKey in stableDefaultPagination) {
             // Type coerce pagination values based on default type
             const defaultValue = (stableDefaultPagination as any)[cleanKey];
@@ -203,7 +105,7 @@ export function useHashParams<
               const numValue = parseInt(value, 10);
               pagination[cleanKey] = isNaN(numValue) ? defaultValue : numValue;
             } else {
-              pagination[cleanKey] = value;
+              pagination[cleanKey] = processedValue;
             }
           }
         }
@@ -298,23 +200,52 @@ export function useHashParams<
         // replaced by the current state. This ensures removed filters (like selecting "All") 
         // actually disappear from the URL.
 
-        // Add all filter params - just serialize current state, no clever logic
+        // Canonical function to check if a value matches its default
+        const isDefault = (value: any, defaultValue: any): boolean => {
+          // Handle undefined/null cases - if value is undefined and default is empty string (or vice versa), consider it default
+          if (value === undefined || value === null) {
+            return defaultValue === undefined || defaultValue === null || defaultValue === "";
+          }
+          
+          // Handle empty strings (common for text filters and "All" selections)
+          if (value === "") {
+            return defaultValue === "" || defaultValue === undefined || defaultValue === null;
+          }
+          
+          // Deep equality for objects/arrays
+          if (typeof value === "object" && typeof defaultValue === "object") {
+            return JSON.stringify(value) === JSON.stringify(defaultValue);
+          }
+          
+          // Simple equality for primitives
+          return value === defaultValue;
+        };
+
+        // Add filter params - only include non-default values
         Object.entries(newFilters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
-            const paramValue =
-              typeof value === "object" ? JSON.stringify(value) : String(value);
-            const namespacedKey = namespace ? `${namespace}_${key}` : key;
-            params.set(namespacedKey, paramValue);
+          const defaultValue = stableDefaultFilters[key];
+          if (!isDefault(value, defaultValue)) {
+            // Skip undefined values to prevent "undefined" strings in URL
+            if (value !== undefined) {
+              const paramValue =
+                typeof value === "object" ? JSON.stringify(value) : String(value);
+              const namespacedKey = namespace ? `${namespace}_${key}` : key;
+              params.set(namespacedKey, paramValue);
+            }
           }
         });
 
-        // Add all pagination params - just serialize current state  
+        // Add pagination params - only include non-default values
         Object.entries(newPagination).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
-            const paramValue =
-              typeof value === "object" ? JSON.stringify(value) : String(value);
-            const namespacedKey = namespace ? `${namespace}_${key}` : key;
-            params.set(namespacedKey, paramValue);
+          const defaultValue = stableDefaultPagination[key];
+          if (!isDefault(value, defaultValue)) {
+            // Skip undefined values to prevent "undefined" strings in URL
+            if (value !== undefined) {
+              const paramValue =
+                typeof value === "object" ? JSON.stringify(value) : String(value);
+              const namespacedKey = namespace ? `${namespace}_${key}` : key;
+              params.set(namespacedKey, paramValue);
+            }
           }
         });
 
@@ -360,7 +291,6 @@ export function useHashParams<
           typeof updates === "function"
             ? updates(prev)
             : { ...prev, ...updates };
-
 
 
         // Update ref
@@ -432,39 +362,4 @@ export function useHashParams<
     setPagination,
     syncHash,
   };
-}
-
-
-// Hook for user management
-export const useUser = () => {
-  const { state, actions, roleUtils } = useApp();
-
-  return {
-    user: state.user,
-    isAuthenticated: state.isAuthenticated,
-    setUser: actions.setUser,
-    setRoles: actions.setUserRoles,
-    availableRoles: roleUtils.roles,
-  };
-};
-
-interface UseLocalStoragePersistenceProps {
-  selectedRoles: string[];
-  persistRoles: boolean;
-  localStorageKey: string;
-}
-
-export function useLocalStoragePersistence({
-  selectedRoles,
-  persistRoles,
-  localStorageKey,
-}: UseLocalStoragePersistenceProps) {
-  // Save selected roles to localStorage whenever they change
-  useEffect(() => {
-    if (!persistRoles) return;
-
-    try {
-      localStorage.setItem(localStorageKey, JSON.stringify(selectedRoles));
-    } catch (error) {}
-  }, [selectedRoles, persistRoles, localStorageKey]);
 }

@@ -1,12 +1,12 @@
 // Generated mock handlers for Product Catalog API
-// Generated at: 2025-07-07T01:57:34.694Z
+// Generated at: 2025-07-08T16:26:55.286Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
 
 // Configuration for mock responses
 const mockConfig = {
-  baseUrl: '/api/v1',
+  baseUrl: '*/api/v1/product-catalog', // Use wildcard to match any host with applet namespace
   delay: { min: 0, max: 200 },
   errorRate: 0.05,
   dataSetSize: { min: 10, max: 50 },
@@ -243,6 +243,27 @@ function getAllUpdateProductRequests(): any[] {
 
 
 
+// Reset function to clear all data stores and initialization flags
+export function resetMocks() {
+  // Reset CreateProductRequest data
+  createproductrequestDataStore.clear();
+  createproductrequestDataInitialized = false;
+  // Reset ErrorResponse data
+  errorresponseDataStore.clear();
+  errorresponseDataInitialized = false;
+  // Reset Product data
+  productDataStore.clear();
+  productDataInitialized = false;
+  // Reset ProductList data
+  productlistDataStore.clear();
+  productlistDataInitialized = false;
+  // Reset UpdateProductRequest data
+  updateproductrequestDataStore.clear();
+  updateproductrequestDataInitialized = false;
+  
+  console.log('Product Catalog API mock data stores reset');
+}
+
 // Export MSW handlers
 export const handlers = [
   // get /products - GET /products
@@ -264,6 +285,7 @@ export const handlers = [
         const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
         const category = url.searchParams.get('category');
         const search = url.searchParams.get('search');
+        const inStock = url.searchParams.get('inStock');
         
         // Get dataset from persistent store
         const allItems = getAllProducts();
@@ -282,6 +304,15 @@ export const handlers = [
         if (category !== null) {
           filteredItems = filteredItems.filter((item: any) => {
             return item.category?.toString().toLowerCase().includes(category.toLowerCase());
+          });
+        }
+        // Apply inStock filter
+        if (inStock !== null) {
+          filteredItems = filteredItems.filter((item: any) => {
+            if (inStock === 'true' || inStock === 'false') {
+              return item.inStock === (inStock === 'true');
+            }
+            return false;
           });
         }
     

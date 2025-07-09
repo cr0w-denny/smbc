@@ -10,7 +10,7 @@ export const DataViewRoute: React.FC = () => {
             DataView Component
           </Typography>
 
-          <Typography variant="body1" sx={{ mb: 2 }}>
+          <Typography variant="body1" sx={{ my: 2 }}>
             DataView is SMBC's comprehensive solution for data-driven UIs. It
             combines{" "}
             <strong>
@@ -124,8 +124,8 @@ export const DataViewRoute: React.FC = () => {
                 simultaneously
               </li>
               <li>
-                <strong>Optimistic Update:</strong> UI updates immediately while
-                API calls process in background
+                <strong>Visual Feedback:</strong> UI shows pending changes immediately 
+                via overlay while API calls process in background
               </li>
             </ol>
           </Typography>
@@ -144,22 +144,29 @@ export const DataViewRoute: React.FC = () => {
               overflow: "auto",
             }}
           >
-            {`// Transaction configuration
-transactions: {
-  enabled: true,
-  actions: [
-    {
-      key: "bulk_update_status",
-      label: "Update Status",
-      optimisticUpdate: (entities, actionData) => ({
-        ...entities,
-        status: actionData.newStatus
-      }),
-      apiCall: (entityIds, actionData) => 
-        api.updateUserStatus(entityIds, actionData.newStatus)
+            {`// Transaction configuration in DataView
+options={{
+  transaction: {
+    enabled: true,
+    requireConfirmation: true,
+    allowPartialSuccess: true,
+    emitActivities: true
+  }
+}}
+
+// Bulk actions are configured separately
+bulkActions: [
+  {
+    key: "deactivate",
+    label: "Deactivate Selected",
+    confirmationTitle: "Deactivate Users?",
+    action: async (users) => {
+      // This creates transaction operations
+      // that are staged for review
+      return api.deactivateUsers(users.map(u => u.id));
     }
-  ]
-}`}
+  }
+]`}
           </Typography>
 
           <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>

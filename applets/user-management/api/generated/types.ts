@@ -47,6 +47,7 @@ export interface components {
     schemas: {
         /** @description User creation request */
         CreateUserRequest: {
+            username: string;
             email: string;
             firstName: string;
             lastName: string;
@@ -59,6 +60,7 @@ export interface components {
         };
         /** @description User update request */
         UpdateUserRequest: {
+            username?: string;
             firstName?: string;
             lastName?: string;
             isActive?: boolean;
@@ -66,6 +68,7 @@ export interface components {
         /** @description A user in the system */
         User: {
             id: string;
+            username: string;
             email: string;
             firstName: string;
             lastName: string;
@@ -79,6 +82,7 @@ export interface components {
         /** @description Detailed view of a user with computed fields */
         UserDetailed: {
             id: string;
+            username: string;
             email: string;
             firstName: string;
             lastName: string;
@@ -105,6 +109,7 @@ export interface components {
         /** @description Summary view of a user */
         UserSummary: {
             id: string;
+            username: string;
             name: string;
             email: string;
             /** @enum {string} */
@@ -127,6 +132,7 @@ export interface operations {
                 sortBy?: string;
                 sortOrder?: "asc" | "desc";
                 search?: string;
+                username?: string;
                 isAdmin?: string;
                 email?: string;
                 status?: "active" | "inactive";
