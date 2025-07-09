@@ -1,6 +1,5 @@
 import { FC, useRef } from "react";
-import { Box } from "@mui/material";
-import { AppletNavigation } from "@smbc/mui-components";
+import { Box, Tabs, Tab } from "@mui/material";
 import { useHashNavigation } from "@smbc/applet-core";
 import { UserManager } from "./UserManager";
 import { UserProfile } from "./UserProfile";
@@ -17,18 +16,18 @@ export interface AppletProps {
 
 /**
  * 🚀 Main User Management Applet Entry Point
- * 
+ *
  * This is the primary entry point for the user management applet.
  * It provides navigation between user management views and handles routing
  * within the applet. This component is automatically loaded when the applet
  * is mounted in an applet host.
- * 
+ *
  * Located at `src/Applet.tsx` for easy discoverability by developers.
- * 
+ *
  * @example
  * ```tsx
  * // Used automatically by applet host
- * <Applet 
+ * <Applet
  *   mountPath="/user-management"
  *   userType="all"
  *   permissionContext="admin-panel"
@@ -41,7 +40,7 @@ export const Applet: FC<AppletProps> = ({
   permissionContext = "user-management",
 }) => {
   const { currentPath, navigateTo } = useHashNavigation(mountPath);
-  
+
   // Store the previous URL (including query params) when navigating to profile
   const previousUrlRef = useRef<string | null>(null);
 
@@ -52,20 +51,22 @@ export const Applet: FC<AppletProps> = ({
     // Check for profile route with ID
     if (currentPath.startsWith("/profile/")) {
       const userId = currentPath.replace("/profile/", "");
-      return <UserProfile 
-        userId={userId} 
-        onBack={() => {
-          // If we have a stored previous URL, restore it; otherwise go to root
-          if (previousUrlRef.current) {
-            window.location.hash = previousUrlRef.current;
-            previousUrlRef.current = null;
-          } else {
-            navigateTo("/");
-          }
-        }} 
-      />;
+      return (
+        <UserProfile
+          userId={userId}
+          onBack={() => {
+            // If we have a stored previous URL, restore it; otherwise go to root
+            if (previousUrlRef.current) {
+              window.location.hash = previousUrlRef.current;
+              previousUrlRef.current = null;
+            } else {
+              navigateTo("/");
+            }
+          }}
+        />
+      );
     }
-    
+
     switch (currentPath) {
       case "/analytics":
         return <UserAnalytics />;
@@ -87,23 +88,15 @@ export const Applet: FC<AppletProps> = ({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Navigation - using tabs mode */}
+      {/* Navigation */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-        <AppletNavigation
-          currentPath={currentPath}
-          onNavigate={navigateTo}
-          routes={[
-            {
-              path: "/",
-              label: "User Management",
-            },
-            {
-              path: "/analytics",
-              label: "Analytics",
-            },
-          ]}
-          mode="tabs"
-        />
+        <Tabs
+          value={currentPath}
+          onChange={(_, newValue) => navigateTo(newValue)}
+        >
+          <Tab label="User Management" value="/" />
+          <Tab label="Analytics" value="/analytics" />
+        </Tabs>
       </Box>
 
       {/* Route content */}

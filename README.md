@@ -1,65 +1,53 @@
 # SMBC Applets Platform
 
-**Scalable, Type-Safe Architecture for Independent Business Modules**
+A monorepo containing React applets for business functionality. Each applet includes API definitions, generated TypeScript clients, UI components, and development mocks.
 
-A modern monorepo designed to scale enterprise applications through independent, self-contained **applets** while maintaining consistency, performance, and developer experience.
+## Architecture
 
-## 🏗️ Architecture Overview
-
-### The Applet System
-
-Each business domain is a complete, self-contained **applet** with standardized structure:
+Each business domain is implemented as an applet with:
 
 ```
-📱 Complete Business Domain
-├── 📋 API Definition (TypeSpec)
-├── 🔌 Generated Client (TypeScript + TanStack Query)
-├── 🎨 UI Components (Material-UI + React)
-├── ⚙️ Backend Service (Django/other)
-└── 🎭 Development Mocks (MSW + Faker.js)
+applets/domain-name/
+├── api/           # TypeSpec API definition
+├── api-client/    # Generated TypeScript client + mocks
+├── mui/           # React UI components
+└── django/        # Backend service
 ```
 
 ### Workspace Structure
 
 ```
 smbc/
-├── 📱 applets/                   # Business Domain Modules
-│   ├── user-management/          # Complete user domain
+├── applets/                   # Business Domain Modules
+│   ├── user-management/
 │   │   ├── api/                  # TypeSpec API definition
 │   │   ├── api-client/           # Generated TS client + mocks
 │   │   ├── mui/                  # React components
 │   │   └── django/               # Backend implementation
-│   └── product-catalog/          # Complete product domain
+│   └── product-catalog/
 │       └── ...                   # Same structure
-├── 🏠 apps/                      # Host Applications
-│   └── mui-host-dev/             # MUI-based host development environment
-├── 📦 packages/                  # Shared Infrastructure
-│   ├── shared-query-client/      # Single QueryClient for all applets
+├── apps/                      # Host Applications
+│   └── mui-host-dev/             # Development environment
+├── packages/                  # Shared Infrastructure
+│   ├── applet-query-client/      # Single QueryClient for all applets
 │   ├── mui-components/           # Shared MUI components
-│   ├── mui-applet-core/          # Core utilities + hooks for React-based SMBC applications
-│   ├── react-openapi-client/     # Shared API client utilities
-│   ├── msw-utils/                # Mock generation tools
-│   ├── design-tokens/            # Design token system
+│   ├── mui-applet-core/          # Core utilities for React applications
+│   ├── applet-dataview/          # Data view and transaction management
+│   ├── ui-core/            # Design token system
 │   └── create-applet/            # Applet creation CLI
-└── 📚 docs/                      # Architecture documentation
+└── docs/                      # Documentation
 ```
 
-## 🚦 Quick Start
+## Installation
 
 ```bash
-# Clone and install
-git clone ...
+git clone <repository>
 cd smbc
 npm install
-
-# Start all development servers
 npm run dev
-
-# Or start just the host
-npm run start:host
 ```
 
-### Key Commands
+### Commands
 
 ```bash
 # Development
@@ -75,20 +63,19 @@ npm run type-check       # TypeScript validation
 npm run create:applet
 ```
 
-## 📚 Package Documentation
+## Package Documentation
 
 ### Core Infrastructure
 
-- **[@smbc/shared-query-client](./packages/shared-query-client/README.md)** - Single QueryClient architecture
+- **[@smbc/applet-query-client](./packages/applet-query-client/README.md)** - Single QueryClient architecture
 - **[@smbc/mui-components](./packages/mui-components/README.md)** - Shared MUI components
-- **[@smbc/mui-applet-core](./packages/mui-applet-core/README.md)** - Core applet infrastructure
-- **[@smbc/react-openapi-client](./packages/react-openapi-client/README.md)** - Shared API client utilities
-- **[@smbc/msw-utils](./packages/msw-utils/README.md)** - Mock generation tools
-- **[@smbc/design-tokens](./packages/design-tokens/README.md)** - Design token system
-- **[@smbc/mui-host](./packages/mui-host/README.md)** - Easy setup for React apps with applet system
-- **[@smbc/create-applet](./packages/create-applet/README.md)** - Applet creation CLI
+- **[@smbc/applet-core](./packages/applet-core/README.md)** - Core applet infrastructure
+- **[@smbc/applet-dataview](./packages/applet-dataview/README.md)** - Data view and transaction management
+- **[@smbc/ui-core](./packages/ui-core/README.md)** - Design token system
+- **[@smbc/mui-applet-host](./packages/mui-applet-host/README.md)** - Host application setup
+- **[create-applet script](./scripts/create-applet/README.md)** - Applet creation CLI
 
 ### Example Applets
 
-- **[User Management](./applets/user-management/mui/README.md)** - Complete CRUD example
-- **[Product Catalog](./applets/product-catalog/mui/README.md)** - Product management example
+- **[User Management](./applets/user-management/mui/README.md)** - User CRUD operations
+- **[Product Catalog](./applets/product-catalog/mui/README.md)** - Product management

@@ -2,18 +2,18 @@
  * Pure UI types for Navigation components
  */
 
-import type { SvgIconTypeMap } from '@mui/material';
-import type { OverridableComponent } from '@mui/material/OverridableComponent';
+import type { SvgIconTypeMap } from "@mui/material";
+import type { OverridableComponent } from "@mui/material/OverridableComponent";
 
 export interface NavigationItemData {
   id: string;
   label: string;
   path?: string;
-  icon?: OverridableComponent<SvgIconTypeMap<{}, 'svg'>>;
+  icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
   badge?: {
     count?: number;
-    color?: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success';
-    variant?: 'standard' | 'dot';
+    color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
+    variant?: "standard" | "dot";
   };
   children?: NavigationItemData[];
   disabled?: boolean;
@@ -43,7 +43,7 @@ export interface NavigationDrawerProps {
   open: boolean;
   onClose: () => void;
   width: number;
-  variant?: 'permanent' | 'persistent' | 'temporary';
+  variant?: "permanent" | "persistent" | "temporary";
   title?: string;
   children: React.ReactNode;
 }

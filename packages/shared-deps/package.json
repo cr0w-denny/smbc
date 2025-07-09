@@ -1,0 +1,28 @@
+{
+  "name": "@smbc/shared-deps",
+  "version": "0.0.1",
+  "description": "Shared dependency versions for SMBC monorepo",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build": "npm run build:docs",
+    "build:docs": "tsx scripts/build-docs.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "marked": "^14.1.2",
+    "@types/marked": "^6.0.0",
+    "@types/node": "^20.11.17",
+    "tsx": "^4.20.3"
+  }
+}

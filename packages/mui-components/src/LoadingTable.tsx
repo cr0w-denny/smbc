@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Skeleton,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 
 export interface LoadingTableProps {
   /** Number of rows to show while loading */
@@ -46,10 +46,22 @@ export const LoadingTable: React.FC<LoadingTableProps> = ({
             <TableRow key={`row-${rowIndex}`}>
               {Array.from({ length: columns }).map((_, colIndex) => (
                 <TableCell key={`cell-${rowIndex}-${colIndex}`}>
-                  <Box sx={{ height: rowHeight - 20, display: 'flex', alignItems: 'center' }}>
-                    <Skeleton 
-                      variant="text" 
-                      width={colIndex === 0 ? '60%' : colIndex === columns - 1 ? '40%' : '80%'} 
+                  <Box
+                    sx={{
+                      height: rowHeight - 20,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Skeleton
+                      variant="text"
+                      width={
+                        colIndex === 0
+                          ? "60%"
+                          : colIndex === columns - 1
+                            ? "40%"
+                            : "80%"
+                      }
                     />
                   </Box>
                 </TableCell>

@@ -2,7 +2,7 @@
  * Pure NavigationItem component - no business logic, just UI
  */
 
-import React from 'react';
+import React from "react";
 import {
   ListItem,
   ListItemButton,
@@ -11,13 +11,9 @@ import {
   Collapse,
   Badge,
   useTheme,
-} from '@mui/material';
-import {
-  ExpandLess,
-  ExpandMore,
-  ChevronRight,
-} from '@mui/icons-material';
-import type { NavigationItemProps } from './types';
+} from "@mui/material";
+import { ExpandLess, ExpandMore, ChevronRight } from "@mui/icons-material";
+import type { NavigationItemProps } from "./types";
 
 export const NavigationItem: React.FC<NavigationItemProps> = ({
   item,
@@ -52,21 +48,21 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
       selected={isActive}
       sx={{
         pl: 2 + level * 2,
-        backgroundColor: isActive 
+        backgroundColor: isActive
           ? theme.palette.action.selected
-          : isParentOfActive 
+          : isParentOfActive
             ? theme.palette.action.hover
-            : 'transparent',
-        '&:hover': {
+            : "transparent",
+        "&:hover": {
           backgroundColor: theme.palette.action.hover,
         },
-        '&.Mui-selected': {
+        "&.Mui-selected": {
           backgroundColor: theme.palette.primary.main,
           color: theme.palette.primary.contrastText,
-          '&:hover': {
+          "&:hover": {
             backgroundColor: theme.palette.primary.dark,
           },
-          '& .MuiListItemIcon-root': {
+          "& .MuiListItemIcon-root": {
             color: theme.palette.primary.contrastText,
           },
         },
@@ -76,14 +72,10 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
       <ListItemIcon
         sx={{
           minWidth: 40,
-          color: isActive ? 'inherit' : theme.palette.action.active,
+          color: isActive ? "inherit" : theme.palette.action.active,
         }}
       >
-        {item.icon ? (
-          <item.icon />
-        ) : hasChildren ? (
-          <ChevronRight />
-        ) : null}
+        {item.icon ? <item.icon /> : hasChildren ? <ChevronRight /> : null}
       </ListItemIcon>
 
       {/* Text with badge */}
@@ -92,8 +84,8 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
           item.badge ? (
             <Badge
               badgeContent={item.badge.count}
-              color={item.badge.color || 'primary'}
-              variant={item.badge.variant || 'standard'}
+              color={item.badge.color || "primary"}
+              variant={item.badge.variant || "standard"}
             >
               {item.label}
             </Badge>
@@ -102,8 +94,8 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
           )
         }
         sx={{
-          '& .MuiListItemText-primary': {
-            fontSize: level > 0 ? '0.875rem' : '1rem',
+          "& .MuiListItemText-primary": {
+            fontSize: level > 0 ? "0.875rem" : "1rem",
             fontWeight: isActive ? 600 : 400,
           },
         }}
@@ -120,9 +112,7 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
 
   return (
     <>
-      <ListItem disablePadding>
-        {itemButton}
-      </ListItem>
+      <ListItem disablePadding>{itemButton}</ListItem>
 
       {/* Render children with collapse animation */}
       {hasChildren && (

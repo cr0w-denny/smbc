@@ -56,17 +56,17 @@ export const {{APPLET_PASCAL_CASE}}List: React.FC<{{APPLET_PASCAL_CASE}}ListProp
 
   const handleCreate = () => {
     // TODO: Implement create functionality
-    console.log('Create new {{APPLET_NAME}} item');
+
   };
 
   const handleEdit = (id: number) => {
     // TODO: Implement edit functionality
-    console.log('Edit {{APPLET_NAME}} item:', id);
+
   };
 
   const handleDelete = (id: number) => {
     // TODO: Implement delete functionality
-    console.log('Delete {{APPLET_NAME}} item:', id);
+
   };
 
   const handleView = (id: number) => {

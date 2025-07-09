@@ -1,10 +1,10 @@
 import { Chip } from "@mui/material";
-import { type components } from "@smbc/user-management-client";
+import type { components } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 
 /**
- * Extended user type with optional computed fields
+ * Extended user type with optional fields
  */
 type UserWithOptionalFields = User & {
   fullName?: string;
@@ -20,6 +20,11 @@ type UserWithOptionalFields = User & {
  * @returns Array of column configuration objects
  */
 export const createColumnsConfig = () => [
+  {
+    key: "username",
+    label: "Username",
+    sortable: true,
+  },
   {
     key: "firstName",
     label: "First Name",
@@ -107,6 +112,7 @@ export const getActiveColumns = (
 ) => {
   // Default columns (summary view)
   const defaultColumns = [
+    "username",
     "firstName",
     "lastName",
     "email",
@@ -117,6 +123,7 @@ export const getActiveColumns = (
 
   // Additional columns for detailed view
   const detailedColumns = [
+    "username",
     "firstName",
     "lastName",
     "email",

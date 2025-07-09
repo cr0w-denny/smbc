@@ -1,27 +1,42 @@
 {
   "name": "@smbc/{{APPLET_NAME}}-api",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "{{APPLET_DESCRIPTION}} - TypeSpec API Definition",
-  "type": "module",
   "main": "tsp-output/@typespec/openapi3/openapi.json",
+  "type": "module",
+  "exports": {
+    ".": "./tsp-output/@typespec/openapi3/openapi.json",
+    "./client": "./client.ts",
+    "./generated/types": "./generated/types.ts"
+  },
   "scripts": {
     "build": "tsp compile .",
-    "watch": "tsp compile . --watch",
-    "clean": "rimraf tsp-output"
+    "dev": "tsp compile . --watch",
+    "lint": "echo 'No linting configured for TypeSpec'",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf tsp-output generated",
+    "test": "echo 'No tests for API schemas'",
+    "generate:types": "openapi-typescript tsp-output/@typespec/openapi3/openapi.json -o generated/types.ts",
+    "generate:mocks": "../../../scripts/mock-generation/generate.ts --input tsp-output/@typespec/openapi3/openapi.json --output ../../../packages/applet-devtools/src/mocks/{{APPLET_NAME}}.ts --base-url /api/v1",
+    "generate:all": "npm run generate:types && npm run generate:mocks"
+  },
+  "dependencies": {
+    "@typespec/compiler": "^1.1.0",
+    "@typespec/http": "^1.1.0",
+    "@typespec/rest": "^0.71.0",
+    "@typespec/openapi3": "^1.1.0",
+    "@typespec/openapi": "^1.1.0",
+    "@smbc/typespec-core": "*"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.0.0",
+    "typescript": "^5.8.3"
   },
   "files": [
-    "main.tsp",
-    "tsp-output/**/*",
-    "tspconfig.yaml"
+    "tsp-output/@typespec/openapi3/openapi.json",
+    "client.ts",
+    "generated/types.ts"
   ],
-  "devDependencies": {
-    "@typespec/compiler": "latest",
-    "@typespec/http": "latest",
-    "@typespec/rest": "latest",
-    "@typespec/openapi": "latest",
-    "@typespec/openapi3": "latest",
-    "rimraf": "^5.0.0"
-  },
   "keywords": [
     "typespec",
     "openapi",

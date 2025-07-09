@@ -1,9 +1,13 @@
 #!/usr/bin/env tsx
 
 // CLI tool for generating mocks using the template-based approach
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { resolve, dirname, join } from 'path';
-import { TemplateMockGenerator, type TemplateConfig } from './template-generator.js';
+/// <reference types="node" />
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { resolve, dirname } from "path";
+import {
+  TemplateMockGenerator,
+  type TemplateConfig,
+} from "./template-generator.js";
 
 interface CLIOptions {
   input: string;
@@ -17,8 +21,8 @@ interface CLIOptions {
 function parseArgs(): CLIOptions {
   const args = process.argv.slice(2);
   const options: CLIOptions = {
-    input: '',
-    output: '',
+    input: "",
+    output: "",
   };
 
   for (let i = 0; i < args.length; i += 2) {
@@ -26,31 +30,30 @@ function parseArgs(): CLIOptions {
     const value = args[i + 1];
 
     switch (flag) {
-      case '--input':
-      case '-i':
+      case "--input":
+      case "-i":
         options.input = value;
         break;
-      case '--output':
-      case '-o':
+      case "--output":
+      case "-o":
         options.output = value;
         break;
-      case '--config':
-      case '-c':
+      case "--config":
+      case "-c":
         options.config = value;
         break;
-      case '--base-url':
+      case "--base-url":
         options.baseUrl = value;
         break;
-      case '--error-rate':
+      case "--error-rate":
         options.errorRate = parseFloat(value);
         break;
-      case '--verbose':
-      case '-v':
+      case "--verbose":
+      case "-v":
         options.verbose = true;
         i--; // No value for verbose flag
         break;
       default:
-        console.warn(`Unknown flag: ${flag}`);
     }
   }
 
@@ -59,7 +62,7 @@ function parseArgs(): CLIOptions {
 
 function loadConfig(configPath?: string): TemplateConfig {
   const defaultConfig: TemplateConfig = {
-    baseUrl: '',
+    baseUrl: "",
     delay: { min: 0, max: 200 },
     errorRate: 0.05,
     dataSetSize: { min: 10, max: 50 },
@@ -71,18 +74,17 @@ function loadConfig(configPath?: string): TemplateConfig {
   }
 
   try {
-    const configFile = readFileSync(resolve(configPath), 'utf-8');
+    const configFile = readFileSync(resolve(configPath), "utf-8");
     const userConfig = JSON.parse(configFile);
     return { ...defaultConfig, ...userConfig };
   } catch (error) {
-    console.warn(`Could not load config from ${configPath}:`, error);
     return defaultConfig;
   }
 }
 
 function loadOpenAPISpec(inputPath: string): any {
   try {
-    const specContent = readFileSync(resolve(inputPath), 'utf-8');
+    const specContent = readFileSync(resolve(inputPath), "utf-8");
     return JSON.parse(specContent);
   } catch (error) {
     console.error(`Failed to load OpenAPI spec from ${inputPath}:`, error);
@@ -93,7 +95,6 @@ function loadOpenAPISpec(inputPath: string): any {
 function ensureDirectoryExists(filePath: string): void {
   const dir = dirname(filePath);
   if (!existsSync(dir)) {
-    const { mkdirSync } = require('fs');
     mkdirSync(dir, { recursive: true });
   }
 }
@@ -127,27 +128,22 @@ Examples:
   }
 
   if (options.verbose) {
-    console.log('🚀 Starting template-based mock generation...');
-    console.log(`📖 Input spec: ${options.input}`);
-    console.log(`📝 Output file: ${options.output}`);
   }
 
   // Load configuration
   let config = loadConfig(options.config);
-  
+
   // Override with CLI options
   if (options.baseUrl) config.baseUrl = options.baseUrl;
   if (options.errorRate !== undefined) config.errorRate = options.errorRate;
 
   if (options.verbose) {
-    console.log('⚙️ Configuration:', JSON.stringify(config, null, 2));
   }
 
   // Load OpenAPI spec
   const spec = loadOpenAPISpec(options.input);
 
   if (options.verbose) {
-    console.log(`📋 Loaded spec: ${spec.info?.title || 'Unknown'} v${spec.info?.version || 'Unknown'}`);
   }
 
   // Generate mocks
@@ -158,12 +154,8 @@ Examples:
   ensureDirectoryExists(options.output);
 
   // Write output
-  writeFileSync(resolve(options.output), mockCode, 'utf-8');
-
-  console.log(`✅ Mock handlers generated successfully!`);
-  console.log(`📂 Output written to: ${resolve(options.output)}`);
+  writeFileSync(resolve(options.output), mockCode, "utf-8");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
+// Run main function when script is executed directly
+main();

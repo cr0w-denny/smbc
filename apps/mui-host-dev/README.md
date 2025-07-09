@@ -28,11 +28,13 @@ This provides the **benefits of modularity** (clean code organization, separatio
 ### Benefits
 
 **For Applets:**
+
 - Small bundle size (externalized dependencies)
 - Consistent UI/UX via shared design system
 - Shared infrastructure (routing, permissions, API client)
 
 **For Host Application:**
+
 - Central dependency management
 - Performance optimization through shared bundles
 - Simplified deployment and coordination
@@ -44,7 +46,7 @@ The host provides these dependencies that applets can externalize:
 ```json
 {
   "react": "^18.2.0",
-  "react-dom": "^18.2.0", 
+  "react-dom": "^18.2.0",
   "@mui/material": "^7.1.2",
   "@mui/icons-material": "^7.1.2",
   "@emotion/react": "^11.10.5",
@@ -82,20 +84,23 @@ npm run start:host
 4. **Add routing** and navigation as needed
 
 Example configuration:
+
 ```typescript
-import yourApplet from '@smbc/your-applet-mui';
+import yourApplet from "@smbc/your-applet-mui";
 
 export const APPLETS = [
   {
-    id: 'your-applet',
-    label: 'Your Applet',
-    routes: [{
-      path: '/your-applet',
-      component: () => yourApplet.component({ mountPath: '/your-applet' }),
-      icon: YourIcon,
-      requiredPermissions: [yourApplet.permissions.VIEW.id]
-    }]
-  }
+    id: "your-applet",
+    label: "Your Applet",
+    routes: [
+      {
+        path: "/your-applet",
+        component: () => yourApplet.component({ mountPath: "/your-applet" }),
+        icon: YourIcon,
+        requiredPermissions: [yourApplet.permissions.VIEW.id],
+      },
+    ],
+  },
 ];
 ```
 
@@ -105,4 +110,3 @@ export const APPLETS = [
 
 - `VITE_API_BASE_URL`: Base URL for API endpoints
 - Development defaults to mock data via MSW
-

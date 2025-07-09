@@ -11,28 +11,16 @@ export type { SearchInputProps } from "./SearchInput";
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
 
-export { ApiDocsModal } from "./ApiDocsModal";
-export type { ApiDocsModalProps } from "./ApiDocsModal";
 
-export {
-  DashboardHeader,
-  CurrentUserInfo,
-  PermissionChip,
-  PermissionCard,
-  PermissionsGrid,
-} from "./RoleManagement";
-
-export type { User, Permission, PermissionGroup } from "./RoleManagement";
-
-export { DevHostAppBar } from "./DevHostAppBar";
-export type { DevHostAppBarProps, CurrentAppletInfo } from "./DevHostAppBar";
-
-export { AppletDrawer, AppletNavigation } from "./AppletDrawer";
+export { AppletDrawer } from "./AppletDrawer";
+export { TreeMenu } from "./TreeMenu";
 export type {
   AppletDrawerProps,
-  AppletNavigationProps,
   NavigationRoute,
+  TreeMenuSection,
+  TreeMenuGroup,
 } from "./AppletDrawer";
+export type { TreeMenuProps } from "./TreeMenu";
 
 // Filter components and types
 export {
@@ -80,19 +68,3 @@ export const getTheme = (mode: "light" | "dark" = "light") => {
       return lightTheme;
   }
 };
-
-// DataView renderer for MUI
-export { MuiDataView } from "./MuiDataView";
-
-// Action bar component
-export { ActionBar } from "./ActionBar";
-export type { ActionBarProps } from "./ActionBar";
-
-// Activity notifications component
-export { ActivityNotifications } from "./ActivityNotifications";
-export type { ActivityNotificationsProps } from "./ActivityNotifications";
-
-// Activity snackbar component
-export { ActivitySnackbar } from "./ActivitySnackbar";
-export type { ActivitySnackbarProps } from "./ActivitySnackbar";
-

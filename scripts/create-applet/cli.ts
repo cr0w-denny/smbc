@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import validatePackageName from "validate-npm-package-name";
 import { execSync } from "child_process";
+import { updatePackageJsonDependencies } from "../deps/template-deps.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,8 +34,6 @@ program
   .option("--with-api", "include API package structure", true)
   .option("--no-install", "skip installing dependencies")
   .action(async (appletName?: string, options = {}) => {
-    console.log(chalk.blue.bold("\n🚀 Welcome to SMBC Applet Generator!\n"));
-
     const config = await gatherAppletConfig(appletName, options);
     await createApplet(config);
   });
@@ -142,7 +141,6 @@ async function createApplet(config: AppletConfig) {
 
   // Check if directory already exists
   if (await fs.pathExists(appletPath)) {
-    console.log(chalk.red(`\n❌ Applet "${config.name}" already exists.`));
     process.exit(1);
   }
 
@@ -168,22 +166,9 @@ async function createApplet(config: AppletConfig) {
     }
 
     // Success message
-    console.log(chalk.green.bold("\n✨ Applet created successfully!\n"));
-    console.log(chalk.cyan("Next steps:"));
-    console.log(chalk.gray(`  cd applets/${config.name}/mui`));
 
     if (!config.installDeps) {
-      console.log(chalk.gray("  pnpm install"));
     }
-
-    console.log(chalk.gray("  pnpm run build"));
-
-    console.log(chalk.blue("\n📚 To use in a host app:"));
-    console.log(
-      chalk.gray(
-        `  import ${toCamelCase(config.name)}Applet from '@smbc/${config.name}-mui';`,
-      ),
-    );
   } catch (error) {
     spinner.fail(chalk.red("Failed to create applet"));
     console.error(error);
@@ -206,13 +191,19 @@ async function createMuiPackage(config: AppletConfig, appletPath: string) {
   packageJson.name = `@smbc/${config.name}-mui`;
   packageJson.description = config.description;
 
-  // Update dependencies if API client will be included
+  // Determine dependency type based on template
+  const dependencyType = config.template === "full" ? "full-applet" : "basic-applet";
+  
+  // Update dependencies to use shared definitions
+  const updatedPackageJson = updatePackageJsonDependencies(packageJson, dependencyType);
+
+  // Add API dependency if API package will be included
   if (config.withApi) {
-    packageJson.dependencies[`@smbc/${config.name}-api`] = "^1.0.0";
-    packageJson.dependencies[`@smbc/${config.name}-client`] = "^1.0.0";
+    updatedPackageJson.dependencies = updatedPackageJson.dependencies || {};
+    updatedPackageJson.dependencies[`@smbc/${config.name}-api`] = "*";
   }
 
-  await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+  await fs.writeJson(packageJsonPath, updatedPackageJson, { spaces: 2 });
 
   // Replace template placeholders in source files
   await replaceTemplatePlaceholders(muiPath, config);
@@ -224,32 +215,29 @@ async function createApiPackages(config: AppletConfig, appletPath: string) {
   await fs.ensureDir(apiPath);
   await fs.copy(path.join(__dirname, "templates/api"), apiPath);
 
-  // Create API Client package
-  const clientPath = path.join(appletPath, "api-client");
-  await fs.ensureDir(clientPath);
-  await fs.copy(path.join(__dirname, "templates/api-client"), clientPath);
-
   // Create Django package
   const djangoPath = path.join(appletPath, "django");
   await fs.ensureDir(djangoPath);
   await fs.copy(path.join(__dirname, "templates/django"), djangoPath);
 
   // Update package.json files
-  const packages = ["api", "api-client", "django"];
+  const packages = ["api", "django"];
   for (const pkg of packages) {
     const pkgPath = path.join(appletPath, pkg, "package.json");
     if (await fs.pathExists(pkgPath)) {
       const packageJson = await fs.readJson(pkgPath);
-      const suffix = pkg === "api-client" ? "client" : pkg;
-      packageJson.name = `@smbc/${config.name}-${suffix}`;
+      packageJson.name = `@smbc/${config.name}-${pkg}`;
       packageJson.description = `${config.description} - ${pkg}`;
-      await fs.writeJson(pkgPath, packageJson, { spaces: 2 });
+      
+      // Update dependencies to use shared definitions for API packages
+      const updatedPackageJson = updatePackageJsonDependencies(packageJson, "api");
+      
+      await fs.writeJson(pkgPath, updatedPackageJson, { spaces: 2 });
     }
   }
 
   // Replace placeholders in API files
   await replaceTemplatePlaceholders(apiPath, config);
-  await replaceTemplatePlaceholders(clientPath, config);
   await replaceTemplatePlaceholders(djangoPath, config);
 }
 
@@ -325,9 +313,9 @@ async function installDependencies(
     });
 
     if (config.withApi) {
-      // Install API client dependencies
+      // Install API dependencies
       execSync("pnpm install", {
-        cwd: path.join(appletPath, "api-client"),
+        cwd: path.join(appletPath, "api"),
         stdio: "ignore",
       });
     }
@@ -355,7 +343,6 @@ function toPascalCase(str: string): string {
 
 // Handle process termination
 process.on("SIGINT", () => {
-  console.log(chalk.red("\n\n❌ Process interrupted"));
   process.exit(1);
 });
 

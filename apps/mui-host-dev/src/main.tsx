@@ -1,14 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { App } from './App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { App } from "./App";
 
-// Only load swagger CSS in development or when API docs are enabled
-if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_API_DOCS === 'true') {
-  import('swagger-ui-react/swagger-ui.css');
-}
+// Swagger CSS will be loaded dynamically by ApiDocsWrapper when needed
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

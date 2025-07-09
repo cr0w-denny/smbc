@@ -4,7 +4,7 @@
  * in client-side applications where the directives are not relevant.
  */
 
-import type { Plugin } from 'vite';
+import type { Plugin } from "vite";
 
 export function suppressUseClientWarnings(): Plugin {
   return {

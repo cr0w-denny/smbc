@@ -1,74 +1,35 @@
-// =============================================================================
-// SMBC MUI Host - Type Definitions
-// =============================================================================
+/**
+ * Convenience types for host applications
+ */
 
-import { ComponentType, ReactNode } from "react";
-
-// Re-export core types
-export type { RoleConfig, User, FeatureFlagConfig } from "@smbc/applet-core";
-
-// =============================================================================
-// Config File Types
-// =============================================================================
-
-export interface AppletConfig {
-  name: string;
-  mountPath?: string;
-  permissions?: string[];
-  config?: Record<string, any>;
-}
+import { AppletMount, RoleConfig } from '@smbc/applet-core';
 
 export interface HostConfig {
-  applets: (string | AppletConfig)[];
-  roles: string[];
-  app?: {
-    name?: string;
-    theme?: "light" | "dark" | "auto";
-    logo?: string;
-    version?: string;
-  };
-  permissions?: Record<string, string[]>;
-  features?: Record<string, boolean>;
-  user?: {
+  appName: string;
+  appletMounts: Record<string, AppletMount>;
+  roles: readonly string[];
+  roleConfig: RoleConfig;
+  demoUser?: {
     id: string;
     email: string;
     name: string;
     roles: string[];
-    preferences?: Record<string, any>;
+    preferences?: {
+      theme?: 'light' | 'dark';
+      language?: string;
+      timezone?: string;
+      notifications?: {
+        email?: boolean;
+        push?: boolean;
+        desktop?: boolean;
+      };
+    };
   };
 }
 
-// =============================================================================
-// Component Types
-// =============================================================================
-
-export interface AppletProviderProps {
-  children: ReactNode;
-  applets: (string | AppletConfig)[];
-  roles: string[];
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-    roles: string[];
-    preferences?: Record<string, any>;
-  };
-  permissions?: Record<string, string[]>;
-  features?: Record<string, boolean>;
-  theme?: "light" | "dark" | "auto";
+export interface FeatureFlagConfig {
+  key: string;
+  defaultValue: boolean;
+  description: string;
+  persist?: boolean;
 }
-
-export interface AppletRouteProps {
-  applet: string;
-  mountPath?: string;
-  fallback?: ComponentType;
-}
-
-export interface CreateAppOptions {
-  config?: HostConfig;
-  container?: string | HTMLElement;
-}
-
-// =============================================================================
-// Internal Types (reserved for future use)
-// =============================================================================

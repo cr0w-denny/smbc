@@ -36,7 +36,7 @@ These packages are versioned independently:
 - `@smbc/msw-utils` - MSW testing utilities
 - `@smbc/mui-host` - Main host application package
 - `@smbc/react-openapi-client` - API client utilities
-- `@smbc/shared-query-client` - React Query configuration
+- `@smbc/applet-query-client` - React Query configuration
 
 ### Ignored Packages
 
@@ -73,7 +73,7 @@ $ npm run changeset
 ◯ @smbc/mui-host
 ◯ @smbc/mui-applet-core
 ◉ @smbc/mui-components
-◯ @smbc/shared-query-client
+◯ @smbc/applet-query-client
 ◯ @smbc/react-openapi-client
 ◯ @smbc/msw-utils
 ◯ @smbc/design-tokens

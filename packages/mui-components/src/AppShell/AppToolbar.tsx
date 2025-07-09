@@ -2,39 +2,33 @@
  * Pure AppToolbar component - no hooks or state management
  */
 
-import React from 'react';
-import {
-  Toolbar,
-  Typography,
-  IconButton,
-  Badge,
-  Box,
-} from '@mui/material';
+import React from "react";
+import { Toolbar, Typography, IconButton, Badge, Box } from "@mui/material";
 import {
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
   AccountCircle as AccountIcon,
-} from '@mui/icons-material';
-import type { AppToolbarProps } from './types';
+} from "@mui/icons-material";
+import type { AppToolbarProps } from "./types";
 
 export const AppToolbar: React.FC<AppToolbarProps> = ({
   title,
   showMenuButton = false,
   onMenuButtonClick,
-  
+
   showUserMenu = false,
   userMenuAnchor,
   onUserMenuOpen,
   onUserMenuClose,
   userMenuContent,
-  
+
   showNotifications = false,
   notificationCount = 0,
   notificationMenuAnchor,
   onNotificationMenuOpen,
   onNotificationMenuClose,
   notificationMenuContent,
-  
+
   children,
 }) => {
   return (
@@ -53,12 +47,7 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
       )}
 
       {/* Title */}
-      <Typography 
-        variant="h6" 
-        noWrap 
-        component="div" 
-        sx={{ flexGrow: 1 }}
-      >
+      <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
         {title}
       </Typography>
 
@@ -78,14 +67,17 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
               <NotificationsIcon />
             </Badge>
           </IconButton>
-          
+
           {notificationMenuContent && notificationMenuAnchor && (
             <Box component="div">
-              {React.cloneElement(notificationMenuContent as React.ReactElement, {
-                anchorEl: notificationMenuAnchor,
-                open: Boolean(notificationMenuAnchor),
-                onClose: onNotificationMenuClose,
-              })}
+              {React.cloneElement(
+                notificationMenuContent as React.ReactElement,
+                {
+                  anchorEl: notificationMenuAnchor,
+                  open: Boolean(notificationMenuAnchor),
+                  onClose: onNotificationMenuClose,
+                },
+              )}
             </Box>
           )}
         </>
@@ -101,7 +93,7 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
           >
             <AccountIcon />
           </IconButton>
-          
+
           {userMenuContent && userMenuAnchor && (
             <Box component="div">
               {React.cloneElement(userMenuContent as React.ReactElement, {

@@ -2,17 +2,22 @@
  * Generic Filter component - pure UI with no schema knowledge
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { FilterContainer } from './FilterContainer';
-import { FilterFieldGroup } from './FilterFieldGroup';
-import type { FilterFieldConfig, FilterValues, FilterSpec, FilterProps } from './types';
+import React, { useState, useCallback, useMemo } from "react";
+import { FilterContainer } from "./FilterContainer";
+import { FilterFieldGroup } from "./FilterFieldGroup";
+import type {
+  FilterFieldConfig,
+  FilterValues,
+  FilterSpec,
+  FilterProps,
+} from "./types";
 
 // Re-export types for convenience
 export type { FilterFieldConfig, FilterValues, FilterSpec, FilterProps };
 
 /**
  * Generic Filter component for building filter UIs
- * 
+ *
  * @example
  * ```tsx
  * const filterSpec = {
@@ -21,8 +26,8 @@ export type { FilterFieldConfig, FilterValues, FilterSpec, FilterProps };
  *     { name: 'category', type: 'select', label: 'Category', options: [...] }
  *   ]
  * };
- * 
- * <Filter 
+ *
+ * <Filter
  *   spec={filterSpec}
  *   onFiltersChange={(filters) => console.log(filters)}
  * />
@@ -37,7 +42,7 @@ export function Filter({
   const {
     fields = [],
     initialValues = {},
-    title = 'Filters',
+    title = "Filters",
     visible = true,
     collapsible = false,
     defaultCollapsed = false,
@@ -47,16 +52,16 @@ export function Filter({
   } = spec;
 
   const [internalValues, setInternalValues] = useState<FilterValues>(
-    controlledValues || initialValues
+    controlledValues || initialValues,
   );
 
   // For controlled mode, we need separate local values for immediate UI feedback
   const [localValues, setLocalValues] = useState<FilterValues>(
-    controlledValues || initialValues
+    controlledValues || initialValues,
   );
 
   const isControlled = controlledValues !== undefined;
-  
+
   // Sync controlled values to local values when they change externally
   React.useEffect(() => {
     if (isControlled && controlledValues) {
@@ -66,12 +71,12 @@ export function Filter({
 
   // For display purposes, use local values in controlled mode, internal values in uncontrolled
   const displayValues = isControlled ? localValues : internalValues;
-  
+
   // Note: We use displayValues for filter count calculation to get immediate UI feedback
 
   // Debounced filter change handler
   const debounceRef = React.useRef<ReturnType<typeof setTimeout>>();
-  
+
   // Cleanup debounce timer on unmount
   React.useEffect(() => {
     return () => {
@@ -80,59 +85,58 @@ export function Filter({
       }
     };
   }, []);
-  
-  const handleFieldChange = useCallback((name: string, value: any) => {
-    const newDisplayValues = { ...displayValues, [name]: value };
-    
-    // Always update local/display values immediately for responsive UI
-    if (isControlled) {
-      setLocalValues(newDisplayValues);
-    } else {
-      setInternalValues(newDisplayValues);
-    }
 
-    // Debounce the onChange callback
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    
-    debounceRef.current = setTimeout(() => {
-      // Clean empty values before calling onChange, but preserve empty strings for text/search fields
-      // so that useHashQueryParams can properly handle them (and remove from URL if they match defaults)
-      const cleaned = Object.entries(newDisplayValues).reduce((acc, [key, val]) => {
-        const field = fields.find(f => f.name === key);
-        const isTextualField = field && ['text', 'search', 'email'].includes(field.type);
-        
-        if (val !== null && val !== undefined && (val !== '' || isTextualField)) {
-          acc[key] = val;
-        }
-        return acc;
-      }, {} as FilterValues);
-      
-      onFiltersChange(cleaned);
-    }, debounceMs);
-  }, [displayValues, fields, isControlled, onFiltersChange, debounceMs]);
+  const handleFieldChange = useCallback(
+    (name: string, value: any) => {
+      const newDisplayValues = { ...displayValues, [name]: value };
+
+      // Always update local/display values immediately for responsive UI
+      if (isControlled) {
+        setLocalValues(newDisplayValues);
+      } else {
+        setInternalValues(newDisplayValues);
+      }
+
+      // Debounce the onChange callback
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      debounceRef.current = setTimeout(() => {
+        onFiltersChange(newDisplayValues);
+      }, debounceMs);
+    },
+    [displayValues, fields, isControlled, onFiltersChange, debounceMs],
+  );
 
   const handleClearFilters = useCallback(() => {
-    // Build cleared values, preserving default values for text fields
+    // Build cleared values, setting all fields to their default/empty values
     const clearedValues = fields.reduce((acc, field) => {
-      const isTextualField = ['text', 'search', 'email'].includes(field.type);
+      const isTextualField = ["text", "search", "email"].includes(field.type);
+      const isSelectField = field.type === "select";
+      
       if (isTextualField && field.defaultValue !== undefined) {
         acc[field.name] = field.defaultValue;
       } else if (isTextualField) {
-        acc[field.name] = ''; // Default to empty string for text fields
+        acc[field.name] = ""; // Default to empty string for text fields
+      } else if (isSelectField) {
+        // For select fields, use the first option's value (usually empty string for "All")
+        const firstOption = field.options?.[0];
+        acc[field.name] = firstOption?.value ?? "";
+      } else {
+        // For other field types, use empty string as default
+        acc[field.name] = "";
       }
-      // For other field types, omit them entirely (they'll use their defaults)
       return acc;
     }, {} as FilterValues);
-    
+
     // Clear both local and internal values
     if (isControlled) {
       setLocalValues(clearedValues);
     } else {
       setInternalValues(clearedValues);
     }
-    
+
     // Clear the debounce timer and immediately call onFiltersChange
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -143,13 +147,16 @@ export function Filter({
   // Count active filters using the display values for immediate UI feedback
   const activeFilterCount = useMemo(() => {
     return Object.entries(displayValues || {}).filter(([key, value]) => {
-      const field = fields.find(f => f.name === key);
-      if (!field || field.type === 'hidden' || field.excludeFromCount) return false;
-      
-      return value !== undefined && 
-             value !== null && 
-             value !== '' && 
-             value !== field.defaultValue;
+      const field = fields.find((f) => f.name === key);
+      if (!field || field.type === "hidden" || field.excludeFromCount)
+        return false;
+
+      return (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        value !== field.defaultValue
+      );
     }).length;
   }, [displayValues, fields]);
 
@@ -157,8 +164,8 @@ export function Filter({
     return null;
   }
 
-  const visibleFields = fields.filter(f => f.type !== 'hidden' && !f.hidden);
-  
+  const visibleFields = fields.filter((f) => f.type !== "hidden" && !f.hidden);
+
   return (
     <FilterContainer
       title={title}

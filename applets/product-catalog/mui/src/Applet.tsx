@@ -1,4 +1,28 @@
-import React, { useState } from "react";
+/**
+ * Pure Custom Applet Implementation
+ * 
+ * This demonstrates a completely custom applet that doesn't use the dataview framework.
+ * It shows how you can build any UI you want using just:
+ * - Raw OpenAPI-generated client
+ * - Custom React components  
+ * - Manual state management
+ * - Custom business logic
+ * 
+ * As long as you respect the applet export format (permissions, routes, apiSpec),
+ * you have complete freedom in implementation.
+ * 
+ * Benefits:
+ * - Complete control over UI/UX
+ * - Custom business logic
+ * - No framework constraints
+ * - Can integrate any third-party components
+ * 
+ * Trade-offs:
+ * - More code to write and maintain
+ * - No built-in transactions, bulk actions, activity tracking
+ * - Need to implement common patterns manually
+ */
+import React, { useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -16,71 +40,11 @@ import {
   TablePagination,
 } from "@mui/material";
 import { Add, Edit, Delete, Inventory } from "@mui/icons-material";
-import { LoadingTable, EmptyState, SearchInput } from "@smbc/mui-components";
-import { apiClient, type components } from "@smbc/product-catalog-client";
-import { commonOperationSchemas, createFilterSpec } from "@smbc/applet-core";
-import { Filter } from "@smbc/mui-components";
-
-function AdvancedFilters() {
-  // Create the operation schema that matches the Products_list API
-  const productsListOperation = commonOperationSchemas.listWithFilters({
-    category: { type: "string" },
-  });
-
-  const config = {
-    // Only show specific fields we want in the UI
-    includeFields: ["search", "category"],
-
-    // Override specific field configurations
-    fieldOverrides: {
-      search: {
-        placeholder: "Search products...",
-        fullWidth: true,
-        debounceMs: 500,
-      },
-      category: {
-        label: "Product Category",
-        options: [
-          { value: "", label: "All Categories" },
-          { value: "electronics", label: "Electronics" },
-          { value: "clothing", label: "Clothing" },
-          { value: "books", label: "Books" },
-          { value: "home", label: "Home & Garden" },
-        ],
-      },
-    },
-
-    // Layout configuration
-    layout: {
-      direction: "row" as const,
-      spacing: 3,
-      wrap: true,
-    },
-
-    // Hide pagination fields since we handle those separately
-    hidePagination: true,
-    hideSort: true,
-  };
-
-  // Create filter specification from the operation type
-  const filterSpec = createFilterSpec(productsListOperation, config);
-
-  return (
-    <Filter
-      spec={{
-        ...filterSpec,
-        title: "Product Filters",
-        collapsible: true,
-        defaultCollapsed: false,
-        showFilterCount: true,
-      }}
-      onFiltersChange={(filters) => {
-        console.log("Filter values changed:", filters);
-        // TODO: Apply filters to the product query
-      }}
-    />
-  );
-}
+import { LoadingTable, EmptyState, Filter } from "@smbc/mui-components";
+import type { components, paths } from "@smbc/product-catalog-api/generated/types";
+import { useHashParams, getApiClient } from "@smbc/applet-core";
+import { useQuery } from "@tanstack/react-query";
+import { createProductFiltersConfig, transformProductFilters } from "./config/filters";
 
 // Define types from the client
 type Product = components["schemas"]["Product"];
@@ -91,6 +55,7 @@ interface ProductsQuery {
   pageSize?: number;
   category?: string;
   search?: string;
+  inStock?: boolean;
 }
 
 const getStatusChip = (inStock: boolean) => {
@@ -133,48 +98,100 @@ export function Applet({
   searchQuery,
   categoryFilter,
 }: ProductTableProps) {
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(initialPageSize);
-  const [internalSearch, setInternalSearch] = useState("");
+  // URL state sync for filters and pagination
+  const { filters, setFilters, pagination, setPagination } = useHashParams(
+    { 
+      search: searchQuery || "",
+      category: categoryFilter || "",
+      inStock: undefined,
+    },
+    { 
+      page: 0, 
+      pageSize: initialPageSize 
+    },
+    true, // enabled
+    "products" // namespace
+  );
 
-  // Use external search query if provided, otherwise use internal search
-  const effectiveSearch =
-    searchQuery !== undefined ? searchQuery : internalSearch;
+  // Use URL-synced search if not overridden by external prop
+  const effectiveFilters = React.useMemo(() => ({
+    search: searchQuery !== undefined ? searchQuery : filters.search,
+    category: categoryFilter !== undefined ? categoryFilter : filters.category,
+    inStock: filters.inStock,
+  }), [searchQuery, filters.search, categoryFilter, filters.category, filters.inStock]);
 
-  // Build query parameters
-  const queryParams: ProductsQuery = {
-    page: page + 1,
-    pageSize,
-    ...(effectiveSearch && { search: effectiveSearch }),
-    ...(categoryFilter && { category: categoryFilter }),
-  };
+  // Filter configuration - stable reference
+  const filterConfig = React.useMemo(() => createProductFiltersConfig(), []);
 
-  // API queries using openapi-react-query
+  // Handle filter changes - stable callback
+  const handleFiltersChange = useCallback((newFilters: any) => {
+    setFilters(newFilters);
+    // Reset to first page when filtering
+    setPagination({ page: 0 });
+  }, [setFilters, setPagination]);
+
+  // Always render filter container but conditionally show content
+  const filterComponent = (
+    <Box mb={2}>
+      {(showSearch && searchQuery === undefined) && (
+        <Filter 
+          key="product-catalog-filter" // Stable key to maintain component identity
+          spec={filterConfig}
+          values={effectiveFilters}
+          onFiltersChange={handleFiltersChange}
+        />
+      )}
+    </Box>
+  );
+
+  // Build query parameters using URL state  
+  const queryParams: ProductsQuery = React.useMemo(() => {
+    const transformedFilters = transformProductFilters(effectiveFilters);
+    return {
+      page: pagination.page + 1,
+      pageSize: pagination.pageSize,
+      ...transformedFilters,
+    };
+  }, [effectiveFilters, pagination.page, pagination.pageSize]);
+
+
+  // API queries using React Query + openapi-fetch
   const {
     data: productsData,
     isLoading,
     error,
-  } = apiClient.useQuery("get", "/products", {
-    params: {
-      query: {
-        page: queryParams.page || 1,
-        pageSize: queryParams.pageSize || 10,
-        ...(queryParams.category && { category: queryParams.category }),
-        ...(queryParams.search && { search: queryParams.search }),
-      },
+  } = useQuery({
+    queryKey: ['products', queryParams],
+    queryFn: async () => {
+      const response = await getApiClient<paths>("product-catalog").GET("/products", {
+        params: {
+          query: {
+            page: queryParams.page || 1,
+            pageSize: queryParams.pageSize || 10,
+            ...(queryParams.category && { category: queryParams.category }),
+            ...(queryParams.search && { search: queryParams.search }),
+          },
+        },
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to fetch products');
+      }
+      
+      return response.data;
     },
   });
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
+  const handleChangePage = useCallback((_event: unknown, newPage: number) => {
+    setPagination({ page: newPage });
+  }, [setPagination]);
 
-  const handleChangeRowsPerPage = (
+  const handleChangeRowsPerPage = useCallback((
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setPageSize(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+    const newPageSize = parseInt(event.target.value, 10);
+    setPagination({ pageSize: newPageSize, page: 0 });
+  }, [setPagination]);
 
   if (error) {
     return (
@@ -186,23 +203,14 @@ export function Applet({
     );
   }
 
-  if (isLoading) {
-    return (
-      <Box>
-        <Typography variant="h5" component="h2">
-          Products
-        </Typography>
-        <LoadingTable rows={5} columns={6} />
-      </Box>
-    );
-  }
-
   const products = productsData?.products || [];
   const total = productsData?.total || 0;
 
   return (
     <Box>
-      <AdvancedFilters />
+      {/* Filter Section - Always render to maintain stable DOM structure */}
+      {filterComponent}
+      
       <Box
         display="flex"
         justifyContent="space-between"
@@ -215,26 +223,31 @@ export function Applet({
           </Button>
         )}
       </Box>
-      {showSearch && searchQuery === undefined && (
-        <Box mb={2}>
-          <SearchInput
-            value={internalSearch}
-            onChange={setInternalSearch}
-            placeholder="Search products by name, SKU, or description..."
-            fullWidth
-          />
-        </Box>
+
+      {/* Loading state within consistent structure */}
+      {isLoading && (
+        <LoadingTable rows={5} columns={6} />
       )}
-      {products.length === 0 ? (
+
+      {/* Error state */}
+      {error && (
+        <Alert severity="error">
+          Failed to load products. Please try again later.
+        </Alert>
+      )}
+
+      {/* Content when loaded and not loading */}
+      {!isLoading && !error && (
+        products.length === 0 ? (
         <EmptyState
           icon={<Inventory sx={{ fontSize: 64, color: "text.secondary" }} />}
-          title={effectiveSearch ? "No products found" : "No products yet"}
+          title={effectiveFilters.search ? "No products found" : "No products yet"}
           description={
-            effectiveSearch
+            effectiveFilters.search
               ? "Try adjusting your search criteria to find products."
               : "Get started by adding your first product to the catalog."
           }
-          type={effectiveSearch ? "search" : "create"}
+          type={effectiveFilters.search ? "search" : "create"}
           primaryAction={
             showCreate && onCreate
               ? {
@@ -244,10 +257,10 @@ export function Applet({
               : undefined
           }
           secondaryAction={
-            effectiveSearch && searchQuery === undefined
+            effectiveFilters.search && searchQuery === undefined
               ? {
-                  label: "Clear Search",
-                  onClick: () => setInternalSearch(""),
+                  label: "Clear Filters",
+                  onClick: () => setFilters({ search: "", category: undefined, inStock: undefined }),
                   variant: "outlined",
                 }
               : undefined
@@ -264,7 +277,7 @@ export function Applet({
                   <TableCell>Category</TableCell>
                   <TableCell align="right">Price</TableCell>
                   <TableCell>Status</TableCell>
-                  {showActions && <TableCell align="right">Actions</TableCell>}
+                  {showActions && (onEdit || onDelete) && <TableCell align="right">Actions</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -291,7 +304,7 @@ export function Applet({
                       ${Number(product.price).toFixed(2)}
                     </TableCell>
                     <TableCell>{getStatusChip(product.inStock)}</TableCell>
-                    {showActions && (
+                    {showActions && (onEdit || onDelete) && (
                       <TableCell align="right">
                         {onEdit && (
                           <IconButton
@@ -324,13 +337,14 @@ export function Applet({
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
               count={total}
-              rowsPerPage={pageSize}
-              page={page}
+              rowsPerPage={pagination.pageSize}
+              page={pagination.page}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
           )}
         </>
+        )
       )}
     </Box>
   );

@@ -26,6 +26,9 @@ model User {
   @extension("x-mock-data", #{ faker: "string.uuid" })
   id: string;
   
+  @extension("x-mock-data", #{ faker: "internet.userName", unique: true })
+  username: string;
+  
   @extension("x-mock-data", #{ faker: "internet.email", unique: true })
   email: string;
   
@@ -53,6 +56,7 @@ model User {
  */
 model UserSummary {
   id: string;
+  username: string;
   name: string;
   email: string;
   status: "active" | "inactive";
@@ -72,6 +76,7 @@ model UserDetailed {
  * User creation request
  */
 model CreateUserRequest {
+  username: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -81,6 +86,7 @@ model CreateUserRequest {
  * User update request
  */
 model UpdateUserRequest {
+  username?: string;
   firstName?: string;
   lastName?: string;
   isActive?: boolean;
@@ -90,9 +96,10 @@ model UpdateUserRequest {
  * User-specific filter parameters for list endpoint
  */
 alias UserFilterParams = {
+  @query @extension("x-mock-filter", #{ field: "username", strategy: "partial-match" }) username?: string;
   @query @extension("x-mock-filter", #{ field: "isAdmin", strategy: "exact" }) isAdmin?: string;
   @query @extension("x-mock-filter", #{ field: "email", strategy: "partial-match" }) email?: string;
-  @query @extension("x-mock-filter", #{ field: "isActive", strategy: "boolean-inverse" }) status?: "active" | "inactive";
+  @query @extension("x-mock-filter", #{ field: "isActive", strategy: "boolean-choice" }) status?: "active" | "inactive";
   @query format?: "summary" | "detailed";
 };
 

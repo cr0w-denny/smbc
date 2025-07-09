@@ -1,4 +1,4 @@
-import { useApp } from './AppContext';
+import { useApp } from "./AppContext";
 
 // Hook for role management - for host applications only
 export const useRoleManagement = () => {
@@ -8,9 +8,8 @@ export const useRoleManagement = () => {
   return {
     userRoles,
     availableRoles: roleUtils.roles,
-    setUserRoles: (roles: string[]) => {
+    setUserRoles: (_roles: string[]) => {
       // This would need to be implemented in the app context
-      console.warn('setUserRoles not yet implemented in AppContext', roles);
     },
     // Permission checking available for host convenience
     hasPermission: (appletId: string, permission: string) =>
@@ -49,15 +48,17 @@ export const useNavigation = () => {
 };
 
 // Re-export useUser for host applications that need user management
-export { useUser } from './hooks';
+export { useUser } from "./hooks";
 
 // Host utility functions
-import { HostAppletDefinition, HostAppletRoute } from "./types";
+import { AppletMount, HostAppletRoute } from "./types";
 
 /**
  * Get all routes from all applets
  */
-export function getAllRoutes(applets: HostAppletDefinition[]): HostAppletRoute[] {
+export function getAllRoutes(
+  applets: AppletMount[],
+): HostAppletRoute[] {
   const appletRoutes = applets.flatMap((applet) => applet.routes);
   return appletRoutes;
 }
@@ -66,8 +67,8 @@ export function getAllRoutes(applets: HostAppletDefinition[]): HostAppletRoute[]
  * Get the current applet based on path
  */
 export function getCurrentApplet(
-  path: string, 
-  applets: HostAppletDefinition[]
+  path: string,
+  applets: AppletMount[],
 ) {
   // Check if path matches any route in any applet
   for (const hostApplet of applets) {

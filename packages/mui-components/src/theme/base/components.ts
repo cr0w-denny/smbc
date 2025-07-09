@@ -1,5 +1,5 @@
 import { Components, Theme } from "@mui/material/styles";
-import { getSemanticColor, getSemanticShadow } from "@smbc/design-tokens";
+import { getSemanticColor, getSemanticShadow } from "@smbc/ui-core";
 
 export const createBaseComponents = (
   theme: Theme,
@@ -71,7 +71,7 @@ export const createBaseComponents = (
             },
           },
           "& .MuiInputBase-input": {
-            padding: "10px 12px",
+            padding: "9px 12px",
           },
         },
       },

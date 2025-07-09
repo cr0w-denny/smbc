@@ -1,31 +1,40 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   AppProvider,
   FeatureFlagProvider,
+  calculatePermissionsFromRoles,
+  getCurrentApplet,
   useHashNavigation,
   useFeatureFlag,
   useFeatureFlagToggle,
+  configureApplets,
 } from "@smbc/applet-core";
-import { AppletHost } from "@smbc/mui-applet-host";
-import { getCurrentApplet } from "@smbc/applet-core";
+import { AppletDrawer } from "./components/AppletDrawer";
+import { AppletRouter } from "./components/AppletRouter";
+import { HostAppBar } from "@smbc/mui-applet-core";
+import { ApiDocsWrapper } from "./components/ApiDocsWrapper";
+import { lightTheme, darkTheme } from "@smbc/mui-components";
+import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import {
-  ApiDocsModal,
-  DevHostAppBar,
-  ActivitySnackbar,
-  lightTheme,
-  darkTheme,
-} from "@smbc/mui-components";
-import {
-  registerMswHandlers,
-  SMBCQueryProvider,
-} from "@smbc/shared-query-client";
-import { ActivityProvider, TransactionProvider } from "@smbc/react-dataview";
+  ActivityProvider,
+  TransactionProvider,
+} from "@smbc/react-query-dataview";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Import configuration
-import { APP_CONSTANTS, APPLETS, demoUser, roleConfig } from "./app.config";
+import { HOST, APPLETS, DEMO_USER, ROLE_CONFIG } from "./app.config";
+
+// Static imports for development - these will be excluded in production templates
+import {
+  registerMswHandlers,
+  setupMswForAppletProvider,
+  stopMswForAppletProvider,
+  resetAllMocks,
+  userManagementHandlers,
+  productCatalogHandlers,
+} from "@smbc/mui-applet-devtools";
 
 // Feature flag configuration
 const featureFlags = [
@@ -43,41 +52,70 @@ const featureFlags = [
   },
 ];
 
-// Register MSW handlers from applets
-async function initializeMswHandlers(): Promise<void> {
+// Mapping of applet IDs to their mock handlers
+const APPLET_HANDLERS = {
+  "user-management": userManagementHandlers,
+  "product-catalog": productCatalogHandlers,
+  // Add new applets here
+};
+
+// Create QueryClient with good defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors (client errors)
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        // Retry up to 3 times for other errors
+        return failureCount < 3;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+    mutations: {
+      retry: (failureCount, error: any) => {
+        // Don't retry mutations on 4xx errors
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        // Retry once for network errors
+        return failureCount < 1;
+      },
+    },
+  },
+});
+
+// Register MSW handlers based on available applets
+function initializeMswHandlers(): void {
   // Skip MSW initialization if disabled via environment variable
   if (import.meta.env.VITE_DISABLE_MSW === "true") {
-    console.log("MSW disabled via VITE_DISABLE_MSW environment variable");
+    console.log("MSW disabled via environment variable");
     return;
   }
+
   try {
-    // Import MSW handlers from API client packages (separate mocks exports)
-    const [
-      { handlers: userManagementHandlers },
-      { handlers: productCatalogHandlers },
-    ] = await Promise.all([
-      import("@smbc/user-management-client/mocks"),
-      import("@smbc/product-catalog-client/mocks"),
-    ]);
+    // Collect handlers for all configured applets
+    const allHandlers = [];
 
-    // Register all handlers
-    const allHandlers = [...userManagementHandlers, ...productCatalogHandlers];
+    for (const applet of APPLETS) {
+      const handlers =
+        APPLET_HANDLERS[applet.id as keyof typeof APPLET_HANDLERS];
+      if (handlers && Array.isArray(handlers)) {
+        allHandlers.push(...handlers);
+        console.log(`Loaded ${handlers.length} handlers for ${applet.id}`);
+      } else {
+        console.warn(`No handlers found for applet: ${applet.id}`);
+      }
+    }
 
+    console.log("Registering MSW handlers:", allHandlers.length);
     registerMswHandlers(allHandlers);
-    console.log(
-      `🎯 Registered ${allHandlers.length} MSW handlers from applets`,
-    );
   } catch (error) {
-    console.warn("Failed to register MSW handlers:", error);
+    console.error("Failed to initialize MSW handlers:", error);
   }
 }
-
-// No other initialization needed - direct applet imports
-console.log("🔍 Applets loaded:", APPLETS.length);
-console.log(
-  "📋 Available applets:",
-  APPLETS.map((a) => a.label),
-);
 
 function AppContentWithQueryAccess() {
   const handleNavigate = (url: string) => {
@@ -89,12 +127,16 @@ function AppContentWithQueryAccess() {
     <>
       <Box sx={{ display: "flex" }}>
         <Navigation />
-        <AppletHost
+        <AppletDrawer
           applets={APPLETS}
-          constants={APP_CONSTANTS}
-          roleConfig={roleConfig}
+          constants={HOST}
           permissionMapping={{ "admin-users": "user-management" }}
-          title={APP_CONSTANTS.appName}
+          title={HOST.appName}
+        />
+        <AppletRouter
+          applets={APPLETS}
+          roleConfig={ROLE_CONFIG}
+          constants={HOST}
         />
       </Box>
       <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
@@ -106,22 +148,11 @@ function AppContentWithQueryAccess() {
 function Navigation() {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const toggleDarkMode = useFeatureFlagToggle("darkMode");
-  const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-  const toggleMockData = useFeatureFlagToggle("mockData");
   const [apiDocsOpen, setApiDocsOpen] = React.useState(false);
 
   // Get current path to determine which applet is active
   const { currentPath } = useHashNavigation();
   const currentAppletInfo = getCurrentApplet(currentPath, APPLETS);
-
-  // Debug logging
-  React.useEffect(() => {
-    console.log("📍 Current path:", currentPath);
-    console.log("🔍 Current applet info:", currentAppletInfo);
-    if (currentAppletInfo?.apiSpec) {
-      console.log("🗂️ API Spec:", currentAppletInfo.apiSpec);
-    }
-  }, [currentPath, currentAppletInfo]);
 
   // Close API docs when switching between applets
   React.useEffect(() => {
@@ -143,20 +174,21 @@ function Navigation() {
 
   return (
     <>
-      <DevHostAppBar
+      <HostAppBar
         currentAppletInfo={currentAppletInfo}
         isDarkMode={isDarkMode}
         onDarkModeToggle={toggleDarkMode}
-        mockEnabled={mockEnabled}
-        onMockToggle={toggleMockData}
         onApiDocsOpen={handleApiDocsOpen}
-        onNavigate={handleNavigate}
-        drawerWidth={APP_CONSTANTS.drawerWidth}
-      />
+        drawerWidth={HOST.drawerWidth}
+        showMockControls={true}
+        showAppletInstallation={true}
+      >
+        <ActivityNotifications onNavigate={handleNavigate} />
+      </HostAppBar>
 
-      {/* API Documentation Modal */}
+      {/* API Documentation Modal - dynamically loaded */}
       {currentAppletInfo && currentAppletInfo.apiSpec && (
-        <ApiDocsModal
+        <ApiDocsWrapper
           open={apiDocsOpen}
           onClose={handleApiDocsClose}
           appletName={currentAppletInfo.label}
@@ -170,47 +202,74 @@ function Navigation() {
 
 function AppWithMockToggle() {
   const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-  const [mswReady, setMswReady] = React.useState(false);
+  const [mswReady, setMswReady] = React.useState(!mockEnabled); // Ready immediately if mocks disabled
 
-  // Initialize MSW handlers when mocks are enabled
+  // Configure applets with their API URLs
   React.useEffect(() => {
-    if (mockEnabled) {
-      initializeMswHandlers().then(() => {
-        setMswReady(true);
-      });
-    } else {
-      // Reset MSW state when mocks are disabled
-      setMswReady(false);
+    configureApplets(APPLETS);
+  }, []);
+
+  // Handle MSW worker based on mock toggle
+  React.useEffect(() => {
+    setMswReady(false); // Reset ready state when toggling
+
+    async function setupMsw() {
+      if (mockEnabled) {
+        console.log("🎭 Setting up mock environment...");
+
+        // Reset all mock data stores for fresh start
+        resetAllMocks();
+
+        // Initialize MSW handlers
+        initializeMswHandlers();
+        console.log("MSW handlers registered, initializing worker...");
+
+        // Start MSW worker
+        try {
+          await setupMswForAppletProvider();
+          console.log("✅ MSW worker started successfully");
+          setMswReady(true);
+        } catch (error) {
+          console.error("❌ Failed to start MSW worker:", error);
+          setMswReady(false);
+        }
+      } else {
+        console.log("🌐 Setting up real API environment...");
+
+        // Stop MSW worker when mocks are disabled
+        console.log("Stopping MSW worker...");
+        try {
+          await stopMswForAppletProvider();
+          console.log("✅ MSW worker stopped");
+          setMswReady(true); // Ready for real API calls
+        } catch (error) {
+          console.error("❌ Failed to stop MSW worker:", error);
+          setMswReady(true); // Still allow real API calls even if stop failed
+        }
+      }
     }
+
+    setupMsw();
   }, [mockEnabled]);
 
-  const actualMockState = mockEnabled && mswReady;
-
-  // Debug logging
-  React.useEffect(() => {
-    console.log(
-      `🔄 Mock state changed: mockEnabled=${mockEnabled}, mswReady=${mswReady}, actualMockState=${actualMockState}`,
+  // Don't render app content until MSW is ready (when mocks are enabled)
+  if (!mswReady) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+        flexDirection="column"
+        gap={2}
+      >
+        <div>Setting up mock environment...</div>
+        <div style={{ fontSize: "0.8em", opacity: 0.7 }}>
+          Initializing MSW worker
+        </div>
+      </Box>
     );
-  }, [mockEnabled, mswReady, actualMockState]);
-
-  return (
-    <SMBCQueryProvider enableMocks={actualMockState}>
-      <AppContentWithCacheInvalidation />
-    </SMBCQueryProvider>
-  );
-}
-
-function AppContentWithCacheInvalidation() {
-  const queryClient = useQueryClient();
-  const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-
-  // Clear all cached data when switching between mock and real data
-  React.useEffect(() => {
-    console.log(
-      `🗑️ Clearing React Query cache due to mock toggle: ${mockEnabled}`,
-    );
-    queryClient.clear(); // Completely clear cache, not just invalidate
-  }, [mockEnabled, queryClient]);
+  }
 
   return <AppContentWithQueryAccess />;
 }
@@ -219,42 +278,30 @@ function AppWithThemeProvider() {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const currentTheme = isDarkMode ? darkTheme : lightTheme;
 
-  // Clear any stale localStorage that might interfere with role setup
-  useEffect(() => {
-    localStorage.removeItem("roleMapping-selectedRoles");
-  }, []);
+  // Create user with calculated permissions
+  const userWithPermissions = {
+    ...DEMO_USER,
+    permissions: calculatePermissionsFromRoles(DEMO_USER.roles, ROLE_CONFIG),
+  };
 
   return (
-    <ThemeProvider theme={currentTheme}>
-      <CssBaseline />
-      <AppProvider initialRoleConfig={roleConfig} initialUser={demoUser}>
-        <AppWithMockToggle />
-      </AppProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={currentTheme}>
+        <CssBaseline />
+        <AppProvider
+          initialRoleConfig={ROLE_CONFIG}
+          initialUser={userWithPermissions}
+        >
+          <AppWithMockToggle />
+        </AppProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
 export function App() {
   return (
-    <FeatureFlagProvider
-      configs={featureFlags}
-      storagePrefix="smbcHost"
-      onFlagChange={(key: string, value: unknown) => {
-        console.log(`🚩 Feature flag '${key}' changed to:`, value);
-        if (key === "mockData") {
-          console.log(`🔄 Mock data ${value ? "enabled" : "disabled"}`);
-          if (value) {
-            console.log(
-              "📝 Now using mock data - great for development and testing",
-            );
-          } else {
-            console.log(
-              "🌐 Now using real API endpoints - make sure your backend is running",
-            );
-          }
-        }
-      }}
-    >
+    <FeatureFlagProvider configs={featureFlags} storagePrefix="smbcHost">
       <ActivityProvider>
         <TransactionProvider>
           <AppWithThemeProvider />

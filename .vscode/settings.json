@@ -1,0 +1,6 @@
+{
+  "editor.formatOnSave": true,
+  "typescript.tsc.autoDetect": "off",
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typespec.tsp-server.path": "./node_modules/.bin/tsp-server"
+}

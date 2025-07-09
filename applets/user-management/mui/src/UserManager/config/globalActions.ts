@@ -3,7 +3,7 @@ import {
   Refresh as RefreshIcon,
   GetApp as ExportIcon,
 } from "@mui/icons-material";
-import type { GlobalAction } from "@smbc/applet-core";
+import type { GlobalAction } from "@smbc/react-query-dataview";
 
 /**
  * Global action configuration for the UserManager component
@@ -24,7 +24,6 @@ export const createGlobalActionsConfig = (permissions: {
       icon: AddIcon,
       color: "secondary" as const,
       onClick: () => {
-        console.log("Create new user");
         // This will be handled by the MuiDataViewApplet automatically
       },
     });
@@ -38,7 +37,6 @@ export const createGlobalActionsConfig = (permissions: {
     icon: ExportIcon,
     color: "secondary" as const,
     onClick: () => {
-      console.log("Export users");
       // TODO: Implement export functionality
     },
   });
@@ -51,7 +49,6 @@ export const createGlobalActionsConfig = (permissions: {
     icon: RefreshIcon,
     color: "secondary" as const,
     onClick: () => {
-      console.log("Refresh data");
       // TODO: Implement refresh functionality
     },
   });

@@ -1,58 +1,67 @@
-# User Management Backend
-
-This package is a placeholder for the backend implementation of the user management service.
-
-## Implementation Options
-
-This backend can be implemented in any language or framework:
-
-- **Node.js**: Express, Fastify, NestJS
-- **Python**: FastAPI, Django, Flask
-- **Go**: Gin, Echo, Fiber
-- **Java**: Spring Boot
-- **C#**: ASP.NET Core
-- **Rust**: Actix, Axum
-- **Any other language/framework**
-
-## API Contract
-
-The backend should implement the API contract defined in `@smbc/user-management-api` which generates the OpenAPI specification.
-
-## Requirements
-
-1. Implement all endpoints defined in the API specification
-2. Follow the request/response schemas exactly
-3. Handle error responses as specified
-4. Implement proper authentication and authorization
-5. Add logging, monitoring, and health checks
-
-## Getting Started
-
-1. Choose your preferred language/framework
-2. Install the necessary dependencies
-3. Implement the API endpoints according to the OpenAPI spec
-4. Set up database connectivity
-5. Add tests
-6. Configure deployment
-
-## Environment Variables
+# @smbc/user-management-django
 
 ```bash
-# Database
-DATABASE_URL=your_database_connection_string
+pip install smbc-user-management
+```
 
-# Server
-PORT=3000
-HOST=localhost
+## Quick Start
 
-# Authentication
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=24h
+Add to your Django settings:
 
-# CORS
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+```python
+INSTALLED_APPS = [
+    # ... other apps
+    'smbc.user_management',
+    'rest_framework',
+]
+
+# API Configuration
+SMBC_USER_MANAGEMENT_CONFIG = {
+    'BASE_URL': '/api/v1/users/',
+    'ENABLE_MOCK_DATA': False,
+    'PAGINATION_SIZE': 20,
+}
+```
+
+Include the URLs:
+
+```python
+# urls.py
+from django.urls import path, include
+
+urlpatterns = [
+    # ... other patterns
+    path('api/v1/users/', include('smbc.user_management.urls')),
+]
 ```
 
 ## API Endpoints
 
-Refer to the OpenAPI specification generated from `@smbc/user-management-api` for the complete API documentation.
+- `GET /api/v1/users/` - List users with filtering and pagination
+- `POST /api/v1/users/` - Create new user
+- `GET /api/v1/users/{id}/` - Get user details
+- `PUT /api/v1/users/{id}/` - Update user
+- `DELETE /api/v1/users/{id}/` - Delete user
+
+## Permissions
+
+Uses Django's built-in permission system:
+
+- `user_management.view_user`
+- `user_management.add_user`
+- `user_management.change_user`
+- `user_management.delete_user`
+
+## Development
+
+Run migrations:
+
+```bash
+python manage.py migrate
+```
+
+Load sample data:
+
+```bash
+python manage.py loaddata user_management_sample
+```

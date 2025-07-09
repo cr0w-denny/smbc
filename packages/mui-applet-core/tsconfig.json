@@ -12,8 +12,9 @@
   "include": ["src"],
   "exclude": ["dist", "node_modules"],
   "references": [
-    { "path": "../design-tokens" },
+    { "path": "../ui-core" },
     { "path": "../applet-core" },
-    { "path": "../mui-components" }
+    { "path": "../mui-components" },
+    { "path": "../react-query-dataview" }
   ]
 }

@@ -53,8 +53,10 @@ export function UserManager({
   });
 
   // Event handlers
-  const handleSuccess = (action: "create" | "edit" | "delete", item?: any) => {
-    console.log(`Success: ${action}`, item);
+  const handleSuccess = (
+    _action: "create" | "edit" | "delete",
+    _item?: any,
+  ) => {
     // TODO: Add toast notification or snackbar
   };
 
@@ -73,6 +75,15 @@ export function UserManager({
       permissionContext={permissionContext}
       onSuccess={handleSuccess}
       onError={handleError}
+      enableUrlSync={true}
+      options={{
+        transaction: {
+          enabled: true,
+          requireConfirmation: true,
+          allowPartialSuccess: true,
+          emitActivities: true,
+        },
+      }}
     />
   );
 }

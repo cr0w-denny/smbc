@@ -1,24 +1,30 @@
 import {
   RoleConfig,
-  HostAppletDefinition,
+  AppletMount,
   createPermissionRequirements,
   generatePermissionMappings,
+  mountApplet,
 } from "@smbc/applet-core";
 import {
   People as PeopleIcon,
   Inventory as InventoryIcon,
+  Language as LanguageIcon,
 } from "@mui/icons-material";
 
-// Import applets directly
-import userManagementApplet from "@smbc/user-management-mui";
-import productCatalogApplet from "@smbc/product-catalog-mui";
+// API Configuration
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1";
+
+// Import applets directly from source during development
+import userManagementApplet from "../../../applets/user-management/mui/src";
+import productCatalogApplet from "../../../applets/product-catalog/mui/src";
+import helloApplet from "../../../applets/hello/mui/src";
 import demoTasksApplet from "./demo";
 
 // =============================================================================
 // DEMO USER CONFIGURATION
 // =============================================================================
 
-export const demoUser = {
+export const DEMO_USER = {
   id: "1",
   email: "staff@smbc.com",
   name: "Demo Staff",
@@ -36,11 +42,11 @@ export const demoUser = {
 };
 
 // =============================================================================
-// APP CONSTANTS
+// HOST CONSTANTS
 // =============================================================================
 
-export const APP_CONSTANTS = {
-  drawerWidth: 240,
+export const HOST = {
+  drawerWidth: 320,
   appName: "SMBC Applet Host",
 } as const;
 
@@ -99,10 +105,19 @@ const permissionRequirements = createPermissionRequirements({
       MANAGE_PRICING: "Manager",
     },
   },
+  hello: {
+    applet: helloApplet,
+    permissions: {
+      VIEW_ROUTE_ONE: "Guest",
+      VIEW_ROUTE_TWO: "Staff",
+      VIEW_ROUTE_THREE: "Manager",
+      VIEW_ROUTE_FOUR: "Admin",
+    },
+  },
 });
 
 // Auto-generate the verbose permission mappings
-export const roleConfig: RoleConfig = {
+export const ROLE_CONFIG: RoleConfig = {
   roles: [...HOST_ROLES],
   permissionMappings: generatePermissionMappings(
     HOST_ROLES,
@@ -129,12 +144,13 @@ const AdminUsers = () =>
   });
 
 // All applets configured for this host
-export const APPLETS: HostAppletDefinition[] = [
+export const APPLETS: AppletMount[] = [
   // Standard mounting: applet at /user-management
   {
     id: "user-management",
     label: "User Management",
     apiSpec: userManagementApplet.apiSpec,
+    apiBaseUrl: `${API_BASE_URL}/user-management`, // Full namespaced URL
     routes: [
       {
         path: "/user-management",
@@ -153,6 +169,7 @@ export const APPLETS: HostAppletDefinition[] = [
     id: "admin-users",
     label: "Admin Users",
     apiSpec: userManagementApplet.apiSpec,
+    apiBaseUrl: `${API_BASE_URL}/user-management`, // Same API as user-management
     routes: [
       {
         path: "/admin/users",
@@ -163,16 +180,25 @@ export const APPLETS: HostAppletDefinition[] = [
       },
     ],
   },
-  {
+  mountApplet(productCatalogApplet, {
     id: "product-catalog",
     label: "Product Catalog",
-    apiSpec: productCatalogApplet.apiSpec,
-    routes: productCatalogApplet.routes.map((route: any) => ({
-      ...route,
-      path: "/product-catalog",
-      icon: InventoryIcon,
-      requiredPermissions: [productCatalogApplet.permissions.VIEW_PRODUCTS.id],
-    })),
-  },
-  demoTasksApplet,
+    path: "/product-catalog",
+    icon: InventoryIcon,
+    permissions: [productCatalogApplet.permissions.VIEW_PRODUCTS],
+    apiBaseUrl: `${API_BASE_URL}/product-catalog`, // Full namespaced URL
+  }),
+  mountApplet(helloApplet, {
+    id: "hello",
+    label: "Hello",
+    path: "/hello",
+    icon: LanguageIcon,
+    permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
+  }),
+  mountApplet(demoTasksApplet, {
+    id: "demo-tasks",
+    label: "Demo Tasks",
+    path: "/demo-tasks",
+    permissions: [],
+  }),
 ];

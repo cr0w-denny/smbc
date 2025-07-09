@@ -1,7 +1,19 @@
-import { FC } from 'react';
-import { Box, Card, CardContent, Typography, Avatar, Chip, Skeleton, Alert, IconButton } from '@mui/material';
-import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import { apiClient, type components } from "@smbc/user-management-client";
+import { FC } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Avatar,
+  Chip,
+  Skeleton,
+  Alert,
+  IconButton,
+} from "@mui/material";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import { getApiClient } from "@smbc/applet-core";
+import type { components, paths } from "@smbc/user-management-api/generated/types";
 
 type User = components["schemas"]["User"];
 
@@ -16,30 +28,45 @@ export interface UserProfileProps {
 
 /**
  * UserProfile component for displaying detailed user information
- * 
+ *
  * @example
  * ```tsx
  * // Display a specific user by ID
  * <UserProfile userId="123" />
- * 
+ *
  * // Display user data directly
  * <UserProfile user={userData} />
- * 
+ *
  * // Display current user (requires userId from context)
  * <UserProfile />
  * ```
  */
-export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, onBack }) => {
+export const UserProfile: FC<UserProfileProps> = ({
+  userId,
+  user: providedUser,
+  onBack,
+}) => {
   // Use React Query to fetch user data if not provided
-  const { data: fetchedUser, isLoading, error } = apiClient.useQuery(
-    'get', 
-    '/users/{id}', 
-    { 
-      params: { path: { id: userId || 'current' } },
-      // Only fetch if no user data is provided and we have a userId
-      enabled: !providedUser && !!userId,
-    }
-  );
+  const {
+    data: fetchedUser,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['user', userId || 'current'],
+    queryFn: async () => {
+      const result = await getApiClient<paths>("user-management").GET("/users/{id}", {
+        params: { path: { id: userId || "current" } },
+      });
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to fetch user');
+      }
+      
+      return result.data;
+    },
+    // Only fetch if no user data is provided and we have a userId
+    enabled: !providedUser && !!userId,
+  });
 
   // Use provided user data or fetched data
   const user = providedUser || fetchedUser;
@@ -53,8 +80,8 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, 
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error" sx={{ maxWidth: 600, mx: 'auto' }}>
-          Failed to load user profile: {error.message || 'Unknown error'}
+        <Alert severity="error" sx={{ maxWidth: 600, mx: "auto" }}>
+          Failed to load user profile: {error.message || "Unknown error"}
         </Alert>
       </Box>
     );
@@ -64,7 +91,7 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, 
   if (!user) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="info" sx={{ maxWidth: 600, mx: 'auto' }}>
+        <Alert severity="info" sx={{ maxWidth: 600, mx: "auto" }}>
           User not found
         </Alert>
       </Box>
@@ -80,10 +107,12 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60),
+    );
+
     if (diffInHours < 1) {
-      return 'Just now';
+      return "Just now";
     } else if (diffInHours < 24) {
       return `${diffInHours} hours ago`;
     } else {
@@ -94,15 +123,15 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, 
   return (
     <Box sx={{ p: 3 }}>
       {onBack && (
-        <Box 
-          sx={{ 
-            mb: 2, 
-            display: 'flex', 
-            alignItems: 'center',
-            cursor: 'pointer',
-            '&:hover': {
-              opacity: 0.7
-            }
+        <Box
+          sx={{
+            mb: 2,
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+            "&:hover": {
+              opacity: 0.7,
+            },
           }}
           onClick={onBack}
         >
@@ -114,9 +143,9 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, 
           </Typography>
         </Box>
       )}
-      <Card sx={{ maxWidth: 600, mx: 'auto' }}>
+      <Card sx={{ maxWidth: 600, mx: "auto" }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <Avatar sx={{ width: 80, height: 80, mr: 2 }}>
               {getInitials(user.firstName, user.lastName)}
             </Avatar>
@@ -129,40 +158,40 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, 
               </Typography>
             </Box>
           </Box>
-          
+
           <Box sx={{ mb: 2 }}>
             <Typography variant="h6" gutterBottom>
               Status
             </Typography>
-            <Chip 
-              label={user.isActive ? "Active" : "Inactive"} 
+            <Chip
+              label={user.isActive ? "Active" : "Inactive"}
               color={user.isActive ? "success" : "default"}
             />
           </Box>
-          
+
           <Box sx={{ mb: 2 }}>
             <Typography variant="h6" gutterBottom>
               Role
             </Typography>
-            <Chip 
-              label={user.isAdmin ? "Administrator" : "User"} 
+            <Chip
+              label={user.isAdmin ? "Administrator" : "User"}
               color={user.isAdmin ? "primary" : "default"}
             />
           </Box>
-          
+
           <Box sx={{ mb: 2 }}>
             <Typography variant="h6" gutterBottom>
               Member Since
             </Typography>
             <Typography variant="body1">
-              {new Date(user.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+              {new Date(user.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </Typography>
           </Box>
-          
+
           <Box>
             <Typography variant="h6" gutterBottom>
               Last Updated
@@ -182,16 +211,16 @@ export const UserProfile: FC<UserProfileProps> = ({ userId, user: providedUser, 
  */
 const UserProfileSkeleton: FC = () => (
   <Box sx={{ p: 3 }}>
-    <Card sx={{ maxWidth: 600, mx: 'auto' }}>
+    <Card sx={{ maxWidth: 600, mx: "auto" }}>
       <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
           <Skeleton variant="circular" width={80} height={80} sx={{ mr: 2 }} />
           <Box sx={{ flex: 1 }}>
             <Skeleton variant="text" width="60%" height={40} />
             <Skeleton variant="text" width="80%" height={24} />
           </Box>
         </Box>
-        
+
         {[1, 2, 3, 4].map((i) => (
           <Box key={i} sx={{ mb: 2 }}>
             <Skeleton variant="text" width="30%" height={24} />

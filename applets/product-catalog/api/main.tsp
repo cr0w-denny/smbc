@@ -34,6 +34,15 @@ model CreateProductRequest {
   sku: string;
 }
 
+model UpdateProductRequest {
+  name?: string;
+  description?: string;
+  price?: float64;
+  category?: string;
+  sku?: string;
+  inStock?: boolean;
+}
+
 model ProductList {
   products: Product[];
   total: int32;
@@ -55,7 +64,8 @@ interface Products {
     @query page?: int32 = 1,
     @query pageSize?: int32 = 10,
     @query category?: string,
-    @query search?: string
+    @query search?: string,
+    @query inStock?: boolean
   ): ProductList | ErrorResponse;
 
   @post
@@ -64,4 +74,12 @@ interface Products {
   @get
   @route("/{id}")
   get(@path id: string): Product | ErrorResponse;
+
+  @patch(#{implicitOptionality: true})
+  @route("/{id}")
+  update(@path id: string, @body product: UpdateProductRequest): Product | ErrorResponse;
+
+  @delete
+  @route("/{id}")
+  delete(@path id: string): { message: string } | ErrorResponse;
 }

@@ -1,211 +1,104 @@
-# 🚀 Getting Started
+# Getting Started
 
-Create a complete application in under 5 minutes:
+## Installation
 
 ```bash
-# Create a new Vite React app
-npm create vite@latest my-smbc-app -- --template react-ts
-cd my-smbc-app
+npm create vite@latest my-app -- --template react-ts
+cd my-app
+npm install @smbc/mui-applet-host @smbc/user-management-mui
+```
 
-# Install SMBC dependencies
-npm install @smbc/mui-host @smbc/user-management-mui
+## Configuration
 
-# Create your app
-echo 'import { createApp } from "@smbc/mui-host"
+```typescript
+// src/main.ts
+import { createApp } from "@smbc/mui-applet-host"
 
 createApp({
   config: {
     applets: ["@smbc/user-management-mui"],
     roles: ["Guest", "Staff", "Admin"],
-    app: { name: "My SMBC App" }
+    app: { name: "My App" }
   }
-})' > src/main.ts
+})
+```
 
-# Start development
+```bash
 npm run dev
 ```
 
-🎉 **That's it!** Your app now includes:
-
-- User management features
-- Role-based permissions
-- MUI design system
-- Mock data for development
-- Type-safe API client
-
-## 🔧 Integration: Existing Application
-
-Add SMBC applets to your existing React application:
+## Integration with Existing Apps
 
 ### 1. Install Dependencies
 
 ```bash
-npm install @smbc/mui-host @smbc/user-management-mui
+npm install @smbc/mui-applet-host @smbc/user-management-mui
 ```
 
-### 2. Wrap Your App
+### 2. Provider Setup
 
 ```typescript
 // App.tsx
-import { AppletProvider } from '@smbc/mui-host'
+import { AppletProvider } from '@smbc/mui-applet-host'
+
+const roles = ['Guest', 'Staff', 'Admin']
+const user = { id: '1', name: 'John', roles: ['Staff'] }
 
 function App() {
   return (
-    <AppletProvider
-      applets={['@smbc/user-management-mui']}
-      roles={['Staff', 'Admin']}
-      user={currentUser}
-    >
-      {/* Your existing app */}
-      <YourExistingRoutes />
+    <AppletProvider applets={['@smbc/user-management-mui']} roles={roles} user={user}>
+      <YourExistingApp />
     </AppletProvider>
   )
 }
 ```
 
-### 3. Add Applet Routes
+### 3. Add Routes
 
 ```typescript
-// Routes.tsx
-import { AppletRoute } from '@smbc/mui-host'
+import { AppletRoute } from '@smbc/mui-applet-host'
+import { Routes, Route } from 'react-router-dom'
 
 <Routes>
-  {/* Your existing routes */}
   <Route path="/users/*" element={<AppletRoute applet="user-management" />} />
+  <Route path="/" element={<Home />} />
 </Routes>
 ```
 
-## 📦 Available Applets
+## API Configuration
 
-| Package                     | Description              | Features                      |
-| --------------------------- | ------------------------ | ----------------------------- |
-| `@smbc/user-management-mui` | Complete user management | User CRUD, roles, permissions |
-
-## 🎯 Configuration Options
-
-### Basic Configuration
+### Custom API Base URL
 
 ```typescript
-{
-  applets: ['@smbc/user-management-mui'],
-  roles: ['Guest', 'Staff', 'Admin'],
-  app: { name: 'My App' }
-}
-```
-
-### Advanced Configuration
-
-```typescript
-{
-  applets: ['@smbc/user-management-mui'],
-  roles: ['Guest', 'Staff', 'Admin'],
-  app: {
-    name: 'My Enterprise App',
-    version: '1.0.0',
-    logo: '/logo.svg'
-  },
-  permissions: {
-    permissionMappings: {
-      'user-management': {
-        'VIEW_USERS': ['Staff', 'Admin'],
-        'EDIT_USERS': ['Admin']
-      }
+<AppletProvider
+  config={{
+    api: {
+      baseUrl: 'https://api.example.com',
+      headers: { 'Authorization': `Bearer ${token}` }
     }
-  },
-  // Uses @smbc/design-tokens for consistent styling
-}
+  }}
+>
 ```
 
-## 🛠️ Development Features
-
-### Mock Data
-
-All applets include realistic mock data powered by MSW (Mock Service Worker):
-
-- No backend required for UI development
-- Realistic API responses
-- Automatic data generation
-
-### Type Safety
-
-Complete TypeScript support:
-
-- Generated API types from OpenAPI schemas
-- Type-safe component props
-- IntelliSense for all applet features
-
-### Hot Reload
-
-Changes to your configuration automatically reload:
-
-- Add/remove applets instantly
-- Update permissions in real-time
-- Design token updates apply immediately
-
-## 🔐 Permission System
-
-SMBC includes a powerful role-based permission system:
+### Permission Mappings
 
 ```typescript
-// Define roles for your application
-roles: ['Guest', 'Staff', 'Admin']
-
-// Map permissions to roles per applet
-permissionMappings: {
+const permissionMappings = {
   'user-management': {
-    'VIEW_USERS': ['Staff', 'Admin'],
-    'EDIT_USERS': ['Admin'],
-    'DELETE_USERS': ['Admin']
+    'VIEW_USERS': ['ADMIN', 'MANAGER'],
+    'EDIT_USERS': ['ADMIN'],
+    'DELETE_USERS': ['ADMIN']
   }
 }
+
+<AppletProvider permissionMappings={permissionMappings}>
 ```
 
-Components automatically hide/show based on user permissions.
-
-## 🎨 Design System
-
-The SMBC Applets Platform uses a centralized design token system:
-
-- **Colors, typography, spacing, borders** - Consistent visual elements
-- **Light/dark mode support** - Automatic theme switching
-- **Responsive breakpoints** - Mobile-first design approach
-
-Design tokens are managed through `@smbc/design-tokens`.
-
-All applets automatically use the design token system for consistency.
-
-## 📱 Responsive Design
-
-SMBC applets are mobile-first and responsive:
-
-- Optimized for mobile, tablet, and desktop
-- Touch-friendly interface elements
-- Adaptive layouts for all screen sizes
-
-## 🚀 Production Deployment
-
-### Build Your App
+## Development Commands
 
 ```bash
-npm run build
+npm run dev           # Start development server
+npm run build         # Build for production
+npm run lint          # Run ESLint
+npm run type-check    # Run TypeScript compiler
 ```
-
-### Environment Variables
-
-```bash
-# Optional: Override API endpoints
-VITE_API_BASE_URL=https://api.smbcgroup.com
-```
-
-## 🆘 Troubleshooting
-
-### Build Errors?
-
-- Ensure all peer dependencies are installed
-- Check TypeScript version compatibility
-
-### Getting Help
-
-- Check the [Architecture docs](./ARCHITECTURE.md) for system overview
-- Review [Integration guide](./INTEGRATION.md) for advanced patterns
-- See [Development workflow](./DEVELOPMENT.md) for building custom applets

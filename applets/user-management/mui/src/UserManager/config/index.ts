@@ -1,5 +1,23 @@
+/**
+ * UserManager Configuration System
+ *
+ * This folder contains a modular configuration system for the UserManager component.
+ * Each file handles a specific aspect of the data view configuration:
+ *
+ * - api.ts: Configures API endpoints, HTTP client, response parsing, and query parameters
+ * - schema.ts: Defines the data model structure, field types, validation rules, and display names
+ * - columns.tsx: Configures table columns, their properties, custom renderers, and sorting
+ * - filters.ts: Sets up search and filter fields, their types, and filter transformation logic
+ * - actions.ts: Defines row-level actions (edit, delete) with icons and permissions
+ * - bulkActions.ts: Configures bulk operations that can be performed on multiple selected rows
+ * - globalActions.ts: Sets up global actions like "Create User" that aren't row-specific
+ * - forms.ts: Configures create and edit forms, their fields, and validation
+ * - index.ts: Main configuration file that combines all configs into a single MuiDataViewAppletConfig
+ *
+ */
+
 import { type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
-import { type components } from "@smbc/user-management-client";
+import type { components } from "@smbc/user-management-api/generated/types";
 
 import { createApiConfig } from "./api";
 import { createSchemaConfig } from "./schema";
@@ -70,9 +88,6 @@ export function createUserManagerConfig({
       canCreate: permissions.canCreate,
       canEdit: permissions.canEdit,
     }),
-
-    // Permissions
-    permissions: undefined, // No longer needed since we removed the permissions re-export
 
     // Pagination
     pagination: {

@@ -62,7 +62,7 @@
 - **Dependencies**: None (pure tokens)
 - **Build**: TypeScript compilation
 
-#### `@smbc/shared-query-client`
+#### `@smbc/applet-query-client`
 
 - **Purpose**: Centralized TanStack Query client provider
 - **Technology**: TanStack Query v5, React 18

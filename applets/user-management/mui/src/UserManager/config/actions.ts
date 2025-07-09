@@ -1,4 +1,8 @@
-import { Edit as EditIcon, Delete as DeleteIcon, Visibility as ViewIcon } from "@mui/icons-material";
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Visibility as ViewIcon,
+} from "@mui/icons-material";
 
 /**
  * Action configuration for the UserManager component
@@ -13,7 +17,7 @@ export const createActionsConfig = (
   },
   handlers?: {
     onViewUser?: (user: any) => void;
-  }
+  },
 ) => {
   const actions = [];
 
@@ -34,6 +38,8 @@ export const createActionsConfig = (
       label: "Edit",
       icon: EditIcon,
       color: "primary" as const,
+      // Hide edit for items that are pending deletion
+      hidden: (user: any) => Boolean(user.__pendingDelete),
       // onClick handled by MuiDataViewApplet
     });
   }
@@ -45,6 +51,8 @@ export const createActionsConfig = (
       label: "Delete",
       icon: DeleteIcon,
       color: "error" as const,
+      // Hide delete for items that are already pending deletion
+      hidden: (user: any) => Boolean(user.__pendingDelete),
       // onClick handled by MuiDataViewApplet
     });
   }

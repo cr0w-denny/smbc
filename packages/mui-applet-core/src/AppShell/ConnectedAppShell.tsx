@@ -2,13 +2,16 @@
  * Connected AppShell component with state management and hooks
  */
 
-import React from 'react';
-import { useTheme, useMediaQuery } from '@mui/material';
-import { AppShell, type AppShellProps } from '@smbc/mui-components';
-import { useAppShell } from './AppShellProvider';
+import React from "react";
+import { useTheme, useMediaQuery } from "@mui/material";
+import { AppShell, type AppShellProps } from "@smbc/mui-components";
+import { useAppShell } from "./AppShellProvider";
 
-export interface ConnectedAppShellProps 
-  extends Omit<AppShellProps, 'drawerOpen' | 'onDrawerClose' | 'isMobile' | 'toolbarProps'> {
+export interface ConnectedAppShellProps
+  extends Omit<
+    AppShellProps,
+    "drawerOpen" | "onDrawerClose" | "isMobile" | "toolbarProps"
+  > {
   // Override toolbar props to add state management
   enableUserMenu?: boolean;
   enableNotifications?: boolean;
@@ -24,8 +27,8 @@ export const ConnectedAppShell: React.FC<ConnectedAppShellProps> = ({
   ...appShellProps
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const {
     drawerOpen,
     closeDrawer,
@@ -42,12 +45,12 @@ export const ConnectedAppShell: React.FC<ConnectedAppShellProps> = ({
   const toolbarProps = {
     showMenuButton: appShellProps.showDrawer,
     onMenuButtonClick: toggleDrawer,
-    
+
     showUserMenu: enableUserMenu,
     userMenuAnchor,
     onUserMenuOpen: openUserMenu,
     onUserMenuClose: closeUserMenu,
-    
+
     showNotifications: enableNotifications,
     notificationCount,
     notificationMenuAnchor,

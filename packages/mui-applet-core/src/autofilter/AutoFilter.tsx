@@ -2,16 +2,19 @@
  * AutoFilter - Main component for auto-generating filter UIs from OpenAPI specs
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FilterFieldGroup,
   FilterContainer,
   type FilterFieldConfig,
   type FilterValues,
-} from '@smbc/mui-components';
-import { useAutoFilterFromOperation, useAutoFilterFromFields } from './useAutoFilter';
-import { AutoFilterConfig } from './types';
-import { cleanFilterValues, validateFilterValues } from '@smbc/applet-core';
+} from "@smbc/mui-components";
+import {
+  useAutoFilterFromOperation,
+  useAutoFilterFromFields,
+} from "./useAutoFilter";
+import { AutoFilterConfig } from "./types";
+import { cleanFilterValues, validateFilterValues } from "@smbc/applet-core";
 
 interface AutoFilterProps {
   /** Called when filter values change */
@@ -38,7 +41,8 @@ interface AutoFilterProps {
   sx?: any;
 }
 
-interface AutoFilterFromOperationProps<TOperation = any> extends AutoFilterProps {
+interface AutoFilterFromOperationProps<TOperation = any>
+  extends AutoFilterProps {
   /** TypeScript operation type from openapi-typescript */
   operationType: TOperation;
 }
@@ -59,13 +63,16 @@ export function AutoFilterFromOperation<TOperation = any>({
   visible = true,
   collapsible = false,
   defaultCollapsed = false,
-  title = 'Filters',
+  title = "Filters",
   showClearButton = true,
   showFilterCount = true,
   debounceMs = 300,
   sx,
 }: AutoFilterFromOperationProps<TOperation>) {
-  const { fields, initialValues } = useAutoFilterFromOperation(operationType, config);
+  const { fields, initialValues } = useAutoFilterFromOperation(
+    operationType,
+    config,
+  );
 
   return (
     <AutoFilterCore
@@ -96,13 +103,16 @@ export function AutoFilterFromFields({
   visible = true,
   collapsible = false,
   defaultCollapsed = false,
-  title = 'Filters',
+  title = "Filters",
   showClearButton = true,
   showFilterCount = true,
   debounceMs = 300,
   sx,
 }: AutoFilterFromFieldsProps) {
-  const { fields, initialValues } = useAutoFilterFromFields(fieldConfigs, config);
+  const { fields, initialValues } = useAutoFilterFromFields(
+    fieldConfigs,
+    config,
+  );
 
   return (
     <AutoFilterCore
@@ -154,9 +164,8 @@ function AutoFilterCore({
   debounceMs,
   sx,
 }: AutoFilterCoreProps) {
-
   const [internalValues, setInternalValues] = useState<FilterValues>(
-    controlledValues || initialValues
+    controlledValues || initialValues,
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -176,48 +185,52 @@ function AutoFilterCore({
       const cleaned = cleanFilterValues(filters);
       onFiltersChange(cleaned);
     }, debounceMs),
-    [onFiltersChange, debounceMs]
+    [onFiltersChange, debounceMs],
   );
 
-  const handleFieldChange = useCallback((name: string, value: any) => {
-    const newValues = { ...currentValues, [name]: value };
-    
-    // Validate
-    const newErrors = validateFilterValues(newValues, fields);
-    setErrors(newErrors);
+  const handleFieldChange = useCallback(
+    (name: string, value: any) => {
+      const newValues = { ...currentValues, [name]: value };
 
-    // Update state
-    if (!isControlled) {
-      setInternalValues(newValues);
-    }
+      // Validate
+      const newErrors = validateFilterValues(newValues, fields);
+      setErrors(newErrors);
 
-    // Notify parent (debounced)
-    debouncedOnFiltersChange(newValues);
-  }, [currentValues, fields, isControlled, debouncedOnFiltersChange]);
+      // Update state
+      if (!isControlled) {
+        setInternalValues(newValues);
+      }
+
+      // Notify parent (debounced)
+      debouncedOnFiltersChange(newValues);
+    },
+    [currentValues, fields, isControlled, debouncedOnFiltersChange],
+  );
 
   const handleClearFilters = useCallback(() => {
     const clearedValues = { ...initialValues };
-    
+
     if (!isControlled) {
       setInternalValues(clearedValues);
     }
-    
+
     setErrors({});
     onFiltersChange(clearedValues);
   }, [initialValues, isControlled, onFiltersChange]);
 
-
   // Count active filters (non-empty, non-default values)
   const activeFilterCount = React.useMemo(() => {
     return Object.entries(currentValues).filter(([key, value]) => {
-      const field = fields.find(f => f.name === key);
-      if (!field || field.type === 'hidden') return false;
-      
+      const field = fields.find((f) => f.name === key);
+      if (!field || field.type === "hidden") return false;
+
       const defaultValue = field.defaultValue;
-      return value !== undefined && 
-             value !== null && 
-             value !== '' && 
-             value !== defaultValue;
+      return (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        value !== defaultValue
+      );
     }).length;
   }, [currentValues, fields]);
 
@@ -225,8 +238,8 @@ function AutoFilterCore({
     return null;
   }
 
-  const visibleFields = fields.filter(f => f.type !== 'hidden' && !f.hidden);
-  
+  const visibleFields = fields.filter((f) => f.type !== "hidden" && !f.hidden);
+
   if (visibleFields.length === 0) {
     return null;
   }
@@ -260,10 +273,10 @@ function AutoFilterCore({
  */
 function debounceCallback<T extends (...args: any[]) => void>(
   callback: T,
-  delay: number
+  delay: number,
 ): T {
   let timeoutId: ReturnType<typeof setTimeout>;
-  
+
   return ((...args: any[]) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => callback(...args), delay);

@@ -6,16 +6,8 @@ export * from "./types";
 // Feature flags
 export * from "./FeatureFlagProvider";
 
-// Routing
-export * from "./AppletRouter";
-
-// Role management hooks
-export * from "./usePersistedRoles";
-export * from "./useAppletPermissions";
-
 // Host utilities
 export * from "./host";
-export * from "./permission-helpers";
 
 // AutoFilter utilities for applets
 export {
@@ -28,14 +20,7 @@ export {
   AutoFilter,
 } from "./autofilter";
 
-export type {
-  FilterFieldConfig,
-  FilterValues,
-  FilterSpec,
-} from "./autofilter";
-
-// Hooks
-export { useLocalStoragePersistence } from "./hooks/useLocalStoragePersistence";
+export type { FilterFieldConfig, FilterValues, FilterSpec } from "./autofilter";
 
 // OpenAPI utilities
 export {
@@ -55,12 +40,26 @@ export type {
   UseAutoFilterParams,
 } from "./openapi/types";
 
-// Filter utilities
+// Query client utilities
 export {
-  useAutoFilterWithUrl,
-  useUrlFilters,
-} from "./filters/useAutoFilterWithUrl";
+  createFetchClient,
+  createApiClient,
+  getApiClient,
+  configureApplets,
+  type ApiClientConfig,
+} from "./query-client";
 
-// DataView utilities
-export * from "./dataview";
+// Route utilities for automatic mountPath injection
+export {
+  withMountPath,
+  processAppletRoutes,
+  mountApplet,
+  mountApplets,
+} from "./route-utils";
 
+// Navigation utilities
+export {
+  createNavigationExport,
+  createSimpleNavigationExport,
+  type NavigationConfig,
+} from "./createNavigationExport";

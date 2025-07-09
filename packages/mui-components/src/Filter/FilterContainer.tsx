@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Paper,
   Box,
@@ -7,13 +7,13 @@ import {
   Collapse,
   Divider,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   Clear as ClearIcon,
   Tune as TuneIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 export interface FilterContainerProps {
   title?: string;
@@ -28,7 +28,7 @@ export interface FilterContainerProps {
 }
 
 export const FilterContainer: React.FC<FilterContainerProps> = ({
-  title = 'Filters',
+  title = "Filters",
   children,
   collapsible = false,
   defaultCollapsed = false,
@@ -41,7 +41,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
 
   const toggleCollapsed = () => {
-    setIsCollapsed(prev => !prev);
+    setIsCollapsed((prev) => !prev);
   };
 
   return (
@@ -56,13 +56,13 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       {/* Header */}
       <Box
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          mb: collapsible || !isCollapsed ? 1 : 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 0,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <TuneIcon color="action" />
           <Typography variant="subtitle1" fontWeight="medium">
             {title}
@@ -71,12 +71,12 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
             <Typography
               variant="caption"
               sx={{
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
                 px: 1,
                 py: 0.25,
                 borderRadius: 1,
-                fontWeight: 'medium',
+                fontWeight: "medium",
               }}
             >
               {activeFilterCount}
@@ -84,18 +84,28 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
           )}
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          {showClearButton && activeFilterCount > 0 && onClearFilters && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          {showClearButton && onClearFilters && (
             <Tooltip title="Clear all filters">
-              <IconButton size="small" onClick={onClearFilters}>
+              <IconButton
+                onClick={onClearFilters}
+                sx={{
+                  visibility: activeFilterCount > 0 ? "visible" : "hidden",
+                  p: "0 !important",
+                }}
+              >
                 <ClearIcon />
               </IconButton>
             </Tooltip>
           )}
-          
+
           {collapsible && (
-            <Tooltip title={isCollapsed ? 'Show filters' : 'Hide filters'}>
-              <IconButton size="small" onClick={toggleCollapsed}>
+            <Tooltip title={isCollapsed ? "Show filters" : "Hide filters"}>
+              <IconButton
+                size="small"
+                onClick={toggleCollapsed}
+                sx={{ p: "0 !important" }}
+              >
                 {isCollapsed ? <ExpandMoreIcon /> : <ExpandLessIcon />}
               </IconButton>
             </Tooltip>
@@ -106,7 +116,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       {/* Filter Fields */}
       <Collapse in={!isCollapsed} timeout={200}>
         <Box>
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ mt: 1, mb: 2 }} />
           {children}
         </Box>
       </Collapse>

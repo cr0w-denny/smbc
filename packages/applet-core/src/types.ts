@@ -1,3 +1,4 @@
+import React from "react";
 import { PermissionDefinition } from "./permissions";
 
 // Role configuration types
@@ -17,6 +18,7 @@ export interface PermissionMapping {
 export interface User {
   id: string;
   roles: string[]; // Multiple roles (e.g., ['Customer', 'Manager'])
+  permissions?: string[]; // Flat list of permissions (new approach)
   name: string;
   email?: string; // Optional for display purposes
   avatar?: string; // Optional for display purposes
@@ -64,11 +66,69 @@ export interface AppState {
   appletRegistry?: Record<string, any>;
 }
 
-// Applet system types
-export interface AppletRoute {
+// Navigation types
+export interface InternalRoute {
   path: string; // Must include '/' as root route
   label: string; // Display name for menus
   component: React.ComponentType; // React component to render
+}
+
+
+export interface HostRoute {
+  path: string;
+  label: string;
+  icon?: React.ComponentType | React.ElementType | string;
+  component?: React.ComponentType;
+  requiredPermissions?: string[];
+}
+
+export interface HostNavigationGroup {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
+  routes: HostRoute[];
+}
+
+
+// Navigation route interface for TreeMenu component
+export interface NavigationRoute {
+  path: string;
+  label: string;
+  icon?: React.ComponentType | React.ElementType | string;
+  component?: React.ComponentType;
+  requiredPermissions?: string[];
+}
+
+// Navigation group definition (input for building navigation)
+export interface NavigationGroupDefinition {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
+}
+
+// Navigation group interface for TreeMenu component (output)
+export interface NavigationGroup {
+  id: string;
+  label: string;
+  icon?: string;
+  order?: number;
+  routes: NavigationRoute[];
+}
+
+// Generic menu section interface for TreeMenu component
+export interface MenuNavigationSection {
+  sectionId: string;
+  sectionLabel: string;
+  sectionIcon?: React.ComponentType | React.ElementType | string;
+  // If hasInternalNavigation is false, treat as a direct route
+  hasInternalNavigation: boolean;
+  // For direct routes (no internal navigation)
+  directRoute?: NavigationRoute;
+  // For applets with internal navigation
+  homeRoute?: NavigationRoute;
+  groups?: NavigationGroup[];
 }
 
 // Standard applet permissions (re-using PermissionDefinition from appletPermissions)
@@ -81,10 +141,18 @@ export interface Applet<
   TPermissions extends AppletPermissions = AppletPermissions,
 > {
   readonly permissions: TPermissions;
-  readonly routes: readonly AppletRoute[];
+  readonly component: React.ComponentType<{ mountPath: string }>;
   readonly apiSpec?: {
     name: string;
     spec: any; // OpenAPI 3.0 spec object
+  };
+  readonly getHostNavigation?: (
+    mountPath: string, 
+    hasAnyPermission: (appletId: string, permissions: string[]) => boolean,
+    appletId: string
+  ) => {
+    homeRoute?: HostRoute;
+    groups: HostNavigationGroup[];
   };
 }
 
@@ -97,13 +165,23 @@ export interface HostAppletRoute {
   requiredPermissions?: string[];
 }
 
-export interface HostAppletDefinition {
+export interface AppletMount {
   id: string;
   label: string;
   routes: HostAppletRoute[];
+  permissions?: Record<string, string>; // Permission name to required role mapping
   apiSpec?: {
     name: string;
     spec: any;
+  };
+  apiBaseUrl?: string; // Optional API base URL for this applet
+  getHostNavigation?: (
+    mountPath: string, 
+    hasAnyPermission: (appletId: string, permissions: string[]) => boolean,
+    appletId: string
+  ) => {
+    homeRoute?: HostRoute;
+    groups: HostNavigationGroup[];
   };
 }
 

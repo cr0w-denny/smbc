@@ -1,0 +1,1 @@
+export { InstallationModal } from './InstallationModal';

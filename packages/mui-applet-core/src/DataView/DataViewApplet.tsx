@@ -1,10 +1,12 @@
 import React from "react";
-import { useDataView, type DataViewConfig, type UseDataViewOptions } from "@smbc/react-dataview";
 import {
-  usePermissions,
-  type PermissionDefinition,
-} from "@smbc/applet-core";
-import { MuiDataView, ActionBar } from "@smbc/mui-components";
+  useDataView,
+  type DataViewConfig,
+  type UseDataViewOptions,
+} from "@smbc/react-query-dataview";
+import { usePermissions, type PermissionDefinition, useHashParams } from "@smbc/applet-core";
+import { MuiDataView } from "./MuiDataView";
+import { ActionBar } from "../ActionBar";
 import {
   Dialog,
   DialogTitle,
@@ -38,6 +40,8 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
     error: any,
     item?: any,
   ) => void;
+  /** Enable URL hash parameter synchronization (default: false) */
+  enableUrlSync?: boolean;
   /** Optional initial state from URL or external source */
   initialState?: {
     filters?: Record<string, any>;
@@ -58,21 +62,21 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
  * ARCHITECTURE OVERVIEW:
  * This component implements a 3-layer architecture that separates concerns:
  *
- * Layer 1 (react-dataview): Framework-agnostic data management
+ * Layer 1 (applet-dataview)
  * - Handles API calls, caching, optimistic updates
  * - Manages filters, pagination, selections, CRUD operations
  * - Takes simple string permissions and any actions you provide
  * - No knowledge of SMBC business logic or MUI components
  * - Reusable across different UI frameworks (React Native, etc.)
  *
- * Layer 2 (mui-applet-core): SMBC business logic
+ * Layer 2 (mui-applet-core)
  * - Converts PermissionDefinitions to simple strings
  * - Filters and processes actions based on user permissions
  * - Handles URL-based state
  * - Connects generic data operations to specific business handlers
  * - No knowledge of specific UI components, but MUI-aware
  *
- * Layer 3 (MUI components): UI rendering
+ * Layer 3 (mui-components)
  * - Renders tables, forms, dialogs, action bars using MUI
  * - Handles user interactions and visual feedback
  * - No knowledge of data fetching or business logic
@@ -90,17 +94,43 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   permissionContext = "default",
   onSuccess,
   onError,
+  enableUrlSync = false,
   initialState,
   onStateChange,
   options,
 }: MuiDataViewAppletProps<T>) {
+  console.log('🎯 MuiDataViewApplet render', { 
+    enableUrlSync, 
+    permissionContext,
+    configFiltersInitial: config.filters?.initialValues,
+    configPaginationDefault: config.pagination?.defaultPageSize,
+    hasOptions: !!options
+  });
   const { hasPermission } = usePermissions();
 
-  // Layer 2: SMBC business logic - convert PermissionDefinition to boolean
+  // Memoize default values to prevent unnecessary re-renders in useHashParams
+  const defaultFilters = React.useMemo(() => 
+    config.filters?.initialValues || {}, 
+    [config.filters?.initialValues]
+  );
+  
+  const defaultPagination = React.useMemo(() => 
+    ({ page: 0, pageSize: config.pagination?.defaultPageSize || 10 }), 
+    [config.pagination?.defaultPageSize]
+  );
+
+  // URL sync functionality
+  const urlState = useHashParams(
+    defaultFilters,
+    defaultPagination,
+    enableUrlSync
+  );
+  
+
+  // Layer 2: - convert PermissionDefinition to boolean
   const canCreate = config.permissions?.create
     ? hasPermission(permissionContext, config.permissions.create)
     : false;
-
 
   // Layer 1: Prepare config for framework-agnostic data management
   // Strip out Layer 2 concepts (SMBC permissions, actions) before passing to Layer 1
@@ -111,52 +141,147 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     actions: {}, // Layer 2 will process and filter actions based on permissions
   };
 
-  // Layer 2: State management - either custom (for URL sync) or let useDataView handle it
-  const useCustomState = onStateChange && !initialState;
-  const customFilterState = React.useState(config.filters?.initialValues || {});
-  const customPaginationState = React.useState({
-    page: 0,
-    pageSize: config.pagination?.defaultPageSize || 10,
-  });
+  // Layer 2: State management - URL sync, custom callback, or let useDataView handle it
+  const useCustomState = enableUrlSync || (onStateChange && !initialState);
+  
+  // Stabilize URL state setters to prevent focus loss
+  const setUrlFilters = React.useCallback(
+    (filters: any) => {
+      console.log('🎯 setUrlFilters called', { filters, enableUrlSync });
+      if (enableUrlSync) {
+        // Use direct update, not function wrapper
+        urlState.setFilters(filters);
+      }
+    },
+    [enableUrlSync] // Remove urlState.setFilters dependency 
+  );
+  
+  const setUrlPagination = React.useCallback(
+    (paginationUpdateOrUpdater: any) => {
+      if (enableUrlSync) {
+        if (typeof paginationUpdateOrUpdater === 'function') {
+          // It's an updater function - pass it through
+          urlState.setPagination(paginationUpdateOrUpdater);
+        } else {
+          // It's an object - merge with previous state
+          urlState.setPagination((prev: any) => {
+            const newPagination = { ...prev, ...paginationUpdateOrUpdater };
+            return newPagination;
+          });
+        }
+      }
+    },
+    [enableUrlSync] // Remove urlState.setPagination dependency
+  );
+  
+  // Create local state for non-URL sync mode
+  const [localFilters, setLocalFilters] = React.useState(defaultFilters);
+  const [localPagination, setLocalPagination] = React.useState(defaultPagination);
+  
+  // Memoize the state tuples to prevent unnecessary re-renders
+  const customFilterState = React.useMemo(() => 
+    enableUrlSync 
+      ? [urlState.filters, setUrlFilters] as const
+      : [localFilters, setLocalFilters] as const,
+    [enableUrlSync, urlState.filters, setUrlFilters, localFilters]
+  );
+  
+  const customPaginationState = React.useMemo(() => 
+    enableUrlSync
+      ? [urlState.pagination, setUrlPagination] as const
+      : [localPagination, setLocalPagination] as const,
+    [enableUrlSync, urlState.pagination, setUrlPagination, localPagination]
+  );
 
   // Inject URL state after component initializes (if initial state provided)
   React.useEffect(() => {
-    if (initialState?.filters && customFilterState[1]) {
+    if (initialState?.filters && !enableUrlSync && customFilterState[1]) {
       customFilterState[1](initialState.filters);
     }
-  }, [initialState?.filters]);
+  }, [initialState?.filters, enableUrlSync]);
 
   React.useEffect(() => {
-    if (initialState?.pagination && customPaginationState[1]) {
+    if (initialState?.pagination && !enableUrlSync && customPaginationState[1]) {
       customPaginationState[1](initialState.pagination);
     }
-  }, [initialState?.pagination]);
+  }, [initialState?.pagination, enableUrlSync]);
 
-  // Notify wrapper of state changes
+  // Notify wrapper of state changes (for non-URL sync cases)
   React.useEffect(() => {
-    if (onStateChange && useCustomState) {
+    if (onStateChange && useCustomState && !enableUrlSync) {
       onStateChange({
         filters: customFilterState[0],
         pagination: customPaginationState[0],
       });
     }
-  }, [customFilterState[0], customPaginationState[0], onStateChange, useCustomState]);
+  }, [
+    customFilterState[0],
+    customPaginationState[0],
+    onStateChange,
+    useCustomState,
+    enableUrlSync,
+  ]);
 
   // Layer 1: Framework-agnostic data management (API calls, state, mutations)
   const dataView = useDataView(baseConfigWithoutActions, {
-    // Use custom state hooks only when doing URL sync without initial state override
-    useFilterState: useCustomState ? () => customFilterState : undefined,
-    usePaginationState: useCustomState ? () => customPaginationState : undefined,
+    // Use custom state when URL sync enabled or external state management needed
+    filterState: useCustomState ? {
+      filters: customFilterState[0],
+      setFilters: customFilterState[1]
+    } : undefined,
+    paginationState: useCustomState ? {
+      pagination: customPaginationState[0],
+      setPagination: customPaginationState[1]
+    } : undefined,
     transformFilters: config.options?.transformFilters,
     getActiveColumns: config.options?.getActiveColumns,
-    onSuccess,
-    onError,
+    onSuccess: (action, item) => {
+      console.log(`DataView ${action} success:`, item);
+      onSuccess?.(action, item);
+    },
+    onError: (action, error, item) => {
+      console.error(`DataView ${action} error:`, error, item);
+      onError?.(action, error, item);
+    },
     // Merge in any additional options passed to the applet
     ...options,
   });
 
+  // Track if transaction is executing to show loading state
+  const [isTransactionExecuting, setIsTransactionExecuting] = React.useState(false);
 
-  // Layer 2: SMBC business logic - process row actions with permission filtering and connect to Layer 1 handlers
+  // Listen for transaction execution to show table loading state
+  React.useEffect(() => {
+    if (!dataView.transaction) return;
+
+    // Poll transaction status to detect execution
+    const checkTransactionStatus = () => {
+      const transaction = dataView.transaction?.getTransaction();
+      const isExecuting = transaction?.status === "executing";
+      setIsTransactionExecuting(isExecuting || false);
+    };
+
+    // Check status every 100ms
+    const interval = setInterval(checkTransactionStatus, 100);
+
+    const handleExecutionEnd = () => {
+      setIsTransactionExecuting(false);
+    };
+
+    // Listen to completion events
+    dataView.transaction.on("onTransactionComplete", handleExecutionEnd);
+    dataView.transaction.on("onTransactionError", handleExecutionEnd);
+    dataView.transaction.on("onTransactionCancelled", handleExecutionEnd);
+
+    return () => {
+      clearInterval(interval);
+      dataView.transaction?.off("onTransactionComplete", handleExecutionEnd);
+      dataView.transaction?.off("onTransactionError", handleExecutionEnd);
+      dataView.transaction?.off("onTransactionCancelled", handleExecutionEnd);
+    };
+  }, [dataView.transaction]);
+
+  // Layer 2: process row actions with permission filtering and connect to Layer 1 handlers
   const processedRowActions =
     config.actions?.row?.map((action) => ({
       ...action,
@@ -172,13 +297,13 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       },
     })) || [];
 
-  // Layer 2: SMBC business logic - process bulk actions with permission filtering
+  // Layer 2: process bulk actions with permission filtering
   const processedBulkActions =
     config.actions?.bulk?.map((action) => ({
       ...action,
       onClick: (items: T[]) => {
         // Handle bulk operations - pass mutations and transaction support to the action handler
-        if (typeof action.onClick === 'function') {
+        if (typeof action.onClick === "function") {
           const originalOnClick = action.onClick;
           try {
             // Call with mutations and transaction support
@@ -188,6 +313,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
               createMutation: dataView.createMutation,
               transaction: dataView.transaction,
               addTransactionOperation: dataView.addTransactionOperation,
+              getPendingData: (dataView as any).getPendingData,
             });
           } catch (error) {
             // Fallback to original call
@@ -197,7 +323,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       },
     })) || [];
 
-  // Layer 2: SMBC business logic - process global actions with permission filtering
+  // Layer 2: process global actions with permission filtering
   const processedGlobalActions =
     config.actions?.global?.map((action) => ({
       ...action,
@@ -211,7 +337,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       },
     })) || [];
 
-  // Layer 2: Add default create action based on SMBC permissions if none configured
+  // Layer 2: Add default create action based on permissions if none configured
   if (
     canCreate &&
     !processedGlobalActions.some((action) => action.key === "create")
@@ -238,13 +364,16 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         data: dataView.data,
         columns: activeColumns,
         actions: processedRowActions,
-        isLoading: dataView.isLoading,
+        isLoading: dataView.isLoading || isTransactionExecuting,
         error: dataView.error,
         selection: {
           enabled: true,
           selectedIds: dataView.selection.selectedIds,
           onSelectionChange: dataView.selection.setSelectedIds,
         },
+        // Pass transaction state separately for UI components to handle merging
+        transactionState: dataView.transactionState,
+        primaryKey: config.schema.primaryKey,
       });
   }, [
     dataView.data,
@@ -255,64 +384,65 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     dataView.isLoading,
     dataView.error,
     dataView.selection,
+    dataView.transactionState,
+    isTransactionExecuting,
   ]);
 
   return (
     <div className={className} style={style}>
-      {/* Layer 3: MUI filter rendering */}
       <dataView.FilterComponent />
 
-      {/* Layer 3: MUI action bar rendering with Layer 2 processed actions */}
       <ActionBar
         globalActions={processedGlobalActions}
         bulkActions={processedBulkActions}
         selectedItems={dataView.selection.selectedItems}
         totalItems={dataView.data.length}
         onClearSelection={() => dataView.selection.setSelectedIds([])}
+        transactionState={dataView.transactionState}
+        primaryKey={config.schema.primaryKey}
       />
 
-      {/* Layer 3: MUI table rendering with Layer 2 processed row actions */}
       <TableComponentWithActions />
 
-      {/* Layer 3: MUI pagination rendering */}
       {config.pagination?.enabled && <dataView.PaginationComponent />}
 
-      {/* Layer 3: MUI form dialog rendering */}
       {dataView.createDialogOpen && <dataView.CreateFormComponent />}
       {dataView.editDialogOpen && dataView.editingItem && (
         <dataView.EditFormComponent item={dataView.editingItem} />
       )}
-      {dataView.deleteDialogOpen && dataView.deletingItem && !dataView.transaction && (
-        <Dialog
-          open={dataView.deleteDialogOpen}
-          onClose={() => dataView.setDeleteDialogOpen(false)}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle>Confirm Delete</DialogTitle>
-          <DialogContent>
-            <Typography>
-              Are you sure you want to delete this item? This action cannot be
-              undone.
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => dataView.setDeleteDialogOpen(false)}
-              color="inherit"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => dataView.handleDeleteConfirm()}
-              color="error"
-              variant="contained"
-            >
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+      {dataView.deleteDialogOpen &&
+        dataView.deletingItem &&
+        !dataView.transaction && (
+          <Dialog
+            open={dataView.deleteDialogOpen}
+            onClose={() => dataView.setDeleteDialogOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogContent>
+              <Typography>
+                Are you sure you want to delete this item? This action cannot be
+                undone.
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => dataView.setDeleteDialogOpen(false)}
+                color="inherit"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => dataView.handleDeleteConfirm()}
+                color="error"
+                variant="contained"
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
     </div>
   );
 }

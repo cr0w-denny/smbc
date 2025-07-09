@@ -1,125 +1,16 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Typography,
   Toolbar,
-  Chip,
-  Tabs,
-  Tab,
-} from '@mui/material';
-import { Dashboard as DashboardIcon } from '@mui/icons-material';
+} from "@mui/material";
+import { TreeMenu, NavigationRoute, TreeMenuSection } from "./TreeMenu";
 
-/**
- * Navigation route interface
- */
-export interface NavigationRoute {
-  path: string;
-  label: string;
-  icon?: React.ComponentType | React.ElementType;
-  component?: React.ComponentType;
-  requiredPermissions?: string[];
-}
+// Re-export types from TreeMenu for convenience
+export type { NavigationRoute, TreeMenuSection } from "./TreeMenu";
+export type { TreeMenuGroup } from "./TreeMenu";
 
-/**
- * Props for the AppletNavigation component
- */
-export interface AppletNavigationProps {
-  /** Current active path */
-  currentPath: string;
-  /** Function to handle navigation */
-  onNavigate: (path: string) => void;
-  /** Array of navigation routes */
-  routes: NavigationRoute[];
-  /** Navigation style mode */
-  mode?: 'list' | 'tabs';
-  /** Whether to show debug info (applet count chip) */
-  showDebugInfo?: boolean;
-  /** Number of total applets for debug display */
-  totalApplets?: number;
-}
-
-/**
- * Navigation component that renders a list of navigable routes
- * with proper selection highlighting and permission-based filtering
- */
-export function AppletNavigation({
-  currentPath,
-  onNavigate,
-  routes,
-  mode = 'list',
-  showDebugInfo = false,
-  totalApplets = 0,
-}: AppletNavigationProps) {
-  const handleNavigation = (path: string) => {
-    onNavigate(path);
-  };
-
-  if (mode === 'tabs') {
-    const currentIndex = routes.findIndex(route => route.path === currentPath);
-    const tabValue = currentIndex === -1 ? 0 : currentIndex;
-
-    return (
-      <Tabs
-        value={tabValue}
-        onChange={(_, newValue) => {
-          const route = routes[newValue];
-          if (route) {
-            handleNavigation(route.path);
-          }
-        }}
-        aria-label="navigation tabs"
-      >
-        {routes.map((route) => (
-          <Tab
-            key={route.path}
-            label={route.label}
-            id={`nav-tab-${route.path}`}
-            aria-controls={`nav-tabpanel-${route.path}`}
-          />
-        ))}
-      </Tabs>
-    );
-  }
-
-  // Default list mode
-  return (
-    <List>
-      {routes.map((route) => {
-        const IconComponent = route.icon;
-        const isSelected = currentPath === route.path;
-
-        return (
-          <ListItem key={route.path} disablePadding>
-            <ListItemButton
-              selected={isSelected}
-              onClick={() => handleNavigation(route.path)}
-            >
-              <ListItemIcon>
-                {IconComponent ? <IconComponent /> : <DashboardIcon />}
-              </ListItemIcon>
-              <ListItemText primary={route.label} />
-              {/* Show applet count for debug */}
-              {route.path === "/" && showDebugInfo && (
-                <Chip
-                  label={totalApplets}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                />
-              )}
-            </ListItemButton>
-          </ListItem>
-        );
-      })}
-    </List>
-  );
-}
 
 /**
  * Props for the AppletDrawer component
@@ -133,24 +24,28 @@ export interface AppletDrawerProps {
   currentPath: string;
   /** Function to handle navigation */
   onNavigate: (path: string) => void;
-  /** Array of navigation routes */
-  routes: NavigationRoute[];
+  /** Root route (usually Dashboard) */
+  rootRoute?: NavigationRoute;
+  /** Tree menu sections */
+  menuSections: TreeMenuSection[];
   /** Whether to show debug info */
   showDebugInfo?: boolean;
-  /** Number of total applets for debug display */
-  totalApplets?: number;
+  /** Number of total sections for debug display */
+  totalSections?: number;
   /** Custom content to render above navigation */
   headerContent?: React.ReactNode;
   /** Custom content to render below navigation */
   footerContent?: React.ReactNode;
   /** Custom styling for the drawer */
   sx?: any;
+  /** Current search term for auto-expanding matching nodes */
+  searchTerm?: string;
 }
 
 /**
  * A reusable drawer component for application navigation
  * that provides a consistent sidebar with navigation items
- * 
+ *
  * @example
  * ```tsx
  * <AppletDrawer
@@ -169,12 +64,14 @@ export function AppletDrawer({
   width = 240,
   currentPath,
   onNavigate,
-  routes,
+  rootRoute,
+  menuSections,
   showDebugInfo = false,
-  totalApplets = 0,
+  totalSections = 0,
   headerContent,
   footerContent,
   sx,
+  searchTerm,
 }: AppletDrawerProps) {
   return (
     <Drawer
@@ -194,25 +91,21 @@ export function AppletDrawer({
           {title}
         </Typography>
       </Toolbar>
-      
-      {headerContent && (
-        <Box sx={{ px: 2, py: 1 }}>
-          {headerContent}
-        </Box>
-      )}
-      
-      <AppletNavigation
+
+      {headerContent && <Box sx={{ px: 2, py: 1 }}>{headerContent}</Box>}
+
+      <TreeMenu
         currentPath={currentPath}
         onNavigate={onNavigate}
-        routes={routes}
+        rootRoute={rootRoute}
+        menuSections={menuSections}
         showDebugInfo={showDebugInfo}
-        totalApplets={totalApplets}
+        totalSections={totalSections}
+        searchTerm={searchTerm}
       />
-      
+
       {footerContent && (
-        <Box sx={{ px: 2, py: 1, mt: 'auto' }}>
-          {footerContent}
-        </Box>
+        <Box sx={{ px: 2, py: 1, mt: "auto" }}>{footerContent}</Box>
       )}
     </Drawer>
   );

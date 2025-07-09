@@ -9,30 +9,20 @@
     "declarationMap": true,
     "jsx": "react-jsx"
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "storybook-static",
-    ".storybook"
-  ],
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules", "storybook-static", ".storybook"],
   "references": [
     {
-      "path": "../../../packages/design-tokens"
+      "path": "../../../packages/ui-core"
     },
     {
-      "path": "../../../packages/shared-query-client"
+      "path": "../../../packages/applet-core"
     },
     {
       "path": "../../../packages/mui-applet-core"
     },
     {
       "path": "../../../packages/mui-components"
-    },
-    {
-      "path": "../api-client"
     }
   ]
 }
