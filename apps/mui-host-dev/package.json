@@ -10,10 +10,10 @@
     "generate:api": "echo 'N/A - Application package'",
     "generate:api:watch": "echo 'N/A - Application package'",
     "build": "vite build",
+    "build:github-pages": "vite build",
     "dev": "vite",
-    "dev:hash": "vite --mode hash",
     "preview": "vite preview",
-    "preview:static": "vite preview --mode hash",
+    "preview:github-pages": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "type-check": "tsc --noEmit"
   },

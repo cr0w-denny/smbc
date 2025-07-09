@@ -8,20 +8,17 @@ import { sharedViteConfig } from "../../vite.shared.config.ts";
 export default defineConfig(({ mode }) => {
   const isProduction = mode === "production";
 
-  // Load environment config based on mode
-  const envConfig =
-    mode === "hash"
-      ? {
-          envDir: ".",
-          envPrefix: "VITE_",
-          define: {},
-        }
-      : {};
+  // Load environment config
+  const envConfig = {
+    envDir: ".",
+    envPrefix: "VITE_",
+    define: {},
+  };
 
   // Add production-specific defines
   const productionDefines = isProduction
     ? {
-        // Allow disabling MSW via environment variable
+        // Allow disabling MSW via environment variable (default to false to keep mocks enabled)
         "import.meta.env.VITE_DISABLE_MSW": process.env.VITE_DISABLE_MSW
           ? `"${process.env.VITE_DISABLE_MSW}"`
           : '"false"',
@@ -30,6 +27,8 @@ export default defineConfig(({ mode }) => {
 
   const appSpecificConfig = defineConfig({
     ...envConfig,
+    // Set base path for GitHub Pages deployment
+    base: process.env.VITE_BASE_PATH || "/",
     define: {
       ...envConfig.define,
       ...productionDefines,
