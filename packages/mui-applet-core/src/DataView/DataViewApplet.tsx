@@ -5,6 +5,7 @@ import {
   type UseDataViewOptions,
 } from "@smbc/react-query-dataview";
 import { usePermissions, type PermissionDefinition, useHashParams } from "@smbc/applet-core";
+import { useQueryClient } from "@tanstack/react-query";
 import { MuiDataView } from "./MuiDataView";
 import { ActionBar } from "../ActionBar";
 import {
@@ -247,6 +248,29 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     ...options,
   });
 
+  // Get access to the queryClient and build the query key for optimistic updates
+  const queryClient = useQueryClient();
+  
+  // Build the current query key to match what useDataView creates
+  const currentQueryKey = React.useMemo(() => {
+    const transformedFilters = config.options?.transformFilters 
+      ? config.options.transformFilters(dataView.filters)
+      : dataView.filters;
+      
+    const queryParams = {
+      params: {
+        query: {
+          page: dataView.pagination.page + 1, // useDataView adds 1 to the page
+          pageSize: dataView.pagination.pageSize,
+          ...transformedFilters,
+        },
+      },
+    };
+    
+    console.log("🔑 Building query key:", ["get", config.api.endpoint, queryParams]);
+    return ["get", config.api.endpoint, queryParams];
+  }, [config.api.endpoint, config.options?.transformFilters, dataView.filters, dataView.pagination]);
+
   // Track if transaction is executing to show loading state
   const [isTransactionExecuting, setIsTransactionExecuting] = React.useState(false);
 
@@ -306,7 +330,10 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         if (typeof action.onClick === "function") {
           const originalOnClick = action.onClick;
           try {
-            // Call with mutations and transaction support
+            // Detect if optimistic mode is enabled (no transaction manager)
+            const optimisticMode = !dataView.transaction;
+            
+            // Call with mutations, transaction support, and optimistic context
             return originalOnClick(items, {
               updateMutation: dataView.updateMutation,
               deleteMutation: dataView.deleteMutation,
@@ -314,6 +341,10 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
               transaction: dataView.transaction,
               addTransactionOperation: dataView.addTransactionOperation,
               getPendingData: (dataView as any).getPendingData,
+              // Optimistic update context
+              optimisticMode,
+              queryClient: optimisticMode ? queryClient : undefined,
+              dataViewQueryKey: optimisticMode ? currentQueryKey : undefined,
             });
           } catch (error) {
             // Fallback to original call
@@ -374,6 +405,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         // Pass transaction state separately for UI components to handle merging
         transactionState: dataView.transactionState,
         primaryKey: config.schema.primaryKey,
+        hover: config.options?.hover || false,
       });
   }, [
     dataView.data,

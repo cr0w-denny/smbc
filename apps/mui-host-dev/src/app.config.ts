@@ -145,6 +145,15 @@ const AdminUsers = () =>
 
 // All applets configured for this host
 export const APPLETS: AppletMount[] = [
+  // Hello applet - moved to first position
+  mountApplet(helloApplet, {
+    id: "hello",
+    label: "Hello",
+    path: "/hello",
+    icon: LanguageIcon,
+    permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
+  }),
+  
   // Standard mounting: applet at /user-management
   {
     id: "user-management",
@@ -187,13 +196,6 @@ export const APPLETS: AppletMount[] = [
     icon: InventoryIcon,
     permissions: [productCatalogApplet.permissions.VIEW_PRODUCTS],
     apiBaseUrl: `${API_BASE_URL}/product-catalog`, // Full namespaced URL
-  }),
-  mountApplet(helloApplet, {
-    id: "hello",
-    label: "Hello",
-    path: "/hello",
-    icon: LanguageIcon,
-    permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
   }),
   mountApplet(demoTasksApplet, {
     id: "demo-tasks",

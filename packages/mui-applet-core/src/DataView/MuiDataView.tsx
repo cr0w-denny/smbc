@@ -48,6 +48,7 @@ function MuiDataTable<T extends Record<string, any>>({
   selection,
   transactionState,
   primaryKey = 'id' as keyof T,
+  hover = false,
 }: DataViewTableProps<T>) {
   if (error) {
     return <Alert severity="error">{error.message}</Alert>;
@@ -191,6 +192,7 @@ function MuiDataTable<T extends Record<string, any>>({
             return (
               <TableRow
                 key={entityId || index}
+                hover={hover}
                 onClick={onRowClick ? () => onRowClick(item) : undefined}
                 sx={{
                   cursor: onRowClick ? "pointer" : "default",

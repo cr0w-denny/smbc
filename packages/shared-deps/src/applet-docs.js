@@ -1,6 +1,6 @@
 /**
  * Auto-generated applet documentation
- * Generated at: 2025-07-09T03:57:20.840Z
+ * Generated at: 2025-07-09T15:45:06.894Z
  */
 
 export const APPLET_DOCS = {

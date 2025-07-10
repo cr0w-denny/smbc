@@ -1,351 +1,336 @@
 /**
- * Pure Custom Applet Implementation
- * 
- * This demonstrates a completely custom applet that doesn't use the dataview framework.
- * It shows how you can build any UI you want using just:
- * - Raw OpenAPI-generated client
- * - Custom React components  
- * - Manual state management
- * - Custom business logic
- * 
- * As long as you respect the applet export format (permissions, routes, apiSpec),
- * you have complete freedom in implementation.
- * 
- * Benefits:
- * - Complete control over UI/UX
- * - Custom business logic
- * - No framework constraints
- * - Can integrate any third-party components
- * 
- * Trade-offs:
- * - More code to write and maintain
- * - No built-in transactions, bulk actions, activity tracking
- * - Need to implement common patterns manually
+ * This product catalog is using DataView with optimistic updates enabled.
+ *
+ * Test the error handling: Product #6 will fail and automatically revert.
  */
-import React, { useCallback } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  Typography,
-  Box,
-  Button,
-  IconButton,
-  Alert,
-  TablePagination,
-} from "@mui/material";
-import { Add, Edit, Delete, Inventory } from "@mui/icons-material";
-import { LoadingTable, EmptyState, Filter } from "@smbc/mui-components";
-import type { components, paths } from "@smbc/product-catalog-api/generated/types";
-import { useHashParams, getApiClient } from "@smbc/applet-core";
-import { useQuery } from "@tanstack/react-query";
-import { createProductFiltersConfig, transformProductFilters } from "./config/filters";
+  MuiDataViewApplet,
+  type MuiDataViewAppletConfig,
+} from "@smbc/mui-applet-core";
+import { Box, Typography, Alert } from "@mui/material";
+import { Delete, CheckCircle, ErrorOutline } from "@mui/icons-material";
+import { getApiClient } from "@smbc/applet-core";
+import type {
+  components,
+  paths,
+} from "@smbc/product-catalog-api/generated/types";
+import {
+  createOptimisticBulkUpdateAction,
+  createOptimisticBulkDeleteAction,
+} from "@smbc/react-query-dataview";
 
-// Define types from the client
 type Product = components["schemas"]["Product"];
 
-// Define our own query interface based on what the API accepts
-interface ProductsQuery {
-  page?: number;
-  pageSize?: number;
-  category?: string;
-  search?: string;
-  inStock?: boolean;
-}
+export function Applet() {
+  const apiClient = getApiClient<paths>("product-catalog");
 
-const getStatusChip = (inStock: boolean) => {
-  return inStock ? (
-    <Chip label="In Stock" color="success" size="small" />
-  ) : (
-    <Chip label="Out of Stock" color="error" size="small" />
-  );
-};
+  console.log("DataViewOptimistic: Initializing with apiClient", apiClient);
 
-export interface ProductTableProps {
-  /** Whether to show the create button */
-  showCreate?: boolean;
-  /** Whether to show edit/delete actions */
-  showActions?: boolean;
-  /** Whether to show search */
-  showSearch?: boolean;
-  /** Whether to show pagination */
-  showPagination?: boolean;
-  /** Initial page size */
-  initialPageSize?: number;
-  /** Custom handlers - if provided, will override default API calls */
-  onEdit?: (product: Product) => void;
-  onDelete?: (productId: string) => void;
-  onCreate?: () => void;
-  /** Filter parameters for external filtering */
-  searchQuery?: string;
-  categoryFilter?: string;
-}
+  const dataViewConfig: MuiDataViewAppletConfig<Product> = {
+    // API configuration
+    api: {
+      client: apiClient,
+      endpoint: "/products",
 
-export function Applet({
-  showCreate = true,
-  showActions = true,
-  showSearch = true,
-  showPagination = true,
-  initialPageSize = 10,
-  onEdit,
-  onDelete,
-  onCreate,
-  searchQuery,
-  categoryFilter,
-}: ProductTableProps) {
-  // URL state sync for filters and pagination
-  const { filters, setFilters, pagination, setPagination } = useHashParams(
-    { 
-      search: searchQuery || "",
-      category: categoryFilter || "",
-      inStock: undefined,
+      // Extract data rows from API response
+      responseRow: (response: any) => {
+        console.log(
+          "DataViewOptimistic responseRow: parsing response",
+          response,
+        );
+        return response?.products || [];
+      },
+
+      // Extract total count from API response
+      responseRowCount: (response: any) => {
+        console.log(
+          "DataViewOptimistic responseRowCount: parsing response",
+          response,
+        );
+        return response?.total || 0;
+      },
+
+      // Generate optimistic response for immediate UI updates
+      optimisticResponse: (originalResponse: any, newRows: any[]) => {
+        console.log("DataViewOptimistic optimisticResponse:", {
+          originalResponse,
+          newRows,
+        });
+        return {
+          ...originalResponse,
+          products: newRows,
+          total: originalResponse.total,
+        };
+      },
     },
-    { 
-      page: 0, 
-      pageSize: initialPageSize 
-    },
-    true, // enabled
-    "products" // namespace
-  );
 
-  // Use URL-synced search if not overridden by external prop
-  const effectiveFilters = React.useMemo(() => ({
-    search: searchQuery !== undefined ? searchQuery : filters.search,
-    category: categoryFilter !== undefined ? categoryFilter : filters.category,
-    inStock: filters.inStock,
-  }), [searchQuery, filters.search, categoryFilter, filters.category, filters.inStock]);
-
-  // Filter configuration - stable reference
-  const filterConfig = React.useMemo(() => createProductFiltersConfig(), []);
-
-  // Handle filter changes - stable callback
-  const handleFiltersChange = useCallback((newFilters: any) => {
-    setFilters(newFilters);
-    // Reset to first page when filtering
-    setPagination({ page: 0 });
-  }, [setFilters, setPagination]);
-
-  // Always render filter container but conditionally show content
-  const filterComponent = (
-    <Box mb={2}>
-      {(showSearch && searchQuery === undefined) && (
-        <Filter 
-          key="product-catalog-filter" // Stable key to maintain component identity
-          spec={filterConfig}
-          values={effectiveFilters}
-          onFiltersChange={handleFiltersChange}
-        />
-      )}
-    </Box>
-  );
-
-  // Build query parameters using URL state  
-  const queryParams: ProductsQuery = React.useMemo(() => {
-    const transformedFilters = transformProductFilters(effectiveFilters);
-    return {
-      page: pagination.page + 1,
-      pageSize: pagination.pageSize,
-      ...transformedFilters,
-    };
-  }, [effectiveFilters, pagination.page, pagination.pageSize]);
-
-
-  // API queries using React Query + openapi-fetch
-  const {
-    data: productsData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['products', queryParams],
-    queryFn: async () => {
-      const response = await getApiClient<paths>("product-catalog").GET("/products", {
-        params: {
-          query: {
-            page: queryParams.page || 1,
-            pageSize: queryParams.pageSize || 10,
-            ...(queryParams.category && { category: queryParams.category }),
-            ...(queryParams.search && { search: queryParams.search }),
-          },
+    // Schema configuration
+    schema: {
+      primaryKey: "id",
+      displayName: (product) => product.name,
+      fields: [
+        { name: "name", type: "string", label: "Name", required: true },
+        { name: "description", type: "string", label: "Description" },
+        { name: "price", type: "number", label: "Price", required: true },
+        {
+          name: "category",
+          type: "select",
+          label: "Category",
+          required: true,
+          options: [
+            { value: "electronics", label: "Electronics" },
+            { value: "clothing", label: "Clothing" },
+            { value: "books", label: "Books" },
+            { value: "home", label: "Home & Garden" },
+            { value: "sports", label: "Sports & Outdoors" },
+          ],
         },
-      });
-      
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to fetch products');
-      }
-      
-      return response.data;
+        { name: "sku", type: "string", label: "SKU", required: true },
+      ],
     },
-  });
 
-  const handleChangePage = useCallback((_event: unknown, newPage: number) => {
-    setPagination({ page: newPage });
-  }, [setPagination]);
+    // Column configuration
+    columns: [
+      {
+        key: "name",
+        label: "Product",
+        render: (product: Product) => (
+          <Box>
+            <Typography variant="body2" fontWeight="medium">
+              {product.name}
+            </Typography>
+            {product.description && (
+              <Typography variant="caption" color="text.secondary">
+                {product.description}
+              </Typography>
+            )}
+          </Box>
+        ),
+      },
+      {
+        key: "sku",
+        label: "SKU",
+        width: "120px",
+      },
+      {
+        key: "category",
+        label: "Category",
+        width: "120px",
+      },
+      {
+        key: "price",
+        label: "Price",
+        width: "100px",
+        // align: "right" as const, // TODO: Add align support to DataColumn type
+        render: (product: Product) => `$${Number(product.price).toFixed(2)}`,
+      },
+      {
+        key: "inStock",
+        label: "Status",
+        width: "120px",
+        render: (product: Product) => (
+          <Box display="flex" alignItems="center" gap={1}>
+            {product.inStock ? (
+              <>
+                <CheckCircle color="success" fontSize="small" />
+                <Typography variant="body2" color="success.main">
+                  In Stock
+                </Typography>
+              </>
+            ) : (
+              <>
+                <ErrorOutline color="error" fontSize="small" />
+                <Typography variant="body2" color="error.main">
+                  Out of Stock
+                </Typography>
+              </>
+            )}
+          </Box>
+        ),
+      },
+    ],
 
-  const handleChangeRowsPerPage = useCallback((
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const newPageSize = parseInt(event.target.value, 10);
-    setPagination({ pageSize: newPageSize, page: 0 });
-  }, [setPagination]);
+    // Filter configuration
+    filters: {
+      fields: [
+        {
+          name: "search",
+          type: "search",
+          label: "Search products...",
+          placeholder: "Search by name or SKU",
+          fullWidth: true,
+        },
+        {
+          name: "category",
+          type: "select",
+          label: "Category",
+          options: [
+            { value: "", label: "All Categories" },
+            { value: "electronics", label: "Electronics" },
+            { value: "clothing", label: "Clothing" },
+            { value: "books", label: "Books" },
+            { value: "home", label: "Home & Garden" },
+            { value: "sports", label: "Sports & Outdoors" },
+          ],
+        },
+        {
+          name: "inStock",
+          type: "select",
+          label: "Stock Status",
+          options: [
+            { value: "", label: "All Products" },
+            { value: "true", label: "In Stock" },
+            { value: "false", label: "Out of Stock" },
+          ],
+        },
+      ],
+      initialValues: { search: "", category: "", inStock: "" },
+    },
 
-  if (error) {
-    return (
-      <Box>
-        <Alert severity="error">
-          Failed to load products. Please try again later.
-        </Alert>
-      </Box>
-    );
-  }
+    // Actions configuration
+    actions: {
+      bulk: [
+        createOptimisticBulkUpdateAction(
+          async (_item: Product, updateData: Partial<Product>) => {
+            const response = await apiClient.PATCH("/products/{id}", {
+              params: { path: { id: _item.id } },
+              body: updateData,
+            });
+            if (response.error) throw new Error(response.error.message);
+            return response.data;
+          },
+          (_item: Product) => ({ inStock: true }),
+          {
+            key: "mark-in-stock",
+            label: "Mark In Stock",
+            icon: CheckCircle,
+            color: "success",
+            appliesTo: (item: Product) => !item.inStock, // Only show for out-of-stock items
+          },
+        ),
+        createOptimisticBulkUpdateAction(
+          async (_item: Product, updateData: Partial<Product>) => {
+            const response = await apiClient.PATCH("/products/{id}", {
+              params: { path: { id: _item.id } },
+              body: updateData,
+            });
+            if (response.error) throw new Error(response.error.message);
+            return response.data;
+          },
+          (_item: Product) => ({ inStock: false }),
+          {
+            key: "mark-out-of-stock",
+            label: "Mark Out of Stock",
+            icon: ErrorOutline,
+            color: "warning",
+            appliesTo: (item: Product) => item.inStock, // Only show for in-stock items
+          },
+        ),
+        createOptimisticBulkDeleteAction(
+          async (id: string | number) => {
+            const response = await apiClient.DELETE("/products/{id}", {
+              params: { path: { id: String(id) } },
+            });
+            if (response.error)
+              throw new Error(
+                response.error.message || "Failed to delete product",
+              );
+            return response.data;
+          },
+          {
+            key: "delete-selected",
+            label: "Delete Selected",
+            icon: Delete,
+          },
+        ),
+      ],
+    },
 
-  const products = productsData?.products || [];
-  const total = productsData?.total || 0;
+    // Form configuration
+    forms: {
+      create: {
+        fields: [
+          { name: "name", type: "string", label: "Name", required: true },
+          { name: "description", type: "string", label: "Description" },
+          { name: "price", type: "number", label: "Price", required: true },
+          {
+            name: "category",
+            type: "select",
+            label: "Category",
+            required: true,
+            options: [
+              { value: "electronics", label: "Electronics" },
+              { value: "clothing", label: "Clothing" },
+              { value: "books", label: "Books" },
+              { value: "home", label: "Home & Garden" },
+              { value: "sports", label: "Sports & Outdoors" },
+            ],
+          },
+          { name: "sku", type: "string", label: "SKU", required: true },
+        ],
+        title: "Add New Product",
+        submitLabel: "Create Product",
+      },
+      edit: {
+        fields: [
+          { name: "name", type: "string", label: "Name", required: true },
+          { name: "description", type: "string", label: "Description" },
+          { name: "price", type: "number", label: "Price", required: true },
+          {
+            name: "category",
+            type: "select",
+            label: "Category",
+            required: true,
+            options: [
+              { value: "electronics", label: "Electronics" },
+              { value: "clothing", label: "Clothing" },
+              { value: "books", label: "Books" },
+              { value: "home", label: "Home & Garden" },
+              { value: "sports", label: "Sports & Outdoors" },
+            ],
+          },
+          { name: "sku", type: "string", label: "SKU", required: true },
+          { name: "inStock", type: "boolean", label: "In Stock" },
+        ],
+        title: "Edit Product",
+        submitLabel: "Update Product",
+      },
+    },
+
+    // DataView behavior and appearance
+    options: {
+      selectable: true, // Enable row selection checkboxes for bulk actions
+    },
+
+    // Activity configuration
+    activity: {
+      enabled: true,
+      entityType: "product",
+    },
+  };
 
   return (
     <Box>
-      {/* Filter Section - Always render to maintain stable DOM structure */}
-      {filterComponent}
-      
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        {showCreate && onCreate && (
-          <Button variant="contained" startIcon={<Add />} onClick={onCreate}>
-            Add Product
-          </Button>
-        )}
-      </Box>
+      <Alert severity="info" sx={{ mb: 2 }}>
+        <Typography variant="body1">
+          Select products and use bulk actions to see optimistic updates in
+          action. Product #6 will fail and revert while others succeed.
+        </Typography>
+      </Alert>
 
-      {/* Loading state within consistent structure */}
-      {isLoading && (
-        <LoadingTable rows={5} columns={6} />
-      )}
-
-      {/* Error state */}
-      {error && (
-        <Alert severity="error">
-          Failed to load products. Please try again later.
-        </Alert>
-      )}
-
-      {/* Content when loaded and not loading */}
-      {!isLoading && !error && (
-        products.length === 0 ? (
-        <EmptyState
-          icon={<Inventory sx={{ fontSize: 64, color: "text.secondary" }} />}
-          title={effectiveFilters.search ? "No products found" : "No products yet"}
-          description={
-            effectiveFilters.search
-              ? "Try adjusting your search criteria to find products."
-              : "Get started by adding your first product to the catalog."
-          }
-          type={effectiveFilters.search ? "search" : "create"}
-          primaryAction={
-            showCreate && onCreate
-              ? {
-                  label: "Add Product",
-                  onClick: onCreate,
-                }
-              : undefined
-          }
-          secondaryAction={
-            effectiveFilters.search && searchQuery === undefined
-              ? {
-                  label: "Clear Filters",
-                  onClick: () => setFilters({ search: "", category: undefined, inStock: undefined }),
-                  variant: "outlined",
-                }
-              : undefined
-          }
-        />
-      ) : (
-        <>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="product table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>SKU</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell align="right">Price</TableCell>
-                  <TableCell>Status</TableCell>
-                  {showActions && (onEdit || onDelete) && <TableCell align="right">Actions</TableCell>}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {products.map((product: Product) => (
-                  <TableRow
-                    key={product.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      <Box>
-                        <Typography variant="body2" fontWeight="medium">
-                          {product.name}
-                        </Typography>
-                        {product.description && (
-                          <Typography variant="caption" color="text.secondary">
-                            {product.description}
-                          </Typography>
-                        )}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{product.sku}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell align="right">
-                      ${Number(product.price).toFixed(2)}
-                    </TableCell>
-                    <TableCell>{getStatusChip(product.inStock)}</TableCell>
-                    {showActions && (onEdit || onDelete) && (
-                      <TableCell align="right">
-                        {onEdit && (
-                          <IconButton
-                            onClick={() => onEdit(product)}
-                            size="small"
-                            color="primary"
-                          >
-                            <Edit />
-                          </IconButton>
-                        )}
-                        {onDelete && (
-                          <IconButton
-                            onClick={() => onDelete(product.id)}
-                            size="small"
-                            color="error"
-                          >
-                            <Delete />
-                          </IconButton>
-                        )}
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {showPagination && (
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={total}
-              rowsPerPage={pagination.pageSize}
-              page={pagination.page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          )}
-        </>
-        )
-      )}
+      <MuiDataViewApplet
+        config={dataViewConfig}
+        options={{
+          // Disable transactions to enable optimistic mode
+          transaction: { enabled: false, requireConfirmation: false },
+          onSuccess: (action, item) => {
+            console.log(`✅ Optimistic ${action} succeeded:`, item);
+          },
+          onError: (action, error, item) => {
+            console.error(`❌ Optimistic ${action} failed:`, error, item);
+          },
+        }}
+      />
     </Box>
   );
 }

@@ -133,6 +133,7 @@ export interface DataViewTableProps<T> {
     pendingStatesVersion: number;
   };
   primaryKey?: keyof T;
+  hover?: boolean;
 }
 
 export interface DataViewFilterProps {

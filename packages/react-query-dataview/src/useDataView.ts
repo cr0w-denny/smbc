@@ -70,6 +70,7 @@ export function useDataView<T extends Record<string, any>>(
 
   // Get the shared query client
   const queryClient = useQueryClient();
+  console.log("🔍 DataView QueryClient instance:", queryClient);
 
   // Activity tracking (optional)
   let activityContext;
@@ -1078,26 +1079,22 @@ export function useDataView<T extends Record<string, any>>(
             let mergedData = entity;
             if (
               type === "update" &&
-              existingState?.state === "edited" &&
+              existingState &&
+              (existingState.state === "edited" || existingState.state === "added") &&
               existingState.data
             ) {
-              // Extract only the changed fields (exclude the primary key)
-              const primaryKey = schema.primaryKey;
-              const { [primaryKey]: _, ...newChanges } = entity;
-              const { [primaryKey]: __, ...existingChanges } =
-                existingState.data;
-
-              // Merge only the changed fields from both updates
+              // For subsequent updates, merge the new entity data with existing pending data
+              // Both entity and existingState.data should be full objects, so merge them
               mergedData = {
-                [primaryKey]: entityId,
-                ...existingChanges,
-                ...newChanges,
+                ...existingState.data,
+                ...entity,
               };
 
               console.log("UseDataView: accumulating changes for entity", {
                 entityId,
-                existingChanges,
-                newChanges,
+                existingState: existingState.state,
+                existingData: existingState.data,
+                newData: entity,
                 mergedData,
               });
             }
@@ -1348,10 +1345,33 @@ export function useDataView<T extends Record<string, any>>(
   const selectedItems = useMemo(() => {
     const primaryKey = schema.primaryKey;
 
-    // First, get selected items from the regular data
+    // First, get selected items from the regular data, but merge with pending changes
     const selectedFromData = data.filter((item: T) =>
       selectedIds.includes(item[primaryKey]),
-    );
+    ).map((item: T) => {
+      // Check if this item has pending changes and merge them
+      const entityId = item[primaryKey];
+      const pendingState = pendingStatesRef.current?.get(entityId);
+      
+      if (pendingState?.state === "edited" && pendingState.data) {
+        // Merge pending changes with the original item
+        const mergedItem = {
+          ...item,
+          ...pendingState.data,
+        } as T;
+        
+        console.log('UseDataView: Merging pending changes for selectedItem', {
+          entityId,
+          originalItem: item,
+          pendingData: pendingState.data,
+          mergedItem
+        });
+        
+        return mergedItem;
+      }
+      
+      return item;
+    });
 
     // Then, get selected items from pending states (for newly created items)
     const selectedFromPending: T[] = [];
@@ -1377,7 +1397,7 @@ export function useDataView<T extends Record<string, any>>(
     
     // Clean up selectedIds to remove IDs that don't correspond to actual items
     // This is important for cases where items are deleted (including net zero deletions)
-    const validSelectedIds = allSelectedItems.map(item => item[primaryKey]);
+    const validSelectedIds = allSelectedItems.map(item => item[primaryKey] as string | number);
     const invalidSelectedIds = selectedIds.filter(id => !validSelectedIds.includes(id));
     
     if (invalidSelectedIds.length > 0) {

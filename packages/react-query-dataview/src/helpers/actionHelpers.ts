@@ -1,4 +1,5 @@
 import type { BulkAction, RowAction } from "../types";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Context that gets passed to action onClick handlers
 interface ActionContext {
@@ -19,6 +20,10 @@ interface ActionContext {
   createMutation?: {
     mutateAsync: (params: { body: any }) => Promise<any>;
   };
+  // Optimistic update context
+  queryClient?: ReturnType<typeof useQueryClient>;
+  dataViewQueryKey?: unknown[];
+  optimisticMode?: boolean;
 }
 
 /**
@@ -111,14 +116,26 @@ export function createBulkUpdateAction<T extends { id: string | number }>(
     color: options?.color || "primary",
     onClick: async (items: T[], context?: ActionContext) => {
       if (context?.addTransactionOperation) {
+        console.log('BulkUpdateHelper: Starting bulk update', {
+          itemCount: items.length,
+          updateData,
+          items: items.map(item => ({ ...item }))
+        });
+        
         for (const item of items) {
           // For bulk updates, we need to merge with existing item data to preserve all fields
           // This is especially important for "added" items that have full data in pending state
           const entityUpdate = {
             ...item, // Start with the full item
             ...updateData, // Apply the bulk update changes
-            id: item.id // Always include the primary key for identification
           } as T;
+          
+          console.log('BulkUpdateHelper: Processing item', {
+            itemId: item.id,
+            originalItem: item,
+            updateData,
+            entityUpdate
+          });
           
           context.addTransactionOperation(
             "update",
@@ -270,4 +287,262 @@ export function createToggleStatusAction<T extends { id: string | number }>(
       }
     },
   } as RowAction<T>;
+}
+
+// ============================================================================
+// OPTIMISTIC UPDATE HELPERS
+// ============================================================================
+
+/**
+ * Helper function to create an optimistic bulk update action
+ * Handles all the complexity of optimistic updates, failure tracking, and rollback
+ */
+export function createOptimisticBulkUpdateAction<T extends { id: string | number }>(
+  apiCall: (item: T, updateData: Partial<T>) => Promise<any>,
+  optimisticUpdate: (item: T) => Partial<T>,
+  options: {
+    key: string;
+    label: string;
+    icon?: React.ComponentType;
+    color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
+    appliesTo?: (item: T) => boolean;
+    requiresAllRows?: boolean;
+  }
+): BulkAction<T> {
+  return {
+    type: "bulk",
+    key: options.key,
+    label: options.label,
+    icon: options.icon,
+    color: options.color || "primary",
+    appliesTo: options.appliesTo,
+    requiresAllRows: options.requiresAllRows,
+    onClick: async (items: T[], context?: ActionContext) => {
+      console.log(`🚀 OptimisticBulkUpdate: Starting ${options.key}`, {
+        itemCount: items.length,
+        optimisticMode: context?.optimisticMode,
+        hasQueryClient: !!context?.queryClient,
+        hasDataViewQueryKey: !!context?.dataViewQueryKey,
+        queryKey: context?.dataViewQueryKey,
+        context: context ? Object.keys(context) : 'no context'
+      });
+
+      // If optimistic mode is enabled and we have the necessary context
+      if (context?.optimisticMode && context?.queryClient && context?.dataViewQueryKey) {
+        const { queryClient, dataViewQueryKey } = context;
+
+        // 1. Apply optimistic updates immediately
+        console.log("🚀 Applying optimistic updates");
+        console.log("🔑 Using query key:", dataViewQueryKey);
+        console.log("🔑 Available cache keys:", 
+          queryClient.getQueryCache().getAll().map(q => ({
+            key: q.queryKey,
+            hasData: !!q.state.data
+          }))
+        );
+        
+        queryClient.setQueryData(dataViewQueryKey, (oldData: any) => {
+          console.log("🚀 Cache update - oldData:", oldData);
+          if (!oldData) return oldData;
+
+          // For product catalog, the data structure is { products: [...], total: number, page: number, pageSize: number }
+          const currentRows = oldData.products || [];
+          const updatedItems = currentRows.map((item: T) => {
+            const selectedItem = items.find(selected => selected.id === item.id);
+            if (selectedItem) {
+              const updates = optimisticUpdate(selectedItem);
+              console.log("🚀 Updating item", item.id, "with", updates);
+              return { ...item, ...updates };
+            }
+            return item;
+          });
+
+          const newData = {
+            ...oldData,
+            products: updatedItems
+          };
+          console.log("🚀 Cache update - newData:", newData);
+          return newData;
+        });
+
+        // 2. Execute API calls and track failures
+        const failedItems: T[] = [];
+        for (const item of items) {
+          try {
+            const updateData = optimisticUpdate(item);
+            await apiCall(item, updateData);
+            console.log(`✅ API success for ${item.id}`);
+          } catch (error) {
+            console.error(`❌ API failed for ${item.id}:`, error);
+            failedItems.push(item);
+          }
+        }
+
+        // 3. Rollback only failed items
+        if (failedItems.length > 0) {
+          console.log(`🔄 Rolling back ${failedItems.length} failed items`);
+          queryClient.setQueryData(dataViewQueryKey, (oldData: any) => {
+            if (!oldData) return oldData;
+
+            const currentRows = oldData.products || [];
+            const revertedItems = currentRows.map((item: T) => {
+              const failedItem = failedItems.find(failed => failed.id === item.id);
+              if (failedItem) {
+                console.log("🔄 Reverting item", item.id, "back to original state");
+                // Revert to original state
+                return failedItem;
+              }
+              return item;
+            });
+
+            const newData = {
+              ...oldData,
+              products: revertedItems
+            };
+            console.log("🔄 Cache rollback - newData:", newData);
+            return newData;
+          });
+        }
+
+        console.log(`🚀 OptimisticBulkUpdate completed: ${items.length - failedItems.length} succeeded, ${failedItems.length} failed`);
+      } else {
+        // Fallback to transaction mode or direct API calls
+        console.log("🚀 Fallback to transaction/direct mode");
+        if (context?.addTransactionOperation) {
+          for (const item of items) {
+            const updateData = optimisticUpdate(item);
+            const updatedItem = { ...item, ...updateData };
+            context.addTransactionOperation(
+              "update",
+              updatedItem,
+              () => apiCall(item, updateData),
+              "bulk-action",
+              Object.keys(updateData)
+            );
+          }
+        } else {
+          // Direct API calls without optimistic updates
+          for (const item of items) {
+            const updateData = optimisticUpdate(item);
+            await apiCall(item, updateData);
+          }
+        }
+      }
+    },
+  } as BulkAction<T>;
+}
+
+/**
+ * Helper function to create an optimistic bulk delete action
+ */
+export function createOptimisticBulkDeleteAction<T extends { id: string | number }>(
+  deleteAPI: (id: string | number) => Promise<any>,
+  options?: {
+    key?: string;
+    label?: string;
+    icon?: React.ComponentType;
+    appliesTo?: (item: T) => boolean;
+    requiresAllRows?: boolean;
+  }
+): BulkAction<T> {
+  return {
+    type: "bulk",
+    key: options?.key || "delete-selected",
+    label: options?.label || "Delete Selected",
+    icon: options?.icon,
+    color: "error",
+    appliesTo: options?.appliesTo,
+    requiresAllRows: options?.requiresAllRows,
+    onClick: async (items: T[], context?: ActionContext) => {
+      console.log(`🗑️ OptimisticBulkDelete: Starting`, {
+        itemCount: items.length,
+        optimisticMode: context?.optimisticMode
+      });
+
+      // If optimistic mode is enabled and we have the necessary context
+      if (context?.optimisticMode && context?.queryClient && context?.dataViewQueryKey) {
+        const { queryClient, dataViewQueryKey } = context;
+
+        // 1. Apply optimistic delete immediately
+        console.log("🗑️ Applying optimistic deletes");
+        const originalData = queryClient.getQueryData(dataViewQueryKey) as any;
+        queryClient.setQueryData(dataViewQueryKey, (oldData: any) => {
+          if (!oldData) return oldData;
+
+          const currentRows = Array.isArray(oldData) ? oldData : (oldData.products || oldData.data || []);
+          const filteredItems = currentRows.filter((item: T) => 
+            !items.find(deleted => deleted.id === item.id)
+          );
+
+          // Reconstruct response preserving original structure
+          if (Array.isArray(oldData)) {
+            return filteredItems;
+          } else {
+            return {
+              ...oldData,
+              products: oldData.products ? filteredItems : undefined,
+              data: oldData.data ? filteredItems : undefined,
+              total: Math.max(0, (oldData.total || 0) - items.length),
+              // Fallback: if neither products nor data, assume it's the main field
+              ...((!oldData.products && !oldData.data) ? filteredItems : {})
+            };
+          }
+        });
+
+        // 2. Execute API calls and track failures
+        const failedItems: T[] = [];
+        for (const item of items) {
+          try {
+            await deleteAPI(item.id);
+            console.log(`✅ Delete API success for ${item.id}`);
+          } catch (error) {
+            console.error(`❌ Delete API failed for ${item.id}:`, error);
+            failedItems.push(item);
+          }
+        }
+
+        // 3. Restore failed deletions
+        if (failedItems.length > 0) {
+          console.log(`🔄 Restoring ${failedItems.length} failed deletions`);
+          queryClient.setQueryData(dataViewQueryKey, (oldData: any) => {
+            if (!oldData || !originalData) return oldData;
+
+            // Get current rows and original rows using consistent pattern
+            const currentRows = Array.isArray(oldData) ? oldData : (oldData.products || oldData.data || []);
+            const originalRows = Array.isArray(originalData) ? originalData : (originalData.products || originalData.data || []);
+            
+            // Add back the failed items in their original positions
+            const restoredItems = [...currentRows];
+            for (const failedItem of failedItems) {
+              const originalIndex = originalRows.findIndex((item: T) => item.id === failedItem.id);
+              if (originalIndex !== -1) {
+                restoredItems.splice(originalIndex, 0, failedItem);
+              } else {
+                restoredItems.push(failedItem);
+              }
+            }
+
+            // Reconstruct response preserving original structure
+            if (Array.isArray(oldData)) {
+              return restoredItems;
+            } else {
+              return {
+                ...oldData,
+                products: oldData.products ? restoredItems : undefined,
+                data: oldData.data ? restoredItems : undefined,
+                total: (oldData.total || 0) + failedItems.length,
+                // Fallback: if neither products nor data, assume it's the main field
+                ...((!oldData.products && !oldData.data) ? restoredItems : {})
+              };
+            }
+          });
+        }
+
+        console.log(`🗑️ OptimisticBulkDelete completed: ${items.length - failedItems.length} succeeded, ${failedItems.length} failed`);
+      } else {
+        // Fallback to existing bulk delete logic
+        return createBulkDeleteAction(deleteAPI, options).onClick?.(items, context);
+      }
+    },
+  } as BulkAction<T>;
 }

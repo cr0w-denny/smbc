@@ -16,6 +16,7 @@ export { MarkdownRenderer } from './InstallationModal/MarkdownRenderer';
 
 // Role management dev tools
 export {
+  RoleManager,
   DashboardHeader,
   CurrentUserInfo,
   PermissionChip,
@@ -23,7 +24,12 @@ export {
   PermissionsGrid,
 } from "./RoleManager";
 
-export type { User, Permission, PermissionGroup } from "./RoleManager";
+export type { 
+  RoleManagerProps,
+  User, 
+  Permission, 
+  PermissionGroup 
+} from "./RoleManager";
 
 // Re-export MSW integration from applet-devtools (bundled functionality)
 export {

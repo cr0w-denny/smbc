@@ -44,7 +44,7 @@ function generateCreateProductRequest(overrides = {}) {
 function initializeCreateProductRequestDataStore() {
   if (createproductrequestDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateCreateProductRequest({})
   );
@@ -86,7 +86,7 @@ function generateErrorResponse(overrides = {}) {
 function initializeErrorResponseDataStore() {
   if (errorresponseDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateErrorResponse({})
   );
@@ -134,7 +134,9 @@ function generateProduct(overrides = {}) {
 function initializeProductDataStore() {
   if (productDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
+  console.log('🛍️ Product Catalog Mock: Initializing with', totalItems, 'products');
+  
   const items = Array.from({ length: totalItems }, (_, i) => 
     generateProduct({ id: String(i + 1) })
   );
@@ -143,6 +145,7 @@ function initializeProductDataStore() {
     productDataStore.set(String(item.id), item);
   });
   
+  console.log('🛍️ Product Catalog Mock: Initialized productDataStore with', productDataStore.size, 'items');
   productDataInitialized = true;
 }
 
@@ -177,7 +180,7 @@ function generateProductList(overrides = {}) {
 function initializeProductListDataStore() {
   if (productlistDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateProductList({})
   );
@@ -222,7 +225,7 @@ function generateUpdateProductRequest(overrides = {}) {
 function initializeUpdateProductRequestDataStore() {
   if (updateproductrequestDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateUpdateProductRequest({})
   );
@@ -289,6 +292,10 @@ export const handlers = [
         
         // Get dataset from persistent store
         const allItems = getAllProducts();
+        console.log('🛍️ Product Catalog Mock: GET /products', {
+          allItemsLength: allItems.length,
+          filters: { page, pageSize, category, search, inStock }
+        });
         
         // Apply filters
         let filteredItems = allItems;
@@ -301,13 +308,13 @@ export const handlers = [
         }
     
         // Apply category filter
-        if (category !== null) {
+        if (category && category.trim() !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             return item.category?.toString().toLowerCase().includes(category.toLowerCase());
           });
         }
         // Apply inStock filter
-        if (inStock !== null) {
+        if (inStock && inStock.trim() !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             if (inStock === 'true' || inStock === 'false') {
               return item.inStock === (inStock === 'true');
@@ -322,6 +329,14 @@ export const handlers = [
         const startIndex = (page - 1) * pageSize;
         const endIndex = Math.min(startIndex + pageSize, total);
         const paginatedItems = filteredItems.slice(startIndex, endIndex);
+        
+        console.log('🛍️ Product Catalog Mock: Returning response', {
+          filteredItemsLength: filteredItems.length,
+          paginatedItemsLength: paginatedItems.length,
+          startIndex,
+          endIndex,
+          total
+        });
     
         return HttpResponse.json({
           products: paginatedItems,
@@ -387,9 +402,25 @@ export const handlers = [
         const requestBody = await request.json() as Record<string, any>;
         const entityId = params.id as string;
         
+        console.log('🛍️ Product Catalog Mock: PATCH /products/' + entityId, {
+          entityId,
+          requestBody,
+          storeHasItem: productDataStore.has(entityId)
+        });
+        
+        // Force product #6 to fail for demo purposes
+        if (entityId === '6') {
+          console.log('🛍️ Product Catalog Mock: Forcing product #6 to fail for demo');
+          return HttpResponse.json(
+            { error: 'Not found', message: 'Product not found' },
+            { status: 404 }
+          );
+        }
+        
         // Get existing item from store
         const existingItem = productDataStore.get(entityId);
         if (!existingItem) {
+          console.log('🛍️ Product Catalog Mock: Product not found', entityId);
           return HttpResponse.json(
             { error: 'Not found', message: 'Product not found' },
             { status: 404 }
@@ -399,6 +430,8 @@ export const handlers = [
         // Update item in store
         const updatedProduct = { ...existingItem, ...requestBody, id: entityId };
         productDataStore.set(entityId, updatedProduct);
+        
+        console.log('🛍️ Product Catalog Mock: Updated product', updatedProduct);
         
         return HttpResponse.json(updatedProduct);  }),
   // delete /products/{id} - DELETE /products/{id}
