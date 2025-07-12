@@ -42,5 +42,9 @@
     "@mui/icons-material": "^7.1.2",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
   }
 }

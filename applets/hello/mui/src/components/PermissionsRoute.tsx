@@ -15,7 +15,7 @@ export const PermissionsRoute: React.FC<PermissionsRouteProps> = ({
   currentRoute,
 }) => {
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 1 }}>
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="h5" gutterBottom>

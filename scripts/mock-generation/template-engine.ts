@@ -177,6 +177,29 @@ export class TemplateEngine {
     this.handlebars.registerHelper("camelCase", (str: string) => {
       return str.charAt(0).toLowerCase() + str.slice(1);
     });
+
+    // Helper for quoting property names that need it (e.g., kebab-case)
+    this.handlebars.registerHelper("quoteProp", (str: string) => {
+      // Check if the property name needs quotes
+      // - Contains hyphens (kebab-case)
+      // - Starts with a number
+      // - Is a reserved word
+      // - Contains special characters
+      const reserved = new Set([
+        'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
+        'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
+        'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
+        'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
+        'var', 'void', 'while', 'with', 'yield', 'let', 'static',
+        'enum', 'implements', 'interface', 'package', 'private', 'protected',
+        'public', 'await', 'async'
+      ]);
+      
+      if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(str) && !reserved.has(str)) {
+        return str;
+      }
+      return JSON.stringify(str);
+    });
   }
 
   private loadPartials() {

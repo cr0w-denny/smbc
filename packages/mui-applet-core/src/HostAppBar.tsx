@@ -8,6 +8,7 @@ import {
   Tooltip,
   Switch,
   FormControlLabel,
+  CircularProgress,
 } from "@mui/material";
 import {
   Api as ApiIcon,
@@ -15,7 +16,7 @@ import {
   DarkMode as DarkModeIcon,
   GetApp as InstallIcon,
 } from "@mui/icons-material";
-import { useFeatureFlag, useFeatureFlagToggle } from "@smbc/applet-core";
+import { useFeatureFlag, useFeatureFlagToggle, useApp } from "@smbc/applet-core";
 // Dynamic import for development tools
 
 /**
@@ -81,10 +82,14 @@ export function HostAppBar({
   showAppletInstallation = false,
   showMockControls = false,
 }: HostAppBarProps) {
+  const { state } = useApp();
   const [installModalOpen, setInstallModalOpen] = React.useState(false);
   const [InstallationModal, setInstallationModal] =
     React.useState<React.ComponentType<any> | null>(null);
   const mockEnabled = useFeatureFlag("mockData");
+  
+  // Determine if MSW is initializing - default to false if status not available
+  const isMswInitializing = state.mswStatus?.isInitializing === true;
   const toggleMockData = useFeatureFlagToggle("mockData");
 
   const handleOpenInstallModal = async () => {
@@ -118,6 +123,7 @@ export function HostAppBar({
         {/* Applet Installation Guide Button */}
         {showAppletInstallation &&
           currentAppletInfo?.id &&
+          currentAppletInfo.id !== "hello" &&
           APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
             <Tooltip title="View installation instructions">
               <Button
@@ -169,27 +175,38 @@ export function HostAppBar({
           {/* Mock Data Toggle - only when explicitly enabled */}
           {showMockControls && (
             <Tooltip
-              title={`${mockEnabled ? "Using mock data for development" : "Using real API endpoints"} - Toggle to switch between mock and real data`}
+              title={
+                isMswInitializing
+                  ? "MSW is initializing..."
+                  : `${mockEnabled ? "Using mock data for development" : "Using real API endpoints"} - Toggle to switch between mock and real data`
+              }
             >
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={Boolean(mockEnabled)}
-                    onChange={() => toggleMockData()}
-                    size="small"
-                    color="secondary"
-                  />
-                }
-                label="Mock"
-                sx={{
-                  color: "inherit",
-                  m: 0,
-                  "& .MuiFormControlLabel-label": {
-                    fontSize: "0.875rem",
-                    ml: 0.5,
-                  },
-                }}
-              />
+              {isMswInitializing ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1 }}>
+                  <CircularProgress size={16} color="secondary" />
+                  <Box sx={{ fontSize: "0.875rem", color: "inherit" }}>Mock</Box>
+                </Box>
+              ) : (
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={Boolean(mockEnabled)}
+                      onChange={() => toggleMockData()}
+                      size="small"
+                      color="secondary"
+                    />
+                  }
+                  label="Mock"
+                  sx={{
+                    color: "inherit",
+                    m: 0,
+                    "& .MuiFormControlLabel-label": {
+                      fontSize: "0.875rem",
+                      ml: 0.5,
+                    },
+                  }}
+                />
+              )}
             </Tooltip>
           )}
 

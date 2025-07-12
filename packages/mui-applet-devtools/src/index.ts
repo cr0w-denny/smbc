@@ -41,6 +41,7 @@ export {
   getRegisteredHandlers,
   resetMswWorker,
   stopMswWorker,
+  autoHealMswWorker,
   isMswAvailable,
   userManagementHandlers,
   productCatalogHandlers,

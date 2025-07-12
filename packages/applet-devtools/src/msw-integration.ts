@@ -121,6 +121,39 @@ export async function resetMswWorker(): Promise<void> {
 }
 
 /**
+ * Detects if an error is caused by MSW service worker issues and auto-heals if possible.
+ * Returns true if auto-healing was attempted, false otherwise.
+ */
+export async function autoHealMswWorker(error: any): Promise<boolean> {
+  // Skip if MSW worker is not active
+  if (!globalMswWorker) {
+    return false;
+  }
+  
+  // Check if the error is a JSON parse error with HTML content (MSW service worker issue)
+  const isJsonParseError = error?.message?.includes('Unexpected token');
+  const isMswError = error?.message?.includes('<!doctype') || 
+                    error?.message?.includes('<!DOCTYPE') ||
+                    error?.message?.includes('<html');
+  
+  if (isJsonParseError && isMswError) {
+    console.warn('🔧 MSW service worker issue detected, attempting auto-heal...');
+    
+    try {
+      // Reset the MSW worker
+      await resetMswWorker();
+      console.log('✅ MSW worker auto-healed successfully');
+      return true;
+    } catch (healError) {
+      console.error('❌ MSW auto-heal failed:', healError);
+      return false;
+    }
+  }
+  
+  return false;
+}
+
+/**
  * Stops the MSW worker (alias for stopMswForAppletProvider for convenience).
  */
 export async function stopMswWorker(): Promise<void> {

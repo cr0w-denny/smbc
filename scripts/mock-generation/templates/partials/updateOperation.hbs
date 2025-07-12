@@ -5,7 +5,7 @@
     const existingItem = {{lowerEntityName}}DataStore.get(entityId);
     if (!existingItem) {
       return HttpResponse.json(
-        { error: 'Not found', message: '{{entityName}} not found' },
+        { error: 'Not found', message: `{{entityName}} with ID "${entityId}" not found` },
         { status: 404 }
       );
     }

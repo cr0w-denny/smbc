@@ -23,9 +23,6 @@ import {
   Code,
   AutoFixHigh,
   ExpandMore,
-  PlayArrow,
-  Replay,
-  CloudSync,
   Security,
 } from "@mui/icons-material";
 
@@ -37,7 +34,7 @@ export const DataViewRoute: React.FC = () => {
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 1 }}>
       <Paper sx={{ mb: 2 }}>
         <Tabs value={activeTab} onChange={handleTabChange}>
           <Tab label="DataView Overview" />

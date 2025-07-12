@@ -1,5 +1,5 @@
 // Generated mock handlers for User Management API
-// Generated at: 2025-07-08T16:17:11.139Z
+// Generated at: 2025-07-11T17:49:32.851Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 
 // Configuration for mock responses
 const mockConfig = {
-  baseUrl: '*/api/v1/user-management', // Use wildcard to match any host with applet namespace
+  baseUrl: '/api/v1/user-management',
   delay: { min: 0, max: 200 },
   errorRate: 0.05,
   dataSetSize: { min: 10, max: 50 },
@@ -44,7 +44,7 @@ function generateCreateUserRequest(overrides = {}) {
 function initializeCreateUserRequestDataStore() {
   if (createuserrequestDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateCreateUserRequest({})
   );
@@ -86,7 +86,7 @@ function generateErrorResponse(overrides = {}) {
 function initializeErrorResponseDataStore() {
   if (errorresponseDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateErrorResponse({})
   );
@@ -129,7 +129,7 @@ function generateUpdateUserRequest(overrides = {}) {
 function initializeUpdateUserRequestDataStore() {
   if (updateuserrequestDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateUpdateUserRequest({})
   );
@@ -177,7 +177,7 @@ function generateUser(overrides = {}) {
 function initializeUserDataStore() {
   if (userDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, (_, i) => 
     generateUser({ id: String(i + 1) })
   );
@@ -254,7 +254,7 @@ function generateUserDetailed(overrides = {}) {
 function initializeUserDetailedDataStore() {
   if (userdetailedDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, (_, i) => 
     generateUserDetailed({ id: String(i + 1) })
   );
@@ -285,10 +285,10 @@ let userlistDataInitialized = false;
 // Mock generator for UserList
 function generateUserList(overrides = {}) {
   return {
-    users: faker.lorem.word(),
+    users: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => generateUser()),
     total: faker.number.float({ min: 0, max: 10000, fractionDigits: 2 }),
-    page: faker.number.int(),
-    pageSize: faker.number.int(),
+    page: faker.number.int({ min: 1, max: 100000 }),
+    pageSize: faker.number.int({ min: 1, max: 100000 }),
     ...overrides
   };
 }
@@ -297,7 +297,7 @@ function generateUserList(overrides = {}) {
 function initializeUserListDataStore() {
   if (userlistDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, () => 
     generateUserList({})
   );
@@ -341,7 +341,7 @@ function generateUserSummary(overrides = {}) {
 function initializeUserSummaryDataStore() {
   if (usersummaryDataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   const items = Array.from({ length: totalItems }, (_, i) => 
     generateUserSummary({ id: String(i + 1) })
   );
@@ -423,7 +423,7 @@ export const handlers = [
         let filteredItems = allItems;
         
         // Apply search filter
-        if (search) {
+        if (search && search !== '') {
           filteredItems = filteredItems.filter((item: any) => 
             ['email', 'firstName', 'lastName']
               .some(field => item[field]?.toString().toLowerCase().includes(search.toLowerCase()))
@@ -431,13 +431,13 @@ export const handlers = [
         }
     
         // Apply username filter
-        if (username && username.trim()) {
+        if (username !== null && username !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             return item.username?.toString().toLowerCase().includes(username.toLowerCase());
           });
         }
         // Apply isAdmin filter
-        if (isAdmin && isAdmin.trim()) {
+        if (isAdmin !== null && isAdmin !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             if (isAdmin === 'true' || isAdmin === 'false') {
               return item.isAdmin === (isAdmin === 'true');
@@ -446,13 +446,13 @@ export const handlers = [
           });
         }
         // Apply email filter
-        if (email && email.trim()) {
+        if (email !== null && email !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             return item.email?.toString().toLowerCase().includes(email.toLowerCase());
           });
         }
         // Apply status filter
-        if (status && status.trim()) {
+        if (status !== null && status !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             const fieldValue = item.isActive;
             return (status === 'active' && fieldValue) || (status === 'inactive' && !fieldValue);

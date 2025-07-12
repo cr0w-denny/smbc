@@ -187,6 +187,12 @@ export function Applet() {
       initialValues: { search: "", category: "", inStock: "" },
     },
 
+    // Pagination configuration
+    pagination: {
+      enabled: true,
+      defaultPageSize: 10,
+    },
+
     // Actions configuration
     actions: {
       bulk: [
@@ -314,7 +320,8 @@ export function Applet() {
       <Alert severity="info" sx={{ mb: 2 }}>
         <Typography variant="body1">
           Select products and use bulk actions to see optimistic updates in
-          action. Product #6 will fail and revert while others succeed.
+          action. Some products may fail and revert while others succeed - 
+          check the console for details.
         </Typography>
       </Alert>
 
@@ -324,10 +331,10 @@ export function Applet() {
           // Disable transactions to enable optimistic mode
           transaction: { enabled: false, requireConfirmation: false },
           onSuccess: (action, item) => {
-            console.log(`✅ Optimistic ${action} succeeded:`, item);
+            console.log(`✅ Optimistic ${action} succeeded for "${item?.name}":`, item);
           },
           onError: (action, error, item) => {
-            console.error(`❌ Optimistic ${action} failed:`, error, item);
+            console.error(`❌ Optimistic ${action} failed for "${item?.name}":`, error, item);
           },
         }}
       />

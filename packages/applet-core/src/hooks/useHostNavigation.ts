@@ -65,7 +65,9 @@ export function useHostNavigation({
             sectionId: applet.id,
             sectionLabel: applet.label,
             sectionIcon: topLevelRoute?.icon,
+            sectionVersion: applet.version,
             hasInternalNavigation: true,
+            filterable: applet.filterable,
             homeRoute: internalNav.homeRoute ? {
               path: internalNav.homeRoute.path,
               label: internalNav.homeRoute.label,
@@ -93,7 +95,9 @@ export function useHostNavigation({
             sectionId: applet.id,
             sectionLabel: applet.label,
             sectionIcon: topLevelRoute?.icon,
+            sectionVersion: applet.version,
             hasInternalNavigation: false,
+            filterable: applet.filterable,
             directRoute: {
               path: appletMountPath,
               label: applet.label,
@@ -109,7 +113,9 @@ export function useHostNavigation({
           sectionId: applet.id,
           sectionLabel: applet.label,
           sectionIcon: topLevelRoute?.icon,
+          sectionVersion: applet.version,
           hasInternalNavigation: false,
+          filterable: applet.filterable,
           directRoute: {
             path: appletMountPath,
             label: applet.label,

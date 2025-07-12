@@ -58,12 +58,20 @@ export interface NavigationItem {
   divider?: boolean;
 }
 
+// MSW status interface
+export interface MswStatus {
+  isEnabled: boolean;
+  isReady: boolean;
+  isInitializing: boolean;
+}
+
 // Simplified app state interface - only essential properties
 export interface AppState {
   user: User | null;
   isAuthenticated: boolean;
   navigation: NavigationItem[];
   appletRegistry?: Record<string, any>;
+  mswStatus?: MswStatus;
 }
 
 // Navigation types
@@ -122,6 +130,7 @@ export interface MenuNavigationSection {
   sectionId: string;
   sectionLabel: string;
   sectionIcon?: React.ComponentType | React.ElementType | string;
+  sectionVersion?: string; // Optional version for the applet
   // If hasInternalNavigation is false, treat as a direct route
   hasInternalNavigation: boolean;
   // For direct routes (no internal navigation)
@@ -129,6 +138,7 @@ export interface MenuNavigationSection {
   // For applets with internal navigation
   homeRoute?: NavigationRoute;
   groups?: NavigationGroup[];
+  filterable?: boolean; // Whether this applet participates in search/filtering (default: true)
 }
 
 // Standard applet permissions (re-using PermissionDefinition from appletPermissions)
@@ -175,6 +185,8 @@ export interface AppletMount {
     spec: any;
   };
   apiBaseUrl?: string; // Optional API base URL for this applet
+  version?: string; // Optional version number for the applet
+  filterable?: boolean; // Whether this applet participates in search/filtering (default: true)
   getHostNavigation?: (
     mountPath: string, 
     hasAnyPermission: (appletId: string, permissions: string[]) => boolean,

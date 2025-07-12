@@ -10,6 +10,7 @@ import {
   User,
   NavigationItem,
   RoleConfig,
+  MswStatus,
   createRoleUtilities,
 } from "./types";
 
@@ -20,6 +21,7 @@ interface AppContextValue {
     setUser: (user: User | null) => void;
     setNavigation: (navigation: NavigationItem[]) => void;
     setUserRoles: (roles: string[]) => void;
+    setMswStatus: (status: MswStatus) => void;
   };
 }
 
@@ -45,6 +47,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     isAuthenticated: initialUser !== null,
     navigation: initialNavigation,
     appletRegistry,
+    mswStatus: {
+      isEnabled: false,
+      isReady: true,
+      isInitializing: false,
+    },
   });
 
   const roleConfig = useMemo(
@@ -79,6 +86,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     }));
   }, []);
 
+  const setMswStatus = useCallback((mswStatus: MswStatus) => {
+    setState((prev: AppState) => ({ ...prev, mswStatus }));
+  }, []);
+
   const contextValue: AppContextValue = {
     state,
     roleUtils,
@@ -86,6 +97,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
       setUser,
       setNavigation,
       setUserRoles,
+      setMswStatus,
     },
   };
 

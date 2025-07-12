@@ -4,17 +4,20 @@ import {
   Search as SearchIcon,
   Clear as ClearIcon,
 } from "@mui/icons-material";
-import { TextField, InputAdornment, IconButton } from "@mui/material";
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  Box,
+  Typography,
+} from "@mui/material";
 import {
   useHashNavigation,
   useHostNavigation,
   useRoleManagement,
   type AppletMount,
 } from "@smbc/applet-core";
-import {
-  AppletDrawer as BaseAppletDrawer,
-  type TreeMenuSection,
-} from "@smbc/mui-components";
+import { TreeMenu, type TreeMenuSection } from "@smbc/mui-components";
 
 interface AppletDrawerProps {
   applets: AppletMount[];
@@ -41,7 +44,7 @@ export function AppletDrawer({
     hasAnyPermission,
     permissionMapping,
     includeRootRoute: true,
-    rootRoute: { path: "/", label: "Dashboard", icon: DashboardIcon },
+    rootRoute: { path: "/", label: "Role Manager", icon: DashboardIcon },
     includeInternalRoutes: true,
   });
 
@@ -50,120 +53,91 @@ export function AppletDrawer({
     if (!searchTerm.trim()) return menuSections;
 
     const search = searchTerm.toLowerCase();
+    const results: TreeMenuSection[] = [];
 
-    return menuSections
-      .map((section) => {
-        // Check if section name matches
-        const sectionMatches = section.sectionLabel
-          .toLowerCase()
-          .includes(search);
+    menuSections.forEach((section) => {
+      // Always include non-filterable sections completely unchanged
+      // Check filterable property (defaulting to true if not specified)
+      const isFilterable = section.filterable !== false;
 
-        // Filter groups and routes within groups
-        const filteredGroups =
-          section.groups
-            ?.map((group) => {
-              const groupMatches = group.label.toLowerCase().includes(search);
-              const filteredRoutes = group.routes.filter((route) =>
-                route.label.toLowerCase().includes(search),
-              );
+      if (!isFilterable) {
+        results.push(section); // Always include non-filterable sections unchanged
+        return;
+      }
 
-              // Include group if it matches or has matching routes
-              if (groupMatches || filteredRoutes.length > 0) {
-                return {
-                  ...group,
-                  routes: groupMatches ? group.routes : filteredRoutes,
-                };
-              }
-              return null;
-            })
-            .filter(Boolean) || [];
+      // For filterable sections, apply normal filtering logic
+      // Check if section name matches
+      const sectionMatches = section.sectionLabel
+        .toLowerCase()
+        .includes(search);
 
-        // Check direct route
-        const directRouteMatches = section.directRoute?.label
-          .toLowerCase()
-          .includes(search);
-        const homeRouteMatches = section.homeRoute?.label
-          .toLowerCase()
-          .includes(search);
+      // Filter groups and routes within groups
+      const filteredGroups =
+        section.groups
+          ?.map((group) => {
+            const groupMatches = group.label.toLowerCase().includes(search);
+            const filteredRoutes = group.routes.filter((route) =>
+              route.label.toLowerCase().includes(search),
+            );
 
-        // Include section if section matches, or has matching groups/routes
-        if (
-          sectionMatches ||
-          filteredGroups.length > 0 ||
-          directRouteMatches ||
-          homeRouteMatches
-        ) {
-          return {
-            ...section,
-            groups:
-              filteredGroups.length > 0
-                ? filteredGroups
-                : sectionMatches
-                  ? section.groups
-                  : [],
-            directRoute:
-              sectionMatches || directRouteMatches
-                ? section.directRoute
-                : undefined,
-            homeRoute:
-              sectionMatches || homeRouteMatches
-                ? section.homeRoute
-                : undefined,
-          };
+            // Include group if it matches or has matching routes
+            if (groupMatches || filteredRoutes.length > 0) {
+              return {
+                ...group,
+                routes: groupMatches ? group.routes : filteredRoutes,
+              };
+            }
+            return null;
+          })
+          .filter(
+            (group): group is NonNullable<typeof group> => group !== null,
+          ) || [];
+
+      // Check direct route
+      const directRouteMatches = section.directRoute?.label
+        .toLowerCase()
+        .includes(search);
+      const homeRouteMatches = section.homeRoute?.label
+        .toLowerCase()
+        .includes(search);
+
+      // Include section if section matches, or has matching groups/routes
+      if (
+        sectionMatches ||
+        filteredGroups.length > 0 ||
+        directRouteMatches ||
+        homeRouteMatches
+      ) {
+        results.push({
+          ...section,
+          groups:
+            filteredGroups.length > 0
+              ? filteredGroups
+              : sectionMatches
+                ? section.groups
+                : [],
+          directRoute:
+            sectionMatches || directRouteMatches
+              ? section.directRoute
+              : undefined,
+          homeRoute:
+            sectionMatches || homeRouteMatches ? section.homeRoute : undefined,
+        });
+      }
+    });
+
+    // If no results and we have a search term, ensure non-filterable sections are still included
+    if (results.length === 0 && searchTerm.trim()) {
+      menuSections.forEach((section) => {
+        const isFilterable = section.filterable !== false;
+        if (!isFilterable) {
+          results.push(section);
         }
+      });
+    }
 
-        return null;
-      })
-      .filter(Boolean) as TreeMenuSection[];
+    return results;
   }, [menuSections, searchTerm]);
-
-  // Convert types to match BaseAppletDrawer expectations
-  const hierarchicalSections = React.useMemo(
-    () =>
-      filteredSections.map((section) => ({
-        ...section,
-        groups: section.groups?.map((group) => ({
-          ...group,
-          routes: group.routes.map((route) => ({
-            ...route,
-            icon: typeof route.icon === "string" ? route.icon : route.icon,
-          })),
-        })),
-        directRoute: section.directRoute
-          ? {
-              ...section.directRoute,
-              icon:
-                typeof section.directRoute.icon === "string"
-                  ? section.directRoute.icon
-                  : section.directRoute.icon,
-            }
-          : undefined,
-        homeRoute: section.homeRoute
-          ? {
-              ...section.homeRoute,
-              icon:
-                typeof section.homeRoute.icon === "string"
-                  ? section.homeRoute.icon
-                  : section.homeRoute.icon,
-            }
-          : undefined,
-      })),
-    [filteredSections],
-  );
-
-  const convertedRootRoute = React.useMemo(
-    () =>
-      rootRoute
-        ? {
-            ...rootRoute,
-            icon:
-              typeof rootRoute.icon === "string"
-                ? rootRoute.icon
-                : rootRoute.icon,
-          }
-        : undefined,
-    [rootRoute],
-  );
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -180,7 +154,7 @@ export function AppletDrawer({
       placeholder="Search applets..."
       value={searchTerm}
       onChange={handleSearchChange}
-      sx={{ mb: 1 }}
+      sx={{ mb: 1, mt: 1 }}
       slotProps={{
         input: {
           startAdornment: (
@@ -200,18 +174,101 @@ export function AppletDrawer({
     />
   );
 
+  // Split sections into non-filterable and filterable
+  const nonFilterableSections = menuSections.filter(
+    (section) => section.filterable === false,
+  );
+  const filterableSections = filteredSections.filter(
+    (section) => section.filterable !== false,
+  );
+
   return (
-    <BaseAppletDrawer
-      title={title || constants.appName}
-      width={constants.drawerWidth}
-      currentPath={currentPath}
-      onNavigate={navigateTo}
-      rootRoute={convertedRootRoute}
-      menuSections={hierarchicalSections}
-      showDebugInfo={true}
-      totalSections={menuSections.length}
-      headerContent={searchInput}
-      searchTerm={searchTerm}
-    />
+    <Box
+      sx={{
+        width: constants.drawerWidth,
+        height: "100vh", // Full viewport height
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "background.paper",
+        borderRight: "1px solid",
+        borderColor: "divider",
+        position: "fixed",
+        top: 0, // Start from the very top
+        left: 0,
+        zIndex: 1000,
+      }}
+    >
+      {/* Title */}
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h6">{title || constants.appName}</Typography>
+      </Box>
+
+      {/* Non-filterable sections (Applet Guide) */}
+      <Box sx={{ flexShrink: 0 }}>
+        <TreeMenu
+          currentPath={currentPath}
+          onNavigate={navigateTo}
+          menuSections={nonFilterableSections}
+          compact={true}
+        />
+      </Box>
+
+      {/* Applet Store Header */}
+      <Box
+        sx={{
+          px: 2,
+          py: 1,
+          mt: 1,
+          color: "text.secondary",
+          fontSize: "0.875rem",
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          letterSpacing: "0.5px",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <span style={{ marginLeft: 10, marginRight: 8 }}>📱</span>
+        Applet Store
+      </Box>
+
+      {/* Role Manager */}
+      {rootRoute && (
+        <Box sx={{ px: 2, py: 1 }}>
+          <Box
+            onClick={() => navigateTo(rootRoute.path)}
+            sx={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              py: 1,
+              px: 1,
+              borderRadius: 1,
+              "&:hover": { backgroundColor: "action.hover" },
+            }}
+          >
+            {rootRoute.icon &&
+              React.createElement(rootRoute.icon, {
+                style: { marginRight: 8 },
+              })}
+            <Typography>{rootRoute.label}</Typography>
+          </Box>
+        </Box>
+      )}
+
+      {/* Search Input */}
+      <Box sx={{ px: 2, mt: "-10px" }}>{searchInput}</Box>
+
+      {/* Filterable sections (Applet Store items) */}
+      <Box sx={{ flexGrow: 1, overflow: "auto" }}>
+        <TreeMenu
+          currentPath={currentPath}
+          onNavigate={navigateTo}
+          menuSections={filterableSections}
+        />
+      </Box>
+    </Box>
   );
 }

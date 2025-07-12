@@ -61,3 +61,4 @@ export { MuiDataView } from "./DataView/MuiDataView";
 // Host application bar
 export { HostAppBar } from "./HostAppBar";
 export type { HostAppBarProps, CurrentAppletInfo } from "./HostAppBar";
+

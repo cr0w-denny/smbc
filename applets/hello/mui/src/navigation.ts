@@ -1,50 +1,34 @@
 import { createNavigationExport } from "@smbc/applet-core";
 import permissions from "./permissions";
 
-// Navigation groups for organizing routes
-export const navigationGroups = [
-  { id: "basic", label: "Basic Features", icon: "⚡", order: 1 },
-  { id: "advanced", label: "Advanced Features", icon: "🔧", order: 2 },
-];
+// Navigation groups for organizing routes - removed since we want flat navigation
+export const navigationGroups: any[] = [];
 
-// Internal routes used by the applet
+// Internal routes used by the applet - flat structure
 export const internalRoutes = [
   {
-    path: "/route-one",
+    path: "/introduction",
     permission: permissions.VIEW_ROUTE_ONE,
-    label: "Navigation",
-    icon: "🧭",
-    group: "basic",
+    label: "Introduction",
   },
   {
-    path: "/route-two",
+    path: "/develop",
     permission: permissions.VIEW_ROUTE_TWO,
-    label: "Filtering",
-    icon: "🔍",
-    group: "basic",
+    label: "Develop",
   },
   {
-    path: "/route-three",
+    path: "/deploy",
     permission: permissions.VIEW_ROUTE_THREE,
-    label: "Permissions",
-    icon: "🔐",
-    group: "basic",
+    label: "Deploy",
   },
   {
-    path: "/route-four",
+    path: "/integrate",
     permission: permissions.VIEW_ROUTE_FOUR,
-    label: "DataView",
-    icon: "📊",
-    group: "advanced",
+    label: "Integrate",
   },
 ];
 
-// Export internal navigation structure for the host to display
-export const getHostNavigation = createNavigationExport({
-  groups: navigationGroups,
-  routes: internalRoutes,
-  homeRoute: {
-    label: "Home",
-    icon: "🏠",
-  },
+// Export internal navigation structure for the host to display - no groups defined
+export const getHostNavigation = createNavigationExport({ 
+  routes: internalRoutes 
 });

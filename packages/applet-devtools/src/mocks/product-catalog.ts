@@ -1,14 +1,14 @@
 // Generated mock handlers for Product Catalog API
-// Generated at: 2025-07-08T16:26:55.286Z
+// Generated at: 2025-07-11T18:04:43.977Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
 
 // Configuration for mock responses
 const mockConfig = {
-  baseUrl: '*/api/v1/product-catalog', // Use wildcard to match any host with applet namespace
+  baseUrl: '/api/v1/product-catalog',
   delay: { min: 0, max: 200 },
-  errorRate: 0.05,
+  errorRate: 0.15,
   dataSetSize: { min: 10, max: 50 },
 };
 
@@ -135,8 +135,6 @@ function initializeProductDataStore() {
   if (productDataInitialized) return;
   
   const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
-  console.log('🛍️ Product Catalog Mock: Initializing with', totalItems, 'products');
-  
   const items = Array.from({ length: totalItems }, (_, i) => 
     generateProduct({ id: String(i + 1) })
   );
@@ -145,7 +143,6 @@ function initializeProductDataStore() {
     productDataStore.set(String(item.id), item);
   });
   
-  console.log('🛍️ Product Catalog Mock: Initialized productDataStore with', productDataStore.size, 'items');
   productDataInitialized = true;
 }
 
@@ -168,10 +165,10 @@ let productlistDataInitialized = false;
 // Mock generator for ProductList
 function generateProductList(overrides = {}) {
   return {
-    products: faker.lorem.word(),
+    products: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => generateProduct()),
     total: faker.number.float({ min: 0, max: 10000, fractionDigits: 2 }),
-    page: faker.number.int(),
-    pageSize: faker.number.int(),
+    page: faker.number.int({ min: 1, max: 100000 }),
+    pageSize: faker.number.int({ min: 1, max: 100000 }),
     ...overrides
   };
 }
@@ -274,7 +271,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'Product not found' },
             { status: 404 }
@@ -292,29 +292,25 @@ export const handlers = [
         
         // Get dataset from persistent store
         const allItems = getAllProducts();
-        console.log('🛍️ Product Catalog Mock: GET /products', {
-          allItemsLength: allItems.length,
-          filters: { page, pageSize, category, search, inStock }
-        });
         
         // Apply filters
         let filteredItems = allItems;
         
         // Apply search filter
-        if (search) {
+        if (search && search !== '') {
           filteredItems = filteredItems.filter((item: any) => 
             JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
           );
         }
     
         // Apply category filter
-        if (category && category.trim() !== '') {
+        if (category !== null && category !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             return item.category?.toString().toLowerCase().includes(category.toLowerCase());
           });
         }
         // Apply inStock filter
-        if (inStock && inStock.trim() !== '') {
+        if (inStock !== null && inStock !== '') {
           filteredItems = filteredItems.filter((item: any) => {
             if (inStock === 'true' || inStock === 'false') {
               return item.inStock === (inStock === 'true');
@@ -329,14 +325,6 @@ export const handlers = [
         const startIndex = (page - 1) * pageSize;
         const endIndex = Math.min(startIndex + pageSize, total);
         const paginatedItems = filteredItems.slice(startIndex, endIndex);
-        
-        console.log('🛍️ Product Catalog Mock: Returning response', {
-          filteredItemsLength: filteredItems.length,
-          paginatedItemsLength: paginatedItems.length,
-          startIndex,
-          endIndex,
-          total
-        });
     
         return HttpResponse.json({
           products: paginatedItems,
@@ -350,7 +338,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Validation failed', message: 'Invalid product data' },
             { status: 400 }
@@ -369,7 +360,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'Product not found' },
             { status: 404 }
@@ -392,7 +386,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'Product not found' },
             { status: 404 }
@@ -402,27 +399,11 @@ export const handlers = [
         const requestBody = await request.json() as Record<string, any>;
         const entityId = params.id as string;
         
-        console.log('🛍️ Product Catalog Mock: PATCH /products/' + entityId, {
-          entityId,
-          requestBody,
-          storeHasItem: productDataStore.has(entityId)
-        });
-        
-        // Force product #6 to fail for demo purposes
-        if (entityId === '6') {
-          console.log('🛍️ Product Catalog Mock: Forcing product #6 to fail for demo');
-          return HttpResponse.json(
-            { error: 'Not found', message: 'Product not found' },
-            { status: 404 }
-          );
-        }
-        
         // Get existing item from store
         const existingItem = productDataStore.get(entityId);
         if (!existingItem) {
-          console.log('🛍️ Product Catalog Mock: Product not found', entityId);
           return HttpResponse.json(
-            { error: 'Not found', message: 'Product not found' },
+            { error: 'Not found', message: `Product with ID "${entityId}" not found` },
             { status: 404 }
           );
         }
@@ -431,15 +412,16 @@ export const handlers = [
         const updatedProduct = { ...existingItem, ...requestBody, id: entityId };
         productDataStore.set(entityId, updatedProduct);
         
-        console.log('🛍️ Product Catalog Mock: Updated product', updatedProduct);
-        
         return HttpResponse.json(updatedProduct);  }),
   // delete /products/{id} - DELETE /products/{id}
   http.delete(`${mockConfig.baseUrl}/products/:id`, async ({ params }) => {
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'Product not found' },
             { status: 404 }

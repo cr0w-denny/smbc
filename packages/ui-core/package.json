@@ -42,5 +42,9 @@
     "concurrently": "^9.2.0",
     "style-dictionary": "^5.0.0",
     "typescript": "^5.3.3"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
   }
 }

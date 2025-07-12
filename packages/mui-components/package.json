@@ -49,5 +49,9 @@
   },
   "dependencies": {
     "@mui/x-tree-view": "^8.6.0"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
   }
 }

@@ -10,7 +10,7 @@ let {{lowerName}}DataInitialized = false;
 function generate{{name}}(overrides = {}) {
   return {
 {{#each properties}}
-    {{name}}: {{{fakerMethod}}},
+    {{{quoteProp name}}}: {{{fakerMethod}}},
 {{/each}}
     ...overrides
   };
@@ -20,7 +20,7 @@ function generate{{name}}(overrides = {}) {
 function initialize{{name}}DataStore() {
   if ({{lowerName}}DataInitialized) return;
   
-  const totalItems = faker.number.int(mockConfig.dataSetSize);
+  const totalItems = faker.number.int({ min: mockConfig.dataSetSize.min, max: mockConfig.dataSetSize.max });
   {{#if primaryKey}}
   const items = Array.from({ length: totalItems }, (_, i) => 
     generate{{name}}({ {{primaryKey}}: String(i + 1) })

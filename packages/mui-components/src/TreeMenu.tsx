@@ -1,8 +1,7 @@
 import React from "react";
-import { Box, Chip } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import {
-  Dashboard as DashboardIcon,
   ExpandMore,
   ExpandLess,
 } from "@mui/icons-material";
@@ -35,10 +34,18 @@ export interface TreeMenuSection {
   sectionId: string;
   sectionLabel: string;
   sectionIcon?: React.ComponentType | React.ElementType | string;
+  sectionVersion?: string;
   hasInternalNavigation: boolean;
   directRoute?: NavigationRoute;
   homeRoute?: NavigationRoute;
   groups?: TreeMenuGroup[];
+  filterable?: boolean;
+}
+
+export interface TreeMenuHeader {
+  id: string;
+  label: string;
+  icon?: string;
 }
 
 /**
@@ -53,12 +60,18 @@ export interface TreeMenuProps {
   rootRoute?: NavigationRoute;
   /** Tree menu sections */
   menuSections: TreeMenuSection[];
+  /** Optional headers to display between sections */
+  headers?: TreeMenuHeader[];
   /** Whether to show debug info (section count chip) */
   showDebugInfo?: boolean;
   /** Number of total sections for debug display */
   totalSections?: number;
   /** Current search term for auto-expanding matching nodes */
   searchTerm?: string;
+  /** Search input component to render after headers */
+  searchInput?: React.ReactNode;
+  /** Whether to use compact layout without minHeight constraints */
+  compact?: boolean;
 }
 
 /**
@@ -92,16 +105,28 @@ const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
       color: theme.palette.text.primary,
     },
   },
+  // Reduce padding when no icon is present
+  "&.no-icon": {
+    [`& .${treeItemClasses.content}`]: {
+      paddingLeft: theme.spacing(1),
+    },
+  },
 }));
 
 /**
  * Leaf TreeItem (reduced padding)
  */
-const LeafTreeItem = styled(TreeItem)(() => ({
+const LeafTreeItem = styled(TreeItem)(({ theme }) => ({
   [`& .${treeItemClasses.content}`]: {},
   [`& .${treeItemClasses.iconContainer}`]: {
     "& .close": {
       opacity: 0.3,
+    },
+  },
+  // Reduce padding when no icon is present
+  "&.no-icon": {
+    [`& .${treeItemClasses.content}`]: {
+      paddingLeft: theme.spacing(1),
     },
   },
 }));
@@ -119,16 +144,48 @@ const ChildLeafTreeItem = styled(TreeItem)(({ theme }) => ({
       opacity: 0.3,
     },
   },
+  // Reduce padding when no icon is present
+  "&.no-icon": {
+    [`& .${treeItemClasses.content}`]: {
+      paddingLeft: theme.spacing(1),
+    },
+  },
 }));
 
 /**
  * Render icon helper
  */
 function renderIcon(icon?: React.ComponentType | React.ElementType | string) {
-  if (!icon) return <DashboardIcon />;
+  if (!icon) return null;
   if (typeof icon === "string") return <span>{icon}</span>;
   const IconComponent = icon;
   return <IconComponent />;
+}
+
+/**
+ * Render label with muted version text
+ */
+function renderLabelWithVersion(label: string, version?: string) {
+  if (version) {
+    return (
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <span>{label}</span>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            fontSize: "0.65rem",
+            opacity: 0.7,
+            fontWeight: 400,
+          }}
+        >
+          v{version}
+        </Typography>
+      </Box>
+    );
+  }
+  
+  return <span>{label}</span>;
 }
 
 /**
@@ -139,60 +196,65 @@ export function TreeMenu({
   onNavigate,
   rootRoute,
   menuSections,
+  headers = [],
   showDebugInfo = false,
   totalSections = 0,
   searchTerm = "",
+  searchInput,
+  compact = false,
 }: TreeMenuProps) {
-  const [expandedItems, setExpandedItems] = React.useState<string[]>([
-    ...menuSections.map((section) => `section:${section.sectionId}`),
-    ...menuSections.flatMap(
-      (section) => section.groups?.map((group) => `group:${group.id}`) || [],
-    ),
-  ]);
+  const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
-  // Auto-expand newly visible sections when menuSections changes (e.g., role switching)
+  // Auto-expand section that contains the current path
   React.useEffect(() => {
-    const currentAppletIds = new Set(
-      menuSections.map((section) => `section:${section.sectionId}`)
-    );
-    const currentGroupIds = new Set(
-      menuSections.flatMap(
-        (section) => section.groups?.map((group) => `group:${group.id}`) || []
-      )
-    );
+    if (!currentPath) return;
 
-    setExpandedItems((prev) => {
-      const prevSet = new Set(prev);
-      const newExpandedItems = [...prev];
-
-      // Add newly visible applet sections
-      for (const appletId of currentAppletIds) {
-        if (!prevSet.has(appletId)) {
-          newExpandedItems.push(appletId);
-        }
+    const itemsToExpand = new Set<string>();
+    
+    // Find which section contains the current path
+    menuSections.forEach((section) => {
+      let shouldExpandSection = false;
+      
+      // Check if current path matches direct route
+      if (section.directRoute?.path === currentPath) {
+        shouldExpandSection = true;
       }
-
-      // Add newly visible groups
-      for (const groupId of currentGroupIds) {
-        if (!prevSet.has(groupId)) {
-          newExpandedItems.push(groupId);
-        }
+      
+      // Check if current path matches home route
+      if (section.homeRoute?.path === currentPath) {
+        shouldExpandSection = true;
       }
-
-      // Remove items that are no longer present
-      return newExpandedItems.filter((itemId) => {
-        if (itemId.startsWith("section:")) {
-          return currentAppletIds.has(itemId);
+      
+      // Check groups and their routes
+      section.groups?.forEach((group) => {
+        let shouldExpandGroup = false;
+        
+        group.routes.forEach((route) => {
+          if (route.path === currentPath) {
+            shouldExpandSection = true;
+            shouldExpandGroup = true;
+          }
+        });
+        
+        if (shouldExpandGroup) {
+          itemsToExpand.add(`group:${group.id}`);
         }
-        if (itemId.startsWith("group:")) {
-          return currentGroupIds.has(itemId);
-        }
-        return true; // Keep other items (like path: items)
       });
+      
+      if (shouldExpandSection) {
+        itemsToExpand.add(`section:${section.sectionId}`);
+      }
     });
-  }, [menuSections]);
 
-  // Auto-expand nodes when searching
+    if (itemsToExpand.size > 0) {
+      setExpandedItems((prev) => {
+        const newExpanded = new Set([...prev, ...itemsToExpand]);
+        return Array.from(newExpanded);
+      });
+    }
+  }, [currentPath, menuSections]);
+
+  // Auto-expand nodes when searching (but don't expand non-filterable sections)
   React.useEffect(() => {
     if (!searchTerm.trim()) return;
 
@@ -241,8 +303,9 @@ export function TreeMenu({
         }
       });
 
-      // If applet has matching content, expand it
-      if (hasMatchingContent) {
+      // Only expand sections that have actual matches AND are filterable
+      // Non-filterable sections should not auto-expand during search
+      if (hasMatchingContent && section.filterable !== false) {
         nodesToExpand.add(`section:${section.sectionId}`);
       }
     });
@@ -290,65 +353,109 @@ export function TreeMenu({
     );
   };
 
+  // Render a header item
+  const renderHeader = (header: TreeMenuHeader) => (
+    <Box
+      key={`header:${header.id}`}
+      sx={{
+        px: 2,
+        py: 1,
+        display: "flex",
+        alignItems: "center",
+        color: "text.secondary",
+        fontSize: "0.875rem",
+        fontWeight: "bold",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+        borderBottom: "1px solid",
+        borderColor: "divider",
+        mb: 1,
+        mt: 2,
+      }}
+    >
+      {header.icon && <span style={{ marginRight: 8 }}>{header.icon}</span>}
+      {header.label}
+    </Box>
+  );
+
   // Generate tree items
   const renderTreeItems = () => {
-    const items = [];
-
-    // Root route
-    if (rootRoute) {
-      items.push(
-        <CustomTreeItem
-          key={`path:${rootRoute.path}`}
-          itemId={`path:${rootRoute.path}`}
-          label={
-            <Box sx={{ display: "flex", alignItems: "center", py: 0 }}>
-              <span>{rootRoute.label}</span>
-              {showDebugInfo && (
-                <Chip
-                  label={totalSections}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                  sx={{
-                    ml: 1,
-                    height: 17,
-                    "& .MuiChip-label": {
-                      px: 1,
-                      py: 0,
-                      fontSize: "0.75rem",
-                    },
-                  }}
-                />
-              )}
-              {renderExpandButton(`path:${rootRoute.path}`, false)}
-            </Box>
-          }
-          slots={{
-            icon: () => renderIcon(rootRoute.icon),
-          }}
-        />,
-      );
-    }
+    const items: JSX.Element[] = [];
+    let headerAndSearchAdded = false;
 
     // Applet sections
-    menuSections.forEach((section) => {
+    menuSections.forEach((section, index) => {
+      // After the first section (hello applet), add root route and applet store header
+      if (index === 1 && !headerAndSearchAdded) {
+        // Add root route after hello applet
+        if (rootRoute) {
+          items.push(
+            <CustomTreeItem
+              key={`path:${rootRoute.path}`}
+              itemId={`path:${rootRoute.path}`}
+              className={!rootRoute.icon ? "no-icon" : ""}
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", py: 0 }}>
+                  <span>{rootRoute.label}</span>
+                  {showDebugInfo && (
+                    <Chip
+                      label={totalSections}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                      sx={{
+                        ml: 1,
+                        height: 17,
+                        "& .MuiChip-label": {
+                          px: 1,
+                          py: 0,
+                          fontSize: "0.75rem",
+                        },
+                      }}
+                    />
+                  )}
+                  {renderExpandButton(`path:${rootRoute.path}`, false)}
+                </Box>
+              }
+              slots={rootRoute.icon ? {
+                icon: () => renderIcon(rootRoute.icon),
+              } : {}}
+            />,
+          );
+        }
+
+        // Insert "Applet Store" header
+        if (headers.length > 0) {
+          items.push(renderHeader(headers[0]));
+          // Add search input after the header
+          if (searchInput) {
+            items.push(
+              <Box key="search-input" sx={{ px: 0, py: 0 }}>
+                {searchInput}
+              </Box>
+            );
+          }
+        }
+        headerAndSearchAdded = true;
+      }
       // Simple applet without internal navigation
       if (!section.hasInternalNavigation && section.directRoute) {
         items.push(
           <CustomTreeItem
             key={`path:${section.directRoute.path}`}
             itemId={`path:${section.directRoute.path}`}
+            className={!section.directRoute?.icon ? "no-icon" : ""}
             label={
               <Box
                 sx={{ display: "flex", alignItems: "center", width: "100%" }}
               >
-                <span>{section.directRoute.label}</span>
+                {renderLabelWithVersion(section.directRoute.label, section.sectionVersion)}
                 {renderExpandButton(`path:${section.directRoute.path}`, false)}
               </Box>
             }
-            slots={{
+            slots={section.directRoute?.icon ? {
               icon: () => renderIcon(section.directRoute?.icon),
-            }}
+            } : {}}
           />,
         );
       } else {
@@ -365,11 +472,12 @@ export function TreeMenu({
             <LeafTreeItem
               key={`path:${section.homeRoute.path}`}
               itemId={`path:${section.homeRoute.path}`}
+              className={!section.homeRoute?.icon ? "no-icon" : ""}
               label={
                 <Box
                   sx={{ display: "flex", alignItems: "center", width: "100%" }}
                 >
-                  <span>Home</span>
+                  <span>{section.homeRoute.label}</span>
                   {renderExpandButton(`path:${section.homeRoute.path}`, false)}
                 </Box>
               }
@@ -380,68 +488,97 @@ export function TreeMenu({
           );
         }
 
-        // Groups
-        section.groups?.forEach((group) => {
-          const groupChildren = group.routes.map((route) => (
-            <ChildLeafTreeItem
-              key={`path:${route.path}`}
-              itemId={`path:${route.path}`}
-              label={
-                <Box
-                  sx={{ display: "flex", alignItems: "center", width: "100%" }}
-                >
-                  <span>{route.label}</span>
-                  {renderExpandButton(`path:${route.path}`, false)}
-                </Box>
-              }
-              slots={{
-                icon: () => renderIcon(route.icon),
-              }}
-            />
-          ));
+        // Groups - Special handling for flat navigation (single group with empty label)
+        if (section.groups?.length === 1 && section.groups[0].label === '') {
+          // Flat navigation: render routes directly without group wrapper
+          const flatGroup = section.groups[0];
+          flatGroup.routes.forEach((route) => {
+            children.push(
+              <LeafTreeItem
+                key={`path:${route.path}`}
+                itemId={`path:${route.path}`}
+                className={!route.icon ? "no-icon" : ""}
+                label={
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", width: "100%" }}
+                  >
+                    {renderLabelWithVersion(route.label)}
+                    {renderExpandButton(`path:${route.path}`, false)}
+                  </Box>
+                }
+                slots={route.icon ? {
+                  icon: () => renderIcon(route.icon),
+                } : {}}
+              />
+            );
+          });
+        } else {
+          // Regular grouped navigation
+          section.groups?.forEach((group) => {
+            const groupChildren = group.routes.map((route) => (
+              <ChildLeafTreeItem
+                key={`path:${route.path}`}
+                itemId={`path:${route.path}`}
+                className={!route.icon ? "no-icon" : ""}
+                label={
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", width: "100%" }}
+                  >
+                    {renderLabelWithVersion(route.label)}
+                    {renderExpandButton(`path:${route.path}`, false)}
+                  </Box>
+                }
+                slots={route.icon ? {
+                  icon: () => renderIcon(route.icon),
+                } : {}}
+              />
+            ));
 
-          children.push(
-            <CustomTreeItem
-              key={`group:${group.id}`}
-              itemId={`group:${group.id}`}
-              label={
-                <Box
-                  sx={{ display: "flex", alignItems: "center", width: "100%" }}
-                >
-                  <span>{group.label}</span>
-                  {renderExpandButton(
-                    `group:${group.id}`,
-                    groupChildren.length > 0,
-                  )}
-                </Box>
-              }
-              slots={{
-                icon: () => renderIcon(group.icon),
-              }}
-            >
-              {groupChildren}
-            </CustomTreeItem>,
-          );
-        });
+            children.push(
+              <CustomTreeItem
+                key={`group:${group.id}`}
+                itemId={`group:${group.id}`}
+                className={!group.icon ? "no-icon" : ""}
+                label={
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", width: "100%" }}
+                  >
+                    <span>{group.label}</span>
+                    {renderExpandButton(
+                      `group:${group.id}`,
+                      groupChildren.length > 0,
+                    )}
+                  </Box>
+                }
+                slots={group.icon ? {
+                  icon: () => renderIcon(group.icon),
+                } : {}}
+              >
+                {groupChildren}
+              </CustomTreeItem>,
+            );
+          });
+        }
 
         items.push(
           <CustomTreeItem
             key={`section:${section.sectionId}`}
             itemId={`section:${section.sectionId}`}
+            className={!section.sectionIcon ? "no-icon" : ""}
             label={
               <Box
                 sx={{ display: "flex", alignItems: "center", width: "100%" }}
               >
-                <span>{section.sectionLabel}</span>
+                {renderLabelWithVersion(section.sectionLabel, section.sectionVersion)}
                 {renderExpandButton(
                   `section:${section.sectionId}`,
                   children.length > 0,
                 )}
               </Box>
             }
-            slots={{
+            slots={section.sectionIcon ? {
               icon: () => renderIcon(section.sectionIcon),
-            }}
+            } : {}}
           >
             {children}
           </CustomTreeItem>,
@@ -449,14 +586,67 @@ export function TreeMenu({
       }
     });
 
+    // Ensure search input is always rendered if it exists and we have headers, 
+    // even if it wasn't added during the normal loop (e.g., when only hello section is visible)
+    if (searchInput && headers.length > 0 && !headerAndSearchAdded) {
+      if (rootRoute) {
+        items.push(
+          <CustomTreeItem
+            key={`path:${rootRoute.path}`}
+            itemId={`path:${rootRoute.path}`}
+            className={!rootRoute.icon ? "no-icon" : ""}
+            label={
+              <Box sx={{ display: "flex", alignItems: "center", py: 0 }}>
+                <span>{rootRoute.label}</span>
+                {showDebugInfo && (
+                  <Chip
+                    label={totalSections}
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                    sx={{
+                      ml: 1,
+                      height: 17,
+                      "& .MuiChip-label": {
+                        px: 1,
+                        py: 0,
+                        fontSize: "0.75rem",
+                      },
+                    }}
+                  />
+                )}
+                {renderExpandButton(`path:${rootRoute.path}`, false)}
+              </Box>
+            }
+            slots={rootRoute.icon ? {
+              icon: () => renderIcon(rootRoute.icon),
+            } : {}}
+          />,
+        );
+      }
+      items.push(renderHeader(headers[0]));
+      items.push(
+        <Box key="search-input" sx={{ px: 0, py: 0 }}>
+          {searchInput}
+        </Box>
+      );
+    }
+
     return items;
   };
 
   // Find selected item based on current path
   const selectedItems = `path:${currentPath}`;
 
+  // Check if this is just a root route without other sections
+  const isRootRouteOnly = rootRoute && menuSections.length === 0;
+
   return (
-    <Box sx={{ minHeight: 180, flexGrow: 1, maxWidth: 300 }}>
+    <Box sx={{ 
+      minHeight: compact || isRootRouteOnly ? "auto" : 180, 
+      flexGrow: compact || isRootRouteOnly ? 0 : 1, 
+      maxWidth: 300 
+    }}>
       <SimpleTreeView
         selectedItems={selectedItems}
         onItemClick={handleItemClick}
@@ -464,10 +654,10 @@ export function TreeMenu({
         onExpandedItemsChange={handleExpandedItemsChange}
         sx={{
           overflowX: "hidden",
-          minHeight: 270,
-          flexGrow: 1,
+          minHeight: compact || isRootRouteOnly ? "auto" : 270,
+          flexGrow: compact || isRootRouteOnly ? 0 : 1,
           maxWidth: 300,
-          paddingLeft: 2,
+          paddingLeft: isRootRouteOnly ? 0 : 2,
         }}
       >
         {renderTreeItems()}

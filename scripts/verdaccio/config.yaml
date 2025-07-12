@@ -1,0 +1,69 @@
+#
+# Verdaccio Local Registry Configuration
+# This is a private registry for testing @smbc packages locally
+#
+
+# path to a directory with all packages
+storage: ./storage
+
+# a list of other known repositories we can talk to
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    maxage: 60m
+    # cache all files
+    # cache: true
+    # cache only GET request
+    cache: false
+    max_fails: 3
+    fail_timeout: 5m
+
+packages:
+  # @smbc packages - only serve locally
+  '@smbc/*':
+    access: $all
+    publish: $all
+    unpublish: $all
+    proxy: npmjs
+
+  # all other packages proxy to npmjs
+  '**':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+
+# log settings
+logs: { type: stdout, format: pretty, level: http }
+
+# web interface
+web:
+  title: SMBC Local Registry
+  logo: https://verdaccio.org/img/logo/banner/png/verdaccio-banner@2x.png
+  scope: '@smbc'
+
+# Auth settings - allow anyone to access (this is for local development only)
+auth:
+  htpasswd:
+    file: ./htpasswd
+    max_users: 1000
+    algorithm: bcrypt
+
+# Listen settings
+listen: 0.0.0.0:4873
+
+# HTTPS settings (optional for local dev)
+# https:
+#   key: path/to/server.key
+#   cert: path/to/server.crt
+#   ca: path/to/server.pem
+
+# you can specify HTTP/1.1 server keep alive timeout in seconds for incoming connections.
+# A value of 0 makes the http server behave similarly to Node.js versions prior to 8.0.0, which did not have a keep-alive timeout.
+# WORKAROUND: Through given configuration you can workaround following issue https://github.com/verdaccio/verdaccio/issues/301. Set to 0 in case 60 is not working.
+server:
+  keepAliveTimeout: 60
+
+# publishing settings
+publish:
+  allow_offline: false

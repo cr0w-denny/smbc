@@ -9,7 +9,6 @@ import {
   Paper,
   IconButton,
   TablePagination,
-  CircularProgress,
   Alert,
   Box,
   Checkbox,
@@ -27,7 +26,7 @@ import {
   InputLabel,
   Chip,
 } from "@mui/material";
-import { Filter } from "@smbc/mui-components";
+import { Filter, LoadingTable } from "@smbc/mui-components";
 import type {
   DataView,
   DataViewTableProps,
@@ -55,10 +54,13 @@ function MuiDataTable<T extends Record<string, any>>({
   }
 
   if (isLoading) {
+    const totalColumns = columns.length + (selection?.enabled ? 1 : 0) + (actions.length > 0 ? 1 : 0);
     return (
-      <Box display="flex" justifyContent="center" p={4}>
-        <CircularProgress />
-      </Box>
+      <LoadingTable 
+        rows={10} 
+        columns={totalColumns} 
+        rowHeight={60} 
+      />
     );
   }
 

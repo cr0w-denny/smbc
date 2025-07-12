@@ -10,9 +10,7 @@ import {
   Inventory as InventoryIcon,
   Language as LanguageIcon,
 } from "@mui/icons-material";
-
-// API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1";
+import { getApiUrl } from "./generated/api-servers";
 
 // Import applets directly from source during development
 import userManagementApplet from "../../../applets/user-management/mui/src";
@@ -143,15 +141,18 @@ const AdminUsers = () =>
     permissionContext: "admin-users",
   });
 
-// All applets configured for this host
-export const APPLETS: AppletMount[] = [
-  // Hello applet - moved to first position
+// Generate applets configuration for a specific environment
+export function createApplets(environment: 'development' | 'production' | 'mock' = 'development'): AppletMount[] {
+  return [
+  // Applet Guide - moved to first position
   mountApplet(helloApplet, {
     id: "hello",
-    label: "Hello",
+    label: "Applet Guide",
     path: "/hello",
     icon: LanguageIcon,
     permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
+    version: helloApplet.version,
+    filterable: false,
   }),
   
   // Standard mounting: applet at /user-management
@@ -159,7 +160,8 @@ export const APPLETS: AppletMount[] = [
     id: "user-management",
     label: "User Management",
     apiSpec: userManagementApplet.apiSpec,
-    apiBaseUrl: `${API_BASE_URL}/user-management`, // Full namespaced URL
+    apiBaseUrl: getApiUrl("user-management", environment),
+    version: userManagementApplet.version,
     routes: [
       {
         path: "/user-management",
@@ -178,7 +180,8 @@ export const APPLETS: AppletMount[] = [
     id: "admin-users",
     label: "Admin Users",
     apiSpec: userManagementApplet.apiSpec,
-    apiBaseUrl: `${API_BASE_URL}/user-management`, // Same API as user-management
+    apiBaseUrl: getApiUrl("user-management", environment),
+    version: userManagementApplet.version,
     routes: [
       {
         path: "/admin/users",
@@ -195,12 +198,18 @@ export const APPLETS: AppletMount[] = [
     path: "/product-catalog",
     icon: InventoryIcon,
     permissions: [productCatalogApplet.permissions.VIEW_PRODUCTS],
-    apiBaseUrl: `${API_BASE_URL}/product-catalog`, // Full namespaced URL
+    apiBaseUrl: getApiUrl("product-catalog", environment),
+    version: productCatalogApplet.version,
   }),
   mountApplet(demoTasksApplet, {
     id: "demo-tasks",
     label: "Demo Tasks",
     path: "/demo-tasks",
     permissions: [],
+    version: "0.0.0",
   }),
-];
+  ];
+}
+
+// Default applets for development
+export const APPLETS = createApplets('development');

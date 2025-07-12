@@ -34,6 +34,7 @@ export function AppletRouter({
         flexGrow: 1,
         p: 3,
         width: `calc(100% - ${constants.drawerWidth}px)`,
+        marginLeft: `${constants.drawerWidth}px`,
       }}
     >
       <Toolbar />

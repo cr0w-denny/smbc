@@ -52,7 +52,7 @@ export function processAppletRoutes(applet: AppletMount): AppletMount {
  * ];
  */
 export function mountApplet(
-  applet: { component: any; apiSpec?: any; permissions?: any; getHostNavigation?: any },
+  applet: { component: any; apiSpec?: any; permissions?: any; getHostNavigation?: any; version?: string },
   config: {
     id: string;
     label: string;
@@ -60,6 +60,8 @@ export function mountApplet(
     icon?: any;
     permissions?: any[];
     apiBaseUrl?: string;
+    version?: string;
+    filterable?: boolean;
   }
 ): AppletMount {
   if (!applet.component) {
@@ -71,6 +73,8 @@ export function mountApplet(
     label: config.label,
     apiSpec: applet.apiSpec,
     apiBaseUrl: config.apiBaseUrl,
+    version: config.version || applet.version,
+    filterable: config.filterable,
     getHostNavigation: applet.getHostNavigation,
     routes: [
       {

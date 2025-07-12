@@ -150,35 +150,76 @@ export class SchemaAnalyzer {
     schema: any,
     isRequired: boolean,
   ): PropertyAnalysis {
-    const semanticType = this.detectSemanticType(name, schema);
+    // Resolve $ref if present
+    const resolvedSchema = this.resolveReference(schema);
+    
+    const semanticType = this.detectSemanticType(name, resolvedSchema);
 
     // Check for x-mock-data extension first
     let fakerMethod: string;
-    if (schema["x-mock-data"]) {
+    if (resolvedSchema["x-mock-data"]) {
       fakerMethod = this.generateFakerMethodFromExtension(
-        schema["x-mock-data"],
-        schema,
+        resolvedSchema["x-mock-data"],
+        resolvedSchema,
       );
     } else {
-      fakerMethod = this.mapToFakerMethod(semanticType, schema);
+      // Pass both original and resolved schema to handle $ref cases
+      fakerMethod = this.mapToFakerMethod(semanticType, resolvedSchema, schema);
     }
 
-    const constraints = this.extractPropertyConstraints(schema);
+    const constraints = this.extractPropertyConstraints(resolvedSchema);
 
     return {
       name,
-      type: schema.type || "unknown",
-      format: schema.format,
+      type: resolvedSchema.type || "unknown",
+      format: resolvedSchema.format,
       isRequired,
       constraints,
       semanticType,
       fakerMethod,
-      example: schema.example,
+      example: resolvedSchema.example,
     };
+  }
+
+  private resolveReference(schema: any): any {
+    // If it's not a reference, return as-is
+    if (!schema.$ref) {
+      return schema;
+    }
+
+    // Parse the reference path (e.g., "#/components/schemas/User")
+    const refPath = schema.$ref;
+    if (!refPath.startsWith("#/")) {
+      // External references not supported, return original schema
+      return schema;
+    }
+
+    // Split the path and navigate through the spec
+    const pathParts = refPath.slice(2).split("/"); // Remove "#/" prefix
+    let current = this.spec;
+    
+    for (const part of pathParts) {
+      if (!current || typeof current !== "object" || !(part in current)) {
+        // Reference not found, return original schema
+        return schema;
+      }
+      current = current[part];
+    }
+
+    // Return the resolved schema, but also check if it has nested refs
+    return this.resolveReference(current);
   }
 
   private detectSemanticType(name: string, schema: any): SemanticType {
     const lowerName = name.toLowerCase();
+    // Normalize kebab-case and snake_case to a common format for matching
+    const normalizedName = lowerName.replace(/[-_]/g, '');
+
+    // Skip semantic detection for property names that start with numbers or special characters
+    // These are likely to be invalid JavaScript identifiers that got quoted
+    if (/^[^a-zA-Z]/.test(lowerName)) {
+      return "generic";
+    }
 
     // Format-based detection takes precedence
     if (schema.format === "uuid") return "uuid";
@@ -188,15 +229,15 @@ export class SchemaAnalyzer {
     if (schema.format === "uri") return "url";
 
     // ID patterns
-    if (lowerName === "id" || lowerName.endsWith("id")) return "id";
+    if (lowerName === "id" || lowerName.endsWith("id") || lowerName.endsWith("-id") || lowerName.endsWith("_id")) return "id";
     if (lowerName === "uuid") return "uuid";
 
-    // Name patterns
-    if (lowerName.includes("firstname") || lowerName.includes("first_name"))
+    // Name patterns - check both original and normalized versions
+    if (normalizedName.includes("firstname") || lowerName === "firstname" || lowerName === "first-name" || lowerName === "first_name")
       return "firstName";
-    if (lowerName.includes("lastname") || lowerName.includes("last_name"))
+    if (normalizedName.includes("lastname") || lowerName === "lastname" || lowerName === "last-name" || lowerName === "last_name")
       return "lastName";
-    if (lowerName.includes("fullname") || lowerName === "name")
+    if (normalizedName.includes("fullname") || lowerName === "name" || lowerName === "full-name" || lowerName === "full_name")
       return "fullName";
 
     // Contact patterns
@@ -204,7 +245,7 @@ export class SchemaAnalyzer {
       return "email";
     if (lowerName.includes("phone") || lowerName.includes("tel"))
       return "phone";
-    if (lowerName.includes("username") || lowerName === "login")
+    if (lowerName.includes("username") || lowerName === "login" || lowerName === "user-name" || lowerName === "user_name")
       return "username";
 
     // Address patterns
@@ -237,7 +278,8 @@ export class SchemaAnalyzer {
     if (lowerName.includes("price") || lowerName.includes("cost"))
       return "price";
     if (lowerName.includes("currency")) return "currency";
-    if (lowerName.includes("amount") || lowerName.includes("total"))
+    // Check for count-specific patterns first before general "total"
+    if (lowerName.includes("amount") || (lowerName.includes("total") && !lowerName.includes("count")))
       return "amount";
     if (lowerName.includes("percent") || lowerName.includes("rate"))
       return "percentage";
@@ -245,7 +287,7 @@ export class SchemaAnalyzer {
     // Content
     if (lowerName.includes("title") || lowerName.includes("subject"))
       return "title";
-    if (lowerName.includes("description") || lowerName.includes("desc"))
+    if (lowerName.includes("description") || lowerName.includes("desc") || lowerName === "bio")
       return "description";
     if (lowerName.includes("content") || lowerName.includes("body"))
       return "content";
@@ -258,27 +300,27 @@ export class SchemaAnalyzer {
     if (lowerName.includes("tag")) return "tag";
     if (lowerName.includes("priority")) return "priority";
 
-    // Timestamps
-    if (lowerName.includes("createdat") || lowerName.includes("created_at"))
+    // Timestamps - check normalized name for patterns
+    if (normalizedName.includes("createdat") || lowerName === "created-at" || lowerName === "created_at")
       return "createdAt";
-    if (lowerName.includes("updatedat") || lowerName.includes("updated_at"))
+    if (normalizedName.includes("updatedat") || lowerName === "updated-at" || lowerName === "updated_at")
       return "updatedAt";
-    if (lowerName.includes("deletedat") || lowerName.includes("deleted_at"))
+    if (normalizedName.includes("deletedat") || lowerName === "deleted-at" || lowerName === "deleted_at")
       return "deletedAt";
     if (lowerName.includes("timestamp") || schema.format === "date-time")
       return "timestamp";
 
-    // Booleans
-    if (lowerName.includes("isactive") || lowerName.includes("active"))
+    // Booleans - check normalized name
+    if (normalizedName.includes("isactive") || lowerName.includes("active") || lowerName === "is-active")
       return "isActive";
-    if (lowerName.includes("isenabled") || lowerName.includes("enabled"))
+    if (normalizedName.includes("isenabled") || lowerName.includes("enabled") || lowerName === "is-enabled")
       return "isEnabled";
-    if (lowerName.includes("ispublic") || lowerName.includes("public"))
+    if (normalizedName.includes("ispublic") || lowerName.includes("public") || lowerName === "is-public")
       return "isPublic";
     if (schema.type === "boolean") return "flag";
 
-    // Numbers
-    if (lowerName.includes("count")) return "count";
+    // Numbers - check all variations
+    if (normalizedName.includes("count") || lowerName.includes("count") || lowerName.endsWith("-count") || lowerName.endsWith("_count") || lowerName === "total-count") return "count";
     if (lowerName.includes("quantity") || lowerName.includes("qty"))
       return "quantity";
     if (lowerName.includes("rating") || lowerName.includes("score"))
@@ -382,7 +424,7 @@ export class SchemaAnalyzer {
     );
   }
 
-  private mapToFakerMethod(semanticType: SemanticType, schema: any): string {
+  private mapToFakerMethod(semanticType: SemanticType, schema: any, originalSchema?: any): string {
     switch (semanticType) {
       case "id":
         return "faker.number.int({ min: 1, max: 100000 })";
@@ -459,12 +501,40 @@ export class SchemaAnalyzer {
       case "score":
         return "faker.number.float({ min: 0, max: 5, fractionDigits: 1 })";
       default:
+        if (schema.type === "array") {
+          // Handle arrays - check if items have a $ref
+          if (schema.items && schema.items.$ref) {
+            const resolvedItems = this.resolveReference(schema.items);
+            const itemType = this.getSchemaNameFromRef(schema.items.$ref);
+            if (itemType) {
+              return `Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => generate${itemType}())`;
+            }
+          }
+          // Default array handling
+          return "Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => faker.lorem.word())";
+        }
+        if (schema.type === "object" || (!schema.type && (schema.$ref || originalSchema?.$ref))) {
+          // Handle object references - check original schema first for $ref
+          const ref = originalSchema?.$ref || schema.$ref;
+          const refName = this.getSchemaNameFromRef(ref);
+          if (refName) {
+            return `generate${refName}()`;
+          }
+          return "{}";
+        }
         if (schema.type === "string") return "faker.lorem.word()";
         if (schema.type === "number") return "faker.number.float()";
-        if (schema.type === "integer") return "faker.number.int()";
+        if (schema.type === "integer") return "faker.number.int({ min: 1, max: 100000 })";
         if (schema.type === "boolean") return "faker.datatype.boolean()";
         return "faker.lorem.word()";
     }
+  }
+
+  private getSchemaNameFromRef(ref: string): string | null {
+    if (!ref || !ref.startsWith("#/components/schemas/")) {
+      return null;
+    }
+    return ref.split("/").pop() || null;
   }
 
   private detectRelationships(

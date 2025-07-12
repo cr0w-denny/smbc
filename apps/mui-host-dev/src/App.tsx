@@ -10,6 +10,8 @@ import {
   useFeatureFlag,
   useFeatureFlagToggle,
   configureApplets,
+  useApp,
+  type AppletMount,
 } from "@smbc/applet-core";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
@@ -21,10 +23,10 @@ import {
   ActivityProvider,
   TransactionProvider,
 } from "@smbc/react-query-dataview";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 
 // Import configuration
-import { HOST, APPLETS, DEMO_USER, ROLE_CONFIG } from "./app.config";
+import { HOST, createApplets, DEMO_USER, ROLE_CONFIG } from "./app.config";
 
 // Static imports for development - these will be excluded in production templates
 import {
@@ -32,6 +34,7 @@ import {
   setupMswForAppletProvider,
   stopMswForAppletProvider,
   resetAllMocks,
+  autoHealMswWorker,
   userManagementHandlers,
   productCatalogHandlers,
 } from "@smbc/mui-applet-devtools";
@@ -59,27 +62,45 @@ const APPLET_HANDLERS = {
   // Add new applets here
 };
 
-// Create QueryClient with good defaults
+// Create QueryClient with good defaults and MSW auto-healing
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: (failureCount, error: any) => {
+      retry: async (failureCount, error: any) => {
         // Don't retry on 4xx errors (client errors)
         if (error?.status >= 400 && error?.status < 500) {
           return false;
         }
+        
+        // Try auto-healing MSW worker on JSON parse errors
+        if (failureCount === 0) {
+          const wasHealed = await autoHealMswWorker(error);
+          if (wasHealed) {
+            return true; // Retry after auto-heal
+          }
+        }
+        
         // Retry up to 3 times for other errors
         return failureCount < 3;
       },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
-      retry: (failureCount, error: any) => {
+      retry: async (failureCount, error: any) => {
         // Don't retry mutations on 4xx errors
         if (error?.status >= 400 && error?.status < 500) {
           return false;
         }
+        
+        // Try auto-healing MSW worker on JSON parse errors
+        if (failureCount === 0) {
+          const wasHealed = await autoHealMswWorker(error);
+          if (wasHealed) {
+            return true; // Retry after auto-heal
+          }
+        }
+        
         // Retry once for network errors
         return failureCount < 1;
       },
@@ -88,7 +109,7 @@ const queryClient = new QueryClient({
 });
 
 // Register MSW handlers based on available applets
-function initializeMswHandlers(): void {
+function initializeMswHandlers(applets: AppletMount[]): void {
   // Skip MSW initialization if disabled via environment variable
   if (import.meta.env.VITE_DISABLE_MSW === "true") {
     console.log("MSW disabled via environment variable");
@@ -99,7 +120,7 @@ function initializeMswHandlers(): void {
     // Collect handlers for all configured applets
     const allHandlers = [];
 
-    for (const applet of APPLETS) {
+    for (const applet of applets) {
       const handlers =
         APPLET_HANDLERS[applet.id as keyof typeof APPLET_HANDLERS];
       if (handlers && Array.isArray(handlers)) {
@@ -117,7 +138,7 @@ function initializeMswHandlers(): void {
   }
 }
 
-function AppContentWithQueryAccess() {
+function AppContentWithQueryAccess({ applets }: { applets: AppletMount[] }) {
   const handleNavigate = (url: string) => {
     // Simple navigation for the demo - just use hash navigation
     window.location.hash = url;
@@ -126,15 +147,15 @@ function AppContentWithQueryAccess() {
   return (
     <>
       <Box sx={{ display: "flex" }}>
-        <Navigation />
+        <Navigation applets={applets} />
         <AppletDrawer
-          applets={APPLETS}
+          applets={applets}
           constants={HOST}
           permissionMapping={{ "admin-users": "user-management" }}
           title={HOST.appName}
         />
         <AppletRouter
-          applets={APPLETS}
+          applets={applets}
           roleConfig={ROLE_CONFIG}
           constants={HOST}
         />
@@ -145,14 +166,14 @@ function AppContentWithQueryAccess() {
   );
 }
 
-function Navigation() {
+function Navigation({ applets }: { applets: AppletMount[] }) {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const toggleDarkMode = useFeatureFlagToggle("darkMode");
   const [apiDocsOpen, setApiDocsOpen] = React.useState(false);
 
   // Get current path to determine which applet is active
   const { currentPath } = useHashNavigation();
-  const currentAppletInfo = getCurrentApplet(currentPath, APPLETS);
+  const currentAppletInfo = getCurrentApplet(currentPath, applets);
 
   // Close API docs when switching between applets
   React.useEffect(() => {
@@ -203,15 +224,32 @@ function Navigation() {
 function AppWithMockToggle() {
   const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
   const [mswReady, setMswReady] = React.useState(!mockEnabled); // Ready immediately if mocks disabled
+  const { actions } = useApp();
+  const queryClient = useQueryClient();
 
-  // Configure applets with their API URLs
+  // Get current applets based on mock flag
+  const currentApplets = React.useMemo(() => {
+    const environment = mockEnabled ? 'mock' : 'development';
+    return createApplets(environment);
+  }, [mockEnabled]);
+
+  // Configure applets with their API URLs, updating based on mock flag
   React.useEffect(() => {
-    configureApplets(APPLETS);
-  }, []);
+    configureApplets(currentApplets);
+    const environment = mockEnabled ? 'mock' : 'development';
+    console.log(`🔄 Configured applets for ${environment} environment`);
+  }, [currentApplets, mockEnabled]);
 
   // Handle MSW worker based on mock toggle
   React.useEffect(() => {
     setMswReady(false); // Reset ready state when toggling
+    
+    // Update MSW status in app context
+    actions.setMswStatus({
+      isEnabled: mockEnabled,
+      isReady: false,
+      isInitializing: mockEnabled,
+    });
 
     async function setupMsw() {
       if (mockEnabled) {
@@ -221,7 +259,7 @@ function AppWithMockToggle() {
         resetAllMocks();
 
         // Initialize MSW handlers
-        initializeMswHandlers();
+        initializeMswHandlers(currentApplets);
         console.log("MSW handlers registered, initializing worker...");
 
         // Start MSW worker
@@ -229,9 +267,21 @@ function AppWithMockToggle() {
           await setupMswForAppletProvider();
           console.log("✅ MSW worker started successfully");
           setMswReady(true);
+          actions.setMswStatus({
+            isEnabled: true,
+            isReady: true,
+            isInitializing: false,
+          });
+          // Invalidate all queries when switching to mocks
+          queryClient.invalidateQueries();
         } catch (error) {
           console.error("❌ Failed to start MSW worker:", error);
           setMswReady(false);
+          actions.setMswStatus({
+            isEnabled: true,
+            isReady: false,
+            isInitializing: false,
+          });
         }
       } else {
         console.log("🌐 Setting up real API environment...");
@@ -242,9 +292,23 @@ function AppWithMockToggle() {
           await stopMswForAppletProvider();
           console.log("✅ MSW worker stopped");
           setMswReady(true); // Ready for real API calls
+          actions.setMswStatus({
+            isEnabled: false,
+            isReady: true,
+            isInitializing: false,
+          });
+          // Invalidate all queries when switching to real API
+          queryClient.invalidateQueries();
         } catch (error) {
           console.error("❌ Failed to stop MSW worker:", error);
           setMswReady(true); // Still allow real API calls even if stop failed
+          actions.setMswStatus({
+            isEnabled: false,
+            isReady: true,
+            isInitializing: false,
+          });
+          // Invalidate queries even if stop failed - switch to real API anyway
+          queryClient.invalidateQueries();
         }
       }
     }
@@ -252,26 +316,12 @@ function AppWithMockToggle() {
     setupMsw();
   }, [mockEnabled]);
 
-  // Don't render app content until MSW is ready (when mocks are enabled)
-  if (!mswReady) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-        flexDirection="column"
-        gap={2}
-      >
-        <div>Setting up mock environment...</div>
-        <div style={{ fontSize: "0.8em", opacity: 0.7 }}>
-          Initializing MSW worker
-        </div>
-      </Box>
-    );
+  // Only render content when MSW is ready (if mocks enabled) or when mocks disabled
+  if (mockEnabled && !mswReady) {
+    return <AppContentWithQueryAccess applets={[]} />; // Empty applets to prevent data fetching
   }
 
-  return <AppContentWithQueryAccess />;
+  return <AppContentWithQueryAccess applets={currentApplets} />;
 }
 
 function AppWithThemeProvider() {

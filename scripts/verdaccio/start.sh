@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Start Verdaccio local registry
+#
+
+set -e
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERDACCIO_DIR="$SCRIPT_DIR"
+
+echo "🚀 Starting Verdaccio local registry..."
+echo "📁 Working directory: $VERDACCIO_DIR"
+
+# Create storage directory if it doesn't exist
+mkdir -p "$VERDACCIO_DIR/storage"
+
+# Create empty htpasswd file if it doesn't exist
+if [ ! -f "$VERDACCIO_DIR/htpasswd" ]; then
+    touch "$VERDACCIO_DIR/htpasswd"
+    echo "📝 Created empty htpasswd file"
+fi
+
+# Start Verdaccio with our config
+echo "🌐 Registry will be available at: http://localhost:4873"
+echo "📊 Web interface at: http://localhost:4873/-/web/detail/@smbc"
+echo ""
+echo "To stop the registry, press Ctrl+C"
+echo ""
+
+cd "$VERDACCIO_DIR"
+npx verdaccio --config config.yaml

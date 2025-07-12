@@ -657,12 +657,17 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000/api/v1",
+      "url": "http://localhost:3000/api/v1/user-management",
+      "description": "Mock server",
+      "variables": {}
+    },
+    {
+      "url": "http://localhost:3001/api/v1/user-management",
       "description": "Development server",
       "variables": {}
     },
     {
-      "url": "https://api.smbc.com/api/v1",
+      "url": "https://api.smbcgroup.com/api/v1/user-management",
       "description": "Production server",
       "variables": {}
     }

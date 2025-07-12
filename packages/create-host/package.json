@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "prebuild": "cp ../../scripts/deps/shared-deps.ts src/shared-deps.ts && cp -r ../../scripts/deps/template-deps.ts src/template-deps.ts",
+    "prebuild": "cp ../shared-deps/src/index.js src/shared-deps.ts && cp ../shared-deps/src/applet-docs.js src/applet-docs.js && cp -r ../../scripts/deps/template-deps.ts src/template-deps.ts",
     "build": "tsc && cp -r templates dist/",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build"
@@ -42,6 +42,7 @@
     "node": ">=18.0.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "http://localhost:4873"
   }
 }

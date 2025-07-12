@@ -5,10 +5,10 @@ import {
   Typography,
   Toolbar,
 } from "@mui/material";
-import { TreeMenu, NavigationRoute, TreeMenuSection } from "./TreeMenu";
+import { TreeMenu, NavigationRoute, TreeMenuSection, TreeMenuHeader } from "./TreeMenu";
 
 // Re-export types from TreeMenu for convenience
-export type { NavigationRoute, TreeMenuSection } from "./TreeMenu";
+export type { NavigationRoute, TreeMenuSection, TreeMenuHeader } from "./TreeMenu";
 export type { TreeMenuGroup } from "./TreeMenu";
 
 
@@ -28,6 +28,8 @@ export interface AppletDrawerProps {
   rootRoute?: NavigationRoute;
   /** Tree menu sections */
   menuSections: TreeMenuSection[];
+  /** Optional headers to display between sections */
+  headers?: TreeMenuHeader[];
   /** Whether to show debug info */
   showDebugInfo?: boolean;
   /** Number of total sections for debug display */
@@ -40,6 +42,8 @@ export interface AppletDrawerProps {
   sx?: any;
   /** Current search term for auto-expanding matching nodes */
   searchTerm?: string;
+  /** Search input component to render after applet store header */
+  searchInput?: React.ReactNode;
 }
 
 /**
@@ -66,12 +70,14 @@ export function AppletDrawer({
   onNavigate,
   rootRoute,
   menuSections,
+  headers = [],
   showDebugInfo = false,
   totalSections = 0,
   headerContent,
   footerContent,
   sx,
   searchTerm,
+  searchInput,
 }: AppletDrawerProps) {
   return (
     <Drawer
@@ -92,16 +98,18 @@ export function AppletDrawer({
         </Typography>
       </Toolbar>
 
-      {headerContent && <Box sx={{ px: 2, py: 1 }}>{headerContent}</Box>}
+      {headerContent && <Box sx={{ px: 2 }}>{headerContent}</Box>}
 
       <TreeMenu
         currentPath={currentPath}
         onNavigate={onNavigate}
         rootRoute={rootRoute}
         menuSections={menuSections}
+        headers={headers}
         showDebugInfo={showDebugInfo}
         totalSections={totalSections}
         searchTerm={searchTerm}
+        searchInput={searchInput}
       />
 
       {footerContent && (

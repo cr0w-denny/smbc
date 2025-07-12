@@ -64,7 +64,7 @@ function loadConfig(configPath?: string): TemplateConfig {
   const defaultConfig: TemplateConfig = {
     baseUrl: "",
     delay: { min: 0, max: 200 },
-    errorRate: 0.05,
+    errorRate: 0.15,
     dataSetSize: { min: 10, max: 50 },
     generateRelationships: true,
   };

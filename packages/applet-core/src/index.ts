@@ -60,6 +60,5 @@ export {
 // Navigation utilities
 export {
   createNavigationExport,
-  createSimpleNavigationExport,
   type NavigationConfig,
 } from "./createNavigationExport";

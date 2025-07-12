@@ -17,14 +17,14 @@
     "clean": "rm -rf tsp-output generated",
     "test": "echo 'No tests for API schemas'",
     "generate:types": "openapi-typescript tsp-output/@typespec/openapi3/openapi.json -o generated/types.ts",
-    "generate:mocks": "../../../scripts/mock-generation/generate.ts --input tsp-output/@typespec/openapi3/openapi.json --output ../../../packages/applet-devtools/src/mocks/product-catalog.ts --base-url /api/v1",
+    "generate:mocks": "../../../scripts/mock-generation/generate.ts --input tsp-output/@typespec/openapi3/openapi.json --output ../../../packages/applet-devtools/src/mocks/product-catalog.ts --base-url /api/v1/product-catalog",
     "generate:all": "npm run generate:types && npm run generate:mocks"
   },
   "dependencies": {
     "@typespec/compiler": "^1.1.0",
     "@typespec/http": "^1.1.0",
-    "@typespec/rest": "^0.71.0",
-    "@typespec/openapi3": "^1.1.0"
+    "@typespec/openapi3": "^1.1.0",
+    "@typespec/rest": "^0.71.0"
   },
   "devDependencies": {
     "openapi-typescript": "^7.0.0",
@@ -34,5 +34,9 @@
     "tsp-output/@typespec/openapi3/openapi.json",
     "client.ts",
     "generated/types.ts"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
+  }
 }

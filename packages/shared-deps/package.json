@@ -24,5 +24,9 @@
     "@types/marked": "^6.0.0",
     "@types/node": "^20.11.17",
     "tsx": "^4.20.3"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
   }
 }

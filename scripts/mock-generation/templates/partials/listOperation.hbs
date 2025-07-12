@@ -15,7 +15,7 @@
     
 {{#if hasSearch}}
     // Apply search filter
-    if (search) {
+    if (search && search !== '') {
       filteredItems = filteredItems.filter((item: any) => 
 {{#if searchConfig.fields}}
         [{{#each searchConfig.fields}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}]
@@ -29,7 +29,7 @@
 
 {{#each filters}}
     // Apply {{name}} filter
-    if ({{name}} !== null) {
+    if ({{name}} !== null && {{name}} !== '') {
       filteredItems = filteredItems.filter((item: any) => {
 {{#if config}}
         {{!-- Boolean choice strategy: map string choices like 'active'/'inactive' to true/false --}}

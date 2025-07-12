@@ -70,7 +70,7 @@ export function createNavigationExport(config: NavigationConfig) {
       return hasAnyPermission(appletId, permissions);
     });
 
-    // If no groups defined, return flat structure
+    // If no groups defined, return flat structure without group headers
     if (!config.groups || config.groups.length === 0) {
       const routes: HostRoute[] = allowedRoutes.map(route => ({
         path: `${mountPath}${route.path}`,
@@ -88,8 +88,8 @@ export function createNavigationExport(config: NavigationConfig) {
           requiredPermissions: config.homeRoute.requiredPermissions || [],
         } : undefined,
         groups: routes.length > 0 ? [{
-          id: 'default',
-          label: 'Navigation',
+          id: 'flat',
+          label: '', // Empty label = no group header
           routes
         }] : []
       };
@@ -131,26 +131,3 @@ export function createNavigationExport(config: NavigationConfig) {
   };
 }
 
-/**
- * Creates a simple flat navigation export without groups.
- * Useful for applets with just a few internal routes to expose.
- * 
- * @example
- * ```typescript
- * export const getHostNavigation = createSimpleNavigationExport([
- *   { path: '/', label: 'Dashboard' },
- *   { path: '/settings', label: 'Settings', permission: permissions.MANAGE_SETTINGS }
- * ]);
- * ```
- */
-export function createSimpleNavigationExport(
-  routes: Array<{
-    path: string;
-    label: string;
-    icon?: string;
-    permission?: { id: string };
-    requiredPermissions?: string[];
-  }>
-) {
-  return createNavigationExport({ routes });
-}

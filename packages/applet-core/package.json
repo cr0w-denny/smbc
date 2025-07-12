@@ -40,5 +40,9 @@
     "@smbc/react-query-dataview": "*",
     "@tanstack/react-query": "^5.0.0",
     "react": "^18.2.0"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
   }
 }

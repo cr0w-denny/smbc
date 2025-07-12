@@ -5,3 +5,7 @@ dist
 storybook-static
 .env*.local
 *.tsbuildinfo
+
+# Verdaccio local registry
+scripts/verdaccio/storage/
+scripts/verdaccio/htpasswd

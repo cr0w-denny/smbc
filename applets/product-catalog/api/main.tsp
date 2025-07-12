@@ -10,8 +10,9 @@ using TypeSpec.Rest;
 @service(#{
   title: "Product Catalog API",
 })
-@server("https://api.smbc.com/api/v1", "Production server")
-@server("http://localhost:3001/api/v1", "Development server")
+@server("https://api.smbcgroup.com/api/v1/product-catalog", "Production server")
+@server("http://localhost:3001/api/v1/product-catalog", "Development server")
+@server("http://localhost:3000/api/v1/product-catalog", "Mock server")
 namespace ProductCatalogAPI;
 
 model Product {

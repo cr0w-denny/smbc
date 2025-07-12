@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Typography } from "@mui/material";
 
 export const NavigationRoute: React.FC = () => {
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 1 }}>
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="h5" gutterBottom>

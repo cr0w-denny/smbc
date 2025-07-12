@@ -15,7 +15,7 @@ export const FilteringRoute: React.FC = () => {
     {},
   );
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 1 }}>
       <Filter
         spec={{
           fields: [
