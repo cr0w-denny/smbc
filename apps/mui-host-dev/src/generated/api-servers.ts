@@ -4,7 +4,7 @@
  * This file is generated from OpenAPI specs in applet directories.
  * Do not edit manually - run 'npm run generate:api-servers' to regenerate.
  * 
- * Generated on: 2025-07-11T17:28:22.282Z
+ * Generated on: 2025-07-13T17:09:43.419Z
  */
 
 export interface ServerConfig {
@@ -23,6 +23,11 @@ export const API_SERVERS: Record<string, ServerConfig> = {
     "mock": "http://localhost:3000/api/v1/product-catalog",
     "development": "http://localhost:3001/api/v1/product-catalog",
     "production": "https://api.smbcgroup.com/api/v1/product-catalog"
+  },
+  "employee-directory": {
+    "mock": "http://localhost:3000/api/v1/employee-directory",
+    "development": "http://localhost:3001/api/v1/employee-directory",
+    "production": "https://api.smbcgroup.com/api/v1/employee-directory"
   }
 } as const;
 

@@ -218,14 +218,17 @@ export class TemplateMockGenerator {
 
     if (!entitySegment) return null;
 
-    const entityName = this.capitalize(this.singularize(entitySegment));
+    // For paths like /employees, we assume the TypeSpec model is Employee (singular)
+    // So we need to derive the singular entity name from the plural path segment
+    const entityPlural = entitySegment;
+    const entityName = this.deriveEntityName(entitySegment);
     const pathParam = segments
       .find((segment) => segment.startsWith("{"))
       ?.slice(1, -1);
 
     return {
       entityName,
-      entityPlural: entitySegment,
+      entityPlural,
       pathParam,
     };
   }
@@ -541,10 +544,13 @@ export class TemplateMockGenerator {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  private singularize(str: string): string {
-    if (str.endsWith("ies")) return str.slice(0, -3) + "y";
-    if (str.endsWith("es")) return str.slice(0, -2);
-    if (str.endsWith("s")) return str.slice(0, -1);
-    return str;
+  private deriveEntityName(pluralPath: string): string {
+    // Remove trailing 's' to get singular form
+    // This assumes simple English pluralization (employees -> employee)
+    if (pluralPath.endsWith('s') && pluralPath.length > 1) {
+      return this.capitalize(pluralPath.slice(0, -1));
+    }
+    return this.capitalize(pluralPath);
   }
+
 }

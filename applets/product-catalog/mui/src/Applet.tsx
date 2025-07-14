@@ -50,9 +50,9 @@ export function Applet() {
         return response?.total || 0;
       },
 
-      // Generate optimistic response for immediate UI updates
-      optimisticResponse: (originalResponse: any, newRows: any[]) => {
-        console.log("DataViewOptimistic optimisticResponse:", {
+      // Format cache updates for both optimistic updates and transaction mode
+      formatCacheUpdate: (originalResponse: any, newRows: any[]) => {
+        console.log("DataViewOptimistic formatCacheUpdate:", {
           originalResponse,
           newRows,
         });

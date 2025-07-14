@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, ThemeProvider, CssBaseline } from "@mui/material";
 import {
-  AppProvider,
+  AppletProvider,
   calculatePermissionsFromRoles,
   FeatureFlagProvider,
   useFeatureFlag,
@@ -168,12 +168,12 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <DataViewProvider>
         <FeatureFlagProvider configs={featureFlags} storagePrefix="smbcHost">
-          <AppProvider
+          <AppletProvider
             initialRoleConfig={roleConfig}
             initialUser={userWithPermissions}
           >
             <AppWithMockData />
-          </AppProvider>
+          </AppletProvider>
         </FeatureFlagProvider>
       </DataViewProvider>
     </QueryClientProvider>

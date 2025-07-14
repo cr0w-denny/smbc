@@ -27,7 +27,7 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
-interface AppProviderProps {
+interface AppletProviderProps {
   children: React.ReactNode;
   initialUser?: User | null;
   initialNavigation?: NavigationItem[];
@@ -35,7 +35,7 @@ interface AppProviderProps {
   appletRegistry?: Record<string, any>;
 }
 
-export const AppProvider: React.FC<AppProviderProps> = ({
+export const AppletProvider: React.FC<AppletProviderProps> = ({
   children,
   initialUser = null,
   initialNavigation = [],
@@ -107,10 +107,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 };
 
 // Hook to use the context
-export const useApp = (): AppContextValue => {
+export const useAppletCore = (): AppContextValue => {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
+    throw new Error("useAppletCore must be used within an AppletProvider");
   }
   return context;
 };

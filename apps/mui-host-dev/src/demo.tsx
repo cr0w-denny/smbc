@@ -83,7 +83,7 @@ interface Task {
  *
  * @param count - Number of tasks to generate (default: 50)
  * @returns Array of mock Task objects
- * 
+ *
  * NOTE: We dynamically import faker here rather than importing from applet-devtools
  * to maintain architectural separation. While this means faker is included in two
  * separate chunks (demo chunk and devtools chunk), this is acceptable because:
@@ -95,7 +95,7 @@ interface Task {
 const generateMockTasks = async (count: number = 50): Promise<Task[]> => {
   // Dynamically import faker to prevent including it in main bundle
   const { faker } = await import(/* @vite-ignore */ "@faker-js/faker");
-  
+
   // Set a consistent seed for faker to make demo predictable
   faker.seed(12345);
 
@@ -356,9 +356,11 @@ const createTaskConfig = (
     // Extract total count from API response (for pagination)
     responseRowCount: (response: any) => response?.total || 0,
 
-    // Generate optimistic response for immediate UI updates
-    // This is called when mutations succeed to update the cache
-    optimisticResponse: (originalResponse: any, newRows: any[]) => ({
+    // Format cache updates to maintain response structure during:
+    // 1. Optimistic updates (immediate UI updates before API responds)
+    // 2. Transaction mode (showing pending changes without API calls)
+    // This preserves metadata like 'total' count while updating rows
+    formatCacheUpdate: (originalResponse: any, newRows: any[]) => ({
       ...originalResponse,
       data: newRows,
       // Keep the original total - visual pending states don't change the actual count
@@ -747,7 +749,6 @@ const TasksDemo = () => {
     <MuiDataViewApplet
       config={config}
       permissionContext="tasks-demo"
-      enableUrlSync={true}
       options={{
         // =============================================================================
         // TRANSACTION SYSTEM CONFIGURATION
@@ -773,6 +774,7 @@ const TasksDemo = () => {
 export default {
   id: "demo-tasks", // Unique identifier for this applet
   label: "Demo Tasks", // Display name in navigation
+  icon: TaskIcon, // Icon for navigation
   // apiSpec, // optional API specification reference
   component: TasksDemo, // React component to render
 };

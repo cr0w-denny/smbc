@@ -72,21 +72,48 @@ export class SimpleTransactionManager<T = any>
       const preservedOriginalData = existingOp.originalData;
 
       if (operation.type === "delete") {
-        // Delete replaces any existing operation
-        this.currentTransaction!.operations[existingOpIndex] = {
-          ...fullOperation,
-          originalData: preservedOriginalData, // Keep the very first state
-        };
-        // Emit removal event for the replaced operation
-        this.emit("onOperationRemoved", existingOp.id, existingOp);
+        if (existingOp.type === "create") {
+          // If deleting a created item, show it as pending deletion for consistent UX
+          // but mark it as a "delete-created" operation that will just remove the create on commit
+          this.currentTransaction!.operations[existingOpIndex] = {
+            ...fullOperation,
+            type: "delete" as const,
+            originalData: preservedOriginalData, // Keep the original create data
+            wasCreated: true // Mark that this was originally a create operation
+          };
+          // Emit removal event for the replaced operation
+          this.emit("onOperationRemoved", existingOp.id, existingOp);
+        } else {
+          // Delete replaces any existing operation (for existing items)
+          this.currentTransaction!.operations[existingOpIndex] = {
+            ...fullOperation,
+            originalData: preservedOriginalData, // Keep the very first state
+          };
+          // Emit removal event for the replaced operation
+          this.emit("onOperationRemoved", existingOp.id, existingOp);
+        }
       } else if (operation.type === "update") {
-        // Update replaces any existing operation (including delete)
-        this.currentTransaction!.operations[existingOpIndex] = {
-          ...fullOperation,
-          originalData: preservedOriginalData, // Keep the very first state
-        };
-        // Emit removal event for the replaced operation
-        this.emit("onOperationRemoved", existingOp.id, existingOp);
+        if (existingOp.type === "create" || (existingOp.type === "delete" && existingOp.wasCreated)) {
+          // If updating a created item (or a deleted created item), revert it back to a create with updated data
+          this.currentTransaction!.operations[existingOpIndex] = {
+            ...existingOp,
+            type: "create" as const, // Always revert back to create
+            entity: operation.entity, // Use the updated entity data
+            label: operation.label, // Update the label
+            timestamp: new Date(), // Update timestamp
+            wasCreated: undefined, // Clear the wasCreated flag since it's back to a normal create
+            // Keep the original create mutation
+          };
+          // Don't emit removal since we're just updating the create operation
+        } else {
+          // Update replaces any existing operation (for existing items)
+          this.currentTransaction!.operations[existingOpIndex] = {
+            ...fullOperation,
+            originalData: preservedOriginalData, // Keep the very first state
+          };
+          // Emit removal event for the replaced operation
+          this.emit("onOperationRemoved", existingOp.id, existingOp);
+        }
       } else if (operation.type === "create") {
         // This shouldn't happen (can't create an existing entity)
         this.currentTransaction!.operations.push(fullOperation);
@@ -316,8 +343,23 @@ export class SimpleTransactionManager<T = any>
     const results: TransactionResult<T>[] = [];
 
     try {
-      // Execute all operations in parallel
-      const promises = transaction.operations.map(async (operation) => {
+      // Filter out operations that were created then deleted (cancel each other out)
+      const operationsToExecute = transaction.operations.filter(operation => {
+        if (operation.type === "delete" && operation.wasCreated) {
+          // This was a create operation that was then deleted - skip API call, just return success
+          results.push({
+            success: true,
+            operation,
+            result: null, // No API result needed since we're just canceling out operations
+            duration: 0,
+          } as TransactionResult<T>);
+          return false; // Don't execute this operation
+        }
+        return true; // Execute this operation normally
+      });
+
+      // Execute remaining operations in parallel
+      const promises = operationsToExecute.map(async (operation) => {
         const startTime = Date.now();
 
         try {

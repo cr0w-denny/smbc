@@ -1,5 +1,5 @@
 // Generated mock handlers for User Management API
-// Generated at: 2025-07-11T17:49:32.851Z
+// Generated at: 2025-07-13T16:00:33.023Z
 
 import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 const mockConfig = {
   baseUrl: '/api/v1/user-management',
   delay: { min: 0, max: 200 },
-  errorRate: 0.05,
+  errorRate: 0.15,
   dataSetSize: { min: 10, max: 50 },
 };
 
@@ -396,7 +396,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'User not found' },
             { status: 404 }
@@ -515,7 +518,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Validation failed', message: 'Invalid user data' },
             { status: 400 }
@@ -534,7 +540,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'User not found' },
             { status: 404 }
@@ -557,7 +566,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'User not found' },
             { status: 404 }
@@ -571,7 +583,7 @@ export const handlers = [
         const existingItem = userDataStore.get(entityId);
         if (!existingItem) {
           return HttpResponse.json(
-            { error: 'Not found', message: 'User not found' },
+            { error: 'Not found', message: `User with ID "${entityId}" not found` },
             { status: 404 }
           );
         }
@@ -586,7 +598,10 @@ export const handlers = [
     await delay();
     
         // Error simulation based on configuration
-        if (faker.number.float() < mockConfig.errorRate) {
+        // Make errors predictable for demonstration purposes
+        const shouldSimulateError = faker.number.float() < mockConfig.errorRate;
+        
+        if (shouldSimulateError) {
           return HttpResponse.json(
             { error: 'Not found', message: 'User not found' },
             { status: 404 }

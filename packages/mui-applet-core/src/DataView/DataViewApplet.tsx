@@ -41,7 +41,7 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
     error: any,
     item?: any,
   ) => void;
-  /** Enable URL hash parameter synchronization (default: false) */
+  /** Enable URL hash parameter synchronization (default: true) */
   enableUrlSync?: boolean;
   /** Optional initial state from URL or external source */
   initialState?: {
@@ -95,7 +95,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   permissionContext = "default",
   onSuccess,
   onError,
-  enableUrlSync = false,
+  enableUrlSync = true,
   initialState,
   onStateChange,
   options,

@@ -1,11 +1,11 @@
-import { useApp } from "../AppContext";
+import { useAppletCore } from "../AppContext";
 import type { PermissionDefinition } from "../permissions";
 
 /**
  * Hook for permission-based access control - for applets
  */
 export const usePermissions = () => {
-  const { state, roleUtils } = useApp();
+  const { state, roleUtils } = useAppletCore();
   const userRoles = state.user?.roles ?? [roleUtils.roles[0]]; // Default to first role (usually Guest)
 
   return {

@@ -1,9 +1,10 @@
 /**
  * Auto-generated applet documentation
- * Generated at: 2025-07-11T23:41:32.509Z
+ * Generated at: 2025-07-14T02:00:00.816Z
  */
 
 export const APPLET_DOCS = {
+  "employee-directory": {},
   "hello": {},
   "product-catalog": {
     "frontend": {

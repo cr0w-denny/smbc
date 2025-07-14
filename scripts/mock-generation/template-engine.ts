@@ -157,19 +157,10 @@ export class TemplateEngine {
       return str.toLowerCase();
     });
 
-    // Helper for singularizing plurals
-    this.handlebars.registerHelper("singularize", (str: string) => {
-      if (str.endsWith("ies")) return str.slice(0, -3) + "y";
-      if (str.endsWith("es")) return str.slice(0, -2);
-      if (str.endsWith("s")) return str.slice(0, -1);
-      return str;
-    });
+    // Note: Removed entityName helper to avoid conflicts with template variables
 
-    // Helper for pluralizing singulars
-    this.handlebars.registerHelper("pluralize", (str: string) => {
-      if (str.endsWith("y")) return str.slice(0, -1) + "ies";
-      if (str.endsWith("s") || str.endsWith("sh") || str.endsWith("ch"))
-        return str + "es";
+    // Helper for collection names
+    this.handlebars.registerHelper("collectionName", (str: string) => {
       return str + "s";
     });
 

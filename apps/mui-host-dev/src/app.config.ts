@@ -9,13 +9,21 @@ import {
   People as PeopleIcon,
   Inventory as InventoryIcon,
   Language as LanguageIcon,
+  Badge as BadgeIcon,
+  Task as TaskIcon,
 } from "@mui/icons-material";
 import { getApiUrl } from "./generated/api-servers";
+import {
+  userManagementHandlers,
+  productCatalogHandlers,
+  employeeDirectoryHandlers,
+} from "@smbc/mui-applet-devtools";
 
 // Import applets directly from source during development
 import userManagementApplet from "../../../applets/user-management/mui/src";
 import productCatalogApplet from "../../../applets/product-catalog/mui/src";
 import helloApplet from "../../../applets/hello/mui/src";
+import employeeDirectoryApplet from "../../../applets/employee-directory/mui/src";
 import demoTasksApplet from "./demo";
 
 // =============================================================================
@@ -112,6 +120,14 @@ const permissionRequirements = createPermissionRequirements({
       VIEW_ROUTE_FOUR: "Admin",
     },
   },
+  "employee-directory": {
+    applet: employeeDirectoryApplet,
+    permissions: {
+      VIEW_EMPLOYEES: "Staff",
+      EDIT_EMPLOYEES: "Manager", 
+      MANAGE_EMPLOYEES: "Admin",
+    },
+  },
 });
 
 // Auto-generate the verbose permission mappings
@@ -201,15 +217,32 @@ export function createApplets(environment: 'development' | 'production' | 'mock'
     apiBaseUrl: getApiUrl("product-catalog", environment),
     version: productCatalogApplet.version,
   }),
+  mountApplet(employeeDirectoryApplet, {
+    id: "employee-directory",
+    label: "Employee Directory", 
+    path: "/employees",
+    icon: BadgeIcon,
+    permissions: [employeeDirectoryApplet.permissions.VIEW_EMPLOYEES],
+    apiBaseUrl: getApiUrl("employee-directory", environment),
+    version: employeeDirectoryApplet.version,
+  }),
   mountApplet(demoTasksApplet, {
     id: "demo-tasks",
     label: "Demo Tasks",
     path: "/demo-tasks",
+    icon: TaskIcon,
     permissions: [],
     version: "0.0.0",
   }),
   ];
 }
+
+// Mock handlers mapping for development
+export const MOCK_HANDLERS = {
+  "user-management": userManagementHandlers,
+  "product-catalog": productCatalogHandlers, 
+  "employee-directory": employeeDirectoryHandlers,
+} as const;
 
 // Default applets for development
 export const APPLETS = createApplets('development');

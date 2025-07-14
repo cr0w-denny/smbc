@@ -126,6 +126,7 @@ function MuiDataTable<T extends Record<string, any>>({
               const pendingCreatedItems: T[] = [];
               
               transactionState.pendingStates.forEach((stateInfo, id) => {
+                console.log("🔵 MuiDataView: Processing pending state", { id, state: stateInfo.state, hasData: !!stateInfo.data });
                 // For 'added' state, always include
                 if (stateInfo.state === 'added' && stateInfo.data) {
                   // Only add if this item isn't already in the data (shouldn't happen but be safe)
@@ -136,10 +137,31 @@ function MuiDataTable<T extends Record<string, any>>({
                     } as T);
                   }
                 }
-                // For 'edited' state, only include if the item doesn't exist in regular data
-                // (meaning it was originally a pending created item that got edited)
+                // For 'edited' state, only include if it's an edited version of a pending created item
+                // This happens when you create an item and then immediately edit it before committing
                 else if (stateInfo.state === 'edited' && stateInfo.data) {
-                  if (!data.some(item => item[primaryKey] === id)) {
+                  // Check if this was originally a created item (temp ID or not in original dataset)
+                  const isEditedCreatedItem = typeof id === 'string' && id.startsWith('temp-');
+                  if (isEditedCreatedItem && !data.some(item => item[primaryKey] === id)) {
+                    pendingCreatedItems.push({
+                      ...stateInfo.data,
+                      [primaryKey]: id
+                    } as T);
+                  }
+                }
+                // For 'deleted' state, include if it's a deleted version of a pending created item
+                // This happens when you create an item and then delete it before committing
+                else if (stateInfo.state === 'deleted' && stateInfo.data) {
+                  // Check if this was originally a created item (temp ID or not in original dataset)
+                  const isDeletedCreatedItem = typeof id === 'string' && id.startsWith('temp_');
+                  console.log("🟡 MuiDataView: Checking deleted item", {
+                    id,
+                    stateInfo,
+                    isDeletedCreatedItem,
+                    inOriginalData: data.some(item => item[primaryKey] === id),
+                  });
+                  if (isDeletedCreatedItem && !data.some(item => item[primaryKey] === id)) {
+                    console.log("🟡 MuiDataView: Including deleted created item", { id, data: stateInfo.data });
                     pendingCreatedItems.push({
                       ...stateInfo.data,
                       [primaryKey]: id

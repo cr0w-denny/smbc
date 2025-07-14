@@ -1,5 +1,5 @@
 import {
-  AppProvider,
+  AppletProvider,
   calculatePermissionsFromRoles,
   FeatureFlagProvider,
 } from "@smbc/applet-core";
@@ -18,12 +18,12 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <FeatureFlagProvider configs={featureFlags} storagePrefix="smbcHost">
-        <AppProvider
+        <AppletProvider
           initialRoleConfig={roleConfig}
           initialUser={userWithPermissions}
         >
           <AppWithTheme />
-        </AppProvider>
+        </AppletProvider>
       </FeatureFlagProvider>
     </QueryClientProvider>
   );

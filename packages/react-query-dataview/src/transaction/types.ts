@@ -32,6 +32,7 @@ export interface TransactionOperation<T = any> {
   label: string; // Human readable description
   timestamp: Date;
   mutation: () => Promise<any>; // The actual mutation to execute
+  wasCreated?: boolean; // For delete operations that were originally creates (UI consistency)
 
   // UI metadata
   icon?: React.ComponentType;

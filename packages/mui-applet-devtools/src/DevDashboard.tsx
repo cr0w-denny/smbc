@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import {
   useUser,
-  useApp,
+  useAppletCore,
 } from "@smbc/applet-core";
 
 // Extended permission type for DevDashboard with role info
@@ -34,7 +34,7 @@ export interface DevDashboardProps {
 
 export function DevDashboard({ appName: _, applets }: DevDashboardProps) {
   const { user, availableRoles, setRoles } = useUser();
-  const { roleUtils } = useApp();
+  const { roleUtils } = useAppletCore();
 
   // Track selected roles in state for the RoleManager
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>(

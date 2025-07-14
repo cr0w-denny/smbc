@@ -177,8 +177,8 @@ export function useDataView<T extends Record<string, any>>(
     api.responseRowCount ||
     ((response: any) =>
       response?.total || response?.count || responseRow(response).length);
-  const optimisticResponse =
-    api.optimisticResponse ||
+  const formatCacheUpdate =
+    api.formatCacheUpdate ||
     ((_originalResponse: any, newRows: any[]) => newRows);
 
   // Transform filters for consistent query keys and API requests
@@ -473,9 +473,7 @@ export function useDataView<T extends Record<string, any>>(
             updatedRows = [...currentRows];
           }
 
-          return optimisticResponse
-            ? optimisticResponse(old, updatedRows)
-            : updatedRows;
+          return formatCacheUpdate(old, updatedRows);
         });
       };
 
@@ -510,7 +508,7 @@ export function useDataView<T extends Record<string, any>>(
     transactionManager,
     queryClient,
     responseRow,
-    optimisticResponse,
+    formatCacheUpdate,
     activityConfig,
     activityContext,
     options.transaction?.emitActivities,
@@ -721,13 +719,8 @@ export function useDataView<T extends Record<string, any>>(
         // Add to beginning of array (most recent first)
         const updatedRows = [optimisticItem, ...currentRows];
 
-        // Use optimisticResponse if provided, otherwise create a simple response
-        if (optimisticResponse) {
-          return optimisticResponse(old, updatedRows);
-        } else {
-          // Fallback: assume simple array response
-          return updatedRows;
-        }
+        // Use formatCacheUpdate to maintain response structure
+        return formatCacheUpdate(old, updatedRows);
       });
 
       // Return a context object with the snapshotted value
@@ -767,11 +760,7 @@ export function useDataView<T extends Record<string, any>>(
           return item;
         });
 
-        if (optimisticResponse) {
-          return optimisticResponse(old, updatedRows);
-        } else {
-          return updatedRows;
-        }
+        return formatCacheUpdate(old, updatedRows);
       });
 
       // Only invalidate when not in transaction mode to avoid overwriting optimistic updates
@@ -796,6 +785,11 @@ export function useDataView<T extends Record<string, any>>(
       return response.data;
     },
     onMutate: async (variables: any) => {
+      // Skip optimistic updates when in transaction mode
+      if (transactionManager) {
+        return { previousData: null };
+      }
+
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: currentQueryKey });
 
@@ -814,7 +808,7 @@ export function useDataView<T extends Record<string, any>>(
           item[primaryKey] === itemId ? { ...item, ...variables.body } : item,
         );
 
-        return optimisticResponse(old, updatedRows);
+        return formatCacheUpdate(old, updatedRows);
       });
 
       return { previousData };
@@ -863,6 +857,12 @@ export function useDataView<T extends Record<string, any>>(
         currentQueryKey,
       });
 
+      // Skip optimistic updates when in transaction mode
+      if (transactionManager) {
+        console.log("UseDataView: Skipping optimistic delete - in transaction mode");
+        return { previousData: null };
+      }
+
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: currentQueryKey });
 
@@ -895,7 +895,7 @@ export function useDataView<T extends Record<string, any>>(
           removedCount: currentRows.length - filteredRows.length,
         });
 
-        return optimisticResponse(old, filteredRows);
+        return formatCacheUpdate(old, filteredRows);
       });
 
       const result = { previousData, deletedItem: deletingItem };
@@ -992,13 +992,29 @@ export function useDataView<T extends Record<string, any>>(
       if (type === "delete") {
         const existingState = pendingStatesRef.current.get(entityId);
         if (existingState?.state === "added") {
-          console.log("UseDataView: removing added item entirely", {
+          console.log("🔴 UseDataView: marking added item as deleted for consistent UX", {
             entityId,
             existingState,
+            allPendingStates: Array.from(pendingStatesRef.current.entries()),
           });
-          // Remove from pending states
+          // Mark as deleted in pending states instead of removing entirely
           updatePendingStates((map) => {
-            map.delete(entityId);
+            console.log("🔴 UseDataView: Before setting deleted state", {
+              entityId,
+              currentSize: map.size,
+              currentKeys: Array.from(map.keys()),
+            });
+            map.set(entityId, {
+              state: "deleted" as const,
+              operationId: operationId, // Use the NEW delete operation ID, not the old create operation ID
+              data: existingState.data, // Keep the original data for display
+            });
+            console.log("🔴 UseDataView: After setting deleted state", {
+              entityId,
+              newSize: map.size,
+              newKeys: Array.from(map.keys()),
+              newState: map.get(entityId),
+            });
           });
           // Remove from selectedIds if it was selected
           setSelectedIds(prev => {
@@ -1010,21 +1026,29 @@ export function useDataView<T extends Record<string, any>>(
             });
             return newSelectedIds;
           });
-          // Remove the original create operation from transaction manager
-          if (existingState.operationId) {
-            transactionManager.removeOperation(existingState.operationId);
-            console.log("UseDataView: removed create operation from transaction manager", {
-              operationId: existingState.operationId,
-              remainingOperations: transactionManager.getOperations().length,
-            });
-          }
-          // If no operations remain, clear the transaction
-          if (transactionManager.getOperations().length === 0) {
-            console.log("UseDataView: clearing transaction manager - no operations remaining");
-            transactionManager.clear();
-          }
-          // Don't add to transaction manager - just return early
-          return "net-zero";
+          // Don't remove the operation from transaction manager - let it handle the create->delete conversion
+          // The TransactionManager will handle this by marking it with wasCreated metadata
+          
+          // We need to still add the delete operation to the TransactionManager, but skip the normal pending state update
+          // since we've already handled it above and want to preserve the data
+          const entityType = activityConfig?.entityType || "item";
+          const label = activityConfig?.labelGenerator
+            ? activityConfig.labelGenerator(entity)
+            : `${type} ${entityType}`;
+
+          const operation = {
+            type,
+            trigger,
+            entity: entity as T,
+            entityId: entity[schema.primaryKey],
+            originalData: existingState.data as T | undefined,
+            changedFields,
+            label,
+            mutation,
+            color: "error" as const,
+          };
+
+          return transactionManager.addOperation(operation, operationId);
         }
       }
 
@@ -1064,13 +1088,15 @@ export function useDataView<T extends Record<string, any>>(
           const existingState = map.get(entityId);
 
           if (type === "update" && existingState?.state === "deleted") {
-            // If we're updating a deleted item, it should become edited instead
+            // If we're updating a deleted item, check if it was originally created
+            const wasOriginallyCreated = typeof entityId === 'string' && entityId.startsWith('temp_');
+            const newState = wasOriginallyCreated ? "added" : "edited";
             console.log(
-              "UseDataView: converting delete to edit for entity",
-              entityId,
+              "UseDataView: converting deleted item back to", newState, "for entity",
+              entityId, { wasOriginallyCreated }
             );
             map.set(entityId, {
-              state: "edited",
+              state: newState,
               operationId,
               data: entity,
             });
@@ -1113,31 +1139,24 @@ export function useDataView<T extends Record<string, any>>(
         }
       });
 
-      // Update cache to trigger re-render with new pending states
-      queryClient.setQueryData(currentQueryKeyRef.current, (old: any) => {
-        if (!old) return old;
+      // Only update cache for creates - updates/deletes use pending states only
+      if (type === "create") {
+        queryClient.setQueryData(currentQueryKeyRef.current, (old: any) => {
+          if (!old) return old;
 
-        const currentRows = responseRow(old);
-        let updatedRows: T[];
-
-        if (type === "create") {
-          // Add new item to beginning for creates
+          const currentRows = responseRow(old);
           const tempId = entityId || `temp-${Date.now()}`;
           const pendingItem = {
             ...entity,
             [primaryKey]: tempId,
             createdAt: new Date().toISOString(),
           };
-          updatedRows = [pendingItem, ...currentRows];
-        } else {
-          // For updates and deletes, just trigger re-render - pending states will be merged during rendering
-          updatedRows = [...currentRows];
-        }
+          const updatedRows = [pendingItem, ...currentRows];
 
-        return optimisticResponse
-          ? optimisticResponse(old, updatedRows)
-          : updatedRows;
-      });
+          return formatCacheUpdate(old, updatedRows);
+        });
+      }
+      // For updates and deletes, pending states will trigger re-render via pendingStatesVersion
 
       const entityType = activityConfig?.entityType || "item";
       const label = activityConfig?.labelGenerator
@@ -1178,7 +1197,7 @@ export function useDataView<T extends Record<string, any>>(
       schema,
       queryClient,
       responseRow,
-      optimisticResponse,
+      formatCacheUpdate,
       updatePendingStates,
     ],
   );

@@ -1,16 +1,14 @@
-import { useApp } from "./AppContext";
+import { useAppletCore } from "./AppContext";
 
 // Hook for role management - for host applications only
 export const useRoleManagement = () => {
-  const { state, roleUtils } = useApp();
+  const { state, actions, roleUtils } = useAppletCore();
   const userRoles = state.user?.roles ?? [roleUtils.roles[0]]; // Default to first role (usually Guest)
 
   return {
     userRoles,
     availableRoles: roleUtils.roles,
-    setUserRoles: (_roles: string[]) => {
-      // This would need to be implemented in the app context
-    },
+    setUserRoles: actions.setUserRoles,
     // Permission checking available for host convenience
     hasPermission: (appletId: string, permission: string) =>
       roleUtils.hasPermission(userRoles, appletId, permission),
@@ -24,7 +22,7 @@ export const useRoleManagement = () => {
 
 // Hook for navigation management - for host applications only
 export const useNavigation = () => {
-  const { state, actions, roleUtils } = useApp();
+  const { state, actions, roleUtils } = useAppletCore();
   const userRoles = state.user?.roles ?? [roleUtils.roles[0]];
 
   const filteredNavigation = state.navigation.filter((item) => {

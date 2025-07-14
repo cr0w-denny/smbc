@@ -1,10 +1,10 @@
-import { useApp } from "../AppContext";
+import { useAppletCore } from "../AppContext";
 
 /**
  * Hook for user management
  */
 export const useUser = () => {
-  const { state, actions, roleUtils } = useApp();
+  const { state, actions, roleUtils } = useAppletCore();
 
   return {
     user: state.user,

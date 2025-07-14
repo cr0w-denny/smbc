@@ -615,13 +615,6 @@ export class SchemaAnalyzer {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  public singularize(str: string): string {
-    // Simple singularization
-    if (str.endsWith("ies")) return str.slice(0, -3) + "y";
-    if (str.endsWith("es")) return str.slice(0, -2);
-    if (str.endsWith("s")) return str.slice(0, -1);
-    return str;
-  }
 
   /**
    * Parse date format strings to JavaScript Intl.DateTimeFormat options

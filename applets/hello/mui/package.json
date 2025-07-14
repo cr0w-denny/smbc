@@ -13,14 +13,16 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@mui/material": "^7.1.2",
+    "@smbc/applet-core": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@smbc/applet-core": "*",
-    "@mui/material": "^7.1.2"
+    "react-syntax-highlighter": "^15.6.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^4.2.1",
     "typescript": "^5.3.3",
     "vite": "^5.1.3"

@@ -16,7 +16,7 @@ import {
   DarkMode as DarkModeIcon,
   GetApp as InstallIcon,
 } from "@mui/icons-material";
-import { useFeatureFlag, useFeatureFlagToggle, useApp } from "@smbc/applet-core";
+import { useFeatureFlag, useFeatureFlagToggle, useAppletCore } from "@smbc/applet-core";
 // Dynamic import for development tools
 
 /**
@@ -82,7 +82,7 @@ export function HostAppBar({
   showAppletInstallation = false,
   showMockControls = false,
 }: HostAppBarProps) {
-  const { state } = useApp();
+  const { state } = useAppletCore();
   const [installModalOpen, setInstallModalOpen] = React.useState(false);
   const [InstallationModal, setInstallationModal] =
     React.useState<React.ComponentType<any> | null>(null);

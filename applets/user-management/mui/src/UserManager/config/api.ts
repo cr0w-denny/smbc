@@ -18,7 +18,7 @@
  * - Which API endpoint to use ("/users")
  * - Which HTTP client to use (apiClient from generated code)
  * - How to extract data from responses (responseRow, responseRowCount)
- * - How to handle optimistic updates (optimisticResponse)
+ * - How to handle cache updates (formatCacheUpdate)
  * - What query parameters to always include (apiParams)
  */
 
@@ -78,7 +78,7 @@ export const createApiConfig = (userType: "all" | "admins" | "non-admins") => ({
   // 4. Extract data from cached query responses
   responseRow: (response: ApiResponse) => response?.users || [],
   responseRowCount: (response: ApiResponse) => response?.total || 0,
-  optimisticResponse: (originalResponse: ApiResponse, newRows: User[]) => ({
+  formatCacheUpdate: (originalResponse: ApiResponse, newRows: User[]) => ({
     ...originalResponse,
     users: newRows,
     total: newRows.length,

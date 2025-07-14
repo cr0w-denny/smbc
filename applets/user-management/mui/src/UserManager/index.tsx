@@ -75,7 +75,6 @@ export function UserManager({
       permissionContext={permissionContext}
       onSuccess={handleSuccess}
       onError={handleError}
-      enableUrlSync={true}
       options={{
         transaction: {
           enabled: true,

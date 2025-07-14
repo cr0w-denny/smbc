@@ -23,7 +23,18 @@ export interface DataViewApiConfig {
   // Functions to handle different API response structures
   responseRow?: (response: any) => any[]; // Extract data rows from response, defaults to response
   responseRowCount?: (response: any) => number; // Extract total row count, defaults to response.total or rows.length
-  optimisticResponse?: (originalResponse: any, newRows: any[]) => any; // Reconstruct response with updated rows for optimistic updates
+  
+  /**
+   * Format cache updates to maintain proper response structure.
+   * Used for:
+   * 1. Optimistic updates during mutations (create/update/delete)
+   * 2. Transaction mode cache updates (showing pending states)
+   * 
+   * This function ensures metadata like 'total' count is preserved when updating
+   * the rows in the cache, preventing issues like incorrect pagination displays.
+   */
+  formatCacheUpdate?: (originalResponse: any, newRows: any[]) => any;
+  
   // Additional query parameters to include in all requests
   apiParams?: Record<string, any>;
 }

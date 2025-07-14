@@ -45,6 +45,7 @@ export {
   isMswAvailable,
   userManagementHandlers,
   productCatalogHandlers,
+  employeeDirectoryHandlers,
   resetAllMocks,
 } from '@smbc/applet-devtools';
 export type { ApiConfig } from '@smbc/applet-devtools';

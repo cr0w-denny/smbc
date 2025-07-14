@@ -2,10 +2,10 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useInternalNavigation } from "@smbc/applet-core";
 import { navigationGroups, internalRoutes } from "./navigation";
-import { Introduction } from "./components/Introduction";
-import { Develop } from "./components/Develop";
-import { Deploy } from "./components/Deploy";
-import { Integrate } from "./components/Integrate";
+import { Introduction } from "./components/introduction";
+import { Develop } from "./components/develop";
+import { Deploy } from "./components/deploy";
+import { Integrate } from "./components/integrate";
 
 export interface AppletProps {
   mountPath: string;

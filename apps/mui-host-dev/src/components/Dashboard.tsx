@@ -1,8 +1,7 @@
-import React from "react";
 import {
   useRoleManagement,
   useUser,
-  useApp,
+  useAppletCore,
   usePersistedRoles,
   useAppletPermissions,
   type RoleConfig,
@@ -15,13 +14,13 @@ interface DashboardProps {
   roleConfig: RoleConfig;
 }
 
-export const Dashboard = React.memo(function Dashboard({
+export function Dashboard({
   hostApplets,
   roleConfig,
 }: DashboardProps) {
   const { userRoles } = useRoleManagement();
   const { user, availableRoles, setRoles } = useUser();
-  const { roleUtils } = useApp();
+  const { roleUtils } = useAppletCore();
 
   const { selectedRoles, toggleRole } = usePersistedRoles({
     userRoles,
@@ -47,4 +46,4 @@ export const Dashboard = React.memo(function Dashboard({
       localStorageKey="roleMapping-selectedRoles"
     />
   );
-});
+}
