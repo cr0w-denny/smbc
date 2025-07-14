@@ -15,17 +15,17 @@ export interface ServerConfig {
 
 export const API_SERVERS: Record<string, ServerConfig> = {
   "user-management": {
-    "mock": "http://localhost:3000/api/v1/user-management",
+    "mock": "/api/v1/user-management",
     "development": "http://localhost:3001/api/v1/user-management",
     "production": "https://api.smbcgroup.com/api/v1/user-management"
   },
   "product-catalog": {
-    "mock": "http://localhost:3000/api/v1/product-catalog",
+    "mock": "/api/v1/product-catalog",
     "development": "http://localhost:3001/api/v1/product-catalog",
     "production": "https://api.smbcgroup.com/api/v1/product-catalog"
   },
   "employee-directory": {
-    "mock": "http://localhost:3000/api/v1/employee-directory",
+    "mock": "/api/v1/employee-directory",
     "development": "http://localhost:3001/api/v1/employee-directory",
     "production": "https://api.smbcgroup.com/api/v1/employee-directory"
   }
