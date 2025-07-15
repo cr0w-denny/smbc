@@ -1,0 +1,17 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "dist",
+    "noEmit": false
+  },
+  "include": [
+    "generated/**/*",
+    "client.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

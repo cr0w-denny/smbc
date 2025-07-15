@@ -165,9 +165,10 @@ export class TemplateMockGenerator {
         operation.summary ||
         operation.description ||
         `${method.toUpperCase()} ${path}`,
-      entityName: entityInfo.entityName,
+      entityName: this.getResponseSchemaName(operation) || entityInfo.entityName,
       entityPlural: entityInfo.entityPlural,
-      lowerEntityName: entityInfo.entityName.toLowerCase(),
+      lowerEntityName: (this.getResponseSchemaName(operation) || entityInfo.entityName).toLowerCase(),
+      responseProperties: this.getResponseProperties(operation),
       primaryKey: "id", // TODO: Extract from schema
       pathParam: entityInfo.pathParam,
 
@@ -185,15 +186,11 @@ export class TemplateMockGenerator {
       hasPathParams,
       queryParams,
 
-      // List operation specific
-      hasSearch: queryParams.some((p) => p.name === "search"),
+      // List operation specific - detect based on parameter metadata
+      hasSearch: this.hasSearchCapability(operation),
       searchConfig: this.extractSearchConfig(operation),
-      hasPagination: queryParams.some(
-        (p) => p.name === "page" || p.name === "pageSize",
-      ),
-      hasSorting: queryParams.some(
-        (p) => p.name === "sortBy" || p.name === "sortOrder",
-      ),
+      hasPagination: this.hasPaginationCapability(queryParams),
+      hasSorting: this.hasSortingCapability(queryParams),
       filters: this.extractFilters(operation, queryParams),
 
       // Error handling
@@ -218,8 +215,7 @@ export class TemplateMockGenerator {
 
     if (!entitySegment) return null;
 
-    // For paths like /employees, we assume the TypeSpec model is Employee (singular)
-    // So we need to derive the singular entity name from the plural path segment
+    // Extract entity name from the path segment
     const entityPlural = entitySegment;
     const entityName = this.deriveEntityName(entitySegment);
     const pathParam = segments
@@ -234,36 +230,68 @@ export class TemplateMockGenerator {
   }
 
   private extractQueryParams(operation: any): QueryParamContext[] {
-    const params =
-      operation.parameters?.filter((p: any) => p.in === "query") || [];
+    const allParams = operation.parameters || [];
+    
+    // First resolve all parameter references
+    const resolvedParams = allParams.map((param: any) => {
+      return param.$ref ? this.resolveRef(param.$ref) : param;
+    });
+    
+    // Then filter for query parameters
+    const queryParams = resolvedParams.filter((p: any) => p.in === "query");
 
-    return params.map((param: any) => ({
-      name: param.name,
-      type: param.schema?.type || "string",
-      isNumber:
-        param.schema?.type === "integer" || param.schema?.type === "number",
-      defaultValue: this.getDefaultValueForParam(param.name),
-    }));
+    return queryParams.map((resolvedParam: any) => {
+      return {
+        name: resolvedParam.name,
+        type: resolvedParam.schema?.type || "string",
+        isNumber: resolvedParam.schema?.type === "integer" || resolvedParam.schema?.type === "number",
+        required: resolvedParam.required || false,
+        defaultValue: this.getDefaultValueForParam(resolvedParam.name, resolvedParam.schema),
+      };
+    });
   }
 
-  private getDefaultValueForParam(paramName: string): string | undefined {
-    switch (paramName) {
-      case "page":
-        return "1";
-      case "pageSize":
-        return "20";
-      case "sortOrder":
-        return "asc";
-      default:
-        return undefined;
+  private getDefaultValueForParam(paramName: string, paramSchema?: any): string | undefined {
+    // Generate appropriate default values based on schema type and name patterns
+    if (paramSchema?.default !== undefined) {
+      return JSON.stringify(paramSchema.default);
     }
+    
+    const type = paramSchema?.type || "string";
+    const lowerName = paramName.toLowerCase();
+    
+    // Generic pattern-based defaults
+    if (lowerName.includes("page") && type === "integer") {
+      return "1";
+    }
+    if (lowerName.includes("size") && type === "integer") {
+      return "20";
+    }
+    if (lowerName.includes("limit") && type === "integer") {
+      return "10";
+    }
+    if (lowerName.includes("order") && type === "string") {
+      return "asc";
+    }
+    if (type === "boolean") {
+      return "false";
+    }
+    
+    return undefined;
   }
 
   private extractSearchConfig(
     operation: any,
   ): { fields?: string[] } | undefined {
+    // Look for any parameter that could be used for searching
     const searchParam = operation.parameters?.find(
-      (p: any) => p.name === "search" && p["x-mock-search"],
+      (p: any) => {
+        const name = p.name?.toLowerCase() || "";
+        return (name.includes("search") || 
+                name.includes("query") || 
+                name.includes("filter")) && 
+               p["x-mock-search"];
+      }
     );
 
     return searchParam
@@ -277,17 +305,17 @@ export class TemplateMockGenerator {
     operation: any,
     queryParams: QueryParamContext[],
   ): FilterContext[] {
-    const nonSpecialParams = queryParams.filter(
-      (p) =>
-        ![
-          "page",
-          "pageSize",
-          "search",
-          "sortBy",
-          "sortOrder",
-          "format",
-        ].includes(p.name),
-    );
+    // All query parameters are potential filters unless marked otherwise
+    const nonSpecialParams = queryParams.filter((p) => {
+      // Skip parameters that are explicitly marked as special purpose
+      const param = operation.parameters?.find((op: any) => {
+        const resolved = op.$ref ? this.resolveRef(op.$ref) : op;
+        return resolved.name === p.name;
+      });
+      
+      const resolved = param?.$ref ? this.resolveRef(param.$ref) : param;
+      return !resolved?.["x-special-purpose"]; // Allow TypeSpec to mark special parameters
+    });
 
     return nonSpecialParams.map((param) => {
       const operationParam = operation.parameters?.find(
@@ -544,13 +572,89 @@ export class TemplateMockGenerator {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  private deriveEntityName(pluralPath: string): string {
-    // Remove trailing 's' to get singular form
-    // This assumes simple English pluralization (employees -> employee)
-    if (pluralPath.endsWith('s') && pluralPath.length > 1) {
-      return this.capitalize(pluralPath.slice(0, -1));
+  private deriveEntityName(pathSegment: string): string {
+    // Convert path segment to a valid JavaScript identifier and capitalize
+    const sanitized = this.sanitizeIdentifier(pathSegment);
+    return this.capitalize(sanitized);
+  }
+
+  private sanitizeIdentifier(name: string): string {
+    // Convert kebab-case to camelCase for valid JavaScript identifiers
+    return name.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+  }
+
+  private getResponseSchemaName(operation: any): string | null {
+    // Extract the schema name from the response
+    const successResponse = operation.responses?.['200'] || operation.responses?.['201'];
+    if (!successResponse?.content?.['application/json']?.schema) {
+      return null;
     }
-    return this.capitalize(pluralPath);
+
+    const schema = successResponse.content['application/json'].schema;
+    
+    // Handle array responses (list operations)
+    if (schema.type === 'object' && schema.properties?.records?.type === 'array') {
+      const itemsSchema = schema.properties.records.items;
+      if (itemsSchema?.$ref) {
+        return this.extractSchemaNameFromRef(itemsSchema.$ref);
+      }
+    }
+    
+    // Handle direct schema references
+    if (schema.$ref) {
+      return this.extractSchemaNameFromRef(schema.$ref);
+    }
+    
+    return null;
+  }
+
+  private extractSchemaNameFromRef(ref: string): string {
+    // Extract schema name from #/components/schemas/SchemaName
+    const parts = ref.split('/');
+    return parts[parts.length - 1];
+  }
+
+  private resolveRef(ref: string): any {
+    // Resolve OpenAPI reference like "#/components/parameters/DateRangeQueryParams.start_date"
+    const path = ref.replace('#/', '').split('/');
+    let current = this.spec;
+    
+    for (const segment of path) {
+      current = current?.[segment];
+      if (!current) {
+        console.warn(`Could not resolve reference: ${ref}`);
+        return {};
+      }
+    }
+    
+    return current;
+  }
+
+  private hasSearchCapability(operation: any): boolean {
+    // Check if operation has extensions or parameters that indicate search capability
+    return operation["x-has-search"] || false;
+  }
+
+  private hasPaginationCapability(queryParams: QueryParamContext[]): boolean {
+    // Check if operation has extensions that indicate pagination
+    // For now, return false since usage-stats doesn't use pagination
+    return false;
+  }
+
+  private hasSortingCapability(queryParams: QueryParamContext[]): boolean {
+    // Check if operation has extensions that indicate sorting
+    // For now, return false since usage-stats doesn't use sorting
+    return false;
+  }
+
+  private getResponseProperties(operation: any): Record<string, any> | null {
+    const successResponse = operation.responses?.['200'] || operation.responses?.['201'];
+    if (!successResponse?.content?.['application/json']?.schema) {
+      return null;
+    }
+
+    const schema = successResponse.content['application/json'].schema;
+    return schema.properties || null;
   }
 
 }

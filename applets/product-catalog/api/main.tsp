@@ -1,8 +1,10 @@
 import "@typespec/http";
 import "@typespec/rest";
+import "@typespec/openapi";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;
+using TypeSpec.OpenAPI;
 
 /**
  * Product Catalog API
@@ -16,14 +18,54 @@ using TypeSpec.Rest;
 namespace ProductCatalogAPI;
 
 model Product {
+  @extension("x-mock-data", #{
+    faker: "string.uuid"
+  })
   id: string;
+  
+  @extension("x-mock-data", #{
+    faker: "commerce.productName"
+  })
   name: string;
+  
+  @extension("x-mock-data", #{
+    faker: "commerce.productDescription"
+  })
   description: string;
+  
+  @extension("x-mock-data", #{
+    faker: "commerce.price",
+    transform: "parseFloat"
+  })
   price: float64;
+  
+  @extension("x-mock-data", #{
+    faker: "commerce.department"
+  })
   category: string;
+  
+  @extension("x-mock-data", #{
+    faker: "string.alphanumeric",
+    args: #[8]
+  })
   sku: string;
+  
+  @extension("x-mock-data", #{
+    faker: "datatype.boolean",
+    weight: 0.8
+  })
   inStock: boolean;
+  
+  @extension("x-mock-data", #{
+    relative: "-90d to -1d",
+    format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+  })
   createdAt: utcDateTime;
+  
+  @extension("x-mock-data", #{
+    relative: "-7d to now",
+    format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+  })
   updatedAt: utcDateTime;
 }
 

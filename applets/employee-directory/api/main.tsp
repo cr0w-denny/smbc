@@ -21,11 +21,37 @@ using TypeSpec.OpenAPI;
 namespace EmployeeDirectory;
 
 model Employee {
+  @extension("x-mock-data", #{
+    faker: "string.uuid"
+  })
   id: string;
+  
+  @extension("x-mock-data", #{
+    faker: "person.fullName"
+  })
   name: string;
+  
+  @extension("x-mock-data", #{
+    faker: "internet.email",
+    unique: true
+  })
   email: string;
+  
+  @extension("x-mock-data", #{
+    faker: "helpers.arrayElement",
+    args: #[#["Engineering", "Marketing", "Sales", "HR", "Finance", "Operations", "Legal", "IT", "Customer Support"]]
+  })
   department: string;
+  
+  @extension("x-mock-data", #{
+    faker: "person.jobTitle"
+  })
   role: string;
+  
+  @extension("x-mock-data", #{
+    faker: "datatype.boolean",
+    weight: 0.9
+  })
   active: boolean;
 }
 

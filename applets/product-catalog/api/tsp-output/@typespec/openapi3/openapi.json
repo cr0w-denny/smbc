@@ -310,34 +310,68 @@
         ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "string.uuid"
+            }
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "commerce.productName"
+            }
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "commerce.productDescription"
+            }
           },
           "price": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "x-mock-data": {
+              "faker": "commerce.price",
+              "transform": "parseFloat"
+            }
           },
           "category": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "commerce.department"
+            }
           },
           "sku": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "string.alphanumeric",
+              "args": [
+                8
+              ]
+            }
           },
           "inStock": {
-            "type": "boolean"
+            "type": "boolean",
+            "x-mock-data": {
+              "faker": "datatype.boolean",
+              "weight": 0.8
+            }
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-mock-data": {
+              "relative": "-90d to -1d",
+              "format": "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            }
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-mock-data": {
+              "relative": "-7d to now",
+              "format": "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            }
           }
         }
       },

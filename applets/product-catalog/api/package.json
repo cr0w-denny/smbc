@@ -17,7 +17,7 @@
     "clean": "rm -rf tsp-output generated",
     "test": "echo 'No tests for API schemas'",
     "generate:types": "openapi-typescript tsp-output/@typespec/openapi3/openapi.json -o generated/types.ts",
-    "generate:mocks": "../../../scripts/mock-generation/generate.ts --input tsp-output/@typespec/openapi3/openapi.json --output ../../../packages/applet-devtools/src/mocks/product-catalog.ts --base-url /api/v1/product-catalog",
+    "generate:mocks": "tsx ../../../scripts/mock-generation-ts/generator.ts --input=tsp-output/@typespec/openapi3/openapi.json --output=../../../packages/applet-devtools/src/mocks/product-catalog.ts --base-url=/api/v1/product-catalog",
     "generate:all": "npm run generate:types && npm run generate:mocks"
   },
   "dependencies": {

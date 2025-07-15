@@ -1,7 +1,7 @@
 {
-  "name": "@smbc/user-management-api",
-  "version": "0.0.0",
-  "description": "TypeSpec API definition for user management",
+  "name": "@smbc/usage-stats-api",
+  "version": "1.0.0",
+  "description": "TypeSpec API definition for usage stats",
   "main": "tsp-output/@typespec/openapi3/openapi.json",
   "type": "module",
   "exports": {
@@ -17,16 +17,14 @@
     "clean": "rm -rf tsp-output generated",
     "test": "echo 'No tests for API schemas'",
     "generate:types": "openapi-typescript tsp-output/@typespec/openapi3/openapi.json -o generated/types.ts",
-    "generate:mocks": "tsx ../../../scripts/mock-generation-ts/generator.ts --input=tsp-output/@typespec/openapi3/openapi.json --output=../../../packages/applet-devtools/src/mocks/user-management.ts --base-url=/api/v1/user-management",
+    "generate:mocks": "tsx ../../../scripts/mock-generation-ts/generator.ts --input=tsp-output/@typespec/openapi3/openapi.json --output=../../../packages/applet-devtools/src/mocks/usage-stats.ts --base-url=/api/v1/usage-stats",
     "generate:all": "npm run generate:types && npm run generate:mocks"
   },
   "dependencies": {
     "@typespec/compiler": "^1.1.0",
     "@typespec/http": "^1.1.0",
-    "@typespec/rest": "^0.71.0",
     "@typespec/openapi3": "^1.1.0",
-    "@typespec/openapi": "^1.1.0",
-    "@smbc/typespec-core": "*"
+    "@typespec/rest": "^0.71.0"
   },
   "devDependencies": {
     "openapi-typescript": "^7.0.0",

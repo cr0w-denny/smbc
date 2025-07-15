@@ -1,0 +1,331 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Usage Stats API",
+    "description": "Usage Stats API\n\nThis API provides endpoints for usage statistics tracking.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/usage-stats/exceptions/": {
+      "get": {
+        "operationId": "UsageStats_list_exceptions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DateRangeQueryParams.start_date"
+          },
+          {
+            "$ref": "#/components/parameters/DateRangeQueryParams.end_date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "component_map",
+                    "records"
+                  ],
+                  "properties": {
+                    "component_map": {
+                      "type": "object"
+                    },
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UsageStatsExceptionObj"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage-stats/ui-usage/": {
+      "get": {
+        "operationId": "UsageStats_list_ui_usage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DateRangeQueryParams.start_date"
+          },
+          {
+            "$ref": "#/components/parameters/DateRangeQueryParams.end_date"
+          },
+          {
+            "$ref": "#/components/parameters/ListUIQueryParams.user_email"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "component_map",
+                    "records"
+                  ],
+                  "properties": {
+                    "component_map": {
+                      "type": "object"
+                    },
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UsageStatsComponentObj"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage-stats/users-usage/": {
+      "get": {
+        "operationId": "UsageStats_list_users_usage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DateRangeQueryParams.start_date"
+          },
+          {
+            "$ref": "#/components/parameters/DateRangeQueryParams.end_date"
+          },
+          {
+            "$ref": "#/components/parameters/ListUsersQueryParams.ui_filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "component_map",
+                    "records"
+                  ],
+                  "properties": {
+                    "component_map": {
+                      "type": "object"
+                    },
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UsageStatsUserObj"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "DateRangeQueryParams.end_date": {
+        "name": "end_date",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "explode": false
+      },
+      "DateRangeQueryParams.start_date": {
+        "name": "start_date",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "explode": false
+      },
+      "ListUIQueryParams.user_email": {
+        "name": "user_email",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ListUsersQueryParams.ui_filter": {
+        "name": "ui_filter",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      }
+    },
+    "schemas": {
+      "ListExceptionsParams": {
+        "type": "object",
+        "required": [
+          "start_date",
+          "end_date"
+        ],
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Query parameters"
+      },
+      "UsageStatsComponentObj": {
+        "type": "object",
+        "required": [
+          "component",
+          "count"
+        ],
+        "properties": {
+          "component": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "helpers.arrayElement",
+              "args": [
+                [
+                  "UserManager",
+                  "ProductCatalog",
+                  "EmployeeDirectory",
+                  "Dashboard",
+                  "Reports",
+                  "Settings",
+                  "Navigation",
+                  "SearchBox",
+                  "DataTable",
+                  "Charts"
+                ]
+              ]
+            }
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "x-mock-data": {
+              "faker": "number.int",
+              "args": [
+                {
+                  "min": 5,
+                  "max": 1000
+                }
+              ]
+            }
+          }
+        }
+      },
+      "UsageStatsExceptionObj": {
+        "type": "object",
+        "required": [
+          "email",
+          "name",
+          "count"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "internet.email",
+              "unique": true
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.fullName"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "x-mock-data": {
+              "faker": "number.int",
+              "args": [
+                {
+                  "min": 1,
+                  "max": 50
+                }
+              ]
+            }
+          }
+        }
+      },
+      "UsageStatsUserObj": {
+        "type": "object",
+        "required": [
+          "email",
+          "name",
+          "count"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "internet.email",
+              "unique": true
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.fullName"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "x-mock-data": {
+              "faker": "number.int",
+              "args": [
+                {
+                  "min": 1,
+                  "max": 500
+                }
+              ]
+            }
+          }
+        },
+        "description": "Response definitions"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1/usage-stats",
+      "description": "Mock server",
+      "variables": {}
+    },
+    {
+      "url": "https://ewi-dev.smbcgroup.com/api/v1/usage-stats",
+      "description": "Development server",
+      "variables": {}
+    },
+    {
+      "url": "https://api.smbcgroup.com/api/v1/usage-stats",
+      "description": "Production server",
+      "variables": {}
+    }
+  ]
+}

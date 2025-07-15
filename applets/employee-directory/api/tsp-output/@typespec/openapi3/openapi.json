@@ -197,22 +197,55 @@
         ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "string.uuid"
+            }
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.fullName"
+            }
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "internet.email",
+              "unique": true
+            }
           },
           "department": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "helpers.arrayElement",
+              "args": [
+                [
+                  "Engineering",
+                  "Marketing",
+                  "Sales",
+                  "HR",
+                  "Finance",
+                  "Operations",
+                  "Legal",
+                  "IT",
+                  "Customer Support"
+                ]
+              ]
+            }
           },
           "role": {
-            "type": "string"
+            "type": "string",
+            "x-mock-data": {
+              "faker": "person.jobTitle"
+            }
           },
           "active": {
-            "type": "boolean"
+            "type": "boolean",
+            "x-mock-data": {
+              "faker": "datatype.boolean",
+              "weight": 0.9
+            }
           }
         }
       },

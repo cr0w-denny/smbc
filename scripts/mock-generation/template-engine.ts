@@ -85,6 +85,7 @@ export interface QueryParamContext {
   name: string;
   type: string;
   isNumber: boolean;
+  required: boolean;
   defaultValue?: string;
 }
 
@@ -167,6 +168,18 @@ export class TemplateEngine {
     // Helper for camelCase conversion
     this.handlebars.registerHelper("camelCase", (str: string) => {
       return str.charAt(0).toLowerCase() + str.slice(1);
+    });
+
+    // Helper for sanitizing identifiers (kebab-case to camelCase)
+    this.handlebars.registerHelper("sanitizeId", (str: string) => {
+      return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+    });
+
+    // Helper for creating function names (sanitizes and adds appropriate suffix)
+    this.handlebars.registerHelper("functionName", (prefix: string, entityName: string, suffix: string) => {
+      const sanitizedEntity = entityName.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+      const capitalizedEntity = sanitizedEntity.charAt(0).toUpperCase() + sanitizedEntity.slice(1);
+      return prefix + capitalizedEntity + suffix;
     });
 
     // Helper for quoting property names that need it (e.g., kebab-case)

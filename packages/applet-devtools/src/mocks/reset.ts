@@ -2,12 +2,14 @@
 import { resetMocks as resetUserManagementMocks } from './user-management';
 import { resetMocks as resetProductCatalogMocks } from './product-catalog';
 import { resetMocks as resetEmployeeDirectoryMocks } from './employee-directory';
+import { resetMocks as resetUsageStatsMocks } from './usage-stats';
 
 // Array of all mock reset functions
 const mockResetFunctions = [
   resetUserManagementMocks,
   resetProductCatalogMocks,
   resetEmployeeDirectoryMocks,
+  resetUsageStatsMocks,
 ];
 
 /**

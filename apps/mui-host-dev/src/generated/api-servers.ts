@@ -28,6 +28,11 @@ export const API_SERVERS: Record<string, ServerConfig> = {
     "mock": "/api/v1/employee-directory",
     "development": "http://localhost:3001/api/v1/employee-directory",
     "production": "https://api.smbcgroup.com/api/v1/employee-directory"
+  },
+  "usage-stats": {
+    "mock": "/api/v1/usage-stats",
+    "development": "http://localhost:3001/api/v1/usage-stats",
+    "production": "https://api.smbcgroup.com/api/v1/usage-stats"
   }
 } as const;
 

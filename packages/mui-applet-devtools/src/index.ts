@@ -46,6 +46,7 @@ export {
   userManagementHandlers,
   productCatalogHandlers,
   employeeDirectoryHandlers,
+  usageStatsHandlers,
   resetAllMocks,
 } from '@smbc/applet-devtools';
 export type { ApiConfig } from '@smbc/applet-devtools';

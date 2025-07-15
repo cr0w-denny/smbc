@@ -11,12 +11,14 @@ import {
   Language as LanguageIcon,
   Badge as BadgeIcon,
   Task as TaskIcon,
+  Analytics as AnalyticsIcon,
 } from "@mui/icons-material";
 import { getApiUrl } from "./generated/api-servers";
 import {
   userManagementHandlers,
   productCatalogHandlers,
   employeeDirectoryHandlers,
+  usageStatsHandlers,
 } from "@smbc/mui-applet-devtools";
 
 // Import applets directly from source during development
@@ -24,6 +26,7 @@ import userManagementApplet from "../../../applets/user-management/mui/src";
 import productCatalogApplet from "../../../applets/product-catalog/mui/src";
 import helloApplet from "../../../applets/hello/mui/src";
 import employeeDirectoryApplet from "../../../applets/employee-directory/mui/src";
+import usageStatsApplet from "../../../applets/usage-stats/mui/src";
 import demoTasksApplet from "./demo";
 
 // =============================================================================
@@ -128,6 +131,16 @@ const permissionRequirements = createPermissionRequirements({
       MANAGE_EMPLOYEES: "Admin",
     },
   },
+  "usage-stats": {
+    applet: usageStatsApplet,
+    permissions: {
+      VIEW_USAGE_STATS: "Manager",
+      VIEW_USER_USAGE: "Manager",
+      VIEW_COMPONENT_USAGE: "Staff",
+      VIEW_EXCEPTIONS: "Manager",
+      EXPORT_USAGE_DATA: "Admin",
+    },
+  },
 });
 
 // Auto-generate the verbose permission mappings
@@ -226,6 +239,15 @@ export function createApplets(environment: 'development' | 'production' | 'mock'
     apiBaseUrl: getApiUrl("employee-directory", environment),
     version: employeeDirectoryApplet.version,
   }),
+  mountApplet(usageStatsApplet, {
+    id: "usage-stats",
+    label: "Usage Analytics",
+    path: "/usage-stats",
+    icon: AnalyticsIcon,
+    permissions: [usageStatsApplet.permissions.VIEW_USAGE_STATS],
+    apiBaseUrl: getApiUrl("usage-stats", environment),
+    version: usageStatsApplet.version,
+  }),
   mountApplet(demoTasksApplet, {
     id: "demo-tasks",
     label: "Demo Tasks",
@@ -242,6 +264,7 @@ export const MOCK_HANDLERS = {
   "user-management": userManagementHandlers,
   "product-catalog": productCatalogHandlers, 
   "employee-directory": employeeDirectoryHandlers,
+  "usage-stats": usageStatsHandlers,
 } as const;
 
 // Default applets for development

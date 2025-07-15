@@ -5,6 +5,7 @@ export type { ApiConfig } from "./msw-integration";
 export { handlers as userManagementHandlers } from "./mocks/user-management";
 export { handlers as productCatalogHandlers } from "./mocks/product-catalog";
 export { handlers as employeeDirectoryHandlers } from "./mocks/employee-directory";
+export { handlers as usageStatsHandlers } from "./mocks/usage-stats";
 
 // Re-export mock reset functionality
 export { resetAllMocks } from "./mocks/reset";
