@@ -2,6 +2,7 @@
  * Filter configuration for Employee Directory
  */
 export const createFiltersConfig = () => ({
+  title: "Employees",
   fields: [
     {
       name: "search",

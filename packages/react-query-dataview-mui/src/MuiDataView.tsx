@@ -48,7 +48,8 @@ function MuiDataTable<T extends Record<string, any>>({
   transactionState,
   primaryKey = 'id' as keyof T,
   hover = false,
-}: DataViewTableProps<T>) {
+  rendererConfig: _rendererConfig,
+}: DataViewTableProps<T, any>) {
   if (error) {
     return <Alert severity="error">{error.message}</Alert>;
   }
@@ -121,8 +122,8 @@ function MuiDataTable<T extends Record<string, any>>({
           {(() => {
             let displayData = [...data];
             
-            // If we have an active transaction, prepend pending created items
-            if (transactionState?.hasActiveTransaction && transactionState.pendingStates) {
+            // If we have an active transaction or pending states, prepend pending created items
+            if (transactionState && transactionState.pendingStates && transactionState.pendingStates.size > 0) {
               const pendingCreatedItems: T[] = [];
               
               transactionState.pendingStates.forEach((stateInfo, id) => {
@@ -177,7 +178,7 @@ function MuiDataTable<T extends Record<string, any>>({
             return displayData.map((item, index) => {
             // Get pending state from transaction state (if any)
             const entityId = item[primaryKey] as string | number;
-            const pendingStateInfo = transactionState?.hasActiveTransaction
+            const pendingStateInfo = transactionState?.pendingStates
               ? transactionState.pendingStates.get(entityId)
               : null;
             const pendingState = pendingStateInfo?.state;
@@ -528,7 +529,7 @@ function MuiCreateButton({
 
 
 // Export the complete MUI renderer
-export const MuiDataView: DataView<any> = {
+export const MuiDataView: DataView<any, any> = {
   name: "MUI",
   TableComponent: MuiDataTable,
   FilterComponent: MuiDataFilter,

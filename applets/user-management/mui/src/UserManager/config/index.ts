@@ -96,9 +96,8 @@ export function createUserManagerConfig({
       pageSizeOptions: [5, 10, 25, 50],
     },
 
-    // Additional options
-    options: {
-      apiParams: createApiConfig(userType).apiParams,
+    // Renderer-specific configuration
+    rendererConfig: {
       transformFilters,
       getActiveColumns,
     },

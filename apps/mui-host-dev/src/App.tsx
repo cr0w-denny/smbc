@@ -121,6 +121,16 @@ function initializeMswHandlers(applets: AppletMount[]): void {
     }
 
     console.log("Registering MSW handlers:", allHandlers.length);
+    
+    // Log all handler URLs for debugging
+    allHandlers.forEach((handler, index) => {
+      // Extract URL pattern from handler
+      const handlerInfo = handler.info || {};
+      const method = String(handlerInfo.method || 'unknown');
+      const path = handlerInfo.path || handler.toString();
+      console.log(`🔍 Handler ${index + 1}: ${method.toUpperCase()} ${path}`);
+    });
+    
     registerMswHandlers(allHandlers);
   } catch (error) {
     console.error("Failed to initialize MSW handlers:", error);

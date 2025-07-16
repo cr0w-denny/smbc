@@ -69,8 +69,11 @@ export interface components {
             count: number;
         };
         UsageStatsExceptionObj: {
+            component: string;
             email: string;
             name: string;
+            resp_cd: string;
+            resp_msg: string;
             /** Format: int32 */
             count: number;
         };

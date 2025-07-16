@@ -239,11 +239,30 @@
       "UsageStatsExceptionObj": {
         "type": "object",
         "required": [
+          "component",
           "email",
           "name",
+          "resp_cd",
+          "resp_msg",
           "count"
         ],
         "properties": {
+          "component": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "helpers.arrayElement",
+              "args": [
+                [
+                  "UserManager",
+                  "ProductCatalog",
+                  "EmployeeDirectory",
+                  "Dashboard",
+                  "Reports",
+                  "Settings"
+                ]
+              ]
+            }
+          },
           "email": {
             "type": "string",
             "x-mock-data": {
@@ -255,6 +274,36 @@
             "type": "string",
             "x-mock-data": {
               "faker": "person.fullName"
+            }
+          },
+          "resp_cd": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "helpers.arrayElement",
+              "args": [
+                [
+                  "500",
+                  "404",
+                  "403",
+                  "400",
+                  "503"
+                ]
+              ]
+            }
+          },
+          "resp_msg": {
+            "type": "string",
+            "x-mock-data": {
+              "faker": "helpers.arrayElement",
+              "args": [
+                [
+                  "Internal Server Error",
+                  "Not Found",
+                  "Forbidden",
+                  "Bad Request",
+                  "Service Unavailable"
+                ]
+              ]
             }
           },
           "count": {
@@ -313,17 +362,17 @@
   },
   "servers": [
     {
-      "url": "/api/v1/usage-stats",
+      "url": "/api/v1",
       "description": "Mock server",
       "variables": {}
     },
     {
-      "url": "https://ewi-dev.smbcgroup.com/api/v1/usage-stats",
+      "url": "https://ewi-dev.smbcgroup.com/api/v1",
       "description": "Development server",
       "variables": {}
     },
     {
-      "url": "https://api.smbcgroup.com/api/v1/usage-stats",
+      "url": "https://api.smbcgroup.com/api/v1",
       "description": "Production server",
       "variables": {}
     }

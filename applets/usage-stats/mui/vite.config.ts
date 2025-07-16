@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
+import { suppressUseClientWarnings } from "../../../scripts/vite/suppress-warnings";
 
 export default defineConfig({
+  plugins: [suppressUseClientWarnings()],
   build: {
     lib: {
       entry: "./src/index.ts",
@@ -20,8 +22,7 @@ export default defineConfig({
         "@smbc/mui-applet-core",
         "@smbc/mui-components",
         "@smbc/usage-stats-api",
-        "openapi-fetch",
-        "zod"
+        "openapi-fetch"
       ]
     }
   }

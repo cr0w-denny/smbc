@@ -17,8 +17,8 @@ async function delay() {
 function generateUser(overrides = {}) {
   return {
     id: faker.string.uuid(),
-    username: faker.helpers.uniqueArray(() => faker.internet.userName(), 1)[0],
-    email: faker.helpers.uniqueArray(() => faker.internet.email(), 1)[0],
+    username: faker.helpers.unique(() => faker.internet.userName()),
+    email: faker.helpers.unique(() => faker.internet.email()),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     createdAt: format(faker.date.between({ from: '-30d', to: 'now' }), 'MMMM dd, yyyy'),
@@ -39,7 +39,9 @@ function initializeUserDataStore() {
   const items = Array.from({ length: totalItems }, () => generateUser({}));
   
   items.forEach((item, index) => {
-    userDataStore.set(String(index), item);
+    // Ensure each item has a consistent ID
+    if (!item.id) item.id = String(index + 1);
+    userDataStore.set(item.id, item);
   });
   
   userDataInitialized = true;
@@ -51,43 +53,18 @@ function getAllUsers(): any[] {
 }
 
 function transformItemsToUserSummary(items: any[]): any[] {
-  return items.map(_item => ({
-    id: faker.lorem.word(),
-    username: faker.lorem.word(),
-    name: faker.lorem.word(),
-    email: faker.lorem.word(),
-    status: faker.lorem.word()
-  }));
+  // Return items as-is to preserve identity
+  return items;
 }
 
 function transformItemsToUserDetailed(items: any[]): any[] {
-  return items.map(_item => ({
-    id: faker.string.uuid(),
-    username: faker.helpers.uniqueArray(() => faker.internet.userName(), 1)[0],
-    email: faker.helpers.uniqueArray(() => faker.internet.email(), 1)[0],
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    createdAt: format(faker.date.between({ from: '-30d', to: 'now' }), 'MMMM dd, yyyy'),
-    updatedAt: format(faker.date.between({ from: '-7d', to: 'now' }), 'yyyy-MM-dd'),
-    isActive: faker.datatype.boolean({ probability: 0.9 }),
-    isAdmin: faker.datatype.boolean({ probability: 0.1 }),
-    fullName: faker.lorem.word(),
-    memberSince: format(faker.date.between({ from: '-300d', to: 'now' }), 'yyyy-MM-dd')
-  }));
+  // Return items as-is to preserve identity
+  return items;
 }
 
 function transformItemsToUser(items: any[]): any[] {
-  return items.map(_item => ({
-    id: faker.string.uuid(),
-    username: faker.helpers.uniqueArray(() => faker.internet.userName(), 1)[0],
-    email: faker.helpers.uniqueArray(() => faker.internet.email(), 1)[0],
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    createdAt: format(faker.date.between({ from: '-30d', to: 'now' }), 'MMMM dd, yyyy'),
-    updatedAt: format(faker.date.between({ from: '-7d', to: 'now' }), 'yyyy-MM-dd'),
-    isActive: faker.datatype.boolean({ probability: 0.9 }),
-    isAdmin: faker.datatype.boolean({ probability: 0.1 })
-  }));
+  // Return items as-is to preserve identity
+  return items;
 }
 
 export const handlers = [
@@ -207,17 +184,64 @@ export const handlers = [
       return HttpResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
+    const entityId = params.id as string;
     const body = await request.json() as any;
-    const updatedItem = generateUser({ ...(params as any), ...body });
+    
+    console.log(`🔧 PATCH /users/${entityId}`, { body });
+    
+    // Get existing item from data store
+    initializeUserDataStore();
+    const existingItem = userDataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(`❌ User ${entityId} not found in data store`);
+      return HttpResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    
+    console.log(`📦 Found existing user:`, { 
+      id: existingItem.id
+    });
+    
+    // Update existing item with PATCH data
+    const updatedItem = { ...existingItem, ...body };
+    userDataStore.set(entityId, updatedItem);
+    
+    console.log(`✅ Updated user:`, { 
+      id: updatedItem.id,
+      changes: body 
+    });
+    console.log(`🗄️ Data store now has ${userDataStore.size} users`);
     
     return HttpResponse.json(updatedItem);
   }),
-  http.delete(`${mockConfig.baseUrl}/users/:id`, async ({ request: _request, params: _params }) => {
+  http.delete(`${mockConfig.baseUrl}/users/:id`, async ({ request: _request, params }) => {
     await delay();
     
     if (Math.random() < mockConfig.errorRate) {
       return HttpResponse.json({ error: 'User not found' }, { status: 404 });
     }
+    
+    const entityId = params.id as string;
+    console.log(`🗑️ DELETE /users/${entityId}`);
+    
+    // Get existing item from data store
+    initializeUserDataStore();
+    const existingItem = userDataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(`❌ User ${entityId} not found in data store for deletion`);
+      return HttpResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    
+    console.log(`📦 Found user to delete:`, { 
+      id: existingItem.id
+    });
+    
+    // Actually delete the item from data store
+    userDataStore.delete(entityId);
+    
+    console.log(`✅ User deleted from data store`);
+    console.log(`🗄️ Data store now has ${userDataStore.size} users`);
     
     return new HttpResponse(null, { status: 204 });
   })

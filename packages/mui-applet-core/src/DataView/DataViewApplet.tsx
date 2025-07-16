@@ -6,7 +6,7 @@ import {
 } from "@smbc/react-query-dataview";
 import { usePermissions, type PermissionDefinition, useHashParams } from "@smbc/applet-core";
 import { useQueryClient } from "@tanstack/react-query";
-import { MuiDataView } from "./MuiDataView";
+import { MuiDataView } from "@smbc/react-query-dataview-mui";
 import { ActionBar } from "../ActionBar";
 import {
   Dialog,
@@ -18,9 +18,19 @@ import {
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 
+// MUI-specific renderer configuration
+export interface MuiRendererConfig {
+  /** Transform filter values for query keys and API requests */
+  transformFilters?: (filters: any) => any;
+  /** Function to determine which columns to show based on current filters */
+  getActiveColumns?: (columns: any[], filters: any) => any[];
+  /** Enable hover effects on table rows */
+  hover?: boolean;
+}
+
 // MUI-specific configuration that uses PermissionDefinition objects directly
 export interface MuiDataViewAppletConfig<T>
-  extends Omit<DataViewConfig<T>, "permissions" | "renderer"> {
+  extends Omit<DataViewConfig<T, MuiRendererConfig>, "permissions" | "renderer"> {
   permissions?: {
     view?: PermissionDefinition;
     create?: PermissionDefinition;
@@ -135,7 +145,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
 
   // Layer 1: Prepare config for framework-agnostic data management
   // Strip out Layer 2 concepts (SMBC permissions, actions) before passing to Layer 1
-  const baseConfigWithoutActions: DataViewConfig<T> = {
+  const baseConfigWithoutActions: DataViewConfig<T, MuiRendererConfig> = {
     ...config,
     renderer: MuiDataView,
     permissions: undefined, // Layer 1 uses simple strings, Layer 2 handles PermissionDefinition objects
@@ -234,8 +244,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       pagination: customPaginationState[0],
       setPagination: customPaginationState[1]
     } : undefined,
-    transformFilters: config.options?.transformFilters,
-    getActiveColumns: config.options?.getActiveColumns,
+    transformFilters: config.rendererConfig?.transformFilters,
+    getActiveColumns: config.rendererConfig?.getActiveColumns,
     onSuccess: (action, item) => {
       console.log(`DataView ${action} success:`, item);
       onSuccess?.(action, item);
@@ -253,8 +263,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   
   // Build the current query key to match what useDataView creates
   const currentQueryKey = React.useMemo(() => {
-    const transformedFilters = config.options?.transformFilters 
-      ? config.options.transformFilters(dataView.filters)
+    const transformedFilters = config.rendererConfig?.transformFilters 
+      ? config.rendererConfig.transformFilters(dataView.filters)
       : dataView.filters;
       
     const queryParams = {
@@ -269,7 +279,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     
     console.log("🔑 Building query key:", ["get", config.api.endpoint, queryParams]);
     return ["get", config.api.endpoint, queryParams];
-  }, [config.api.endpoint, config.options?.transformFilters, dataView.filters, dataView.pagination]);
+  }, [config.api.endpoint, config.rendererConfig?.transformFilters, dataView.filters, dataView.pagination]);
 
   // Track if transaction is executing to show loading state
   const [isTransactionExecuting, setIsTransactionExecuting] = React.useState(false);
@@ -386,8 +396,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   // Layer 2: Bridge Layer 1 data to Layer 3 components with processed actions
   const TableComponentWithActions = React.useMemo(() => {
     // Get the active columns from the dataView's internal logic
-    const activeColumns = config.options?.getActiveColumns
-      ? config.options.getActiveColumns(config.columns, dataView.filters)
+    const activeColumns = config.rendererConfig?.getActiveColumns
+      ? config.rendererConfig.getActiveColumns(config.columns, dataView.filters)
       : config.columns;
 
     return () =>
@@ -405,13 +415,13 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
         // Pass transaction state separately for UI components to handle merging
         transactionState: dataView.transactionState,
         primaryKey: config.schema.primaryKey,
-        hover: config.options?.hover || false,
+        hover: config.rendererConfig?.hover || false,
       });
   }, [
     dataView.data,
     dataView.filters,
     config.columns,
-    config.options?.getActiveColumns,
+    config.rendererConfig?.getActiveColumns,
     processedRowActions,
     dataView.isLoading,
     dataView.error,

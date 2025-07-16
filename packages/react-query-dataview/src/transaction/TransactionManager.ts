@@ -12,13 +12,15 @@ import { TransactionRegistry } from "./TransactionRegistry";
 export class SimpleTransactionManager<T = any>
   implements TransactionManager<T>
 {
+  public readonly id: string;
   private currentTransaction: Transaction<T> | null = null;
   private config: TransactionConfig;
   private eventHandlers: Map<keyof TransactionEvents<T>, Function[]> =
     new Map();
 
-  constructor(config: TransactionConfig) {
+  constructor(config: TransactionConfig, id?: string) {
     this.config = config;
+    this.id = id || `txn_mgr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   begin(config?: Partial<TransactionConfig>): string {
@@ -195,10 +197,6 @@ export class SimpleTransactionManager<T = any>
       // All modes use batch execution now
       results = await this.executeBatch();
 
-      transaction.status = "completed";
-      transaction.completedAt = new Date();
-      transaction.results = results;
-
       console.log('TransactionManager: emitting onTransactionComplete event', { 
         resultsCount: results.length,
         hasListeners: this.eventHandlers.has("onTransactionComplete"),
@@ -206,8 +204,22 @@ export class SimpleTransactionManager<T = any>
       });
       this.emit("onTransactionComplete", results);
       
-      console.log('TransactionManager: clearing transaction');
-      this.clear(); // Clear transaction after successful completion
+      // Only mark as completed and clear if no operations remain (they may have been selectively removed)
+      if (this.currentTransaction && this.currentTransaction.operations.length === 0) {
+        console.log('TransactionManager: clearing transaction - no operations remain');
+        transaction.status = "completed";
+        transaction.completedAt = new Date();
+        transaction.results = results;
+        this.clear();
+      } else {
+        console.log('TransactionManager: keeping transaction - operations still remain', {
+          remainingOperations: this.currentTransaction?.operations.length || 0
+        });
+        // Keep status as "pending" since operations remain
+        transaction.status = "pending";
+        // Store partial results
+        transaction.results = results;
+      }
 
       return results;
     } catch (error) {

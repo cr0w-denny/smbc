@@ -54,9 +54,8 @@ export { ActionBar } from "./ActionBar";
 export { ActivityNotifications } from "./ActivityNotifications";
 export { ActivitySnackbar } from "./ActivitySnackbar";
 
-// Internal components exported for Storybook only
-// @internal - Do not use directly, use MuiDataViewApplet instead
-export { MuiDataView } from "./DataView/MuiDataView";
+// Re-export MuiDataView from the separate package for convenience
+export { MuiDataView } from "@smbc/react-query-dataview-mui";
 
 // Host application bar
 export { HostAppBar } from "./HostAppBar";

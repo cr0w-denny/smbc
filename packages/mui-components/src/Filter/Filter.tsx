@@ -3,6 +3,8 @@
  */
 
 import React, { useState, useCallback, useMemo } from "react";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { FilterContainer } from "./FilterContainer";
 import { FilterFieldGroup } from "./FilterFieldGroup";
 import type {
@@ -42,7 +44,7 @@ export function Filter({
   const {
     fields = [],
     initialValues = {},
-    title = "Filters",
+    title,
     visible = true,
     collapsible = false,
     defaultCollapsed = false,
@@ -114,6 +116,8 @@ export function Filter({
     const clearedValues = fields.reduce((acc, field) => {
       const isTextualField = ["text", "search", "email"].includes(field.type);
       const isSelectField = field.type === "select";
+      const isDateField = ["date", "datetime"].includes(field.type);
+      const isDateRangeField = field.type === "daterange";
       
       if (isTextualField && field.defaultValue !== undefined) {
         acc[field.name] = field.defaultValue;
@@ -123,6 +127,12 @@ export function Filter({
         // For select fields, use the first option's value (usually empty string for "All")
         const firstOption = field.options?.[0];
         acc[field.name] = firstOption?.value ?? "";
+      } else if (isDateField) {
+        // For date fields, use null as default
+        acc[field.name] = null;
+      } else if (isDateRangeField) {
+        // For date range fields, use null for both from and to
+        acc[field.name] = { from: null, to: null };
       } else {
         // For other field types, use empty string as default
         acc[field.name] = "";
@@ -151,6 +161,17 @@ export function Filter({
       if (!field || field.type === "hidden" || field.excludeFromCount)
         return false;
 
+      // Handle date range fields
+      if (field.type === "daterange") {
+        return value?.from !== null && value?.from !== undefined || 
+               value?.to !== null && value?.to !== undefined;
+      }
+
+      // Handle date fields
+      if (["date", "datetime"].includes(field.type)) {
+        return value !== null && value !== undefined;
+      }
+
       return (
         value !== undefined &&
         value !== null &&
@@ -167,25 +188,27 @@ export function Filter({
   const visibleFields = fields.filter((f) => f.type !== "hidden" && !f.hidden);
 
   return (
-    <FilterContainer
-      title={title}
-      collapsible={collapsible}
-      defaultCollapsed={defaultCollapsed}
-      showClearButton={showClearButton}
-      showFilterCount={showFilterCount}
-      activeFilterCount={activeFilterCount}
-      onClearFilters={handleClearFilters}
-      sx={sx}
-    >
-      <FilterFieldGroup
-        fields={visibleFields}
-        values={displayValues}
-        onChange={handleFieldChange}
-        spacing={2}
-        direction="row"
-        wrap={true}
-        disableDebounce={true}
-      />
-    </FilterContainer>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <FilterContainer
+        title={title}
+        collapsible={collapsible}
+        defaultCollapsed={defaultCollapsed}
+        showClearButton={showClearButton}
+        showFilterCount={showFilterCount}
+        activeFilterCount={activeFilterCount}
+        onClearFilters={handleClearFilters}
+        sx={sx}
+      >
+        <FilterFieldGroup
+          fields={visibleFields}
+          values={displayValues}
+          onChange={handleFieldChange}
+          spacing={2}
+          direction="row"
+          wrap={true}
+          disableDebounce={true}
+        />
+      </FilterContainer>
+    </LocalizationProvider>
   );
 }

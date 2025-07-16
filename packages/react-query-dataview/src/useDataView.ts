@@ -59,7 +59,7 @@ export function useDataView<T extends Record<string, any>>(
     actions: actionConfig = {},
     pagination: paginationConfig = { enabled: true, defaultPageSize: 10 },
     forms,
-    options: rendererOptions = {},
+    rendererConfig: rendererOptions = {},
     activity: activityConfig,
   } = config;
 
@@ -83,6 +83,12 @@ export function useDataView<T extends Record<string, any>>(
 
   // No need for transaction context - we'll register directly with global registry
 
+  // Create a stable managerId that doesn't change across re-renders
+  const [managerId] = useState(() => {
+    const id = `dataview_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    return id;
+  });
+
   // Transaction manager (optional) - use useState to keep it stable across re-renders
   const [transactionManager] = useState(() => {
     if (!options.transaction?.enabled) return null;
@@ -90,13 +96,15 @@ export function useDataView<T extends Record<string, any>>(
     const defaultConfig: TransactionConfig = {
       enabled: true,
       requireConfirmation: true,
+      allowPartialSuccess: true, // Allow mixed results so we can handle failures in UI
     };
 
     return new SimpleTransactionManager<T>({
       ...defaultConfig,
       ...options.transaction,
-    });
+    }, managerId);
   });
+
 
   // Helper function to emit activities
   const emitActivity = useCallback(
@@ -213,7 +221,7 @@ export function useDataView<T extends Record<string, any>>(
     pagination.page,
     pagination.pageSize,
     transformedFilters,
-    config.options?.apiParams,
+    config.api.apiParams,
   ]);
 
   // Store the current query key in a ref so we can access it without causing effect re-runs
@@ -234,8 +242,13 @@ export function useDataView<T extends Record<string, any>>(
   // Register transaction manager directly with global registry
   React.useEffect(() => {
     if (transactionManager) {
-      const managerId = `dataview_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      console.log("🔗 Registering transaction manager with registry:", {
+        managerId,
+        managerInstanceId: transactionManager.id || 'no-id',
+        registryManagersBeforeRegister: TransactionRegistry.getAllManagers().length
+      });
       TransactionRegistry.register(managerId, transactionManager);
+      console.log("✅ Transaction manager registered. Registry managers after register:", TransactionRegistry.getAllManagers().length);
 
       // Store snapshot for rollback when transaction starts
       let transactionSnapshot: any = null;
@@ -283,12 +296,6 @@ export function useDataView<T extends Record<string, any>>(
         });
 
         console.log("UseDataView: Transaction results details", results);
-
-        // Clear pending states Map
-        updatePendingStates((map) => {
-          console.log("UseDataView: Clearing pending states map");
-          map.clear();
-        });
 
         // Emit aggregated activities for transaction commit (only if explicitly enabled)
         if (
@@ -365,18 +372,51 @@ export function useDataView<T extends Record<string, any>>(
           );
         }
 
-        // Invalidate queries to get fresh data from server
+        // Apply successful changes directly to cache, keep failed operations as pending
         console.log(
-          "UseDataView: About to invalidate queries for endpoint",
-          api.endpoint,
+          "UseDataView: Applying successful operations to cache and clearing successful pending states",
+          { totalResults: results.length, results }
         );
-        queryClient.invalidateQueries({
-          queryKey: ["get", api.endpoint],
-          exact: false,
+        
+        // Process each result and handle success/failure individually
+        results.forEach((result, index) => {
+          console.log(`Processing result ${index}:`, { 
+            success: result.success, 
+            entityId: result.operation?.entityId,
+            operationType: result.operation?.type,
+            error: result.error?.message
+          });
+          const operation = result.operation;
+          if (!operation) return;
+          
+          if (result.success) {
+            // Apply successful change directly to cache
+            console.log(`✅ Operation succeeded for entity ${operation.entityId}, applying to cache`);
+            
+            // Since cache is empty during transaction completion, invalidate and refetch instead
+            console.log(`🔧 Invalidating cache for successful operation ${operation.entityId}`, {
+              currentQueryKey,
+              operationType: operation.type,
+              hasApiResult: !!result.result
+            });
+            
+            // Force a cache invalidation to refetch the latest data
+            queryClient.invalidateQueries({ queryKey: currentQueryKey });
+            console.log(`✅ Cache invalidated for successful operation ${operation.entityId}`);
+            
+            // Clear pending state for successful operation
+            updatePendingStates((map) => {
+              map.delete(operation.entityId);
+              console.log(`Cleared pending state for successful operation ${operation.entityId}`);
+            });
+          } else {
+            // Keep pending state for failed operation so user knows it failed
+            console.log(`❌ Operation failed for entity ${operation.entityId}, keeping pending state`);
+          }
         });
-        console.log("UseDataView: Queries invalidated");
 
-        // Clear selections since the transaction is complete
+        // Clear selections for successful operations only
+        // Failed operations keep their pending states so users can retry
         clearSelection();
 
         transactionSnapshot = null;
@@ -385,6 +425,27 @@ export function useDataView<T extends Record<string, any>>(
           pendingStatesCount: pendingStatesRef.current.size,
           pendingStates: Array.from(pendingStatesRef.current.entries()),
         });
+
+        // Remove only successful operations from the transaction, keep failed ones
+        const successfulOperations = results.filter(result => result.success);
+        const failedOperations = results.filter(result => !result.success);
+        
+        if (transactionManager && successfulOperations.length > 0) {
+          console.log(`🧹 Removing ${successfulOperations.length} successful operations from transaction`);
+          successfulOperations.forEach(result => {
+            if (result.operation?.id) {
+              transactionManager.removeOperation(result.operation.id);
+              console.log(`✅ Removed successful operation ${result.operation.id} from transaction`);
+            }
+          });
+        }
+        
+        if (failedOperations.length > 0) {
+          console.log(`🔄 Keeping ${failedOperations.length} failed operations in transaction for retry`);
+          // Notify registry that transaction state has changed
+          TransactionRegistry.notifyListeners();
+          console.log("📢 Notified TransactionRegistry about remaining failed operations");
+        }
       };
 
       const handleOperationRemoved = (
@@ -491,7 +552,12 @@ export function useDataView<T extends Record<string, any>>(
       console.log("UseDataView: Transaction event handlers registered");
 
       return () => {
+        console.log("🚮 Unregistering transaction manager:", {
+          managerId,
+          registryManagersBeforeUnregister: TransactionRegistry.getAllManagers().length
+        });
         TransactionRegistry.unregister(managerId);
+        console.log("❌ Transaction manager unregistered. Registry managers after unregister:", TransactionRegistry.getAllManagers().length);
         transactionManager.off("onTransactionStart", handleTransactionStart);
         transactionManager.off(
           "onTransactionCancelled",
@@ -506,15 +572,18 @@ export function useDataView<T extends Record<string, any>>(
     }
   }, [
     transactionManager,
-    queryClient,
-    responseRow,
-    formatCacheUpdate,
-    activityConfig,
-    activityContext,
-    options.transaction?.emitActivities,
-    api.endpoint,
-    updatePendingStates,
+    managerId,
+    // Keep only essential dependencies that truly need to trigger re-registration
+    // Other values are captured in the closure and don't need to be dependencies
   ]);
+
+  // Log when the component re-renders to track effect runs
+  console.log("🔄 useDataView render:", {
+    managerId,
+    hasTransactionManager: !!transactionManager,
+    registryManagerCount: TransactionRegistry.getAllManagers().length,
+    timestamp: Date.now()
+  });
 
   // Build query parameters for the API request
   const queryParams = {
@@ -660,7 +729,10 @@ export function useDataView<T extends Record<string, any>>(
 
   // Transaction state for UI components to use during rendering
   const transactionState = React.useMemo(() => {
-    if (!transactionManager || !transactionManager.hasOperations()) {
+    const hasActiveOperations = transactionManager?.hasOperations() || false;
+    const hasPendingStates = pendingStatesRef.current.size > 0;
+    
+    if (!transactionManager || (!hasActiveOperations && !hasPendingStates)) {
       return {
         hasActiveTransaction: false,
         pendingStates: new Map(),
@@ -669,7 +741,7 @@ export function useDataView<T extends Record<string, any>>(
     }
 
     return {
-      hasActiveTransaction: true,
+      hasActiveTransaction: hasActiveOperations,
       pendingStates: new Map(pendingStatesRef.current),
       pendingStatesVersion,
     };

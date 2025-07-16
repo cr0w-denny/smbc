@@ -12,7 +12,10 @@ export interface FilterFieldConfig {
     | "number"
     | "boolean"
     | "checkbox"
-    | "hidden";
+    | "hidden"
+    | "date"
+    | "daterange"
+    | "datetime";
   placeholder?: string;
   options?: Array<{ label: string; value: any }>;
   defaultValue?: any;
@@ -25,6 +28,10 @@ export interface FilterFieldConfig {
   // Simple validation properties
   min?: number;
   max?: number;
+  // Date-specific properties
+  minDate?: Date | string;
+  maxDate?: Date | string;
+  dateFormat?: string;
   // Business logic properties (used by AutoFilter features)
   debounceMs?: number;
   /** Exclude this field from the active filter count */

@@ -14,9 +14,9 @@ using TypeSpec.OpenAPI;
 @service(#{
   title: "Usage Stats API",
 })
-@server("https://api.smbcgroup.com/api/v1/usage-stats", "Production server")
-@server("https://ewi-dev.smbcgroup.com/api/v1/usage-stats", "Development server")
-@server("/api/v1/usage-stats", "Mock server")
+@server("https://api.smbcgroup.com/api/v1", "Production server")
+@server("https://ewi-dev.smbcgroup.com/api/v1", "Development server")
+@server("/api/v1", "Mock server")
 namespace UsageStatsAPI;
 
 /**
@@ -57,6 +57,12 @@ model UsageStatsComponentObj {
 
 model UsageStatsExceptionObj {
   @extension("x-mock-data", #{
+    faker: "helpers.arrayElement",
+    args: #[#["UserManager", "ProductCatalog", "EmployeeDirectory", "Dashboard", "Reports", "Settings"]]
+  })
+  component: string;
+  
+  @extension("x-mock-data", #{
     faker: "internet.email",
     unique: true
   })
@@ -66,6 +72,18 @@ model UsageStatsExceptionObj {
     faker: "person.fullName"
   })
   name: string;
+  
+  @extension("x-mock-data", #{
+    faker: "helpers.arrayElement",
+    args: #[#["500", "404", "403", "400", "503"]]
+  })
+  resp_cd: string;
+  
+  @extension("x-mock-data", #{
+    faker: "helpers.arrayElement",
+    args: #[#["Internal Server Error", "Not Found", "Forbidden", "Bad Request", "Service Unavailable"]]
+  })
+  resp_msg: string;
   
   @extension("x-mock-data", #{
     faker: "number.int",

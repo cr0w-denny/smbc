@@ -17,8 +17,8 @@ function generateEmployee(overrides = {}) {
   return {
     id: faker.string.uuid(),
     name: faker.person.fullName(),
-    email: faker.helpers.uniqueArray(() => faker.internet.email(), 1)[0],
-    department: faker.helpers.arrayElement(["Engineering", "Marketing", "Sales", "HR", "Finance", "Operations", "Legal", "IT", "Customer Support"]),
+    email: faker.helpers.unique(() => faker.internet.email()),
+    department: faker.helpers.arrayElement(["Engineering","Marketing","Sales","HR","Finance","Operations","Legal","IT","Customer Support"]),
     role: faker.person.jobTitle(),
     active: faker.datatype.boolean({ probability: 0.9 }),
     ...overrides
@@ -35,7 +35,9 @@ function initializeEmployeeDataStore() {
   const items = Array.from({ length: totalItems }, () => generateEmployee({}));
   
   items.forEach((item, index) => {
-    employeeDataStore.set(String(index), item);
+    // Ensure each item has a consistent ID
+    if (!item.id) item.id = String(index + 1);
+    employeeDataStore.set(item.id, item);
   });
   
   employeeDataInitialized = true;
@@ -64,7 +66,7 @@ export const handlers = [
     const paginatedItems = filteredItems;
 
     
-    return HttpResponse.json({ employees: paginatedItems });
+    return HttpResponse.json(paginatedItems);
   }),
   http.post(`${mockConfig.baseUrl}/employees`, async ({ request }) => {
     await delay();
@@ -102,17 +104,64 @@ export const handlers = [
       return HttpResponse.json({ error: 'Employee not found' }, { status: 404 });
     }
     
+    const entityId = params.id as string;
     const body = await request.json() as any;
-    const updatedItem = generateEmployee({ ...(params as any), ...body });
+    
+    console.log(`🔧 PATCH /employees/${entityId}`, { body });
+    
+    // Get existing item from data store
+    initializeEmployeeDataStore();
+    const existingItem = employeeDataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(`❌ Employee ${entityId} not found in data store`);
+      return HttpResponse.json({ error: 'Employee not found' }, { status: 404 });
+    }
+    
+    console.log(`📦 Found existing employee:`, { 
+      id: existingItem.id
+    });
+    
+    // Update existing item with PATCH data
+    const updatedItem = { ...existingItem, ...body };
+    employeeDataStore.set(entityId, updatedItem);
+    
+    console.log(`✅ Updated employee:`, { 
+      id: updatedItem.id,
+      changes: body 
+    });
+    console.log(`🗄️ Data store now has ${employeeDataStore.size} employees`);
     
     return HttpResponse.json(updatedItem);
   }),
-  http.delete(`${mockConfig.baseUrl}/employees/:id`, async ({ request: _request, params: _params }) => {
+  http.delete(`${mockConfig.baseUrl}/employees/:id`, async ({ request: _request, params }) => {
     await delay();
     
     if (Math.random() < mockConfig.errorRate) {
       return HttpResponse.json({ error: 'Employee not found' }, { status: 404 });
     }
+    
+    const entityId = params.id as string;
+    console.log(`🗑️ DELETE /employees/${entityId}`);
+    
+    // Get existing item from data store
+    initializeEmployeeDataStore();
+    const existingItem = employeeDataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(`❌ Employee ${entityId} not found in data store for deletion`);
+      return HttpResponse.json({ error: 'Employee not found' }, { status: 404 });
+    }
+    
+    console.log(`📦 Found employee to delete:`, { 
+      id: existingItem.id
+    });
+    
+    // Actually delete the item from data store
+    employeeDataStore.delete(entityId);
+    
+    console.log(`✅ Employee deleted from data store`);
+    console.log(`🗄️ Data store now has ${employeeDataStore.size} employees`);
     
     return new HttpResponse(null, { status: 204 });
   })

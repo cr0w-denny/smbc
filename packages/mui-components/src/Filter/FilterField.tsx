@@ -14,8 +14,11 @@ import {
   FormHelperText,
   Box,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { SearchInput } from "../SearchInput";
 import type { FilterFieldConfig } from "./types";
+import { parseDate, formatDate } from "./utils/dateUtils";
 
 export interface FilterFieldProps {
   field: FilterFieldConfig;
@@ -139,6 +142,103 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           />
           {error && <FormHelperText error>{error}</FormHelperText>}
         </FormControl>
+      );
+
+    case "date":
+      return (
+        <Box>
+          <DatePicker
+            label={field.label}
+            value={parseDate(value, field.dateFormat)}
+            onChange={(date: Date | null) => {
+              const formatted = formatDate(date, field.dateFormat);
+              handleChange(formatted);
+            }}
+            minDate={parseDate(field.minDate, field.dateFormat) || undefined}
+            maxDate={parseDate(field.maxDate, field.dateFormat) || undefined}
+            disabled={field.disabled}
+            slotProps={{
+              textField: {
+                size: field.size || "small",
+                fullWidth: field.fullWidth,
+                error: !!error,
+                helperText: error,
+              },
+            }}
+          />
+        </Box>
+      );
+
+    case "datetime":
+      return (
+        <Box>
+          <DateTimePicker
+            label={field.label}
+            value={parseDate(value, field.dateFormat || 'yyyy-MM-dd HH:mm:ss')}
+            onChange={(date: Date | null) => {
+              const formatted = formatDate(date, field.dateFormat || 'yyyy-MM-dd HH:mm:ss');
+              handleChange(formatted);
+            }}
+            minDateTime={parseDate(field.minDate, field.dateFormat || 'yyyy-MM-dd HH:mm:ss') || undefined}
+            maxDateTime={parseDate(field.maxDate, field.dateFormat || 'yyyy-MM-dd HH:mm:ss') || undefined}
+            disabled={field.disabled}
+            slotProps={{
+              textField: {
+                size: field.size || "small",
+                fullWidth: field.fullWidth,
+                error: !!error,
+                helperText: error,
+              },
+            }}
+          />
+        </Box>
+      );
+
+    case "daterange":
+      return (
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <DatePicker
+            label={`${field.label} From`}
+            value={parseDate(value?.from, field.dateFormat)}
+            onChange={(date: Date | null) => {
+              const from = formatDate(date, field.dateFormat);
+              handleChange({ 
+                ...value, 
+                from 
+              });
+            }}
+            minDate={parseDate(field.minDate, field.dateFormat) || undefined}
+            maxDate={parseDate(value?.to, field.dateFormat) || parseDate(field.maxDate, field.dateFormat) || undefined}
+            disabled={field.disabled}
+            slotProps={{
+              textField: {
+                size: field.size || "small",
+                error: !!error,
+              },
+            }}
+          />
+          <DatePicker
+            label={`${field.label} To`}
+            value={parseDate(value?.to, field.dateFormat)}
+            onChange={(date: Date | null) => {
+              const to = formatDate(date, field.dateFormat);
+              handleChange({ 
+                ...value, 
+                to 
+              });
+            }}
+            minDate={parseDate(value?.from, field.dateFormat) || parseDate(field.minDate, field.dateFormat) || undefined}
+            maxDate={parseDate(field.maxDate, field.dateFormat) || undefined}
+            disabled={field.disabled}
+            slotProps={{
+              textField: {
+                size: field.size || "small",
+                error: !!error,
+              },
+            }}
+          />
+          {error && <FormHelperText error>{error}</FormHelperText>}
+        </Box>
       );
 
     case "text":

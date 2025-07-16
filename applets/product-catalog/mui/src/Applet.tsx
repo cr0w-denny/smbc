@@ -152,6 +152,7 @@ export function Applet() {
 
     // Filter configuration
     filters: {
+      title: "Products",
       fields: [
         {
           name: "search",
@@ -303,11 +304,6 @@ export function Applet() {
       },
     },
 
-    // DataView behavior and appearance
-    options: {
-      selectable: true, // Enable row selection checkboxes for bulk actions
-    },
-
     // Activity configuration
     activity: {
       enabled: true,
@@ -320,8 +316,8 @@ export function Applet() {
       <Alert severity="info" sx={{ mb: 2 }}>
         <Typography variant="body1">
           Select products and use bulk actions to see optimistic updates in
-          action. Some products may fail and revert while others succeed - 
-          check the console for details.
+          action. Some products may fail and revert while others succeed - check
+          the console for details.
         </Typography>
       </Alert>
 
@@ -331,10 +327,17 @@ export function Applet() {
           // Disable transactions to enable optimistic mode
           transaction: { enabled: false, requireConfirmation: false },
           onSuccess: (action, item) => {
-            console.log(`✅ Optimistic ${action} succeeded for "${item?.name}":`, item);
+            console.log(
+              `✅ Optimistic ${action} succeeded for "${item?.name}":`,
+              item,
+            );
           },
           onError: (action, error, item) => {
-            console.error(`❌ Optimistic ${action} failed for "${item?.name}":`, error, item);
+            console.error(
+              `❌ Optimistic ${action} failed for "${item?.name}":`,
+              error,
+              item,
+            );
           },
         }}
       />

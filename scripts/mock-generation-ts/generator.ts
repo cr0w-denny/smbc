@@ -93,7 +93,7 @@ async function delay() {
 
   private findUsedSchemas(): string[] {
     const usedSchemas = new Set<string>();
-    
+
     // Find schemas used in GET operation responses
     for (const [_path, methods] of Object.entries(this.spec.paths)) {
       for (const [method, operation] of Object.entries(methods)) {
@@ -105,30 +105,33 @@ async function delay() {
         }
       }
     }
-    
+
     return Array.from(usedSchemas);
   }
 
   private getItemSchemaNameFromResponse(operation: any): string {
-    const successResponse = operation.responses?.['200'] || operation.responses?.['201'];
-    if (!successResponse?.content?.['application/json']?.schema) {
+    const successResponse =
+      operation.responses?.["200"] || operation.responses?.["201"];
+    if (!successResponse?.content?.["application/json"]?.schema) {
       return "Unknown";
     }
 
-    const schema = successResponse.content['application/json'].schema;
-    
+    const schema = successResponse.content["application/json"].schema;
+
     // Handle direct array responses (e.g., "type": "array", "items": { "$ref": "..." })
-    if (schema.type === 'array' && schema.items?.$ref) {
+    if (schema.type === "array" && schema.items?.$ref) {
       return this.extractSchemaNameFromRef(schema.items.$ref);
     }
-    
+
     // Handle direct schema references - need to resolve and check if it's a wrapper
     if (schema.$ref) {
       const referencedSchema = this.resolveRef(schema.$ref);
       // Check if the referenced schema has array properties pointing to items
-      if (referencedSchema?.type === 'object' && referencedSchema.properties) {
-        for (const [_key, prop] of Object.entries(referencedSchema.properties)) {
-          if ((prop as any).type === 'array' && (prop as any).items?.$ref) {
+      if (referencedSchema?.type === "object" && referencedSchema.properties) {
+        for (const [_key, prop] of Object.entries(
+          referencedSchema.properties,
+        )) {
+          if ((prop as any).type === "array" && (prop as any).items?.$ref) {
             return this.extractSchemaNameFromRef((prop as any).items.$ref);
           }
         }
@@ -136,16 +139,16 @@ async function delay() {
       // If no array properties found, return the referenced schema itself
       return this.extractSchemaNameFromRef(schema.$ref);
     }
-    
+
     // Handle list operations - look for array items in properties
-    if (schema.type === 'object' && schema.properties) {
+    if (schema.type === "object" && schema.properties) {
       for (const [_key, prop] of Object.entries(schema.properties)) {
-        if ((prop as any).type === 'array' && (prop as any).items?.$ref) {
+        if ((prop as any).type === "array" && (prop as any).items?.$ref) {
           return this.extractSchemaNameFromRef((prop as any).items.$ref);
         }
       }
     }
-    
+
     return "Unknown";
   }
 
@@ -206,11 +209,19 @@ ${mockProps},
 
   private generateMockFromExtension(mockData: any): string {
     if (mockData.faker) {
-      let fakerCall = `faker.${mockData.faker}()`;
+      let fakerCall;
+      
+      // Handle args if provided
+      if (mockData.args && Array.isArray(mockData.args) && mockData.args.length > 0) {
+        const argsString = mockData.args.map((arg: any) => JSON.stringify(arg)).join(', ');
+        fakerCall = `faker.${mockData.faker}(${argsString})`;
+      } else {
+        fakerCall = `faker.${mockData.faker}()`;
+      }
 
-      // Handle unique values - use the new faker.helpers.uniqueArray for better performance
+      // Handle unique values - use faker.helpers.unique for stable uniqueness
       if (mockData.unique) {
-        fakerCall = `faker.helpers.uniqueArray(() => ${fakerCall}, 1)[0]`;
+        fakerCall = `faker.helpers.unique(() => ${fakerCall})`;
       }
 
       // Handle weighted boolean
@@ -227,7 +238,9 @@ ${mockProps},
       let dateCall = `faker.date.between({ from: '${from}', to: '${to}' })`;
 
       if (mockData.format) {
-        dateCall = `format(${dateCall}, '${mockData.format}')`;
+        // Escape single quotes in format string for JavaScript
+        const escapedFormat = mockData.format.replace(/'/g, "\\'");
+        dateCall = `format(${dateCall}, '${escapedFormat}')`;
       }
 
       return dateCall;
@@ -249,7 +262,9 @@ function initialize${schemaName}DataStore() {
   const items = Array.from({ length: totalItems }, () => generate${schemaName}({}));
   
   items.forEach((item, index) => {
-    ${varName}DataStore.set(String(index), item);
+    // Ensure each item has a consistent ID
+    if (!item.id) item.id = String(index + 1);
+    ${varName}DataStore.set(item.id, item);
   });
   
   ${varName}DataInitialized = true;
@@ -267,7 +282,7 @@ function getAll${schemaName}s(): any[] {
     for (const [path, methods] of Object.entries(this.spec.paths)) {
       for (const [method, operation] of Object.entries(methods)) {
         if (typeof operation !== "object" || !operation) continue;
-        
+
         switch (method.toLowerCase()) {
           case "get":
             handlers.push(this.generateGetHandler(path, operation));
@@ -294,7 +309,9 @@ ${handlers.map((h) => `  ${h}`).join(",\n")}
   private generateGetHandler(path: string, operation: any): string {
     const mswPath = path.replace(/\{([^}]+)\}/g, ":$1");
     const rawResponseSchema = this.getResponseSchema(operation);
-    const responseSchema = rawResponseSchema?.$ref ? this.resolveRef(rawResponseSchema.$ref) : rawResponseSchema;
+    const responseSchema = rawResponseSchema?.$ref
+      ? this.resolveRef(rawResponseSchema.$ref)
+      : rawResponseSchema;
     const queryParams = this.extractQueryParams(operation);
     const schemaName = this.getItemSchemaNameFromResponse(operation);
 
@@ -315,17 +332,29 @@ ${handlers.map((h) => `  ${h}`).join(",\n")}
 
     // Determine which data store to use - get the actual item type, not wrapper
     const itemSchemaName = this.getItemSchemaNameFromResponse(operation);
-    const dataStoreSchemaName = itemSchemaName !== "Unknown" ? itemSchemaName : schemaName;
-    const responseBody = this.generateResponseBody(responseSchema, dataStoreSchemaName, operation, rawResponseSchema);
+    const dataStoreSchemaName =
+      itemSchemaName !== "Unknown" ? itemSchemaName : schemaName;
+    const responseBody = this.generateResponseBody(
+      responseSchema,
+      dataStoreSchemaName,
+      operation,
+      rawResponseSchema,
+    );
 
     const hasDiscrimination = responseDiscrimination.trim().length > 0;
     const needsUrl = usedParams.length > 0 || hasDiscrimination;
-    const requestDestructure = needsUrl ? '{ request }' : '{ request: _request }';
-    
+    const requestDestructure = needsUrl
+      ? "{ request }"
+      : "{ request: _request }";
+
     return `http.get(\`\${mockConfig.baseUrl}${mswPath}\`, async (${requestDestructure}) => {
     await delay();
-    ${needsUrl ? `
-    const url = new URL(request.url);` : ''}
+    ${
+      needsUrl
+        ? `
+    const url = new URL(request.url);`
+        : ""
+    }
     
 ${paramExtraction}
     
@@ -337,15 +366,19 @@ ${searchFiltering}
 ${sortingCode}
 ${paginationCode}
 ${responseDiscrimination}
-    ${hasDiscrimination ? '' : `
-    return HttpResponse.json(${responseBody});`}
+    ${
+      hasDiscrimination
+        ? ""
+        : `
+    return HttpResponse.json(${responseBody});`
+    }
   })`;
   }
 
   private generatePostHandler(path: string, operation: any): string {
     const mswPath = path.replace(/\{([^}]+)\}/g, ":$1");
     const schemaName = this.getItemSchemaNameFromResponse(operation);
-    
+
     return `http.post(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ request }) => {
     await delay();
     
@@ -360,14 +393,18 @@ ${responseDiscrimination}
   })`;
   }
 
-  private generateUpdateHandler(path: string, operation: any, method: string): string {
+  private generateUpdateHandler(
+    path: string,
+    operation: any,
+    method: string,
+  ): string {
     const mswPath = path.replace(/\{([^}]+)\}/g, ":$1");
     const schemaName = this.getItemSchemaNameFromResponse(operation);
     const hasPathParams = path.includes("{");
-    
-    const requestParam = 'request';
-    const paramsParam = hasPathParams ? ', params' : '';
-    
+
+    const requestParam = "request";
+    const paramsParam = hasPathParams ? ", params" : "";
+
     return `http.${method}(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ ${requestParam}${paramsParam} }) => {
     await delay();
     
@@ -375,10 +412,38 @@ ${responseDiscrimination}
       return HttpResponse.json({ error: '${schemaName} not found' }, { status: 404 });
     }
     
+    ${hasPathParams ? `const entityId = params.id as string;
     const body = await request.json() as any;
-    const updatedItem = generate${schemaName}({ ${hasPathParams ? '...(params as any), ' : ''}...body });
     
-    return HttpResponse.json(updatedItem);
+    console.log(\`🔧 ${method.toUpperCase()} /${schemaName.toLowerCase()}s/\${entityId}\`, { body });
+    
+    // Get existing item from data store
+    initialize${schemaName}DataStore();
+    const existingItem = ${schemaName.toLowerCase()}DataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(\`❌ ${schemaName} \${entityId} not found in data store\`);
+      return HttpResponse.json({ error: '${schemaName} not found' }, { status: 404 });
+    }
+    
+    console.log(\`📦 Found existing ${schemaName.toLowerCase()}:\`, { 
+      id: existingItem.id
+    });
+    
+    // Update existing item with ${method.toUpperCase()} data
+    const updatedItem = { ...existingItem, ...body };
+    ${schemaName.toLowerCase()}DataStore.set(entityId, updatedItem);
+    
+    console.log(\`✅ Updated ${schemaName.toLowerCase()}:\`, { 
+      id: updatedItem.id,
+      changes: body 
+    });
+    console.log(\`🗄️ Data store now has \${${schemaName.toLowerCase()}DataStore.size} ${schemaName.toLowerCase()}s\`);
+    
+    return HttpResponse.json(updatedItem);` : `const body = await request.json() as any;
+    const updatedItem = generate${schemaName}({ ...body });
+    
+    return HttpResponse.json(updatedItem);`}
   })`;
   }
 
@@ -386,18 +451,20 @@ ${responseDiscrimination}
     const mswPath = path.replace(/\{([^}]+)\}/g, ":$1");
     let schemaName = this.getItemSchemaNameFromResponse(operation);
     const hasPathParams = path.includes("{");
-    
+
     // If we can't determine schema from response, try to infer from path
     if (schemaName === "Unknown") {
       schemaName = this.inferSchemaFromPath(path);
     }
-    
+
     // Check if delete returns content or just status
-    const hasContent = operation.responses?.['200']?.content;
-    
-    const requestParam = hasPathParams ? 'request: _request' : 'request: _request';
-    const paramsParam = hasPathParams ? ', params' : '';
-    
+    const hasContent = operation.responses?.["200"]?.content;
+
+    const requestParam = hasPathParams
+      ? "request: _request"
+      : "request: _request";
+    const paramsParam = hasPathParams ? ", params" : "";
+
     if (hasContent) {
       // For DELETE with content but unknown schema, return a simple response
       if (schemaName === "Unknown") {
@@ -418,21 +485,67 @@ ${responseDiscrimination}
       return HttpResponse.json({ error: '${schemaName} not found' }, { status: 404 });
     }
     
-    const deletedItem = generate${schemaName}(${hasPathParams ? 'params as any' : '{}'});
+    ${hasPathParams ? `const entityId = params.id as string;
+    console.log(\`🗑️ DELETE /${schemaName.toLowerCase()}s/\${entityId}\`);
     
-    return HttpResponse.json(deletedItem);
+    // Get existing item from data store
+    initialize${schemaName}DataStore();
+    const existingItem = ${schemaName.toLowerCase()}DataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(\`❌ ${schemaName} \${entityId} not found in data store for deletion\`);
+      return HttpResponse.json({ error: '${schemaName} not found' }, { status: 404 });
+    }
+    
+    console.log(\`📦 Found ${schemaName.toLowerCase()} to delete:\`, { 
+      id: existingItem.id
+    });
+    
+    // Actually delete the item from data store
+    ${schemaName.toLowerCase()}DataStore.delete(entityId);
+    
+    console.log(\`✅ ${schemaName} deleted from data store\`);
+    console.log(\`🗄️ Data store now has \${${schemaName.toLowerCase()}DataStore.size} ${schemaName.toLowerCase()}s\`);
+    
+    return HttpResponse.json(existingItem);` : `const deletedItem = generate${schemaName}({});
+    
+    return HttpResponse.json(deletedItem);`}
   })`;
       }
     } else {
       // For DELETE with no content (204), params are typically not used
-      const deleteParams = hasPathParams ? 'request: _request, params: _params' : 'request: _request';
-      return `http.delete(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ ${deleteParams} }) => {
+      const deleteParams = hasPathParams
+        ? "request: _request, params: _params"
+        : "request: _request";
+      return `http.delete(\`\${mockConfig.baseUrl}${mswPath}\`, async ({ ${hasPathParams ? "request: _request, params" : "request: _request"} }) => {
     await delay();
     
     if (Math.random() < mockConfig.errorRate) {
       return HttpResponse.json({ error: '${schemaName} not found' }, { status: 404 });
     }
     
+    ${hasPathParams ? `const entityId = params.id as string;
+    console.log(\`🗑️ DELETE /${schemaName.toLowerCase()}s/\${entityId}\`);
+    
+    // Get existing item from data store
+    initialize${schemaName}DataStore();
+    const existingItem = ${schemaName.toLowerCase()}DataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(\`❌ ${schemaName} \${entityId} not found in data store for deletion\`);
+      return HttpResponse.json({ error: '${schemaName} not found' }, { status: 404 });
+    }
+    
+    console.log(\`📦 Found ${schemaName.toLowerCase()} to delete:\`, { 
+      id: existingItem.id
+    });
+    
+    // Actually delete the item from data store
+    ${schemaName.toLowerCase()}DataStore.delete(entityId);
+    
+    console.log(\`✅ ${schemaName} deleted from data store\`);
+    console.log(\`🗄️ Data store now has \${${schemaName.toLowerCase()}DataStore.size} ${schemaName.toLowerCase()}s\`);
+    ` : ""}
     return new HttpResponse(null, { status: 204 });
   })`;
     }
@@ -445,27 +558,28 @@ ${responseDiscrimination}
   }
 
   private getSchemaNameFromResponse(operation: any): string {
-    const successResponse = operation.responses?.['200'] || operation.responses?.['201'];
-    if (!successResponse?.content?.['application/json']?.schema) {
+    const successResponse =
+      operation.responses?.["200"] || operation.responses?.["201"];
+    if (!successResponse?.content?.["application/json"]?.schema) {
       return "Unknown";
     }
 
-    const schema = successResponse.content['application/json'].schema;
-    
+    const schema = successResponse.content["application/json"].schema;
+
     // Handle direct schema references
     if (schema.$ref) {
       return this.extractSchemaNameFromRef(schema.$ref);
     }
-    
+
     // Handle array responses (list operations) - look for array items in properties
-    if (schema.type === 'object' && schema.properties) {
+    if (schema.type === "object" && schema.properties) {
       for (const [_key, prop] of Object.entries(schema.properties)) {
-        if ((prop as any).type === 'array' && (prop as any).items?.$ref) {
+        if ((prop as any).type === "array" && (prop as any).items?.$ref) {
           return this.extractSchemaNameFromRef((prop as any).items.$ref);
         }
       }
     }
-    
+
     return "Unknown";
   }
 
@@ -475,11 +589,15 @@ ${responseDiscrimination}
 
   private inferSchemaFromPath(path: string): string {
     // Extract resource name from path like /products/:id -> Product
-    const segments = path.split('/').filter(s => s && !s.startsWith('{') && !s.startsWith(':'));
+    const segments = path
+      .split("/")
+      .filter((s) => s && !s.startsWith("{") && !s.startsWith(":"));
     if (segments.length > 0) {
       const resourceName = segments[segments.length - 1];
       // Convert from plural to singular and capitalize
-      let singular = resourceName.endsWith('s') ? resourceName.slice(0, -1) : resourceName;
+      let singular = resourceName.endsWith("s")
+        ? resourceName.slice(0, -1)
+        : resourceName;
       return singular.charAt(0).toUpperCase() + singular.slice(1);
     }
     return "Unknown";
@@ -678,13 +796,19 @@ ${mappingCases}
 
     // Get the response schema to determine if we need to wrap the response
     const rawResponseSchema = this.getResponseSchema(operation);
-    const responseSchema = rawResponseSchema?.$ref ? this.resolveRef(rawResponseSchema.$ref) : rawResponseSchema;
-    const needsWrapper = responseSchema?.type === 'object' && responseSchema?.properties;
+    const responseSchema = rawResponseSchema?.$ref
+      ? this.resolveRef(rawResponseSchema.$ref)
+      : rawResponseSchema;
+    const needsWrapper =
+      responseSchema?.type === "object" && responseSchema?.properties;
 
     const conditions = Object.entries(discriminatorConfig.when)
       .map(([paramValue, schemaName]) => {
         if (needsWrapper) {
-          const responseBody = this.generateResponseBodyForDiscrimination(responseSchema, `transformItemsTo${schemaName}(paginatedItems)`);
+          const responseBody = this.generateResponseBodyForDiscrimination(
+            responseSchema,
+            `transformItemsTo${schemaName}(paginatedItems)`,
+          );
           return `      case '${paramValue}':
         return HttpResponse.json(${responseBody});`;
         } else {
@@ -697,7 +821,10 @@ ${mappingCases}
     const defaultCase = discriminatorConfig.default
       ? needsWrapper
         ? (() => {
-            const responseBody = this.generateResponseBodyForDiscrimination(responseSchema, `transformItemsTo${discriminatorConfig.default}(paginatedItems)`);
+            const responseBody = this.generateResponseBodyForDiscrimination(
+              responseSchema,
+              `transformItemsTo${discriminatorConfig.default}(paginatedItems)`,
+            );
             return `      default:
         return HttpResponse.json(${responseBody});`;
           })()
@@ -712,63 +839,73 @@ ${defaultCase}
     }`;
   }
 
-  private getUsedParams(operation: any, queryParams: Array<{ name: string; type: string }>): Array<{ name: string; type: string }> {
+  private getUsedParams(
+    operation: any,
+    queryParams: Array<{ name: string; type: string }>,
+  ): Array<{ name: string; type: string }> {
     const usedParams = [];
-    
+
     // Always include pagination params if pagination is enabled
     const hasPagination = queryParams.some((param) => {
       const resolved = this.getResolvedParam(operation, param.name);
       return resolved?.["x-mock-pagination"];
     });
-    
+
     if (hasPagination) {
-      const pageParam = queryParams.find(p => p.name === 'page');
-      const pageSizeParam = queryParams.find(p => p.name === 'pageSize');
+      const pageParam = queryParams.find((p) => p.name === "page");
+      const pageSizeParam = queryParams.find((p) => p.name === "pageSize");
       if (pageParam) usedParams.push(pageParam);
       if (pageSizeParam) usedParams.push(pageSizeParam);
     }
-    
+
     // Always include sorting params if sorting is enabled
     const hasSorting = queryParams.some((param) => {
       const resolved = this.getResolvedParam(operation, param.name);
       return resolved?.["x-mock-sort"];
     });
-    
+
     if (hasSorting) {
-      const sortByParam = queryParams.find(p => p.name === 'sortBy');
-      const sortOrderParam = queryParams.find(p => p.name === 'sortOrder');
+      const sortByParam = queryParams.find((p) => p.name === "sortBy");
+      const sortOrderParam = queryParams.find((p) => p.name === "sortOrder");
       if (sortByParam) usedParams.push(sortByParam);
       if (sortOrderParam) usedParams.push(sortOrderParam);
     }
-    
+
     // Include filter params
     const filterParams = queryParams.filter((param) => {
       const resolved = this.getResolvedParam(operation, param.name);
       return resolved?.["x-mock-filter"];
     });
     usedParams.push(...filterParams);
-    
+
     // Include search params
     const searchParam = operation.parameters?.find((p: any) => {
       const resolved = p.$ref ? this.resolveRef(p.$ref) : p;
       return resolved?.["x-mock-search"];
     });
     if (searchParam) {
-      const resolved = searchParam.$ref ? this.resolveRef(searchParam.$ref) : searchParam;
-      const searchQueryParam = queryParams.find(p => p.name === resolved.name);
+      const resolved = searchParam.$ref
+        ? this.resolveRef(searchParam.$ref)
+        : searchParam;
+      const searchQueryParam = queryParams.find(
+        (p) => p.name === resolved.name,
+      );
       if (searchQueryParam) usedParams.push(searchQueryParam);
     }
-    
+
     // Include response discrimination param if configured
     const discriminatorConfig = operation["x-mock-response"];
     if (discriminatorConfig?.case) {
-      const discriminatorParam = queryParams.find(p => p.name === discriminatorConfig.case);
+      const discriminatorParam = queryParams.find(
+        (p) => p.name === discriminatorConfig.case,
+      );
       if (discriminatorParam) usedParams.push(discriminatorParam);
     }
-    
+
     // Remove duplicates
-    return usedParams.filter((param, index, arr) => 
-      arr.findIndex(p => p.name === param.name) === index
+    return usedParams.filter(
+      (param, index, arr) =>
+        arr.findIndex((p) => p.name === param.name) === index,
     );
   }
 
@@ -784,31 +921,35 @@ ${defaultCase}
   private generateResponseBody(
     responseSchema: any,
     _schemaName: string,
-    operation: any,
+    _operation: any,
     rawResponseSchema?: any,
   ): string {
     // Handle direct array responses
-    if (responseSchema?.type === 'array') {
+    if (responseSchema?.type === "array") {
       return `paginatedItems`;
     }
-    
+
     // Handle single item responses - check the raw response schema for $ref
     if (rawResponseSchema?.$ref) {
-      const responseSchemaName = this.extractSchemaNameFromRef(rawResponseSchema.$ref);
+      const responseSchemaName = this.extractSchemaNameFromRef(
+        rawResponseSchema.$ref,
+      );
       if (responseSchemaName === _schemaName) {
         return `paginatedItems[0] || {}`;
       }
     }
-    
+
     // Fallback: if the response schema matches the data schema,
     // return the first item from paginatedItems
     if (responseSchema?.$ref) {
-      const responseSchemaName = this.extractSchemaNameFromRef(responseSchema.$ref);
+      const responseSchemaName = this.extractSchemaNameFromRef(
+        responseSchema.$ref,
+      );
       if (responseSchemaName === _schemaName) {
         return `paginatedItems[0] || {}`;
       }
     }
-    
+
     if (!responseSchema?.properties) {
       return `paginatedItems[0] || {}`;
     }
@@ -820,7 +961,9 @@ ${defaultCase}
         if (prop.type === "array") {
           // Check if this array references the schema we're using for data
           if (prop.items?.$ref) {
-            const arrayItemSchema = this.extractSchemaNameFromRef(prop.items.$ref);
+            const arrayItemSchema = this.extractSchemaNameFromRef(
+              prop.items.$ref,
+            );
             if (arrayItemSchema === _schemaName) {
               value = "paginatedItems";
             } else {
@@ -917,9 +1060,8 @@ ${defaultCase}
     }
 
     return `function transformItemsTo${targetSchema}(items: any[]): any[] {
-  return items.map(_item => ({
-${mappings}
-  }));
+  // Return items as-is to preserve identity
+  return items;
 }`;
   }
 
@@ -945,18 +1087,20 @@ ${mappings}
 
       if (sourceProps[targetProp]) {
         // Direct mapping
-        mappings.push(`    ${targetProp}: item.${targetProp}`);
+        mappings.push(`    ${targetProp}: _item.${targetProp}`);
       } else {
-        // Fallback to mock generation
-        const mockValue = this.generateMockValue(targetPropSpec as any);
-        mappings.push(`    ${targetProp}: ${mockValue}`);
+        // Preserve existing value if it exists, otherwise generate mock
+        mappings.push(`    ${targetProp}: _item.${targetProp} ?? ${this.generateMockValue(targetPropSpec as any)}`);
       }
     }
 
     return mappings.join(",\n");
   }
 
-  private generateResponseBodyForDiscrimination(responseSchema: any, itemsVariable: string): string {
+  private generateResponseBodyForDiscrimination(
+    responseSchema: any,
+    itemsVariable: string,
+  ): string {
     if (!responseSchema?.properties) {
       return itemsVariable;
     }
@@ -992,7 +1136,7 @@ ${mappings}
 
   private generateResetFunction(): string {
     const usedSchemas = this.findUsedSchemas();
-    
+
     const resetStatements = usedSchemas
       .map((schemaName) => {
         const varName = schemaName.toLowerCase();

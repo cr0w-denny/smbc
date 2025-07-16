@@ -94,6 +94,9 @@ export interface TransactionEvents<T = any> {
 
 // Main transaction manager interface
 export interface TransactionManager<T = any> {
+  // Manager identity
+  id?: string;
+
   // Transaction lifecycle
   begin(config?: Partial<TransactionConfig>): string;
   addOperation(

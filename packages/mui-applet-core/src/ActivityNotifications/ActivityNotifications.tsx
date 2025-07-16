@@ -147,6 +147,7 @@ export function ActivityNotifications({
     : 0;
   const totalBadgeCount = unviewedCount + pendingCount;
 
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
 

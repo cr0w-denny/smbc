@@ -11,18 +11,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.0",
+    "@mui/material": "^5.15.0",
     "@smbc/applet-core": "*",
     "@smbc/mui-applet-core": "*",
     "@smbc/mui-components": "*",
+    "@smbc/react-query-dataview": "*",
+    "@smbc/react-query-dataview-ag-grid": "*",
     "@smbc/usage-stats-api": "*",
-    "@mui/material": "^5.15.0",
-    "@mui/icons-material": "^5.15.0",
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "ag-grid-community": "^32.0.0",
+    "ag-grid-enterprise": "^32.0.0",
+    "ag-grid-react": "^32.0.0",
     "openapi-fetch": "^0.11.0",
-    "zod": "^3.22.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

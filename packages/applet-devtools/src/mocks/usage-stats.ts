@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
 
 const mockConfig = {
-  baseUrl: '/api/v1/usage-stats',
+  baseUrl: '/api/v1',
   delay: { min: 0, max: 200 },
   errorRate: 0.15,
   dataSetSize: { min: 10, max: 50 },
@@ -15,9 +15,12 @@ async function delay() {
 
 function generateUsageStatsExceptionObj(overrides = {}) {
   return {
-    email: faker.helpers.uniqueArray(() => faker.internet.email(), 1)[0],
+    component: faker.helpers.arrayElement(["UserManager","ProductCatalog","EmployeeDirectory","Dashboard","Reports","Settings"]),
+    email: faker.helpers.unique(() => faker.internet.email()),
     name: faker.person.fullName(),
-    count: faker.number.int({ min: 1, max: 50 }),
+    resp_cd: faker.helpers.arrayElement(["500","404","403","400","503"]),
+    resp_msg: faker.helpers.arrayElement(["Internal Server Error","Not Found","Forbidden","Bad Request","Service Unavailable"]),
+    count: faker.number.int({"min":1,"max":50}),
     ...overrides
   };
 }
@@ -32,7 +35,10 @@ function initializeUsageStatsExceptionObjDataStore() {
   const items = Array.from({ length: totalItems }, () => generateUsageStatsExceptionObj({}));
   
   items.forEach((item, index) => {
-    usagestatsexceptionobjDataStore.set(String(index), item);
+    // Ensure each item has a consistent ID
+    const itemWithId = item as any;
+    if (!itemWithId.id) itemWithId.id = String(index + 1);
+    usagestatsexceptionobjDataStore.set(itemWithId.id, itemWithId);
   });
   
   usagestatsexceptionobjDataInitialized = true;
@@ -45,8 +51,8 @@ function getAllUsageStatsExceptionObjs(): any[] {
 
 function generateUsageStatsComponentObj(overrides = {}) {
   return {
-    component: faker.helpers.arrayElement(["UserManager", "ProductCatalog", "EmployeeDirectory", "Dashboard", "Reports", "Settings", "Navigation", "SearchBox", "DataTable", "Charts"]),
-    count: faker.number.int({ min: 5, max: 1000 }),
+    component: faker.helpers.arrayElement(["UserManager","ProductCatalog","EmployeeDirectory","Dashboard","Reports","Settings","Navigation","SearchBox","DataTable","Charts"]),
+    count: faker.number.int({"min":5,"max":1000}),
     ...overrides
   };
 }
@@ -61,7 +67,10 @@ function initializeUsageStatsComponentObjDataStore() {
   const items = Array.from({ length: totalItems }, () => generateUsageStatsComponentObj({}));
   
   items.forEach((item, index) => {
-    usagestatscomponentobjDataStore.set(String(index), item);
+    // Ensure each item has a consistent ID
+    const itemWithId = item as any;
+    if (!itemWithId.id) itemWithId.id = String(index + 1);
+    usagestatscomponentobjDataStore.set(itemWithId.id, itemWithId);
   });
   
   usagestatscomponentobjDataInitialized = true;
@@ -74,9 +83,9 @@ function getAllUsageStatsComponentObjs(): any[] {
 
 function generateUsageStatsUserObj(overrides = {}) {
   return {
-    email: faker.helpers.uniqueArray(() => faker.internet.email(), 1)[0],
+    email: faker.helpers.unique(() => faker.internet.email()),
     name: faker.person.fullName(),
-    count: faker.number.int({ min: 1, max: 500 }),
+    count: faker.number.int({"min":1,"max":500}),
     ...overrides
   };
 }
@@ -91,7 +100,10 @@ function initializeUsageStatsUserObjDataStore() {
   const items = Array.from({ length: totalItems }, () => generateUsageStatsUserObj({}));
   
   items.forEach((item, index) => {
-    usagestatsuserobjDataStore.set(String(index), item);
+    // Ensure each item has a consistent ID
+    const itemWithId = item as any;
+    if (!itemWithId.id) itemWithId.id = String(index + 1);
+    usagestatsuserobjDataStore.set(itemWithId.id, itemWithId);
   });
   
   usagestatsuserobjDataInitialized = true;

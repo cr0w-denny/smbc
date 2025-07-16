@@ -19,12 +19,12 @@ function generateProduct(overrides = {}) {
     id: faker.string.uuid(),
     name: faker.commerce.productName(),
     description: faker.commerce.productDescription(),
-    price: parseFloat(faker.commerce.price()),
+    price: faker.commerce.price(),
     category: faker.commerce.department(),
     sku: faker.string.alphanumeric(8),
     inStock: faker.datatype.boolean({ probability: 0.8 }),
-    createdAt: format(faker.date.between({ from: '-90d', to: '-1d' }), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
-    updatedAt: format(faker.date.between({ from: '-7d', to: 'now' }), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+    createdAt: format(faker.date.between({ from: '-90d', to: '-1d' }), 'yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\''),
+    updatedAt: format(faker.date.between({ from: '-7d', to: 'now' }), 'yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\''),
     ...overrides
   };
 }
@@ -39,7 +39,9 @@ function initializeProductDataStore() {
   const items = Array.from({ length: totalItems }, () => generateProduct({}));
   
   items.forEach((item, index) => {
-    productDataStore.set(String(index), item);
+    // Ensure each item has a consistent ID
+    if (!item.id) item.id = String(index + 1);
+    productDataStore.set(item.id, item);
   });
   
   productDataInitialized = true;
@@ -111,8 +113,33 @@ export const handlers = [
       return HttpResponse.json({ error: 'Product not found' }, { status: 404 });
     }
     
+    const entityId = params.id as string;
     const body = await request.json() as any;
-    const updatedItem = generateProduct({ ...(params as any), ...body });
+    
+    console.log(`🔧 PATCH /products/${entityId}`, { body });
+    
+    // Get existing item from data store
+    initializeProductDataStore();
+    const existingItem = productDataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(`❌ Product ${entityId} not found in data store`);
+      return HttpResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+    
+    console.log(`📦 Found existing product:`, { 
+      id: existingItem.id
+    });
+    
+    // Update existing item with PATCH data
+    const updatedItem = { ...existingItem, ...body };
+    productDataStore.set(entityId, updatedItem);
+    
+    console.log(`✅ Updated product:`, { 
+      id: updatedItem.id,
+      changes: body 
+    });
+    console.log(`🗄️ Data store now has ${productDataStore.size} products`);
     
     return HttpResponse.json(updatedItem);
   }),
@@ -123,9 +150,29 @@ export const handlers = [
       return HttpResponse.json({ error: 'Product not found' }, { status: 404 });
     }
     
-    const deletedItem = generateProduct(params as any);
+    const entityId = params.id as string;
+    console.log(`🗑️ DELETE /products/${entityId}`);
     
-    return HttpResponse.json(deletedItem);
+    // Get existing item from data store
+    initializeProductDataStore();
+    const existingItem = productDataStore.get(entityId);
+    
+    if (!existingItem) {
+      console.log(`❌ Product ${entityId} not found in data store for deletion`);
+      return HttpResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+    
+    console.log(`📦 Found product to delete:`, { 
+      id: existingItem.id
+    });
+    
+    // Actually delete the item from data store
+    productDataStore.delete(entityId);
+    
+    console.log(`✅ Product deleted from data store`);
+    console.log(`🗄️ Data store now has ${productDataStore.size} products`);
+    
+    return HttpResponse.json(existingItem);
   })
 ];
 

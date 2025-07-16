@@ -122,7 +122,7 @@ export interface FormConfig<T> {
 export type DataViewFilterSpec = any;
 
 // Component props interfaces
-export interface DataViewTableProps<T> {
+export interface DataViewTableProps<T, TRendererConfig = any> {
   data: T[];
   columns: DataColumn<T>[];
   actions?: RowAction<T>[];
@@ -145,6 +145,7 @@ export interface DataViewTableProps<T> {
   };
   primaryKey?: keyof T;
   hover?: boolean;
+  rendererConfig?: TRendererConfig;
 }
 
 export interface DataViewFilterProps {
@@ -182,9 +183,9 @@ export interface DataViewCreateButtonProps {
 }
 
 // Renderer interface
-export interface DataView<T> {
+export interface DataView<T, TRendererConfig = any> {
   name: string;
-  TableComponent: React.ComponentType<DataViewTableProps<T>>;
+  TableComponent: React.ComponentType<DataViewTableProps<T, TRendererConfig>>;
   FilterComponent: React.ComponentType<DataViewFilterProps>;
   FormComponent: React.ComponentType<DataViewFormProps<T>>;
   CreateButtonComponent: React.ComponentType<DataViewCreateButtonProps>;
@@ -192,12 +193,12 @@ export interface DataView<T> {
 }
 
 // Main configuration interface
-export interface DataViewConfig<T> {
+export interface DataViewConfig<T, TRendererConfig = any> {
   // Required
   api: DataViewApiConfig;
   schema: DataSchema<T>;
   columns: DataColumn<T>[];
-  renderer: DataView<T>;
+  renderer: DataView<T, TRendererConfig>;
 
   // Optional
   filters?: DataViewFilterSpec;
@@ -212,7 +213,7 @@ export interface DataViewConfig<T> {
     create?: FormConfig<Partial<T>>;
     edit?: FormConfig<T>;
   };
-  options?: Record<string, any>; // Renderer-specific options
+  rendererConfig?: TRendererConfig; // Renderer-specific configuration
   /** Configuration for activity tracking and notifications */
   activity?: {
     /** Entity type name for activity tracking (e.g., 'user', 'task') */

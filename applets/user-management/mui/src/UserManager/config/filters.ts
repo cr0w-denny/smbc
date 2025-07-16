@@ -2,6 +2,7 @@
  * Filter configuration for the UserManager component
  */
 export const createFiltersConfig = () => ({
+  title: "Users",
   fields: [
     {
       name: "search",
@@ -60,7 +61,6 @@ export const createFiltersConfig = () => ({
     sortOrder: "asc",
     format: false,
   },
-  title: "User Filters",
   collapsible: true,
   defaultCollapsed: false,
   showClearButton: true,

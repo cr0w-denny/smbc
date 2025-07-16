@@ -28,7 +28,7 @@ export interface FilterContainerProps {
 }
 
 export const FilterContainer: React.FC<FilterContainerProps> = ({
-  title = "Filters",
+  title,
   children,
   collapsible = false,
   defaultCollapsed = false,
@@ -43,6 +43,22 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   const toggleCollapsed = () => {
     setIsCollapsed((prev) => !prev);
   };
+
+  // If no title, render just the children without header
+  if (!title) {
+    return (
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2,
+          mb: 2,
+          ...sx,
+        }}
+      >
+        {children}
+      </Paper>
+    );
+  }
 
   return (
     <Paper

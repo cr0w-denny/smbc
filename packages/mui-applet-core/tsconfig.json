@@ -15,6 +15,7 @@
     { "path": "../ui-core" },
     { "path": "../applet-core" },
     { "path": "../mui-components" },
-    { "path": "../react-query-dataview" }
+    { "path": "../react-query-dataview" },
+    { "path": "../react-query-dataview-mui" }
   ]
 }

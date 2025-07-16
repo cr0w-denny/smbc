@@ -1,0 +1,30 @@
+{
+  "name": "@smbc/react-query-dataview-ag-grid",
+  "version": "0.1.0",
+  "description": "AG-Grid renderer for react-query-dataview",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.2.6",
+    "@smbc/react-query-dataview": "*",
+    "ag-grid-community": "^32.0.0",
+    "ag-grid-react": "^32.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
