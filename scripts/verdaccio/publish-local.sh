@@ -6,6 +6,7 @@
 set -e
 
 REGISTRY_URL="http://localhost:4873"
+ROOT_DIR="$(pwd)"
 
 echo "📦 Publishing all @smbc packages to local registry..."
 
@@ -18,20 +19,28 @@ fi
 
 # Ensure we're using the local registry for @smbc packages
 echo "🔄 Configuring local registry..."
-./tools/verdaccio/use-local.sh
+./scripts/verdaccio/use-local.sh
 
-# Build all packages first
+# Check if we're authenticated
+echo "🔑 Checking authentication..."
+if ! npm whoami --registry="$REGISTRY_URL" > /dev/null 2>&1; then
+    echo "⚠️  Not authenticated. Please run: npm adduser --registry=$REGISTRY_URL"
+    echo "   Use any username/password/email - it's just for local development"
+    exit 1
+fi
+
+# Build all packages first (excluding apps)
 echo "🏗️  Building all packages..."
-npm run build:sequential
+npm run build:libs && npm run build:applet-core && npm run build:apis && npm run build:applets
 
 # Function to publish a package
 publish_package() {
     local package_dir="$1"
-    local package_name=$(node -p "require('$package_dir/package.json').name")
+    local package_name=$(node -p "require('$ROOT_DIR/$package_dir/package.json').name")
     
     if [[ $package_name == @smbc/* ]]; then
         echo "📦 Publishing $package_name..."
-        cd "$package_dir"
+        cd "$ROOT_DIR/$package_dir"
         
         # Check if package.json has the correct publishConfig
         if ! grep -q '"registry"' package.json 2>/dev/null; then
@@ -47,7 +56,7 @@ publish_package() {
         
         # Publish to local registry
         npm publish --registry="$REGISTRY_URL" || echo "   ⚠️  $package_name may already be published"
-        cd - > /dev/null
+        cd "$ROOT_DIR" > /dev/null
     fi
 }
 
@@ -55,7 +64,7 @@ publish_package() {
 echo "🔍 Finding @smbc packages to publish..."
 
 # Publish packages in dependency order
-for dir in packages/* applets/*/api applets/*/mui apps/*; do
+for dir in packages/* applets/*/api applets/*/mui; do
     if [ -d "$dir" ] && [ -f "$dir/package.json" ]; then
         publish_package "$dir"
     fi

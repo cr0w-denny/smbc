@@ -6,5 +6,8 @@ export default defineConfig(
     appletName: 'mui-applet-devtools',
     rootDir: __dirname,
     externalsPreset: 'full',
+    additionalSMBCPackages: [
+      '@smbc/applet-meta'
+    ]
   })
 );

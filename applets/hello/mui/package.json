@@ -13,10 +13,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@mui/material": "^7.1.2",
     "@smbc/applet-core": "*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "react-syntax-highlighter": "^15.6.1"
   },
   "devDependencies": {
@@ -30,5 +27,10 @@
   "publishConfig": {
     "registry": "http://localhost:4873",
     "access": "public"
+  },
+  "peerDependencies": {
+    "@mui/material": "^7.1.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

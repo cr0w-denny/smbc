@@ -32,6 +32,13 @@ export const API_EXTERNALS = [
   'msw/browser'
 ];
 
+// Third-party grid and data visualization libraries
+export const GRID_EXTERNALS = [
+  'ag-grid-community',
+  'ag-grid-enterprise',
+  'ag-grid-react'
+];
+
 
 // SMBC packages
 export const SMBC_CORE_EXTERNALS = [
@@ -46,7 +53,7 @@ export const EXTERNALS_PRESETS = {
   core: [...REACT_EXTERNALS],
   mui: [...REACT_EXTERNALS, ...MUI_EXTERNALS],
   api: [...REACT_EXTERNALS, ...API_EXTERNALS],
-  full: [...REACT_EXTERNALS, ...MUI_EXTERNALS, ...API_EXTERNALS, ...SMBC_CORE_EXTERNALS]
+  full: [...REACT_EXTERNALS, ...MUI_EXTERNALS, ...API_EXTERNALS, ...GRID_EXTERNALS, ...SMBC_CORE_EXTERNALS]
 };
 
 /**

@@ -17,6 +17,7 @@ import {
   GetApp as InstallIcon,
 } from "@mui/icons-material";
 import { useFeatureFlag, useFeatureFlagToggle, useAppletCore } from "@smbc/applet-core";
+import { APPLET_REGISTRY } from "@smbc/applet-meta";
 // Dynamic import for development tools
 
 /**
@@ -29,16 +30,6 @@ export interface CurrentAppletInfo {
     spec: any;
   };
 }
-
-/**
- * Mapping of applet IDs to their npm package names
- */
-const APPLET_PACKAGE_MAP: Record<string, string> = {
-  hello: "@smbc/hello-mui",
-  "user-management": "@smbc/user-management-mui",
-  "admin-users": "@smbc/user-management-mui",
-  "product-catalog": "@smbc/product-catalog-mui",
-};
 
 /**
  * Props for the HostAppBar component
@@ -124,7 +115,7 @@ export function HostAppBar({
         {showAppletInstallation &&
           currentAppletInfo?.id &&
           currentAppletInfo.id !== "hello" &&
-          APPLET_PACKAGE_MAP[currentAppletInfo.id] && (
+          APPLET_REGISTRY[currentAppletInfo.id] && (
             <Tooltip title="View installation instructions">
               <Button
                 startIcon={<InstallIcon />}
@@ -141,7 +132,7 @@ export function HostAppBar({
                   },
                 }}
               >
-                Install {APPLET_PACKAGE_MAP[currentAppletInfo.id]}
+                Install {APPLET_REGISTRY[currentAppletInfo.id]?.packageName}
               </Button>
             </Tooltip>
           )}

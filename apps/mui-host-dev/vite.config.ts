@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => {
         "@smbc/react-query-dataview": path.resolve(__dirname, "../../packages/react-query-dataview/src"),
         "@smbc/applet-devtools": path.resolve(__dirname, "../../packages/applet-devtools/src"),
         "@smbc/mui-applet-devtools": path.resolve(__dirname, "../../packages/mui-applet-devtools/src"),
+        "@smbc/applet-meta": path.resolve(__dirname, "../../packages/applet-meta/src"),
       },
     },
     plugins: [react(), suppressUseClientWarnings()],
@@ -94,6 +95,7 @@ export default defineConfig(({ mode }) => {
         "@smbc/react-query-dataview",
         "@smbc/applet-devtools",
         "@smbc/mui-applet-devtools",
+        "@smbc/applet-meta",
         // MSW mocks contain TypeScript files
         "@smbc/user-management-client/mocks",
         "@smbc/product-catalog-client/mocks",

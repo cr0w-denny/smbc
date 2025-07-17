@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { AgGridReact } from "ag-grid-react";
@@ -6,7 +6,7 @@ import type { ColDef, GridOptions } from "ag-grid-community";
 import "ag-grid-enterprise";
 import { Filter } from "@smbc/mui-components";
 import type { FilterSpec } from "@smbc/mui-components";
-import { useHashParams, getApiClient } from "@smbc/applet-core";
+import { useHashParams, getApiClient, useFeatureFlag } from "@smbc/applet-core";
 import type { paths } from "@smbc/usage-stats-api";
 
 interface UsageFilters {
@@ -28,6 +28,7 @@ export interface AppletProps {
   mountPath: string;
 }
 
+
 export const Applet: React.FC<AppletProps> = ({
   mountPath: _mountPath,
 }) => {
@@ -37,6 +38,10 @@ export const Applet: React.FC<AppletProps> = ({
     group: "UI",
     show_sub: false,
   });
+
+  // Get dark mode state from feature flag
+  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
+  const agGridThemeClass = isDarkMode ? "ag-theme-quartz-dark" : "ag-theme-quartz";
 
   const filterSpec: FilterSpec = {
     fields: [
@@ -173,6 +178,27 @@ export const Applet: React.FC<AppletProps> = ({
   // Extract records from response
   const data = useMemo(() => response?.records || [], [response]);
 
+  // Update detail grid themes when dark mode changes
+  useEffect(() => {
+    const updateDetailGridThemes = () => {
+      // Only query within the current grid container to avoid scanning entire DOM
+      const mainGrid = document.querySelector('.ag-theme-quartz, .ag-theme-quartz-dark');
+      if (!mainGrid) return;
+      
+      const detailGrids = mainGrid.querySelectorAll('.ag-details-row .ag-root-wrapper');
+      detailGrids.forEach((grid) => {
+        const parent = grid.parentElement;
+        if (parent) {
+          parent.className = agGridThemeClass;
+        }
+      });
+    };
+    
+    // Use requestAnimationFrame for better performance
+    const rafId = requestAnimationFrame(updateDetailGridThemes);
+    return () => cancelAnimationFrame(rafId);
+  }, [agGridThemeClass]);
+
   // AG-Grid options
   const gridOptions = useMemo((): GridOptions => ({
     columnDefs,
@@ -236,6 +262,13 @@ export const Applet: React.FC<AppletProps> = ({
             ui_name: masterRowData?.component || event.data?.component,
           }));
         },
+        onGridReady: (params: any) => {
+          // Apply theme class to detail grid container
+          const detailContainer = params.api.getGridElement();
+          if (detailContainer) {
+            detailContainer.className = agGridThemeClass;
+          }
+        },
       },
     } : undefined,
     // External filtering for sub-components
@@ -244,7 +277,7 @@ export const Applet: React.FC<AppletProps> = ({
       if (!node.data?.component) return false;
       return true;
     },
-  }), [columnDefs, data, filters.group, filters.show_sub]);
+  }), [columnDefs, data, filters.group, filters.show_sub, queryParams, endpoint, apiClient, setFilters]);
 
 
   return (
@@ -269,7 +302,7 @@ export const Applet: React.FC<AppletProps> = ({
                 Error loading data: {error.message}
               </Box>
             ) : (
-              <div className="ag-theme-quartz" style={{ height: "100%", width: "100%" }}>
+              <div className={agGridThemeClass} style={{ height: "100%", width: "100%" }}>
                 <AgGridReact {...gridOptions} loading={isLoading} />
               </div>
             )}

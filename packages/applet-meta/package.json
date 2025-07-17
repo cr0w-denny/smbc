@@ -1,7 +1,7 @@
 {
-  "name": "@smbc/shared-deps",
+  "name": "@smbc/applet-meta",
   "version": "0.0.1",
-  "description": "Shared dependency versions for SMBC monorepo",
+  "description": "SMBC applet metadata and shared dependency versions",
   "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",

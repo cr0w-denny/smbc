@@ -12,6 +12,16 @@ VERDACCIO_DIR="$SCRIPT_DIR"
 echo "🚀 Starting Verdaccio local registry..."
 echo "📁 Working directory: $VERDACCIO_DIR"
 
+# Check if we should reset the registry (--reset flag)
+RESET_FLAG=false
+if [ "$1" = "--reset" ]; then
+    echo "🧹 Resetting registry storage..."
+    rm -rf "$VERDACCIO_DIR/storage"
+    rm -f "$VERDACCIO_DIR/htpasswd"
+    echo "✅ Registry storage cleared"
+    RESET_FLAG=true
+fi
+
 # Create storage directory if it doesn't exist
 mkdir -p "$VERDACCIO_DIR/storage"
 
@@ -29,4 +39,18 @@ echo "To stop the registry, press Ctrl+C"
 echo ""
 
 cd "$VERDACCIO_DIR"
-npx verdaccio --config config.yaml
+
+# If this is a reset, run postreset automation in background after starting
+if [ "$RESET_FLAG" = true ]; then
+    echo "🤖 Will run post-reset automation after registry starts..."
+    npx verdaccio --config config.yaml &
+    VERDACCIO_PID=$!
+    
+    # Run postreset script in background
+    "$VERDACCIO_DIR/postreset.sh" &
+    
+    # Wait for verdaccio to keep running
+    wait $VERDACCIO_PID
+else
+    npx verdaccio --config config.yaml
+fi

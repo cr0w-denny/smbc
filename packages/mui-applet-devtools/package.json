@@ -31,8 +31,8 @@
     "@smbc/applet-core": "*",
     "@smbc/applet-devtools": "*",
     "@smbc/mui-components": "*",
-    "@smbc/shared-deps": "*",
-    "swagger-ui-react": "^5.25.2",
+    "@smbc/applet-meta": "*",
+    "swagger-ui-react": "^5.26.2",
     "github-markdown-css": "^5.5.1"
   },
   "devDependencies": {

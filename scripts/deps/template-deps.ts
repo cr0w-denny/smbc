@@ -4,7 +4,7 @@
  * as defined in shared-deps.js
  */
 
-import { CORE_DEPS, SMBC_PACKAGES } from '@smbc/shared-deps';
+import { CORE_DEPS, SMBC_PACKAGES } from './shared-deps';
 
 interface DependencyGroup {
   dependencies: Record<string, string>;
@@ -31,7 +31,7 @@ export function getMuiHostDependencies(): DependencyGroup {
       "@tanstack/react-query": CORE_DEPS["@tanstack/react-query"],
       
       // SMBC Host Meta-Package (installs all SMBC packages)
-      "@smbc/mui-applet-host": "*",
+      "@smbc/applet-host": "*",
     },
     
     devDependencies: {

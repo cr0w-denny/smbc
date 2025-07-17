@@ -24,5 +24,8 @@
     "@storybook/react": "^8.0.0",
     "@storybook/react-vite": "^8.0.0",
     "storybook": "^8.0.0"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873"
   }
 }

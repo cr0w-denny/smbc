@@ -24,7 +24,8 @@ import {
   CORE_PEER_DEPS,
   getAppletDocs,
   hasBackendDocs,
-} from "@smbc/shared-deps";
+  APPLET_REGISTRY,
+} from "@smbc/applet-meta";
 import "github-markdown-css/github-markdown-light.css";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
@@ -136,13 +137,6 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-const APPLET_PACKAGE_MAP: Record<string, string> = {
-  hello: "@smbc/hello-mui",
-  "user-management": "@smbc/user-management-mui",
-  "admin-users": "@smbc/user-management-mui",
-  "product-catalog": "@smbc/product-catalog-mui",
-};
-
 export function InstallationModal({
   open,
   onClose,
@@ -161,13 +155,32 @@ export function InstallationModal({
     setTabValue(newValue);
   };
 
-  const packageName = APPLET_PACKAGE_MAP[appletInfo.id];
+  const packageName = APPLET_REGISTRY[appletInfo.id]?.packageName;
   const appletDocs = getAppletDocs(appletInfo.id);
   const hasBackend = hasBackendDocs(appletInfo.id);
 
+  // If no package name found, show error
+  if (!packageName) {
+    return (
+      <Dialog open={open} onClose={onClose} maxWidth="sm">
+        <DialogTitle>Installation Information Not Available</DialogTitle>
+        <DialogContent>
+          <Alert severity="error">
+            <Typography variant="body2">
+              Package information for "{appletInfo.label}" is not available.
+            </Typography>
+          </Alert>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
   // Generate installation commands
   const peerDepsCommand = Object.entries(CORE_PEER_DEPS)
-    .map(([pkg, version]) => `${pkg}@${version.replace("^", "")}`)
+    .map(([pkg, version]) => `${pkg}@${(version as string).replace("^", "")}`)
     .join(" ");
 
   const prerequisites = `npm install ${peerDepsCommand}`;
