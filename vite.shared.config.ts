@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite';
 
 export const sharedViteConfig = defineConfig({
+  // Remove console logs in production builds
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
+  },
   // Performance optimizations
   build: {
     // Enable minification for smaller bundles

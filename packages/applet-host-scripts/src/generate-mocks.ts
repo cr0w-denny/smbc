@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import { readFileSync, writeFileSync, existsSync } from "fs";
-import { dirname, join, resolve } from "path";
+import { join, resolve } from "path";
 import { execSync } from "child_process";
+import { createRequire } from "module";
 
 /**
  * Generate MSW mocks for all applets configured in the host application
@@ -32,30 +33,25 @@ interface GeneratedMock {
 }
 
 const CWD = process.cwd();
-const METADATA_PATH = join(CWD, "src/generated/metadata.ts");
 const MOCKS_DIR = join(CWD, "src/mocks");
 const MOCKS_INDEX = join(MOCKS_DIR, "index.ts");
 
 /**
- * Extract applet IDs from the generated metadata file
+ * Extract applet IDs from installed packages using npm ls
  */
 async function extractAppletIds(): Promise<string[]> {
-  if (!existsSync(METADATA_PATH)) {
-    console.error("❌ src/generated/metadata.ts not found. This script should be run from the host app root.");
-    process.exit(1);
-  }
-
   try {
-    // Import the metadata file directly
-    const metadataModule = await import(`file://${METADATA_PATH}`);
-    const metadata = metadataModule.APPLET_METADATA;
+    // Use the same discovery approach as applet-meta
+    const { getAppletMetadata } = await import('@smbc/applet-meta');
+    const installedApplets = getAppletMetadata();
     
-    // Extract applet IDs from the metadata
-    const appletIds = Object.values(metadata).map((applet: any) => applet.id);
+    // Extract applet IDs from the installed applets
+    const appletIds = Object.values(installedApplets).map((applet: any) => applet.id);
     
     return appletIds;
   } catch (error) {
-    console.error("❌ Could not import metadata file:", (error as Error).message);
+    console.error("❌ Could not discover installed applets:", (error as Error).message);
+    console.error("💡 Make sure @smbc/applet-meta is installed");
     process.exit(1);
   }
 }
@@ -67,10 +63,30 @@ function checkApiPackageExists(appletId: string): ApiPackageInfo {
   const packageName = `@smbc/${appletId}-api`;
   
   try {
-    // Try to resolve the package
-    const packageJsonPath = require.resolve(`${packageName}/package.json`);
-    return { exists: true, packageName, packageJsonPath };
+    // Try to resolve the package main entry point first
+    const require = createRequire(resolve(CWD, 'package.json'));
+    const packageMainPath = require.resolve(packageName);
+    
+    // Find the package root by looking for node_modules/packageName pattern
+    const nodeModulesIndex = packageMainPath.indexOf('node_modules');
+    if (nodeModulesIndex === -1) {
+      console.log(`❌ Could not find node_modules path in ${packageMainPath}`);
+      return { exists: false, packageName };
+    }
+    
+    // Navigate to the package root directory
+    const packageRoot = resolve(packageMainPath.substring(0, nodeModulesIndex), 'node_modules', packageName);
+    const packageJsonPath = resolve(packageRoot, 'package.json');
+    
+    if (existsSync(packageJsonPath)) {
+      console.log(`✅ Found API package ${packageName} at ${packageJsonPath}`);
+      return { exists: true, packageName, packageJsonPath };
+    } else {
+      console.log(`❌ Package ${packageName} found but no package.json at ${packageJsonPath}`);
+      return { exists: false, packageName };
+    }
   } catch (error) {
+    console.log(`❌ Could not resolve ${packageName}:`, (error as Error).message);
     return { exists: false, packageName };
   }
 }
@@ -85,8 +101,17 @@ function generateAppletMocks(appletId: string, apiPackage: ApiPackageInfo): Gene
     // Use the openapi-msw CLI to generate mocks
     const outputPath = join(MOCKS_DIR, `${appletId}-handlers.ts`);
     
-    // Create the command to generate mocks
-    const command = `npx @smbc/openapi-msw generate --package ${apiPackage.packageName} --output ${outputPath}`;
+    // Find the OpenAPI spec file in the API package
+    const apiPackageDir = apiPackage.packageJsonPath!.replace('/package.json', '');
+    const specPath = join(apiPackageDir, 'dist/@typespec/openapi3/openapi.json');
+    
+    if (!existsSync(specPath)) {
+      console.error(`❌ OpenAPI spec not found at ${specPath}`);
+      return null;
+    }
+    
+    // Create the command to generate mocks using the OpenAPI spec file
+    const command = `npx @smbc/openapi-msw generate --input ${specPath} --output ${outputPath}`;
     
     console.log(`   Running: ${command}`);
     execSync(command, { stdio: "inherit", cwd: CWD });

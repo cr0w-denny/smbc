@@ -23,8 +23,7 @@
   "dependencies": {
     "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
-    "@smbc/react-query-dataview": "*",
-    "@smbc/user-management-api": "*"
+    "@smbc/react-query-dataview": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
@@ -47,7 +46,8 @@
     "@tanstack/react-query-devtools": "^5.0.0",
     "msw": "^2.2.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@smbc/user-management-api": "*"
   },
   "files": [
     "dist/**/*"
@@ -55,5 +55,17 @@
   "publishConfig": {
     "registry": "http://localhost:4873",
     "access": "public"
+  },
+  "smbc": {
+    "applet": {
+      "id": "user-management",
+      "name": "User Management", 
+      "description": "Comprehensive user management with roles and permissions",
+      "framework": "mui",
+      "icon": "People",
+      "path": "/users",
+      "permissions": ["users.read", "users.write"],
+      "exportName": "userManagementApplet"
+    }
   }
 }

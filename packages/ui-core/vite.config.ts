@@ -4,6 +4,10 @@ import { mkdirSync, existsSync } from "fs";
 import { dts } from "vite-plugin-dts-build";
 
 export default defineConfig({
+  // Remove console logs in production builds
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
+  },
   plugins: [
     dts({
       mode: "build",

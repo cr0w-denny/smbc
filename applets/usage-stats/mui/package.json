@@ -14,8 +14,7 @@
   "dependencies": {
     "@smbc/applet-core": "*",
     "@smbc/mui-applet-core": "*",
-    "@smbc/mui-components": "*",
-    "@smbc/usage-stats-api": "*"
+    "@smbc/mui-components": "*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
@@ -33,9 +32,22 @@
     "ag-grid-community": "^32.0.0",
     "ag-grid-enterprise": "^32.0.0",
     "ag-grid-react": "^32.0.0",
-    "openapi-fetch": "^0.9.0"
+    "openapi-fetch": "^0.9.0",
+    "@smbc/usage-stats-api": "*"
   },
   "publishConfig": {
     "registry": "http://localhost:4873"
+  },
+  "smbc": {
+    "applet": {
+      "id": "usage-stats",
+      "name": "Usage Stats",
+      "description": "Dashboard for tracking usage statistics",
+      "framework": "mui",
+      "icon": "BarChart",
+      "path": "/usage-stats",
+      "permissions": ["usage-stats.read"],
+      "exportName": "usageStatsApplet"
+    }
   }
 }

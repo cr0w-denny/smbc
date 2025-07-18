@@ -32,5 +32,17 @@
     "@mui/material": "^7.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "smbc": {
+    "applet": {
+      "id": "hello",
+      "name": "Hello World",
+      "description": "Simple hello world applet for testing and demos",
+      "framework": "mui",
+      "icon": "WavingHand",
+      "path": "/hello",
+      "permissions": [],
+      "exportName": "helloApplet"
+    }
   }
 }

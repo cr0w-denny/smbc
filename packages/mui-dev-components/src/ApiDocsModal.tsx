@@ -29,6 +29,19 @@ export interface ApiDocsModalProps {
 }
 
 /**
+ * Reorders servers in the API spec to match the TypeSpec order.
+ * TypeSpec generates servers in reverse order, so we reverse them back.
+ */
+function reorderServersToMatchTypeSpec(spec: any): any {
+  if (!spec?.servers) return spec;
+  
+  return {
+    ...spec,
+    servers: [...spec.servers].reverse()
+  };
+}
+
+/**
  * Custom Swagger UI plugin to enhance parameter documentation with mock response information.
  * This plugin intercepts parameter rendering to inject x-mock-response documentation
  * directly into the relevant parameter's description.
@@ -372,7 +385,7 @@ export function ApiDocsModal({
           }}
         >
           <SwaggerUI
-            spec={apiSpec}
+            spec={reorderServersToMatchTypeSpec(apiSpec)}
             docExpansion="list"
             defaultModelsExpandDepth={1}
             defaultModelExpandDepth={1}

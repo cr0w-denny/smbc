@@ -21,8 +21,7 @@
   },
   "dependencies": {
     "@smbc/applet-core": "*",
-    "@smbc/mui-components": "*",
-    "@smbc/product-catalog-api": "*"
+    "@smbc/mui-components": "*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
@@ -44,7 +43,8 @@
     "@emotion/styled": "^11.11.0",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",
-    "msw": "^2.2.0"
+    "msw": "^2.2.0",
+    "@smbc/product-catalog-api": "*"
   },
   "files": [
     "dist/**/*"
@@ -52,5 +52,17 @@
   "publishConfig": {
     "registry": "http://localhost:4873",
     "access": "public"
+  },
+  "smbc": {
+    "applet": {
+      "id": "product-catalog",
+      "name": "Product Catalog",
+      "description": "Product catalog management and browsing",
+      "framework": "mui",
+      "icon": "Inventory",
+      "path": "/products",
+      "permissions": ["products.read"],
+      "exportName": "productCatalogApplet"
+    }
   }
 }

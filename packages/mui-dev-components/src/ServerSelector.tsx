@@ -124,13 +124,13 @@ export function ServerSelector({
       switch (serverStatus) {
         case 'online':
         case 'mock-ready':
-          return '#4caf50'; // green
+          return '#4caf50';
         case 'offline':
-          return '#f44336'; // red
+          return '#f44336';
         case 'mock-initializing':
-          return '#ff9800'; // orange
+          return '#ff9800';
         default:
-          return '#9e9e9e'; // gray
+          return '#9e9e9e';
       }
     };
 

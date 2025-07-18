@@ -31,7 +31,7 @@ import {
 } from "@tanstack/react-query";
 
 // Import configuration
-import { createApplets, DEMO_USER, HOST, ROLE_CONFIG } from "./applet.config";
+import { APPLETS, DEMO_USER, HOST, ROLE_CONFIG } from "./applet.config";
 import type { Environment } from "@smbc/applet-core";
 
 import { setupMSW, stopMSW, resetMSW, addHandlers } from "@smbc/openapi-msw";
@@ -55,7 +55,7 @@ const featureFlags = [
   },
 ];
 
-// Create QueryClient with good defaults and MSW auto-healing
+// Create QueryClient with good defaults
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -251,10 +251,8 @@ function AppWithEnvironment() {
     }
   }, [environment, queryClient]);
 
-  // Get current applets based on environment
-  const currentApplets = React.useMemo(() => {
-    return createApplets(environment);
-  }, [environment]);
+  // Use static applets configuration
+  const currentApplets = APPLETS;
 
   // Configure applets with their API URLs, updating based on environment
   React.useEffect(() => {

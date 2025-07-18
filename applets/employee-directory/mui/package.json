@@ -14,8 +14,7 @@
   },
   "dependencies": {
     "@smbc/applet-core": "*",
-    "@smbc/mui-applet-core": "*",
-    "@smbc/employee-directory-api": "*"
+    "@smbc/mui-applet-core": "*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
@@ -31,6 +30,19 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@mui/material": "^7.1.2"
+    "@mui/material": "^7.1.2",
+    "@smbc/employee-directory-api": "*"
+  },
+  "smbc": {
+    "applet": {
+      "id": "employee-directory",
+      "name": "Employee Directory",
+      "description": "Employee directory and contact management",
+      "framework": "mui",
+      "icon": "ContactPage",
+      "path": "/employees",
+      "permissions": ["employees.read"],
+      "exportName": "employeeDirectoryApplet"
+    }
   }
 }

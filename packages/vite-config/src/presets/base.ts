@@ -6,6 +6,10 @@ import type { UserConfig } from 'vite';
  */
 export function createBaseConfig(rootDir: string): UserConfig {
   return {
+    // Remove console logs in production builds
+    esbuild: {
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
+    },
     resolve: {
       alias: {
         '@': resolve(rootDir, 'src')

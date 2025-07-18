@@ -4,7 +4,6 @@ import {
   createPermissionRequirements,
   generatePermissionMappings,
   mountApplet,
-  type Environment,
 } from "@smbc/applet-core";
 import {
   People as PeopleIcon,
@@ -14,7 +13,6 @@ import {
   Analytics as AnalyticsIcon,
   Task as TaskIcon,
 } from "@mui/icons-material";
-// Mock handlers will be imported from generated files
 
 // Import applets directly from source during development
 import userManagementApplet from "../../../applets/user-management/mui/src";
@@ -165,10 +163,9 @@ const AdminUsers = () =>
     permissionContext: "admin-users",
   });
 
-// Generate applets configuration for a specific environment
-export function createApplets(environment: Environment = 'development'): AppletMount[] {
-  return [
-  // Applet Guide - moved to first position
+// Static applets configuration
+export const APPLETS: AppletMount[] = [
+  // Applet Guide 
   mountApplet(helloApplet, {
     id: "hello",
     label: "Applet Guide",
@@ -246,14 +243,5 @@ export function createApplets(environment: Environment = 'development'): AppletM
     permissions: [],
     version: "0.0.0",
   }),
-  ];
-}
-
-// Mock handlers mapping for development
-export const MOCK_HANDLERS = {
-  // Mock handlers will be populated when available
-} as const;
-
-// Default applets for development
-export const APPLETS = createApplets('development');
+];
 

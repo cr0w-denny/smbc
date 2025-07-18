@@ -1,7 +1,0 @@
-    const requestBody = await request.json() as Record<string, any>;
-    const created{{entityName}} = generate{{entityName}}(requestBody || {});
-    
-    // Add to persistent store so it appears in subsequent GET requests
-    {{lowerEntityName}}DataStore.set(String(created{{entityName}}.{{primaryKey}}), created{{entityName}});
-    
-    return HttpResponse.json(created{{entityName}}, { status: 201 });

@@ -147,13 +147,13 @@ export const Applet: React.FC<AppletProps> = ({
   const endpoint = useMemo(() => {
     switch (filters.group) {
       case "UI":
-        return "/ui-usage/";
+        return "/usage-stats/ui-usage/";
       case "USER":
-        return "/users-usage/";
+        return "/usage-stats/users-usage/";
       case "EXCEPTION":
-        return "/exceptions/";
+        return "/usage-stats/exceptions/";
       default:
-        return "/ui-usage/";
+        return "/usage-stats/ui-usage/";
     }
   }, [filters.group]);
 
@@ -264,7 +264,7 @@ export const Applet: React.FC<AppletProps> = ({
         },
         onGridReady: (params: any) => {
           // Apply theme class to detail grid container
-          const detailContainer = params.api.getGridElement();
+          const detailContainer = params.eGridDiv;
           if (detailContainer) {
             detailContainer.className = agGridThemeClass;
           }
@@ -279,7 +279,6 @@ export const Applet: React.FC<AppletProps> = ({
     },
   }), [columnDefs, data, filters.group, filters.show_sub, queryParams, endpoint, apiClient, setFilters]);
 
-
   return (
     <Box sx={{ height: "100vh" }}>
         <Filter
@@ -287,9 +286,10 @@ export const Applet: React.FC<AppletProps> = ({
           values={filters}
           onFiltersChange={setFilters}
           sx={{ 
-            mb: '-4px',
-            borderBottomLeftRadius: 0,
-            borderBottomRightRadius: 0,
+            mb: 2,
+            // mb: '-4px',
+            // borderBottomLeftRadius: 0,
+            // borderBottomRightRadius: 0,
           }}
         />
       {/* Main Grid */}

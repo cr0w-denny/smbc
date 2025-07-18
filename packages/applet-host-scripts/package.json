@@ -3,9 +3,14 @@
   "version": "0.1.0",
   "description": "Build-time scripts for applet host setup and configuration",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "bin": {
-    "generate-mocks": "./src/generate-mocks.ts",
-    "applet-postinstall": "./src/postinstall.ts"
+    "generate-mocks": "./dist/generate-mocks.js",
+    "applet-postinstall": "./dist/postinstall.js",
+    "applet-list": "./dist/list-applets.js",
+    "applet-install": "./dist/install-applets.js"
   },
   "scripts": {
     "build": "tsc",
