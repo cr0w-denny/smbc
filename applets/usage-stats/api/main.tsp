@@ -14,9 +14,10 @@ using TypeSpec.OpenAPI;
 @service(#{
   title: "Usage Stats API",
 })
-@server("https://api.smbcgroup.com/api/v1", "Production server")
-@server("https://ewi-dev.smbcgroup.com/api/v1", "Development server")
-@server("/api/v1", "Mock server")
+@server("/api/v1", "mock")
+@server("https://ewi-dev.smbcgroup.com/api/v1", "dev")
+@server("https://api-qa.smbcgroup.com/api/v1", "qa")
+@server("https://api.smbcgroup.com/api/v1", "prod")
 namespace UsageStatsAPI;
 
 /**

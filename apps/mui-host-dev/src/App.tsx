@@ -11,11 +11,12 @@ import {
   useFeatureFlagToggle,
   configureApplets,
   useAppletCore,
+  getServerUrlFromSpec,
   type AppletMount,
 } from "@smbc/applet-core";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
-import { HostAppBar } from "@smbc/mui-applet-core";
+import { HostAppBar } from "@smbc/mui-dev-components";
 import { ApiDocsWrapper } from "./components/ApiDocsWrapper";
 import { lightTheme, darkTheme } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
@@ -30,16 +31,13 @@ import {
 } from "@tanstack/react-query";
 
 // Import configuration
-import { createApplets, DEMO_USER, HOST, ROLE_CONFIG, MOCK_HANDLERS } from "./app.config";
+import { createApplets, DEMO_USER, HOST, ROLE_CONFIG } from "./applet.config";
+import type { Environment } from "@smbc/applet-core";
 
-// Static imports for development - these will be excluded in production templates
-import {
-  registerMswHandlers,
-  setupMswForAppletProvider,
-  stopMswForAppletProvider,
-  resetAllMocks,
-  autoHealMswWorker,
-} from "@smbc/mui-applet-devtools";
+import { setupMSW, stopMSW, resetMSW, addHandlers } from "@smbc/openapi-msw";
+
+// Import generated mock handlers
+import { allHandlers } from "./generated/mocks";
 
 // Feature flag configuration
 const featureFlags = [
@@ -50,13 +48,12 @@ const featureFlags = [
     persist: true,
   },
   {
-    key: "mockData",
-    defaultValue: true,
-    description: "Use mock data instead of real API endpoints",
+    key: "environment",
+    defaultValue: "mock" as Environment,
+    description: "Application environment (mock/development/qa/production)",
     persist: true,
   },
 ];
-
 
 // Create QueryClient with good defaults and MSW auto-healing
 const queryClient = new QueryClient({
@@ -69,9 +66,9 @@ const queryClient = new QueryClient({
           return false;
         }
 
-        // Try auto-healing MSW worker on JSON parse errors (async operation runs in background)
+        // Log error for debugging
         if (failureCount === 0) {
-          autoHealMswWorker(error); // Fire and forget
+          console.warn("Query failed, retrying:", error);
         }
 
         // Retry up to 3 times for other errors
@@ -86,9 +83,9 @@ const queryClient = new QueryClient({
           return false;
         }
 
-        // Try auto-healing MSW worker on JSON parse errors (async operation runs in background)
+        // Log error for debugging
         if (failureCount === 0) {
-          autoHealMswWorker(error); // Fire and forget
+          console.warn("Query failed, retrying:", error);
         }
 
         // Retry once for network errors
@@ -107,31 +104,33 @@ function initializeMswHandlers(applets: AppletMount[]): void {
   }
 
   try {
-    // Collect handlers for all configured applets
-    const allHandlers = [];
-    
-    for (const applet of applets) {
-      const handlers = MOCK_HANDLERS[applet.id as keyof typeof MOCK_HANDLERS];
-      if (handlers && Array.isArray(handlers)) {
-        allHandlers.push(...handlers);
-        console.log(`Loaded ${handlers.length} handlers for ${applet.id}`);
-      } else {
-        console.warn(`No handlers found for applet: ${applet.id}`);
-      }
-    }
-
+    console.log(`🎭 Initializing MSW handlers for ${applets.length} applets`);
     console.log("Registering MSW handlers:", allHandlers.length);
-    
+
     // Log all handler URLs for debugging
     allHandlers.forEach((handler, index) => {
       // Extract URL pattern from handler
       const handlerInfo = handler.info || {};
-      const method = String(handlerInfo.method || 'unknown');
+      const method = String(handlerInfo.method || "unknown");
       const path = handlerInfo.path || handler.toString();
-      console.log(`🔍 Handler ${index + 1}: ${method.toUpperCase()} ${path}`);
+
+      // Try to get more details from the handler
+      let handlerDetails = "";
+      try {
+        // MSW handlers have a .info property with more details
+        if (handler.info) {
+          handlerDetails = ` | Pattern: ${handler.info.path || "unknown"}`;
+        }
+      } catch (e) {
+        // Ignore errors extracting details
+      }
+
+      console.log(
+        `🔍 Handler ${index + 1}: ${method.toUpperCase()} ${path}${handlerDetails}`,
+      );
     });
-    
-    registerMswHandlers(allHandlers);
+
+    addHandlers(allHandlers);
   } catch (error) {
     console.error("Failed to initialize MSW handlers:", error);
   }
@@ -220,42 +219,82 @@ function Navigation({ applets }: { applets: AppletMount[] }) {
   );
 }
 
-function AppWithMockToggle() {
-  const mockEnabled = useFeatureFlag<boolean>("mockData") || false;
-  const [mswReady, setMswReady] = React.useState(!mockEnabled); // Ready immediately if mocks disabled
+function AppWithEnvironment() {
+  const environment = useFeatureFlag<Environment>("environment") || "mock";
+  const isMockEnvironment = environment === "mock";
+  const [mswReady, setMswReady] = React.useState(!isMockEnvironment); // Ready immediately if not using mocks
   const { actions } = useAppletCore();
   const queryClient = useQueryClient();
 
-  // Get current applets based on mock flag
-  const currentApplets = React.useMemo(() => {
-    const environment = mockEnabled ? "mock" : "development";
-    return createApplets(environment);
-  }, [mockEnabled]);
+  // Watch for environment changes and invalidate queries
+  const prevEnvironmentRef = React.useRef(environment);
+  React.useEffect(() => {
+    if (prevEnvironmentRef.current !== environment) {
+      console.log("🔄 Environment changed in App, clearing cache immediately:", {
+        from: prevEnvironmentRef.current,
+        to: environment,
+      });
+      
+      // Clear cache immediately to remove stale data
+      console.log("🔄 Clearing query cache immediately...");
+      queryClient.removeQueries(); // Clear cache entirely
+      console.log("🔄 Query cache cleared");
+      
+      // Then invalidate after a short delay to allow API client reconfiguration
+      setTimeout(() => {
+        console.log("🔄 Invalidating queries to trigger fresh fetches...");
+        queryClient.invalidateQueries(); // Trigger fresh fetches
+        console.log("🔄 Query invalidation complete");
+      }, 100);
+      
+      prevEnvironmentRef.current = environment;
+    }
+  }, [environment, queryClient]);
 
-  // Configure applets with their API URLs, updating based on mock flag
+  // Get current applets based on environment
+  const currentApplets = React.useMemo(() => {
+    return createApplets(environment);
+  }, [environment]);
+
+  // Configure applets with their API URLs, updating based on environment
   React.useEffect(() => {
     configureApplets(currentApplets);
-    const environment = mockEnabled ? "mock" : "development";
     console.log(`🔄 Configured applets for ${environment} environment`);
-  }, [currentApplets, mockEnabled]);
 
-  // Handle MSW worker based on mock toggle
+    // Log API URLs for each applet for debugging
+    currentApplets.forEach((applet) => {
+      try {
+        const apiUrl = applet.apiSpec
+          ? getServerUrlFromSpec(applet.apiSpec, environment)
+          : applet.apiBaseUrl || "no API configured";
+        console.log(`📍 ${applet.id} API URL: ${apiUrl}`);
+      } catch (error) {
+        console.error(`❌ Failed to get API URL for ${applet.id}:`, error);
+      }
+    });
+  }, [currentApplets]);
+
+  // Handle MSW worker based on environment
   React.useEffect(() => {
-    setMswReady(false); // Reset ready state when toggling
+    // Only reset ready state when switching away from mock mode to avoid flash
+    if (!isMockEnvironment) {
+      setMswReady(true); // Ready immediately for non-mock environments
+    }
+    // When switching TO mock mode, keep previous ready state until new MSW is ready
 
     // Update MSW status in app context
     actions.setMswStatus({
-      isEnabled: mockEnabled,
+      isEnabled: isMockEnvironment,
       isReady: false,
-      isInitializing: mockEnabled,
+      isInitializing: isMockEnvironment,
     });
 
     async function setupMsw() {
-      if (mockEnabled) {
+      if (isMockEnvironment) {
         console.log("🎭 Setting up mock environment...");
 
         // Reset all mock data stores for fresh start
-        resetAllMocks();
+        resetMSW();
 
         // Initialize MSW handlers
         initializeMswHandlers(currentApplets);
@@ -263,7 +302,7 @@ function AppWithMockToggle() {
 
         // Start MSW worker
         try {
-          await setupMswForAppletProvider();
+          await setupMSW(allHandlers, { verbose: true });
           console.log("✅ MSW worker started successfully");
           setMswReady(true);
           actions.setMswStatus({
@@ -271,8 +310,8 @@ function AppWithMockToggle() {
             isReady: true,
             isInitializing: false,
           });
-          // Invalidate all queries when switching to mocks
-          queryClient.invalidateQueries();
+          // Invalidate all queries when switching to mocks (with small delay to avoid flicker)
+          setTimeout(() => queryClient.invalidateQueries(), 100);
         } catch (error) {
           console.error("❌ Failed to start MSW worker:", error);
           setMswReady(false);
@@ -288,7 +327,7 @@ function AppWithMockToggle() {
         // Stop MSW worker when mocks are disabled
         console.log("Stopping MSW worker...");
         try {
-          await stopMswForAppletProvider();
+          await stopMSW();
           console.log("✅ MSW worker stopped");
           setMswReady(true); // Ready for real API calls
           actions.setMswStatus({
@@ -296,8 +335,8 @@ function AppWithMockToggle() {
             isReady: true,
             isInitializing: false,
           });
-          // Invalidate all queries when switching to real API
-          queryClient.invalidateQueries();
+          // Invalidate all queries when switching to real API (with small delay to avoid flicker)
+          setTimeout(() => queryClient.invalidateQueries(), 100);
         } catch (error) {
           console.error("❌ Failed to stop MSW worker:", error);
           setMswReady(true); // Still allow real API calls even if stop failed
@@ -306,17 +345,17 @@ function AppWithMockToggle() {
             isReady: true,
             isInitializing: false,
           });
-          // Invalidate queries even if stop failed - switch to real API anyway
-          queryClient.invalidateQueries();
+          // Invalidate queries even if stop failed - switch to real API anyway (with small delay to avoid flicker)
+          setTimeout(() => queryClient.invalidateQueries(), 100);
         }
       }
     }
 
     setupMsw();
-  }, [mockEnabled]);
+  }, [environment]);
 
-  // Only render content when MSW is ready (if mocks enabled) or when mocks disabled
-  if (mockEnabled && !mswReady) {
+  // Only render content when MSW is ready (if using mocks) or when not using mocks
+  if (isMockEnvironment && !mswReady) {
     return <AppContentWithQueryAccess applets={[]} />; // Empty applets to prevent data fetching
   }
 
@@ -341,7 +380,7 @@ function AppWithThemeProvider() {
           initialRoleConfig={ROLE_CONFIG}
           initialUser={userWithPermissions}
         >
-          <AppWithMockToggle />
+          <AppWithEnvironment />
         </AppletProvider>
       </ThemeProvider>
     </QueryClientProvider>

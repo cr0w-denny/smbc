@@ -6,14 +6,13 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist",
-    "scripts"
+    "dist"
   ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rimraf dist",
-    "postinstall": "node scripts/postinstall.js"
+    "postinstall": "npx applet-postinstall"
   },
   "keywords": [
     "smbc",
@@ -28,7 +27,8 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@tanstack/react-query": "^5.0.0"
+    "@tanstack/react-query": "^5.0.0",
+    "@smbc/applet-host-scripts": "*"
   },
   "devDependencies": {
     "typescript": "^5.3.3",

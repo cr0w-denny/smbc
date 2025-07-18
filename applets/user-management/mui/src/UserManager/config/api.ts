@@ -22,9 +22,9 @@
  * - What query parameters to always include (apiParams)
  */
 
-import { getApiClient } from "@smbc/applet-core";
-import type { components } from "@smbc/user-management-api/generated/types";
-import type { paths } from "@smbc/user-management-api/generated/types";
+import { useApiClient } from "@smbc/applet-core";
+import type { components } from "@smbc/user-management-api/types";
+import type { paths } from "@smbc/user-management-api/types";
 
 type User = components["schemas"]["User"];
 
@@ -60,35 +60,39 @@ interface ApiResponse {
  * @param userType - Type of users to fetch ("all", "admins", or "non-admins")
  * @returns API configuration object for the data view applet
  */
-export const createApiConfig = (userType: "all" | "admins" | "non-admins") => ({
-  endpoint: "/users" as const,
-  client: getApiClient<paths>("user-management"),
-  // CUSTOM RESPONSE ADAPTERS EXAMPLE:
-  // Extracts the users array from the TypeSpec-defined UserList response structure
-  // The API returns { users: User[], total: number, page: number, pageSize: number }
-  // as defined in applets/user-management/api/main.tsp (UserList model)
-  //
-  // This demonstrates how to handle APIs that don't follow the standard 
-  // PaginatedResponse<T> format (which expects "items" instead of "users").
-  //
-  // These functions are used by the DataView component to:
-  // 1. Transform API responses into table rows
-  // 2. Handle optimistic updates during mutations (create/update/delete)
-  // 3. Manage transaction states and rollbacks
-  // 4. Extract data from cached query responses
-  responseRow: (response: ApiResponse) => response?.users || [],
-  responseRowCount: (response: ApiResponse) => response?.total || 0,
-  formatCacheUpdate: (originalResponse: ApiResponse, newRows: User[]) => ({
-    ...originalResponse,
-    users: newRows,
-    total: newRows.length,
-  }),
-  // Optional additional API parameters based on user type
-  // These parameters are automatically added to all GET list requests (not mutations)
-  // Used to filter the user list: admins only, non-admins only, or all users
-  // Applied in useDataView when fetching data: GET /users?isAdmin=true (for admins view)
-  apiParams: {
-    ...(userType === "admins" && { isAdmin: "true" }),
-    ...(userType === "non-admins" && { isAdmin: "false" }),
-  },
-});
+export const useApiConfig = (userType: "all" | "admins" | "non-admins") => {
+  const client = useApiClient<paths>("user-management");
+  
+  return {
+    endpoint: "/users" as const,
+    client,
+    // CUSTOM RESPONSE ADAPTERS EXAMPLE:
+    // Extracts the users array from the TypeSpec-defined UserList response structure
+    // The API returns { users: User[], total: number, page: number, pageSize: number }
+    // as defined in applets/user-management/api/main.tsp (UserList model)
+    //
+    // This demonstrates how to handle APIs that don't follow the standard 
+    // PaginatedResponse<T> format (which expects "items" instead of "users").
+    //
+    // These functions are used by the DataView component to:
+    // 1. Transform API responses into table rows
+    // 2. Handle optimistic updates during mutations (create/update/delete)
+    // 3. Manage transaction states and rollbacks
+    // 4. Extract data from cached query responses
+    responseRow: (response: ApiResponse) => response?.users || [],
+    responseRowCount: (response: ApiResponse) => response?.total || 0,
+    formatCacheUpdate: (originalResponse: ApiResponse, newRows: User[]) => ({
+      ...originalResponse,
+      users: newRows,
+      total: newRows.length,
+    }),
+    // Optional additional API parameters based on user type
+    // These parameters are automatically added to all GET list requests (not mutations)
+    // Used to filter the user list: admins only, non-admins only, or all users
+    // Applied in useDataView when fetching data: GET /users?isAdmin=true (for admins view)
+    apiParams: {
+      ...(userType === "admins" && { isAdmin: "true" }),
+      ...(userType === "non-admins" && { isAdmin: "false" }),
+    },
+  };
+};

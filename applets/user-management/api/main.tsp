@@ -15,9 +15,10 @@ using TypeSpec.OpenAPI;
 @service(#{
   title: "User Management API",
 })
-@server("https://api.smbcgroup.com/api/v1/user-management", "Production server")
-@server("http://localhost:3001/api/v1/user-management", "Development server")
-@server("http://localhost:3000/api/v1/user-management", "Mock server")
+@server("/api/v1/user-management", "mock")
+@server("http://localhost:3001/api/v1/user-management", "dev")
+@server("https://api-qa.smbcgroup.com/api/v1/user-management", "qa")
+@server("https://api.smbcgroup.com/api/v1/user-management", "prod")
 namespace UserManagementAPI;
 
 /**

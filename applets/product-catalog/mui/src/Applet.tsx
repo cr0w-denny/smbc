@@ -9,11 +9,11 @@ import {
 } from "@smbc/mui-applet-core";
 import { Box, Typography, Alert } from "@mui/material";
 import { Delete, CheckCircle, ErrorOutline } from "@mui/icons-material";
-import { getApiClient } from "@smbc/applet-core";
+import { useApiClient } from "@smbc/applet-core";
 import type {
   components,
   paths,
-} from "@smbc/product-catalog-api/generated/types";
+} from "@smbc/product-catalog-api/types";
 import {
   createOptimisticBulkUpdateAction,
   createOptimisticBulkDeleteAction,
@@ -22,7 +22,7 @@ import {
 type Product = components["schemas"]["Product"];
 
 export function Applet() {
-  const apiClient = getApiClient<paths>("product-catalog");
+  const apiClient = useApiClient<paths>("product-catalog");
 
   console.log("DataViewOptimistic: Initializing with apiClient", apiClient);
 

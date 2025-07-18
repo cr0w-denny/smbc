@@ -3,19 +3,20 @@
   "version": "0.0.1",
   "description": "SMBC applet metadata and shared dependency versions",
   "type": "module",
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
-      "default": "./src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "files": [
-    "src"
+    "dist"
   ],
   "scripts": {
-    "build": "npm run build:docs",
+    "build": "npm run build:ts && npm run build:docs",
+    "build:ts": "tsc",
     "build:docs": "tsx scripts/build-docs.ts"
   },
   "devDependencies": {

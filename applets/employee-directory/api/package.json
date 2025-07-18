@@ -2,23 +2,20 @@
   "name": "@smbc/employee-directory-api",
   "version": "0.0.0",
   "description": "TypeSpec API definition for employee directory",
-  "main": "tsp-output/@typespec/openapi3/openapi.json",
+  "main": "dist/@typespec/openapi3/openapi.json",
   "type": "module",
   "exports": {
-    ".": "./tsp-output/@typespec/openapi3/openapi.json",
-    "./client": "./client.ts",
-    "./generated/types": "./generated/types.ts"
+    ".": "./dist/@typespec/openapi3/openapi.json",
+    "./types": "./dist/types.ts"
   },
   "scripts": {
-    "build": "tsp compile .",
-    "dev": "tsp compile . --watch",
+    "build": "tsp compile . --output-dir dist && npm run generate",
+    "dev": "tsp compile . --watch --output-dir dist",
     "lint": "echo 'No linting configured for TypeSpec'",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf tsp-output generated",
+    "clean": "rm -rf dist",
     "test": "echo 'No tests for API schemas'",
-    "generate:types": "openapi-typescript tsp-output/@typespec/openapi3/openapi.json -o generated/types.ts",
-    "generate:mocks": "tsx ../../../scripts/mock-generation-ts/generator.ts --input=tsp-output/@typespec/openapi3/openapi.json --output=../../../packages/applet-devtools/src/mocks/employee-directory.ts --base-url=/api/v1/employee-directory",
-    "generate:all": "npm run generate:types && npm run generate:mocks"
+    "generate": "openapi-typescript dist/@typespec/openapi3/openapi.json -o dist/types.ts"
   },
   "dependencies": {
     "@typespec/compiler": "^1.1.0",
@@ -31,9 +28,8 @@
     "typescript": "^5.3.3"
   },
   "files": [
-    "tsp-output/@typespec/openapi3/openapi.json",
-    "client.ts",
-    "generated/types.ts"
+    "dist/@typespec/openapi3/openapi.json",
+    "dist/types.ts"
   ],
   "publishConfig": {
     "registry": "http://localhost:4873",

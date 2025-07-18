@@ -1,5 +1,10 @@
 # Claude Development Notes
 
+## IMPORTANT: NO TEMP FIXES!
+- Never implement temporary workarounds
+- Always implement proper, permanent solutions
+- If something doesn't work, fix the root cause
+
 ## Commands to Run
 
 ### Development
@@ -20,3 +25,6 @@
   - `paperSection` → `contentPaper`
 - Fixed all import statements to use new names
 - Removed hover effects from content areas (cards/papers)
+
+## Workflow Principles
+- dont assume! always ask before removing stuff

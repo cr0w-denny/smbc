@@ -1,7 +1,7 @@
 /**
  * Schema configuration for Employee Directory
  */
-import type { components } from "@smbc/employee-directory-api/generated/types";
+import type { components } from "@smbc/employee-directory-api/types";
 
 type Employee = components["schemas"]["Employee"];
 

@@ -172,9 +172,34 @@ function AutoFilterCore({
   const isControlled = controlledValues !== undefined;
   const currentValues = isControlled ? controlledValues : internalValues;
 
+  // Log component renders and state changes
+  console.log('🚨 FOCUS_DEBUG AutoFilterCore render:', {
+    title,
+    isControlled,
+    controlledValues,
+    internalValues,
+    currentValues,
+    fieldsCount: fields.length,
+    timestamp: Date.now()
+  });
+
   // Update internal values when controlled values change
   useEffect(() => {
+    console.log('🚨 FOCUS_DEBUG AutoFilterCore useEffect triggered:', {
+      title,
+      isControlled,
+      controlledValues,
+      willUpdate: isControlled && controlledValues,
+      timestamp: Date.now()
+    });
+    
     if (isControlled && controlledValues) {
+      console.log('🚨 FOCUS_DEBUG AutoFilterCore updating internal values:', {
+        title,
+        from: internalValues,
+        to: controlledValues,
+        timestamp: Date.now()
+      });
       setInternalValues(controlledValues);
     }
   }, [controlledValues, isControlled]);
@@ -190,6 +215,15 @@ function AutoFilterCore({
 
   const handleFieldChange = useCallback(
     (name: string, value: any) => {
+      console.log('🚨 FOCUS_DEBUG AutoFilterCore handleFieldChange:', {
+        title,
+        fieldName: name,
+        value,
+        currentValues,
+        isControlled,
+        timestamp: Date.now()
+      });
+      
       const newValues = { ...currentValues, [name]: value };
 
       // Validate
@@ -198,10 +232,21 @@ function AutoFilterCore({
 
       // Update state
       if (!isControlled) {
+        console.log('🚨 FOCUS_DEBUG AutoFilterCore updating internal state:', {
+          title,
+          from: internalValues,
+          to: newValues,
+          timestamp: Date.now()
+        });
         setInternalValues(newValues);
       }
 
       // Notify parent (debounced)
+      console.log('🚨 FOCUS_DEBUG AutoFilterCore calling debounced onChange:', {
+        title,
+        newValues,
+        timestamp: Date.now()
+      });
       debouncedOnFiltersChange(newValues);
     },
     [currentValues, fields, isControlled, debouncedOnFiltersChange],

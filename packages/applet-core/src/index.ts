@@ -3,6 +3,9 @@ export * from "./hooks";
 export * from "./permissions";
 export * from "./types";
 
+// Export specific types for convenience
+export type { Environment } from "./types";
+
 // Feature flags
 export * from "./FeatureFlagProvider";
 
@@ -43,10 +46,13 @@ export type {
 // Query client utilities
 export {
   createFetchClient,
+  configureApplets,
   createApiClient,
   getApiClient,
-  configureApplets,
-  type ApiClientConfig,
+  getAppletApiUrl,
+  useApiClient,
+  getAvailableServers,
+  getServerUrlFromSpec,
 } from "./query-client";
 
 // Route utilities for automatic mountPath injection

@@ -8,8 +8,8 @@ import {
   createBulkDeleteAction,
   createBulkUpdateAction,
 } from "@smbc/react-query-dataview";
-import { getApiClient } from "@smbc/applet-core";
-import type { components, paths } from "@smbc/user-management-api/generated/types";
+import { useApiClient } from "@smbc/applet-core";
+import type { components, paths } from "@smbc/user-management-api/types";
 
 type User = components["schemas"]["User"];
 
@@ -19,10 +19,11 @@ type User = components["schemas"]["User"];
  * Bulk actions appear in the action bar when rows are selected.
  * They can be conditionally shown based on the selected items.
  */
-export const createBulkActionsConfig = (permissions: {
+export const useBulkActionsConfig = (permissions: {
   canEdit: boolean;
   canDelete: boolean;
 }): BulkAction<User>[] => {
+  const apiClient = useApiClient<paths>("user-management");
   const actions: BulkAction<User>[] = [];
 
   if (permissions.canEdit) {
@@ -30,7 +31,7 @@ export const createBulkActionsConfig = (permissions: {
     const activateAction = createBulkUpdateAction<User>(
       async (id: string | number, data: Partial<User>) => {
         // Use the generated API client to update the user
-        const result = await getApiClient<paths>("user-management").PATCH("/users/{id}", {
+        const result = await apiClient.PATCH("/users/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -60,7 +61,7 @@ export const createBulkActionsConfig = (permissions: {
     const deactivateAction = createBulkUpdateAction<User>(
       async (id: string | number, data: Partial<User>) => {
         // Use the generated API client to update the user
-        const result = await getApiClient<paths>("user-management").PATCH("/users/{id}", {
+        const result = await apiClient.PATCH("/users/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -91,7 +92,7 @@ export const createBulkActionsConfig = (permissions: {
     const deleteAction = createBulkDeleteAction<User>(
       async (id: string | number) => {
         // Use the generated API client to delete the user
-        const result = await getApiClient<paths>("user-management").DELETE("/users/{id}", {
+        const result = await apiClient.DELETE("/users/{id}", {
           params: { path: { id: id as string } },
         });
 

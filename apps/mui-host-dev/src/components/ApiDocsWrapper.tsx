@@ -1,4 +1,4 @@
-import { ApiDocsModal } from "@smbc/mui-applet-devtools";
+import { ApiDocsModal } from "@smbc/mui-dev-components";
 // Import swagger-ui CSS statically in dev template
 import "swagger-ui-react/swagger-ui.css";
 

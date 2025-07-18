@@ -73,7 +73,7 @@ export function mountApplet(
     label: config.label,
     apiSpec: applet.apiSpec,
     apiBaseUrl: config.apiBaseUrl,
-    version: config.version || applet.version,
+    version: config.version,
     filterable: config.filterable,
     getHostNavigation: applet.getHostNavigation,
     routes: [

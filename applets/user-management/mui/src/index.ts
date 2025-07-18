@@ -1,7 +1,6 @@
 import { Applet } from "./Applet";
 import permissions from "./permissions";
 import spec from "@smbc/user-management-api";
-import packageJson from "../package.json";
 
 export default {
   permissions,
@@ -10,5 +9,4 @@ export default {
     name: "User Management API",
     spec,
   },
-  version: packageJson.version,
 };

@@ -1,8 +1,6 @@
-import { useHashNavigation, AppletMount } from '@smbc/applet-core';
+import { useHashNavigation, useApplets, type HostAppletRoute } from '@smbc/applet-core';
 
 interface AppletRouterProps {
-  /** Array of applet configurations */
-  applets: AppletMount[];
   /** Optional component to render when no routes match */
   defaultComponent?: React.ComponentType;
 }
@@ -11,12 +9,13 @@ interface AppletRouterProps {
  * Pure routing component that renders the appropriate applet based on the current hash path.
  * Does not provide any styling or layout - just renders the matched component.
  */
-export function AppletRouter({ applets, defaultComponent: DefaultComponent }: AppletRouterProps) {
+export function AppletRouter({ defaultComponent: DefaultComponent }: AppletRouterProps) {
+  const applets = useApplets();
   const { currentPath } = useHashNavigation();
 
   // Find the first matching route
   for (const applet of applets) {
-    const matchingRoute = applet.routes.find(route => 
+    const matchingRoute = applet.routes.find((route: HostAppletRoute) => 
       currentPath.startsWith(route.path)
     );
     

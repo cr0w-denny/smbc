@@ -6,7 +6,7 @@ import type { ColDef, GridOptions } from "ag-grid-community";
 import "ag-grid-enterprise";
 import { Filter } from "@smbc/mui-components";
 import type { FilterSpec } from "@smbc/mui-components";
-import { useHashParams, getApiClient, useFeatureFlag } from "@smbc/applet-core";
+import { useHashParams, useApiClient, useFeatureFlag } from "@smbc/applet-core";
 import type { paths } from "@smbc/usage-stats-api";
 
 interface UsageFilters {
@@ -141,7 +141,7 @@ export const Applet: React.FC<AppletProps> = ({
   }, [filters.group]);
 
   // Get API client
-  const apiClient = getApiClient<typeof paths>("usage-stats");
+  const apiClient = useApiClient<typeof paths>("usage-stats");
 
   // API endpoint based on group
   const endpoint = useMemo(() => {

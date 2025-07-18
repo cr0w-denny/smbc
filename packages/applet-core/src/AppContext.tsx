@@ -11,12 +11,14 @@ import {
   NavigationItem,
   RoleConfig,
   MswStatus,
+  AppletMount,
   createRoleUtilities,
 } from "./types";
 
 interface AppContextValue {
   state: AppState;
   roleUtils: ReturnType<typeof createRoleUtilities>;
+  applets: AppletMount[];
   actions: {
     setUser: (user: User | null) => void;
     setNavigation: (navigation: NavigationItem[]) => void;
@@ -33,6 +35,7 @@ interface AppletProviderProps {
   initialNavigation?: NavigationItem[];
   initialRoleConfig?: RoleConfig;
   appletRegistry?: Record<string, any>;
+  applets?: AppletMount[];
 }
 
 export const AppletProvider: React.FC<AppletProviderProps> = ({
@@ -41,6 +44,7 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
   initialNavigation = [],
   initialRoleConfig = { roles: ["Guest", "User"], permissionMappings: {} },
   appletRegistry = {},
+  applets = [],
 }) => {
   const [state, setState] = useState<AppState>({
     user: initialUser,
@@ -93,6 +97,7 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
   const contextValue: AppContextValue = {
     state,
     roleUtils,
+    applets,
     actions: {
       setUser,
       setNavigation,
@@ -113,4 +118,13 @@ export const useAppletCore = (): AppContextValue => {
     throw new Error("useAppletCore must be used within an AppletProvider");
   }
   return context;
+};
+
+// Hook to get applets
+export const useApplets = (): AppletMount[] => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error("useApplets must be used within an AppletProvider");
+  }
+  return context.applets;
 };

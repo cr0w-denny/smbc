@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { getApiClient } from "@smbc/applet-core";
-import type { components, paths } from "@smbc/user-management-api/generated/types";
+import type { components, paths } from "@smbc/user-management-api/types";
 
 type User = components["schemas"]["User"];
 

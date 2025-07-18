@@ -1,5 +1,5 @@
 import { Chip } from "@mui/material";
-import type { components } from "@smbc/user-management-api/generated/types";
+import type { components } from "@smbc/user-management-api/types";
 
 type User = components["schemas"]["User"];
 

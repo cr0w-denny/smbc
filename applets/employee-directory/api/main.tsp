@@ -15,9 +15,10 @@ using TypeSpec.OpenAPI;
 @service(#{
   title: "Employee Directory API",
 })
-@server("https://api.smbcgroup.com/api/v1/employee-directory", "Production server")
-@server("http://localhost:3001/api/v1/employee-directory", "Development server") 
-@server("http://localhost:3000/api/v1/employee-directory", "Mock server")
+@server("/api/v1/employee-directory", "mock")
+@server("http://localhost:3001/api/v1/employee-directory", "dev")
+@server("https://api-qa.smbcgroup.com/api/v1/employee-directory", "qa")
+@server("https://api.smbcgroup.com/api/v1/employee-directory", "prod")
 namespace EmployeeDirectory;
 
 model Employee {
@@ -63,6 +64,13 @@ model UpdateEmployeeRequest {
   active?: boolean;
 }
 
+model EmployeeList {
+  employees: Employee[];
+  total: int32;
+  page: int32;
+  pageSize: int32;
+}
+
 @route("/employees")
 interface Employees {
   @get
@@ -72,7 +80,7 @@ interface Employees {
     @query active?: boolean,
     @query page?: int32,
     @query pageSize?: int32
-  ): Employee[];
+  ): EmployeeList;
   
   @get
   @route("/{id}")

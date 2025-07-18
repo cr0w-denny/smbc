@@ -191,7 +191,7 @@ export default {
         <TabPanel value={configTabValue} index={0}>
           <CodeBlock filename="applets/employee-directory/mui/src/config/index.ts">
 {`import { type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
-import type { components } from "@smbc/employee-directory-api/generated/types";
+import type { components } from "@smbc/employee-directory-api/types";
 import { createApiConfig } from "./api";
 import { createSchemaConfig } from "./schema";
 import { createColumnsConfig } from "./columns";
@@ -284,7 +284,7 @@ export function createAppletConfig({
           <CodeBlock filename="applets/employee-directory/mui/src/config/columns.tsx">
 {`import React from "react";
 import { Avatar, Chip, Box } from "@mui/material";
-import type { components } from "@smbc/employee-directory-api/generated/types";
+import type { components } from "@smbc/employee-directory-api/types";
 
 type Employee = components["schemas"]["Employee"];
 

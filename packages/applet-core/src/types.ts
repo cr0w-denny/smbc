@@ -1,6 +1,11 @@
 import React from "react";
 import { PermissionDefinition } from "./permissions";
 
+/**
+ * Supported deployment environments
+ */
+export type Environment = "mock" | "development" | "qa" | "production";
+
 // Role configuration types
 export interface RoleConfig {
   roles: string[];

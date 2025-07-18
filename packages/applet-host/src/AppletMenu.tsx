@@ -1,8 +1,6 @@
-import { AppletMount, useHashNavigation } from '@smbc/applet-core';
+import { useApplets, useHashNavigation } from '@smbc/applet-core';
 
 interface AppletMenuProps {
-  /** Array of applet configurations */
-  applets: AppletMount[];
   /** Custom styling */
   className?: string;
   /** Render as horizontal menu (default: vertical) */
@@ -14,10 +12,10 @@ interface AppletMenuProps {
  * Provides minimal navigation between configured applets
  */
 export function AppletMenu({ 
-  applets, 
   className = '',
   horizontal = false 
 }: AppletMenuProps) {
+  const applets = useApplets();
   const { currentPath, navigateTo } = useHashNavigation();
   const menuStyle = horizontal 
     ? { display: 'flex', gap: '1rem', listStyle: 'none', padding: 0, margin: 0 }

@@ -1,0 +1,58 @@
+{
+  "name": "@smbc/openapi-msw",
+  "version": "0.0.1",
+  "description": "Generate MSW mock handlers from OpenAPI specifications",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "openapi-msw": "./bin/openapi-msw.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./setup": {
+      "types": "./dist/setup.d.ts",
+      "import": "./dist/setup.js"
+    }
+  },
+  "files": [
+    "dist",
+    "bin",
+    "templates",
+    "public"
+  ],
+  "scripts": {
+    "build": "tsc && cp -r public dist/",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "lint": "echo 'Lint: openapi-msw'",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "msw": "^2.2.0",
+    "@faker-js/faker": "^8.0.0",
+    "handlebars": "^4.7.8",
+    "glob": "^11.0.3",
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "fs-extra": "^11.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "@types/handlebars": "^4.0.40",
+    "@types/fs-extra": "^11.0.1",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
+  }
+}

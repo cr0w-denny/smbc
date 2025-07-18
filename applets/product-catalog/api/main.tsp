@@ -12,9 +12,10 @@ using TypeSpec.OpenAPI;
 @service(#{
   title: "Product Catalog API",
 })
-@server("https://api.smbcgroup.com/api/v1/product-catalog", "Production server")
-@server("http://localhost:3001/api/v1/product-catalog", "Development server")
-@server("http://localhost:3000/api/v1/product-catalog", "Mock server")
+@server("/api/v1/product-catalog", "mock")
+@server("http://localhost:3001/api/v1/product-catalog", "dev")
+@server("https://api-qa.smbcgroup.com/api/v1/product-catalog", "qa")
+@server("https://api.smbcgroup.com/api/v1/product-catalog", "prod")
 namespace ProductCatalogAPI;
 
 model Product {

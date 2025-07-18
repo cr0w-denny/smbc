@@ -25,7 +25,7 @@
       "path": "../../packages/applet-core"
     },
     {
-      "path": "../../packages/applet-devtools"
+      "path": "../../packages/mui-dev-components"
     },
     {
       "path": "../../applets/product-catalog/mui"

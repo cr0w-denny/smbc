@@ -17,14 +17,14 @@
  */
 
 import { type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
-import type { components } from "@smbc/user-management-api/generated/types";
+import type { components } from "@smbc/user-management-api/types";
 
-import { createApiConfig } from "./api";
+import { useApiConfig } from "./api";
 import { createSchemaConfig } from "./schema";
 import { createColumnsConfig, getActiveColumns } from "./columns";
 import { createFiltersConfig, transformFilters } from "./filters";
 import { createActionsConfig } from "./actions";
-import { createBulkActionsConfig } from "./bulkActions";
+import { useBulkActionsConfig } from "./bulkActions";
 import { createGlobalActionsConfig } from "./globalActions";
 import { createFormsConfig } from "./forms";
 
@@ -45,16 +45,21 @@ export interface UserManagerConfigOptions {
 /**
  * Create UserManager configuration
  */
-export function createUserManagerConfig({
+export function useUserManagerConfig({
   userType,
   permissions,
   handlers,
 }: UserManagerConfigOptions): MuiDataViewAppletConfig<User> {
+  const apiConfig = useApiConfig(userType);
   const columns = createColumnsConfig();
+  const bulkActions = useBulkActionsConfig({
+    canEdit: permissions.canEdit,
+    canDelete: permissions.canDelete,
+  });
 
   return {
     // API configuration
-    api: createApiConfig(userType),
+    api: apiConfig,
 
     // Data schema
     schema: createSchemaConfig(),
@@ -74,10 +79,7 @@ export function createUserManagerConfig({
         },
         handlers,
       ),
-      bulk: createBulkActionsConfig({
-        canEdit: permissions.canEdit,
-        canDelete: permissions.canDelete,
-      }),
+      bulk: bulkActions,
       global: createGlobalActionsConfig({
         canCreate: permissions.canCreate,
       }),

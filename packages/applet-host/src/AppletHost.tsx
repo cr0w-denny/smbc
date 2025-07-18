@@ -3,15 +3,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { 
   FeatureFlagProvider, 
   AppletProvider, 
+  configureApplets,
   type FeatureFlagConfig,
   type User,
   type RoleConfig,
-  type NavigationItem
+  type NavigationItem,
+  type AppletMount
 } from '@smbc/applet-core';
 
 interface AppletHostProps {
   /** Child components to render */
   children: React.ReactNode;
+  
+  /** Applet configurations */
+  applets: AppletMount[];
   
   /** Feature flag configurations */
   featureFlags?: FeatureFlagConfig[];
@@ -83,6 +88,7 @@ const defaultQueryClient = new QueryClient({
  */
 export function AppletHost({
   children,
+  applets,
   featureFlags = defaultFeatureFlags,
   initialUser = null,
   initialNavigation = [],
@@ -90,6 +96,11 @@ export function AppletHost({
   queryClient = defaultQueryClient,
   storagePrefix = "smbcApplet",
 }: AppletHostProps) {
+  // Configure applets for the query client
+  React.useEffect(() => {
+    configureApplets(applets);
+  }, [applets]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <FeatureFlagProvider configs={featureFlags} storagePrefix={storagePrefix}>
@@ -97,6 +108,7 @@ export function AppletHost({
           initialUser={initialUser}
           initialNavigation={initialNavigation}
           initialRoleConfig={initialRoleConfig}
+          applets={applets}
         >
           {children}
         </AppletProvider>

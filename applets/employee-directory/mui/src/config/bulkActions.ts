@@ -8,8 +8,8 @@ import {
   createBulkDeleteAction,
   createBulkUpdateAction,
 } from "@smbc/react-query-dataview";
-import { getApiClient } from "@smbc/applet-core";
-import type { components, paths } from "@smbc/employee-directory-api/generated/types";
+import { useApiClient } from "@smbc/applet-core";
+import type { components, paths } from "@smbc/employee-directory-api/types";
 
 type Employee = components["schemas"]["Employee"];
 
@@ -19,10 +19,11 @@ type Employee = components["schemas"]["Employee"];
  * Bulk actions appear in the action bar when rows are selected.
  * They can be conditionally shown based on the selected items.
  */
-export const createBulkActionsConfig = (permissions: {
+export const useBulkActionsConfig = (permissions: {
   canEdit: boolean;
   canDelete: boolean;
 }): BulkAction<Employee>[] => {
+  const apiClient = useApiClient<paths>("employee-directory");
   const actions: BulkAction<Employee>[] = [];
 
   if (permissions.canEdit) {
@@ -30,7 +31,7 @@ export const createBulkActionsConfig = (permissions: {
     const activateAction = createBulkUpdateAction<Employee>(
       async (id: string | number, data: Partial<Employee>) => {
         // Use the generated API client to update the employee
-        const result = await getApiClient<paths>("employee-directory").PATCH("/employees/{id}", {
+        const result = await apiClient.PATCH("/employees/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -60,7 +61,7 @@ export const createBulkActionsConfig = (permissions: {
     const deactivateAction = createBulkUpdateAction<Employee>(
       async (id: string | number, data: Partial<Employee>) => {
         // Use the generated API client to update the employee
-        const result = await getApiClient<paths>("employee-directory").PATCH("/employees/{id}", {
+        const result = await apiClient.PATCH("/employees/{id}", {
           params: { path: { id: id as string } },
           body: data,
         });
@@ -91,7 +92,7 @@ export const createBulkActionsConfig = (permissions: {
     const deleteAction = createBulkDeleteAction<Employee>(
       async (id: string | number) => {
         // Use the generated API client to delete the employee
-        const result = await getApiClient<paths>("employee-directory").DELETE("/employees/{id}", {
+        const result = await apiClient.DELETE("/employees/{id}", {
           params: { path: { id: id as string } },
         });
 

@@ -3,14 +3,14 @@
  */
 
 import { type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
-import type { components } from "@smbc/employee-directory-api/generated/types";
+import type { components } from "@smbc/employee-directory-api/types";
 
-import { createApiConfig } from "./api";
+import { useApiConfig } from "./api";
 import { createSchemaConfig } from "./schema";
 import { createColumnsConfig } from "./columns";
 import { createFiltersConfig } from "./filters";
 import { createActionsConfig } from "./actions";
-import { createBulkActionsConfig } from "./bulkActions";
+import { useBulkActionsConfig } from "./bulkActions";
 import { createGlobalActionsConfig } from "./globalActions";
 import { createFormsConfig } from "./forms";
 
@@ -27,24 +27,18 @@ export interface EmployeeDirectoryConfigOptions {
 /**
  * Create Employee Directory configuration
  */
-export function createAppletConfig({
+export function useAppletConfig({
   permissions,
 }: EmployeeDirectoryConfigOptions): MuiDataViewAppletConfig<Employee> {
-  const rowActions = createActionsConfig({
+  const apiConfig = useApiConfig();
+  const bulkActions = useBulkActionsConfig({
     canEdit: permissions.canEdit,
     canDelete: permissions.canDelete,
   });
-  const bulkActions = createBulkActionsConfig({
-    canEdit: permissions.canEdit,
-    canDelete: permissions.canDelete,
-  });
-  const globalActions = createGlobalActionsConfig({
-    canCreate: permissions.canCreate,
-  });
-
+  
   return {
     // API configuration
-    api: createApiConfig(),
+    api: apiConfig,
 
     // Data schema
     schema: createSchemaConfig(),
@@ -57,9 +51,14 @@ export function createAppletConfig({
 
     // Actions
     actions: {
-      row: rowActions,
+      row: createActionsConfig({
+        canEdit: permissions.canEdit,
+        canDelete: permissions.canDelete,
+      }),
       bulk: bulkActions,
-      global: globalActions,
+      global: createGlobalActionsConfig({
+        canCreate: permissions.canCreate,
+      }),
     },
 
     // Forms

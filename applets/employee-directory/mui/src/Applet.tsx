@@ -1,7 +1,7 @@
 // employee-directory/src/Applet.tsx
 import { MuiDataViewApplet } from "@smbc/mui-applet-core";
 import { usePermissions } from "@smbc/applet-core";
-import { createAppletConfig } from "./config";
+import { useAppletConfig } from "./config";
 import permissions from "./permissions";
 
 export interface AppletProps {
@@ -9,16 +9,26 @@ export interface AppletProps {
 }
 
 export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
+  console.log('🚨 FOCUS_DEBUG EmployeeDirectory render:', {
+    mountPath: _mountPath,
+    timestamp: Date.now()
+  });
+  
   // Get permissions for the current context
   const { hasPermission } = usePermissions();
 
   // Create the configuration
-  const config = createAppletConfig({
+  const config = useAppletConfig({
     permissions: {
       canCreate: hasPermission("employee-directory", permissions.MANAGE_EMPLOYEES),
       canEdit: hasPermission("employee-directory", permissions.EDIT_EMPLOYEES),
       canDelete: hasPermission("employee-directory", permissions.MANAGE_EMPLOYEES),
     },
+  });
+  
+  console.log('🔍 EmployeeDirectory config created:', {
+    config: !!config,
+    timestamp: Date.now()
   });
 
   // Event handlers
@@ -26,6 +36,11 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     _action: "create" | "edit" | "delete",
     _item?: any,
   ) => {
+    console.log('🔍 EmployeeDirectory handleSuccess:', {
+      action: _action,
+      item: _item,
+      timestamp: Date.now()
+    });
     // TODO: Add toast notification or snackbar
   };
 
@@ -34,9 +49,19 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     error: any,
     item?: any,
   ) => {
+    console.log('🔍 EmployeeDirectory handleError:', {
+      action,
+      error,
+      item,
+      timestamp: Date.now()
+    });
     console.error(`Error: ${action}`, error, item);
     // TODO: Add error notification
   };
+
+  console.log('🔍 EmployeeDirectory rendering MuiDataViewApplet:', {
+    timestamp: Date.now()
+  });
 
   return (
     <MuiDataViewApplet

@@ -5,10 +5,12 @@
  * shared dependency versions across the monorepo.
  */
 
-// Re-export everything from metadata.js
-export { CORE_DEPS, SMBC_PACKAGES, APPLET_METADATA, getAppletsByFramework } from './metadata.js';
+// Re-export everything from metadata.keep.js
+// @ts-ignore
+export { CORE_DEPS, SMBC_PACKAGES, APPLET_METADATA, getAppletsByFramework } from './metadata.keep.js';
 
-import { APPLET_METADATA } from './metadata.js';
+// @ts-ignore
+import { APPLET_METADATA } from './metadata.keep.js';
 
 /**
  * Get package name for an applet ID (converts ID to package name)
@@ -58,3 +60,15 @@ export const APPLET_REGISTRY = Object.fromEntries(
     }
   ])
 );
+
+// Re-export documentation functions from applet-docs.keep.js
+// @ts-ignore
+export { getAppletDocs, hasBackendDocs } from './applet-docs.keep.js';
+
+// Missing exports that InstallationModal needs
+export const CORE_PEER_DEPS = {
+  "react": "^18.2.0",
+  "react-dom": "^18.2.0",
+  "@mui/material": "^5.0.0",
+  "@mui/icons-material": "^5.0.0"
+};

@@ -57,7 +57,4 @@ export { ActivitySnackbar } from "./ActivitySnackbar";
 // Re-export MuiDataView from the separate package for convenience
 export { MuiDataView } from "@smbc/react-query-dataview-mui";
 
-// Host application bar
-export { HostAppBar } from "./HostAppBar";
-export type { HostAppBarProps, CurrentAppletInfo } from "./HostAppBar";
 

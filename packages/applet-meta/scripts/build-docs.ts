@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '../../../');
-const outputFile = path.resolve(__dirname, '../src/applet-docs.js');
+const outputFile = path.resolve(__dirname, '../src/applet-docs.keep.js');
 
 interface AppletDoc {
   markdown: string;
