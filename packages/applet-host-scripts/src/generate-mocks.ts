@@ -41,17 +41,17 @@ const MOCKS_INDEX = join(MOCKS_DIR, "index.ts");
  */
 async function extractAppletIds(): Promise<string[]> {
   try {
-    // Use the same discovery approach as applet-meta
-    const { getAppletMetadata } = await import('@smbc/applet-meta');
-    const installedApplets = getAppletMetadata();
+    // Use the new discovery approach
+    const { getInstalledApplets } = await import('./applet-discovery.js');
+    const installedApplets = getInstalledApplets();
     
     // Extract applet IDs from the installed applets
-    const appletIds = Object.values(installedApplets).map((applet: any) => applet.id);
+    const appletIds = installedApplets.map(applet => applet.metadata.id);
     
     return appletIds;
   } catch (error) {
     console.error("❌ Could not discover installed applets:", (error as Error).message);
-    console.error("💡 Make sure @smbc/applet-meta is installed");
+    console.error("💡 Make sure you have applets installed in your project");
     process.exit(1);
   }
 }

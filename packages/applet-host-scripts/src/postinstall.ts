@@ -12,9 +12,25 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
-import { APPLET_METADATA, getAppletsByFramework } from '@smbc/applet-meta';
+import { getAppletsByFramework } from './applet-discovery.js';
 import readline from 'readline';
 import { spawn } from 'child_process';
+
+// Check if we're running in a monorepo context
+const isInMonorepo = (() => {
+  try {
+    // Look for root package.json to detect monorepo
+    const rootPackageJson = resolve(process.cwd(), '../../package.json');
+    return existsSync(rootPackageJson);
+  } catch {
+    return false;
+  }
+})();
+
+if (isInMonorepo) {
+  console.log('⏭️  Skipping applet-postinstall (running in monorepo context)');
+  process.exit(0);
+}
 
 // Check if we're in a CI environment or should skip interactive setup
 const isCI = process.env.CI === 'true' || process.env.NODE_ENV === 'test';
@@ -135,18 +151,9 @@ async function main(): Promise<void> {
       console.log('');
     }
     
-    // Get available applets for this framework from static metadata (for discovery)
-    // @ts-ignore
-    const { APPLET_METADATA } = await import('./metadata.keep.js');
-    const availableApplets: Record<string, any> = {};
-    
-    for (const [packageName, appletData] of Object.entries(APPLET_METADATA)) {
-      if ((appletData as any).framework === framework || framework === 'unknown') {
-        availableApplets[packageName] = appletData;
-      }
-    }
-    
-    const appletKeys = Object.keys(availableApplets);
+    // Get available applets for this framework from npm discovery
+    const availableApplets = getAppletsByFramework(framework);
+    const appletKeys = availableApplets.map(applet => applet.packageName);
     
     if (appletKeys.length === 0) {
       console.log('📦 No applets available for this framework. Creating minimal config...');
@@ -173,19 +180,18 @@ async function main(): Promise<void> {
     
     // Show available applets
     console.log(`📦 Available ${framework} applets:`);
-    appletKeys.forEach((key, index) => {
-      const applet = availableApplets[key];
-      console.log(`${index + 1}. ${applet.name} - ${applet.description}`);
+    availableApplets.forEach((applet, index) => {
+      console.log(`${index + 1}. ${applet.metadata.name} - ${applet.metadata.description}`);
     });
     console.log('');
     
     // Get selected applets
     const selection = await prompt('Select applets (comma-separated numbers, e.g., "1,3", or press Enter for none): ');
     const selectedIndices = selection.trim() ? 
-      selection.split(',').map(s => parseInt(s.trim()) - 1).filter(i => i >= 0 && i < appletKeys.length) : 
+      selection.split(',').map(s => parseInt(s.trim()) - 1).filter(i => i >= 0 && i < availableApplets.length) : 
       [];
     
-    const selectedApplets = selectedIndices.map(i => appletKeys[i]);
+    const selectedApplets = selectedIndices.map(i => availableApplets[i]);
     
     // Create src directory if it doesn't exist
     const srcDir = resolve(process.cwd(), 'src');
@@ -194,7 +200,7 @@ async function main(): Promise<void> {
     }
     
     // Generate config
-    const config = generateConfig(framework, selectedApplets, availableApplets);
+    const config = generateConfig(framework, selectedApplets);
     
     // Write config file
     writeFileSync(configPath, config);
@@ -212,7 +218,8 @@ async function main(): Promise<void> {
       const packageManager = useYarn ? 'yarn' : 'npm';
       const installCmd = useYarn ? 'add' : 'install';
       
-      const installProcess = spawn(packageManager, [installCmd, ...selectedApplets], {
+      const packageNames = selectedApplets.map(applet => applet.packageName);
+      const installProcess = spawn(packageManager, [installCmd, ...packageNames], {
         stdio: 'inherit',
         cwd: process.cwd()
       });
@@ -227,7 +234,7 @@ async function main(): Promise<void> {
           console.log('');
           console.log('⚠️  Applet installation failed. You can install them manually:');
           selectedApplets.forEach(applet => {
-            console.log(`   ${packageManager} ${installCmd} ${applet}`);
+            console.log(`   ${packageManager} ${installCmd} ${applet.packageName}`);
           });
         }
         rl.close();
@@ -257,6 +264,7 @@ function generateMinimalConfig(framework: string): string {
 import {
   generatePermissionMappings,
   createPermissionRequirements,
+  createMinRole,
   mountApplet,
 } from "@smbc/applet-core";
 
@@ -309,8 +317,15 @@ export const demoUser = {
 // PERMISSION CONFIGURATION
 // =============================================================================
 
+// Create type-safe minRole function
+const minRole = createMinRole(HOST_ROLES);
+
 const permissionRequirements = createPermissionRequirements({
   // Add permission requirements here
+  // Example:
+  // "applet-id": minRole(appletName, {
+  //   PERMISSION_KEY: "User",
+  // }),
 });
 
 export const ROLE_CONFIG: RoleConfig = {
@@ -335,44 +350,38 @@ export const __APPLET_METADATA__ = {
 }
 
 
-function generateConfig(framework: string, selectedApplets: string[], availableApplets: Record<string, any>): string {
-  const imports = selectedApplets.map(pkg => {
-    const applet = availableApplets[pkg];
-    return `import ${applet.exportName} from '${pkg}';`;
+function generateConfig(framework: string, selectedApplets: any[]): string {
+  const imports = selectedApplets.map(applet => {
+    return `import ${applet.metadata.exportName} from '${applet.packageName}';`;
   }).join('\n');
   
-  const iconImports = selectedApplets.map(pkg => {
-    const applet = availableApplets[pkg];
-    return applet.icon;
+  const iconImports = selectedApplets.map(applet => {
+    return applet.metadata.icon;
   }).filter((icon, index, arr) => arr.indexOf(icon) === index);
   
   const iconImportLine = iconImports.length > 0 ? 
     `import { ${iconImports.join(', ')} } from '@mui/icons-material';` : 
     '';
   
-  const appletConfigs = selectedApplets.map(pkg => {
-    const applet = availableApplets[pkg];
-    const iconName = applet.icon;
-    const appletVarName = applet.exportName;
+  const appletConfigs = selectedApplets.map(applet => {
+    const iconName = applet.metadata.icon;
+    const appletVarName = applet.metadata.exportName;
     return `  mountApplet(${appletVarName}, {
-    id: "${applet.id}",
-    label: "${applet.name}",
-    path: "${applet.path}",
+    id: "${applet.metadata.id}",
+    label: "${applet.metadata.name}",
+    path: "${applet.metadata.path}",
     icon: ${iconName},
     permissions: [],
     version: "0.0.0", // Will be read from package.json at runtime
   }),`;
   }).join('\n');
   
-  const permissionConfigs = selectedApplets.map(pkg => {
-    const applet = availableApplets[pkg];
-    const appletVarName = applet.exportName;
-    return `  "${applet.id}": {
-    applet: ${appletVarName},
-    permissions: {
-      // Add your permission mappings here
-    },
-  },`;
+  const permissionConfigs = selectedApplets.map(applet => {
+    const appletVarName = applet.metadata.exportName;
+    return `  "${applet.metadata.id}": minRole(${appletVarName}, {
+    // Add your permission mappings here
+    // TypeScript will suggest available permissions
+  }),`;
   }).join('\n');
   
   return `import type {
@@ -382,6 +391,7 @@ function generateConfig(framework: string, selectedApplets: string[], availableA
 import {
   generatePermissionMappings,
   createPermissionRequirements,
+  createMinRole,
   mountApplet,
 } from "@smbc/applet-core";
 ${iconImportLine}
@@ -438,6 +448,9 @@ export const demoUser = {
 // PERMISSION CONFIGURATION
 // =============================================================================
 
+// Create type-safe minRole function
+const minRole = createMinRole(HOST_ROLES);
+
 const permissionRequirements = createPermissionRequirements({
 ${permissionConfigs}
 });
@@ -459,14 +472,13 @@ export const __APPLET_METADATA__ = {
   generated: "${new Date().toISOString()}",
   framework: "${framework}",
   applets: {
-${selectedApplets.map(pkg => {
-  const applet = availableApplets[pkg];
-  return `    "${pkg}": {
-      name: "${applet.name}",
-      description: "${applet.description}",
-      icon: "${applet.icon}",
-      path: "${applet.path}",
-      permissions: [${applet.permissions.map((p: string) => `"${p}"`).join(', ')}],
+${selectedApplets.map(applet => {
+  return `    "${applet.packageName}": {
+      name: "${applet.metadata.name}",
+      description: "${applet.metadata.description}",
+      icon: "${applet.metadata.icon}",
+      path: "${applet.metadata.path}",
+      permissions: [${applet.metadata.permissions.map((p: string) => `"${p}"`).join(', ')}],
     },`;
 }).join('\n')}
   },

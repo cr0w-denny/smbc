@@ -16,7 +16,7 @@ import { fileURLToPath } from "url";
 import { glob } from "glob";
 import chalk from "chalk";
 import { table } from "table";
-import { CORE_DEPS, SMBC_PACKAGES } from "../../packages/shared-deps/src/index.js";
+import { CORE_DEPS, SMBC_PACKAGES } from "../../packages/applet-meta/index.mjs";
 
 interface PackageJson {
   name?: string;
@@ -160,16 +160,6 @@ async function syncDependencies() {
 
   console.log(chalk.green(`\n✅ Updated ${updatedCount} package.json files`));
   
-  // Also sync the DevHostAppBar dependencies
-  try {
-    const { execSync } = await import('child_process');
-    execSync('tsx ./sync-devbar-deps.ts', { 
-      cwd: __dirname,
-      stdio: 'inherit'
-    });
-  } catch (error) {
-    console.log(chalk.yellow('⚠️  Could not sync DevHostAppBar dependencies'));
-  }
 }
 
 /**

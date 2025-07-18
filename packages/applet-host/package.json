@@ -25,16 +25,17 @@
     "@smbc/applet-meta": "*"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@smbc/applet-host-scripts": "*",
     "@tanstack/react-query": "^5.0.0",
-    "@smbc/applet-host-scripts": "*"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.3.3"
   },
   "publishConfig": {
     "access": "public",

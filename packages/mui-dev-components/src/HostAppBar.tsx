@@ -14,7 +14,7 @@ import {
   GetApp as InstallIcon,
 } from "@mui/icons-material";
 import { useFeatureFlag, useAppletCore, type Environment } from "@smbc/applet-core";
-import { APPLET_REGISTRY } from "@smbc/applet-meta";
+import { getPackageName } from "./utils/getPackageName";
 import { InstallationModal } from './InstallationModal/InstallationModal';
 import { ServerSelector } from './ServerSelector';
 
@@ -106,8 +106,7 @@ export function HostAppBar({
         {/* Applet Installation Guide Button */}
         {showAppletInstallation &&
           currentAppletInfo?.id &&
-          currentAppletInfo.id !== "hello" &&
-          APPLET_REGISTRY[currentAppletInfo.id] && (
+          currentAppletInfo.id !== "hello" && (
             <Tooltip title="View installation instructions">
               <Button
                 startIcon={<InstallIcon />}
@@ -124,7 +123,7 @@ export function HostAppBar({
                   },
                 }}
               >
-                Install {APPLET_REGISTRY[currentAppletInfo.id]?.packageName}
+                Install {getPackageName(currentAppletInfo.id)}
               </Button>
             </Tooltip>
           )}

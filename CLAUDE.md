@@ -28,3 +28,6 @@
 
 ## Workflow Principles
 - dont assume! always ask before removing stuff
+
+## Meta Notes
+- this is a real implementation. never use something and say "in a real implementation" because this IS A REAL IMPLEMENTATION

@@ -4,6 +4,7 @@ import {
   createPermissionRequirements,
   generatePermissionMappings,
   mountApplet,
+  createMinRole,
 } from "@smbc/applet-core";
 import {
   People as PeopleIcon,
@@ -21,6 +22,7 @@ import helloApplet from "../../../applets/hello/mui/src";
 import employeeDirectoryApplet from "../../../applets/employee-directory/mui/src";
 import usageStatsApplet from "../../../applets/usage-stats/mui/src";
 import demoTasksApplet from "./demo";
+
 
 // =============================================================================
 // DEMO USER CONFIGURATION
@@ -71,69 +73,53 @@ export type HostRole = (typeof HOST_ROLES)[number];
 // PERMISSION CONFIGURATION
 // =============================================================================
 
+const minRole = createMinRole(HOST_ROLES);
+
 // Define minimum required roles for each permission
 const permissionRequirements = createPermissionRequirements({
-  "user-management": {
-    applet: userManagementApplet,
-    permissions: {
-      VIEW_USERS: "Staff",
-      CREATE_USERS: "Manager",
-      EDIT_USERS: "Manager",
-      DELETE_USERS: "Admin",
-      MANAGE_ROLES: "Admin",
-      VIEW_ANALYTICS: "Manager",
-    },
-  },
-  "admin-users": {
-    applet: userManagementApplet,
-    permissions: {
-      VIEW_USERS: "Admin",
-      CREATE_USERS: "Admin",
-      EDIT_USERS: "Admin",
-      DELETE_USERS: "SuperAdmin",
-      MANAGE_ROLES: "Admin",
-      VIEW_ANALYTICS: "Admin",
-    },
-  },
-  "product-catalog": {
-    applet: productCatalogApplet,
-    permissions: {
-      VIEW_PRODUCTS: "Guest",
-      CREATE_PRODUCTS: "Staff",
-      EDIT_PRODUCTS: "Staff",
-      DELETE_PRODUCTS: "Manager",
-      MANAGE_CATEGORIES: "Manager",
-      VIEW_INVENTORY: "Staff",
-      MANAGE_PRICING: "Manager",
-    },
-  },
-  hello: {
-    applet: helloApplet,
-    permissions: {
-      VIEW_ROUTE_ONE: "Guest",
-      VIEW_ROUTE_TWO: "Staff",
-      VIEW_ROUTE_THREE: "Manager",
-      VIEW_ROUTE_FOUR: "Admin",
-    },
-  },
-  "employee-directory": {
-    applet: employeeDirectoryApplet,
-    permissions: {
-      VIEW_EMPLOYEES: "Staff",
-      EDIT_EMPLOYEES: "Manager", 
-      MANAGE_EMPLOYEES: "Admin",
-    },
-  },
-  "usage-stats": {
-    applet: usageStatsApplet,
-    permissions: {
-      VIEW_USAGE_STATS: "Manager",
-      VIEW_USER_USAGE: "Manager",
-      VIEW_COMPONENT_USAGE: "Staff",
-      VIEW_EXCEPTIONS: "Manager",
-      EXPORT_USAGE_DATA: "Admin",
-    },
-  },
+  "user-management": minRole(userManagementApplet, {
+    VIEW_USERS: "Staff",
+    CREATE_USERS: "Manager",
+    EDIT_USERS: "Manager",
+    DELETE_USERS: "Admin",
+    MANAGE_ROLES: "Admin",
+    VIEW_ANALYTICS: "Manager",
+  }),
+  "admin-users": minRole(userManagementApplet, {
+    VIEW_USERS: "Admin",
+    CREATE_USERS: "Admin",
+    EDIT_USERS: "Admin",
+    DELETE_USERS: "SuperAdmin",
+    MANAGE_ROLES: "Admin",
+    VIEW_ANALYTICS: "Admin",
+  }),
+  "product-catalog": minRole(productCatalogApplet, {
+    VIEW_PRODUCTS: "Guest",
+    CREATE_PRODUCTS: "Staff",
+    EDIT_PRODUCTS: "Staff",
+    DELETE_PRODUCTS: "Manager",
+    MANAGE_CATEGORIES: "Manager",
+    VIEW_INVENTORY: "Staff",
+    MANAGE_PRICING: "Manager",
+  }),
+  hello: minRole(helloApplet, {
+    VIEW_ROUTE_ONE: "Guest",
+    VIEW_ROUTE_TWO: "Staff",
+    VIEW_ROUTE_THREE: "Manager",
+    VIEW_ROUTE_FOUR: "Admin",
+  }),
+  "employee-directory": minRole(employeeDirectoryApplet, {
+    VIEW_EMPLOYEES: "Staff",
+    EDIT_EMPLOYEES: "Manager", 
+    MANAGE_EMPLOYEES: "Admin",
+  }),
+  "usage-stats": minRole(usageStatsApplet, {
+    VIEW_USAGE_STATS: "Manager",
+    VIEW_USER_USAGE: "Manager",
+    VIEW_COMPONENT_USAGE: "Staff",
+    VIEW_EXCEPTIONS: "Manager",
+    EXPORT_USAGE_DATA: "Admin",
+  }),
 });
 
 // Auto-generate the verbose permission mappings

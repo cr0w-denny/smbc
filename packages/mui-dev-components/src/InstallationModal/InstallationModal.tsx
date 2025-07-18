@@ -22,10 +22,8 @@ import {
 import type { CurrentAppletInfo } from "../HostAppBar";
 import {
   CORE_PEER_DEPS,
-  getAppletDocs,
-  hasBackendDocs,
-  APPLET_REGISTRY,
 } from "@smbc/applet-meta";
+import { getPackageName } from "../utils/getPackageName";
 import "github-markdown-css/github-markdown-light.css";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
@@ -155,28 +153,11 @@ export function InstallationModal({
     setTabValue(newValue);
   };
 
-  const packageName = APPLET_REGISTRY[appletInfo.id]?.packageName;
-  const appletDocs = getAppletDocs(appletInfo.id);
-  const hasBackend = hasBackendDocs(appletInfo.id);
-
-  // If no package name found, show error
-  if (!packageName) {
-    return (
-      <Dialog open={open} onClose={onClose} maxWidth="sm">
-        <DialogTitle>Installation Information Not Available</DialogTitle>
-        <DialogContent>
-          <Alert severity="error">
-            <Typography variant="body2">
-              Package information for "{appletInfo.label}" is not available.
-            </Typography>
-          </Alert>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
+  const packageName = getPackageName(appletInfo.id);
+  
+  // TODO: Rewire these once we move the docs functionality
+  const appletDocs: { frontend?: { html: string }; backend?: { html: string } } | null = null; // getAppletDocs(appletInfo.id);
+  const hasBackend = false; // hasBackendDocs(appletInfo.id);
 
   // Generate installation commands
   const peerDepsCommand = Object.entries(CORE_PEER_DEPS)
@@ -279,18 +260,14 @@ function App() {
             label="Basic integration"
           />
 
-          {appletDocs?.frontend && (
-            <Box sx={{ mt: 4 }}>
-              <MarkdownRenderer html={appletDocs.frontend.html} />
-            </Box>
-          )}
+          {/* Frontend documentation would go here */}
         </TabPanel>
 
         {hasBackend && (
           <TabPanel value={tabValue} index={1}>
-            {appletDocs?.backend ? (
+            {(appletDocs as any)?.backend ? (
               <MarkdownRenderer
-                html={appletDocs.backend.html}
+                html={(appletDocs as any).backend.html}
                 showBorder={false}
               />
             ) : (

@@ -13,7 +13,7 @@ import { fileURLToPath } from "url";
 import { glob } from "glob";
 import chalk from "chalk";
 import { EXTERNALS_PRESETS, SMBC_CORE_EXTERNALS } from "../../packages/vite-config/src/externals/index.js";
-import { SMBC_PACKAGES } from "../../packages/applet-meta/src/index.js";
+import { SMBC_PACKAGES } from "../../packages/applet-meta/index.mjs";
 
 interface PackageJson {
   name?: string;

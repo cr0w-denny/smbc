@@ -9,13 +9,13 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
-import { getAppletMetadata } from '@smbc/applet-meta';
+import { getInstalledApplets } from './applet-discovery.js';
 
 console.log('🔍 SMBC Applets\n');
 
 // Get installed applets (those actually installed via npm)
-const installedApplets = getAppletMetadata();
-const installedPackageNames = Object.keys(installedApplets);
+const installedApplets = getInstalledApplets();
+const installedPackageNames = installedApplets.map(applet => applet.packageName);
 
 console.log(`📦 Installed applets: ${installedPackageNames.length}\n`);
 
@@ -34,13 +34,13 @@ console.log('');
 if (installedPackageNames.length > 0) {
   console.log('✅ Installed applets:\n');
   
-  Object.entries(installedApplets).forEach(([packageName, applet]: [string, any]) => {
-    console.log(`✅ ${applet.name}`);
-    console.log(`   Package: ${packageName}`);
-    console.log(`   Description: ${applet.description}`);
-    console.log(`   Path: ${applet.path}`);
-    if (applet.permissions && applet.permissions.length > 0) {
-      console.log(`   Permissions: ${applet.permissions.join(', ')}`);
+  installedApplets.forEach(applet => {
+    console.log(`✅ ${applet.metadata.name}`);
+    console.log(`   Package: ${applet.packageName}`);
+    console.log(`   Description: ${applet.metadata.description}`);
+    console.log(`   Path: ${applet.metadata.path}`);
+    if (applet.metadata.permissions && applet.metadata.permissions.length > 0) {
+      console.log(`   Permissions: ${applet.metadata.permissions.join(', ')}`);
     }
     console.log('');
   });

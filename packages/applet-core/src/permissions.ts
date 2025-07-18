@@ -130,6 +130,20 @@ export function generatePermissionMappings(
 }
 
 /**
+ * Creates a type-safe helper to define minimum role requirements for applet permissions
+ * @param roles - Array of available roles in the host application
+ * @returns A minRole function that provides autocomplete for both permissions and roles
+ */
+export function createMinRole<R extends readonly string[]>(_roles: R) {
+  return function minRole<T extends { permissions: Record<string, PermissionDefinition> }>(
+    applet: T,
+    permissions: Partial<Record<keyof T['permissions'], R[number]>>
+  ): { applet: T; permissions: typeof permissions } {
+    return { applet, permissions };
+  };
+}
+
+/**
  * Helper to create permission requirements from applet objects
  *
  * @example
@@ -170,7 +184,7 @@ export function createPermissionRequirements(
 
       requirements[appletId].push({
         permissionId: permission.id,
-        minRole,
+        minRole: minRole as string,
       });
     }
   }

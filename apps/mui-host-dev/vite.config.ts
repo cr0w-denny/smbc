@@ -51,7 +51,7 @@ export default defineConfig(({ mode }) => {
         "@smbc/react-query-dataview": path.resolve(__dirname, "../../packages/react-query-dataview/src"),
         "@smbc/applet-devtools": path.resolve(__dirname, "../../packages/applet-devtools/src"),
         "@smbc/mui-applet-devtools": path.resolve(__dirname, "../../packages/mui-applet-devtools/src"),
-        "@smbc/applet-meta": path.resolve(__dirname, "../../packages/applet-meta/src"),
+        "@smbc/applet-meta": path.resolve(__dirname, "../../packages/applet-meta"),
       },
     },
     plugins: [react(), suppressUseClientWarnings()],

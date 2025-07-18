@@ -67,7 +67,7 @@ export function Applet() {
     // Schema configuration
     schema: {
       primaryKey: "id",
-      displayName: (product) => product.name,
+      displayName: (product: Product) => product.name,
       fields: [
         { name: "name", type: "string", label: "Name", required: true },
         { name: "description", type: "string", label: "Description" },
@@ -326,13 +326,13 @@ export function Applet() {
         options={{
           // Disable transactions to enable optimistic mode
           transaction: { enabled: false, requireConfirmation: false },
-          onSuccess: (action, item) => {
+          onSuccess: (action: string, item: Product) => {
             console.log(
               `✅ Optimistic ${action} succeeded for "${item?.name}":`,
               item,
             );
           },
-          onError: (action, error, item) => {
+          onError: (action: string, error: any, item: Product) => {
             console.error(
               `❌ Optimistic ${action} failed for "${item?.name}":`,
               error,

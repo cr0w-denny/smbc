@@ -2,11 +2,7 @@
 export { HostAppBar } from './HostAppBar';
 export type { HostAppBarProps, CurrentAppletInfo } from './HostAppBar';
 
-export { DevHostAppBar } from './DevHostAppBar';
-export type { DevHostAppBarProps } from './DevHostAppBar';
 
-export { MockToggle } from './MockToggle';
-export type { MockToggleProps } from './MockToggle';
 
 export { ServerSelector } from './ServerSelector';
 export type { ServerSelectorProps } from './ServerSelector';
@@ -14,11 +10,12 @@ export type { ServerSelectorProps } from './ServerSelector';
 export { ApiDocsModal } from './ApiDocsModal';
 export type { ApiDocsModalProps } from './ApiDocsModal';
 
-export { DevDashboard } from './DevDashboard';
-export type { DevDashboardProps } from './DevDashboard';
 
 export { InstallationModal } from './InstallationModal/InstallationModal';
 export { MarkdownRenderer } from './InstallationModal/MarkdownRenderer';
+
+// Utilities
+export { getPackageName } from './utils/getPackageName';
 
 // Role management dev tools
 export {
