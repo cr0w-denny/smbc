@@ -35,15 +35,6 @@ export type {
   FilterProps,
 } from "./Filter";
 
-// Navigation components and types (pure UI)
-export { NavigationDrawer, NavigationList, NavigationItem } from "./Navigation";
-
-export type {
-  NavigationItemData,
-  NavigationItemProps,
-  NavigationListProps,
-  NavigationDrawerProps,
-} from "./Navigation";
 
 
 export { lightTheme } from "./theme/light";
