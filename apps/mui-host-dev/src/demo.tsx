@@ -12,7 +12,7 @@ import {
 import {
   createBulkUpdateAction,
   createBulkDeleteAction,
-} from "@smbc/react-query-dataview";
+} from "@smbc/dataview";
 
 // =============================================================================
 // DATAVIEW REFERENCE IMPLEMENTATION

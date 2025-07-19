@@ -45,7 +45,7 @@ export const SMBC_CORE_EXTERNALS = [
   '@smbc/applet-core',
   '@smbc/mui-applet-core',
   '@smbc/mui-components',
-  '@smbc/react-query-dataview'
+  '@smbc/dataview'
 ];
 
 // Preset combinations

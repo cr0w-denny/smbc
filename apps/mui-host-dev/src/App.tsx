@@ -20,7 +20,7 @@ import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import {
   ActivityProvider,
   TransactionProvider,
-} from "@smbc/react-query-dataview";
+} from "@smbc/dataview";
 import {
   QueryClient,
   QueryClientProvider,

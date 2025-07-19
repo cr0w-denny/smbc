@@ -29,7 +29,7 @@
     "@smbc/mui-applet-devtools": "*",
     "@smbc/openapi-msw": "*",
     "@smbc/product-catalog-mui": "*",
-    "@smbc/react-query-dataview": "*",
+    "@smbc/dataview": "*",
     "@smbc/ui-core": "*",
     "@smbc/usage-stats-mui": "^1.0.0",
     "@smbc/user-management-mui": "*",
