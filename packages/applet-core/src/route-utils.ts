@@ -1,19 +1,19 @@
-import React from 'react';
-import type { AppletMount } from './types';
+import React from "react";
+import type { AppletMount } from "./types";
 
 /**
  * Wraps an applet component to automatically inject the mountPath prop
  * based on the route it's mounted at.
- * 
+ *
  * @param Component The applet component that expects a mountPath prop
  * @param mountPath The path where the component is mounted
  * @returns A wrapped component that automatically receives mountPath
  */
 export function withMountPath<P extends { mountPath: string }>(
   Component: React.ComponentType<P>,
-  mountPath: string
-): React.ComponentType<Omit<P, 'mountPath'>> {
-  return function MountedComponent(props: Omit<P, 'mountPath'>) {
+  mountPath: string,
+): React.ComponentType<Omit<P, "mountPath">> {
+  return function MountedComponent(props: Omit<P, "mountPath">) {
     return React.createElement(Component, { ...props, mountPath } as P);
   };
 }
@@ -21,25 +21,25 @@ export function withMountPath<P extends { mountPath: string }>(
 /**
  * Processes applet routes to automatically inject mountPath into components
  * that expect it. This eliminates the need for manual wrapper functions.
- * 
+ *
  * @param applet The applet definition with routes
  * @returns A new applet definition with wrapped components
  */
 export function processAppletRoutes(applet: AppletMount): AppletMount {
   return {
     ...applet,
-    routes: applet.routes.map(route => ({
+    routes: applet.routes.map((route) => ({
       ...route,
       // Wrap the route component to inject mountPath
-      component: withMountPath(route.component, route.path)
-    }))
+      component: withMountPath(route.component, route.path),
+    })),
   };
 }
 
 /**
  * Mounts an applet in the host application at a specific path with configuration.
  * Use this instead of manually wrapping components.
- * 
+ *
  * @example
  * export const APPLETS = [
  *   mountApplet(helloWorldApplet, {
@@ -48,11 +48,28 @@ export function processAppletRoutes(applet: AppletMount): AppletMount {
  *     path: "/hello-world",
  *     icon: LanguageIcon,
  *     permissions: [helloWorldApplet.permissions.VIEW_ROUTE_ONE]
- *   })
+ *   }),
+ *   // Override servers example:
+ *   mountApplet(usageStatsApplet, {
+ *     id: "usage-stats",
+ *     label: "Usage Analytics",
+ *     path: "/usage-stats",
+ *     icon: AnalyticsIcon,
+ *     permissions: [usageStatsApplet.permissions.VIEW_USAGE_STATS]
+ *   }, [
+ *     { url: "http://localhost:8003/api/v1", description: "dev" },
+ *     { url: "https://api.smbcgroup.com/api/v1", description: "prod" }
+ *   ])
  * ];
  */
 export function mountApplet(
-  applet: { component: any; apiSpec?: any; permissions?: any; getHostNavigation?: any; version?: string },
+  applet: {
+    component: any;
+    apiSpec?: any;
+    permissions?: any;
+    getHostNavigation?: any;
+    version?: string;
+  },
   config: {
     id: string;
     label: string;
@@ -62,16 +79,37 @@ export function mountApplet(
     apiBaseUrl?: string;
     version?: string;
     filterable?: boolean;
-  }
+  },
+  servers?: Array<{ url: string; description?: string }>,
 ): AppletMount {
   if (!applet.component) {
     throw new Error(`Applet ${config.id} must export a component`);
   }
 
+  let finalApiSpec = applet.apiSpec;
+
+  // Handle servers override - replace servers with matching descriptions
+  if (servers && applet.apiSpec) {
+    const existingServers = applet.apiSpec.spec?.servers || [];
+    const overrideMap = new Map(
+      servers.map(s => [s.description || s.url, { ...s, variables: {} }])
+    );
+    
+    finalApiSpec = {
+      name: applet.apiSpec.name,
+      spec: {
+        ...applet.apiSpec.spec,
+        servers: existingServers.map((existing: any) => 
+          overrideMap.get(existing.description) || existing
+        ),
+      },
+    };
+  }
+
   return {
     id: config.id,
     label: config.label,
-    apiSpec: applet.apiSpec,
+    apiSpec: finalApiSpec,
     apiBaseUrl: config.apiBaseUrl,
     version: config.version,
     filterable: config.filterable,
@@ -82,7 +120,7 @@ export function mountApplet(
         label: config.label,
         component: withMountPath(applet.component, config.path),
         icon: config.icon,
-        requiredPermissions: config.permissions?.map(p => p.id) || [],
+        requiredPermissions: config.permissions?.map((p) => p.id) || [],
       },
     ],
   };
@@ -91,15 +129,15 @@ export function mountApplet(
 /**
  * Mounts multiple applets and generates both permission requirements and mounted applets.
  * This is a convenience function that simplifies the common pattern of setting up applets.
- * 
+ *
  * @param appletConfigs Object mapping applet IDs to their configurations
  * @returns Object containing both permissionRequirements and mountedApplets
- * 
+ *
  * @example
  * const { permissionRequirements, mountedApplets } = mountApplets({
  *   "user-management": {
  *     applet: userManagementApplet,
- *     label: "User Management", 
+ *     label: "User Management",
  *     path: "/user-management",
  *     icon: PeopleIcon,
  *     permissions: {
@@ -110,7 +148,7 @@ export function mountApplet(
  *   "hello": {
  *     applet: helloApplet,
  *     label: "Hello World",
- *     path: "/hello", 
+ *     path: "/hello",
  *     icon: EmojiEmotionsIcon,
  *     permissions: {
  *       VIEW: "User"
@@ -118,17 +156,28 @@ export function mountApplet(
  *   }
  * });
  */
-export function mountApplets(appletConfigs: Record<string, {
-  applet: any;
-  label: string;
-  path: string;
-  icon?: any;
-  permissions: Record<string, string>;
-}>): {
-  permissionRequirements: Record<string, { applet: any; permissions: Record<string, string> }>;
+export function mountApplets(
+  appletConfigs: Record<
+    string,
+    {
+      applet: any;
+      label: string;
+      path: string;
+      icon?: any;
+      permissions: Record<string, string>;
+    }
+  >,
+): {
+  permissionRequirements: Record<
+    string,
+    { applet: any; permissions: Record<string, string> }
+  >;
   mountedApplets: Record<string, AppletMount>;
 } {
-  const permissionRequirements: Record<string, { applet: any; permissions: Record<string, string> }> = {};
+  const permissionRequirements: Record<
+    string,
+    { applet: any; permissions: Record<string, string> }
+  > = {};
   const mountedApplets: Record<string, AppletMount> = {};
 
   for (const [id, config] of Object.entries(appletConfigs)) {
@@ -155,4 +204,3 @@ export function mountApplets(appletConfigs: Record<string, {
     mountedApplets,
   };
 }
-

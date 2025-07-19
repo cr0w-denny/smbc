@@ -88,6 +88,7 @@ export function getAvailableServers(apiSpec: any): Array<{url: string, descripti
   }));
 }
 
+
 /**
  * Get server URL from OpenAPI spec based on environment
  */
