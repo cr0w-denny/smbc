@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ApiDocsModal } from "@smbc/mui-components";
+import { ApiDocsModal } from "@smbc/mui-applet-devtools";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import "swagger-ui-react/swagger-ui.css";

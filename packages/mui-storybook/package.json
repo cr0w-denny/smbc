@@ -7,13 +7,15 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "clean": "rm -rf storybook-static"
+    "clean": "rm -rf storybook-static",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@smbc/ui-core": "*",
     "@smbc/mui-components": "*",
     "@smbc/applet-core": "*",
     "@smbc/mui-applet-core": "*",
+    "@smbc/mui-applet-devtools": "*",
     "@smbc/react-query-dataview": "*"
   },
   "devDependencies": {
