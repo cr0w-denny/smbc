@@ -45,13 +45,6 @@ export type {
   NavigationDrawerProps,
 } from "./Navigation";
 
-export { AppShell, AppToolbar, AppMainContent } from "./AppShell";
-
-export type {
-  AppShellProps,
-  AppToolbarProps,
-  AppMainContentProps,
-} from "./AppShell";
 
 export { lightTheme } from "./theme/light";
 export { darkTheme } from "./theme/dark";

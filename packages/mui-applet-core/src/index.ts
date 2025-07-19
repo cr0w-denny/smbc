@@ -19,15 +19,6 @@ export type {
   UseAutoFilterParams,
 } from "./AutoFilter";
 
-// App Shell
-export { ConnectedAppShell, AppShellProvider, useAppShell } from "./AppShell";
-
-export type {
-  AppShellConfig,
-  UserAction,
-  NotificationAction,
-  AppShellFeatureProps,
-} from "./AppShell";
 
 // Navigation
 export {
