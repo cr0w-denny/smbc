@@ -9,6 +9,7 @@ export type {
   MuiDataViewAppletProps,
 } from "./DataView/DataViewApplet";
 
+export { ActionBar } from "./ActionBar";
 export { ActivityNotifications } from "./ActivityNotifications";
 export { ActivitySnackbar } from "./ActivitySnackbar";
 
