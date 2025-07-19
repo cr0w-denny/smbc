@@ -14,6 +14,7 @@
   "references": [
     { "path": "../ui-core" },
     { "path": "../applet-core" },
+    { "path": "../applet-host" },
     { "path": "../mui-components" },
     { "path": "../react-query-dataview" },
     { "path": "../react-query-dataview-mui" }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Toolbar } from "@mui/material";
 import { useHashNavigation, type AppletMount } from "@smbc/applet-core";
-import { getAllRoutes } from "@smbc/applet-core";
+import { getAllRoutes } from "@smbc/applet-host";
 import { Dashboard } from "./Dashboard";
 
 interface AppletRouterProps {

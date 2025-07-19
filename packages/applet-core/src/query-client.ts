@@ -17,9 +17,10 @@ import { useMemo, useRef } from 'react';
 let appletRegistry = new Map<string, AppletMount>();
 
 /**
- * Configure applets with their API base URLs (called by host application)
+ * Internal function to set applet registry (called by @smbc/applet-host)
+ * Use configureApplets from @smbc/applet-host instead
  */
-export function configureApplets(applets: AppletMount[]): void {
+export function _setAppletRegistry(applets: AppletMount[]): void {
   appletRegistry.clear();
   applets.forEach(applet => {
     appletRegistry.set(applet.id, applet);

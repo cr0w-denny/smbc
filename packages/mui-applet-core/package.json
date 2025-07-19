@@ -28,6 +28,7 @@
   "devDependencies": {
     "@smbc/ui-core": "*",
     "@smbc/applet-core": "*",
+    "@smbc/applet-host": "*",
     "@smbc/react-query-dataview": "*",
     "@smbc/react-query-dataview-mui": "*",
     "@types/node": "^20.11.17",
@@ -44,6 +45,7 @@
     "@mui/material": "^7.1.2",
     "@smbc/ui-core": "*",
     "@smbc/applet-core": "*",
+    "@smbc/applet-host": "*",
     "@smbc/mui-components": "*",
     "@smbc/react-query-dataview": "*",
     "@smbc/react-query-dataview-mui": "*",

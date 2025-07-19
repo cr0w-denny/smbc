@@ -130,12 +130,16 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     [config.pagination?.defaultPageSize]
   );
 
-  // URL sync functionality
-  const urlState = useHashParams(
-    defaultFilters,
-    defaultPagination,
-    enableUrlSync
-  );
+  // URL sync functionality - combine filters and pagination into single state
+  const defaultState = React.useMemo(() => ({
+    ...defaultFilters,
+    page: defaultPagination.page,
+    pageSize: defaultPagination.pageSize
+  }), [defaultFilters, defaultPagination]);
+  
+  const urlState = useHashParams(defaultState, {
+    enabled: enableUrlSync
+  });
   
 
   // Layer 2: - convert PermissionDefinition to boolean
@@ -161,47 +165,60 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       console.log('🎯 setUrlFilters called', { filters, enableUrlSync });
       if (enableUrlSync) {
         // Use direct update, not function wrapper
-        urlState.setFilters(filters);
+        urlState.setState((prev) => ({ ...prev, ...filters }));
       }
     },
-    [enableUrlSync] // Remove urlState.setFilters dependency 
+    [enableUrlSync, urlState.setState]
   );
   
   const setUrlPagination = React.useCallback(
     (paginationUpdateOrUpdater: any) => {
       if (enableUrlSync) {
         if (typeof paginationUpdateOrUpdater === 'function') {
-          // It's an updater function - pass it through
-          urlState.setPagination(paginationUpdateOrUpdater);
+          // It's an updater function - extract pagination and apply
+          urlState.setState((prev) => {
+            const currentPagination = { page: prev.page, pageSize: prev.pageSize };
+            const newPagination = paginationUpdateOrUpdater(currentPagination);
+            return { ...prev, ...newPagination };
+          });
         } else {
           // It's an object - merge with previous state
-          urlState.setPagination((prev: any) => {
-            const newPagination = { ...prev, ...paginationUpdateOrUpdater };
-            return newPagination;
-          });
+          urlState.setState((prev) => ({ ...prev, ...paginationUpdateOrUpdater }));
         }
       }
     },
-    [enableUrlSync] // Remove urlState.setPagination dependency
+    [enableUrlSync, urlState.setState]
   );
   
   // Create local state for non-URL sync mode
   const [localFilters, setLocalFilters] = React.useState(defaultFilters);
   const [localPagination, setLocalPagination] = React.useState(defaultPagination);
   
+  // Extract filters and pagination from URL state
+  const urlFilters = React.useMemo(() => {
+    if (!enableUrlSync) return {};
+    const { page, pageSize, ...filters } = urlState.state;
+    return filters;
+  }, [enableUrlSync, urlState.state]);
+  
+  const urlPagination = React.useMemo(() => {
+    if (!enableUrlSync) return defaultPagination;
+    return { page: urlState.state.page || 0, pageSize: urlState.state.pageSize || 10 };
+  }, [enableUrlSync, urlState.state, defaultPagination]);
+  
   // Memoize the state tuples to prevent unnecessary re-renders
   const customFilterState = React.useMemo(() => 
     enableUrlSync 
-      ? [urlState.filters, setUrlFilters] as const
+      ? [urlFilters, setUrlFilters] as const
       : [localFilters, setLocalFilters] as const,
-    [enableUrlSync, urlState.filters, setUrlFilters, localFilters]
+    [enableUrlSync, urlFilters, setUrlFilters, localFilters]
   );
   
   const customPaginationState = React.useMemo(() => 
     enableUrlSync
-      ? [urlState.pagination, setUrlPagination] as const
+      ? [urlPagination, setUrlPagination] as const
       : [localPagination, setLocalPagination] as const,
-    [enableUrlSync, urlState.pagination, setUrlPagination, localPagination]
+    [enableUrlSync, urlPagination, setUrlPagination, localPagination]
   );
 
   // Inject URL state after component initializes (if initial state provided)

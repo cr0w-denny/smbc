@@ -1,5 +1,4 @@
 import {
-  useRoleManagement,
   useUser,
   useAppletCore,
   usePersistedRoles,
@@ -7,6 +6,7 @@ import {
   type RoleConfig,
   type AppletMount,
 } from "@smbc/applet-core";
+import { useRoleManagement } from "@smbc/applet-host";
 import { RoleManager, type PermissionGroup } from "@smbc/mui-dev-components";
 
 interface DashboardProps {

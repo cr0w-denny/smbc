@@ -13,10 +13,12 @@ import {
 } from "@mui/material";
 import {
   useHashNavigation,
-  useHostNavigation,
-  useRoleManagement,
   type AppletMount,
 } from "@smbc/applet-core";
+import {
+  useHostNavigation,
+  useRoleManagement,
+} from "@smbc/applet-host";
 import { TreeMenu, type TreeMenuSection } from "@smbc/mui-components";
 
 interface AppletDrawerProps {

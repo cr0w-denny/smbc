@@ -2,14 +2,14 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { 
   FeatureFlagProvider, 
-  AppletProvider, 
-  configureApplets,
+  AppletProvider,
   type FeatureFlagConfig,
   type User,
   type RoleConfig,
   type NavigationItem,
   type AppletMount
 } from '@smbc/applet-core';
+import { configureApplets } from './utils/applet-registry';
 
 interface AppletHostProps {
   /** Child components to render */

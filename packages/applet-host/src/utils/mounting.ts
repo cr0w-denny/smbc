@@ -1,5 +1,5 @@
 import React from "react";
-import type { AppletMount } from "./types";
+import type { AppletMount } from "@smbc/applet-core";
 
 /**
  * Wraps an applet component to automatically inject the mountPath prop
@@ -9,30 +9,12 @@ import type { AppletMount } from "./types";
  * @param mountPath The path where the component is mounted
  * @returns A wrapped component that automatically receives mountPath
  */
-export function withMountPath<P extends { mountPath: string }>(
+function withMountPath<P extends { mountPath: string }>(
   Component: React.ComponentType<P>,
   mountPath: string,
 ): React.ComponentType<Omit<P, "mountPath">> {
   return function MountedComponent(props: Omit<P, "mountPath">) {
     return React.createElement(Component, { ...props, mountPath } as P);
-  };
-}
-
-/**
- * Processes applet routes to automatically inject mountPath into components
- * that expect it. This eliminates the need for manual wrapper functions.
- *
- * @param applet The applet definition with routes
- * @returns A new applet definition with wrapped components
- */
-export function processAppletRoutes(applet: AppletMount): AppletMount {
-  return {
-    ...applet,
-    routes: applet.routes.map((route) => ({
-      ...route,
-      // Wrap the route component to inject mountPath
-      component: withMountPath(route.component, route.path),
-    })),
   };
 }
 
@@ -92,15 +74,15 @@ export function mountApplet(
   if (servers && applet.apiSpec) {
     const existingServers = applet.apiSpec.spec?.servers || [];
     const overrideMap = new Map(
-      servers.map(s => [s.description || s.url, { ...s, variables: {} }])
+      servers.map((s) => [s.description || s.url, { ...s, variables: {} }]),
     );
-    
+
     finalApiSpec = {
       name: applet.apiSpec.name,
       spec: {
         ...applet.apiSpec.spec,
-        servers: existingServers.map((existing: any) => 
-          overrideMap.get(existing.description) || existing
+        servers: existingServers.map((existing: any) =>
+          overrideMap.get(existing.description) || existing,
         ),
       },
     };
@@ -187,16 +169,15 @@ export function mountApplets(
       permissions: config.permissions,
     };
 
-    // Add to mounted applets
-    mountedApplets[id] = {
-      ...mountApplet(config.applet, {
-        id,
-        label: config.label,
-        path: config.path,
-        icon: config.icon,
-      }),
-      permissions: config.permissions, // Include permissions for DevDashboard
-    };
+    // Create mounted applet using mountApplet
+    mountedApplets[id] = mountApplet(config.applet, {
+      id,
+      label: config.label,
+      path: config.path,
+      icon: config.icon,
+      permissions: [], // Will be handled by permission requirements
+      version: config.applet.version || "0.0.0",
+    });
   }
 
   return {

@@ -9,8 +9,8 @@ export type { Environment } from "./types";
 // Feature flags
 export * from "./FeatureFlagProvider";
 
-// Host utilities
-export * from "./host";
+// Re-export useUser for convenience
+export { useUser } from "./hooks";
 
 // AutoFilter utilities for applets
 export {
@@ -46,22 +46,15 @@ export type {
 // Query client utilities
 export {
   createFetchClient,
-  configureApplets,
   createApiClient,
   getApiClient,
   getAppletApiUrl,
   useApiClient,
   getAvailableServers,
   getServerUrlFromSpec,
+  _setAppletRegistry,
 } from "./query-client";
 
-// Route utilities for automatic mountPath injection
-export {
-  withMountPath,
-  processAppletRoutes,
-  mountApplet,
-  mountApplets,
-} from "./route-utils";
 
 // Navigation utilities
 export {

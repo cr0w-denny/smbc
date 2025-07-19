@@ -19,7 +19,7 @@ const CodeExample: React.FC = () => (
 import { useHashParams } from "@smbc/applet-core";
 
 function MyFilterApplet() {
-  const { filters, setFilters } = useHashParams({
+  const { state: filters, setState: setFilters } = useHashParams({
     search: "",
     status: "",
     priority: "",
@@ -83,7 +83,7 @@ function MyFilterApplet() {
 );
 
 const LiveDemo: React.FC = () => {
-  const { filters: filterValues, setFilters: setFilterValues } = useHashParams({
+  const { state: filterValues, setState: setFilterValues } = useHashParams({
     search: "",
     status: "",
     priority: "",

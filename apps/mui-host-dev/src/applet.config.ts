@@ -3,9 +3,9 @@ import {
   AppletMount,
   createPermissionRequirements,
   generatePermissionMappings,
-  mountApplet,
   createMinRole,
 } from "@smbc/applet-core";
+import { mountApplet } from "@smbc/applet-host";
 import {
   People as PeopleIcon,
   Inventory as InventoryIcon,

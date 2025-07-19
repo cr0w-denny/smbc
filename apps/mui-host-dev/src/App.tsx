@@ -5,15 +5,14 @@ import {
   AppletProvider,
   FeatureFlagProvider,
   calculatePermissionsFromRoles,
-  getCurrentApplet,
   useHashNavigation,
   useFeatureFlag,
   useFeatureFlagToggle,
-  configureApplets,
   useAppletCore,
   getServerUrlFromSpec,
   type AppletMount,
 } from "@smbc/applet-core";
+import { getCurrentApplet, configureApplets } from "@smbc/applet-host";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
 import { HostAppBar, ApiDocsModal } from "@smbc/mui-dev-components";

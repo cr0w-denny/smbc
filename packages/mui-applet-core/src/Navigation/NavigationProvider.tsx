@@ -3,7 +3,8 @@
  */
 
 import React, { createContext, useContext, useState, useMemo } from "react";
-import { useNavigation, useRoleManagement } from "@smbc/applet-core";
+import { useRoleManagement } from "@smbc/applet-host";
+import { useAppletCore } from "@smbc/applet-core";
 import type { NavigationProviderProps, NavigationContextValue } from "./types";
 
 const NavigationContext = createContext<NavigationContextValue | null>(null);
@@ -11,8 +12,9 @@ const NavigationContext = createContext<NavigationContextValue | null>(null);
 export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   children,
 }) => {
-  const { navigation } = useNavigation();
+  const { state } = useAppletCore();
   const { hasPermission } = useRoleManagement();
+  const navigation = state.navigation;
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   // Get current path from URL hash

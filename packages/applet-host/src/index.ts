@@ -14,3 +14,17 @@
 // =============================================================================
 export { AppletRouter } from "./AppletRouter";
 export { AppletHost } from "./AppletHost";
+
+// =============================================================================
+// HOST-SPECIFIC HOOKS
+// =============================================================================
+export { useHostNavigation } from "./hooks/useHostNavigation";
+export { usePermissionFilteredRoutes } from "./hooks/usePermissionFilteredRoutes";
+export { useRoleManagement } from "./hooks/useRoleManagement";
+
+// =============================================================================
+// HOST-SPECIFIC UTILITIES
+// =============================================================================
+export { getAllRoutes, getCurrentApplet } from "./utils/applet-utils";
+export { mountApplet, mountApplets } from "./utils/mounting";
+export { configureApplets, getAppletConfig, getAllApplets } from "./utils/applet-registry";

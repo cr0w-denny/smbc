@@ -9,54 +9,48 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
  * - Never read from hash after initial mount to avoid re-render loops
  * - Preserves existing path and merges params instead of replacing
  */
-export function useHashParams<
-  TFilters extends Record<string, any>,
-  TPagination extends Record<string, any> = {},
->(
-  defaultFilters: TFilters,
-  defaultPagination?: TPagination,
-  enabled: boolean = true,
-  namespace?: string,
+export function useHashParams<TState extends Record<string, any>>(
+  defaultState: TState,
+  options: {
+    enabled?: boolean;
+    namespace?: string;
+  } = {},
 ): {
-  filters: TFilters;
-  setFilters: (
-    updates: Partial<TFilters> | ((prev: TFilters) => TFilters),
-  ) => void;
-  pagination: TPagination;
-  setPagination: (
-    updates: Partial<TPagination> | ((prev: TPagination) => TPagination),
+  state: TState;
+  setState: (
+    updates: Partial<TState> | ((prev: TState) => TState),
   ) => void;
   syncHash: () => void;
 } {
+  const { enabled = true, namespace } = options;
+  
   // Memoize default values to prevent unnecessary re-renders
-  const stableDefaultFilters = React.useMemo(() => defaultFilters, [JSON.stringify(defaultFilters)]);
-  const stableDefaultPagination = React.useMemo(() => defaultPagination || ({} as TPagination), [JSON.stringify(defaultPagination)]);
+  const stableDefaultState = React.useMemo(() => defaultState, [JSON.stringify(defaultState)]);
+  
   // Track if this is the initial mount
   const isInitialMount = useRef(true);
   const debounceTimeout = useRef<NodeJS.Timeout>();
   
   // Track current state with refs to avoid unnecessary re-renders
-  const currentFilters = useRef<TFilters>(defaultFilters);
-  const currentPagination = useRef<TPagination>(stableDefaultPagination);
+  const currentState = useRef<TState>(defaultState);
   
   
 
   // Helper to parse current hash params
   const parseHashParams = useCallback(() => {
     if (!enabled || typeof window === "undefined")
-      return { filters: {}, pagination: {} };
+      return {};
 
     try {
       const hash = window.location.hash.slice(1); // Remove #
-      if (!hash) return { filters: {}, pagination: {} };
+      if (!hash) return {};
 
       // Split path and query params: "/path?param1=x&..." -> ["/path", "param1=x&..."]
       const [, queryString] = hash.split("?");
-      if (!queryString) return { filters: {}, pagination: {} };
+      if (!queryString) return {};
 
       const params = new URLSearchParams(queryString);
-      const filters: Record<string, any> = {};
-      const pagination: Record<string, any> = {};
+      const parsedState: Record<string, any> = {};
 
       for (const [key, value] of params.entries()) {
         // Remove namespace prefix if present
@@ -74,6 +68,11 @@ export function useHashParams<
           continue;
         }
 
+        // Only process keys that exist in our default state
+        if (!(cleanKey in stableDefaultState)) {
+          continue;
+        }
+
         // Handle special string values that should be converted
         let processedValue: any = value;
         if (value === "undefined") {
@@ -85,37 +84,26 @@ export function useHashParams<
         try {
           // Try to parse as JSON for complex values (but not for the special string "undefined")
           const parsedValue = value === "undefined" ? undefined : JSON.parse(value);
-
-          // Check if it's a filter key (exists in stableDefaultFilters)
-          if (cleanKey in stableDefaultFilters) {
-            filters[cleanKey] = parsedValue;
-          }
-          // Check if it's a pagination key (exists in stableDefaultPagination)
-          else if (cleanKey in stableDefaultPagination) {
-            pagination[cleanKey] = parsedValue;
-          }
+          parsedState[cleanKey] = parsedValue;
         } catch {
-          // Fallback to processed value, but coerce pagination numbers
-          if (cleanKey in stableDefaultFilters) {
-            filters[cleanKey] = processedValue;
-          } else if (cleanKey in stableDefaultPagination) {
-            // Type coerce pagination values based on default type
-            const defaultValue = (stableDefaultPagination as any)[cleanKey];
-            if (typeof defaultValue === 'number') {
-              const numValue = parseInt(value, 10);
-              pagination[cleanKey] = isNaN(numValue) ? defaultValue : numValue;
-            } else {
-              pagination[cleanKey] = processedValue;
-            }
+          // Fallback: try to coerce based on default type
+          const defaultValue = stableDefaultState[cleanKey];
+          if (typeof defaultValue === 'number') {
+            const numValue = parseInt(value, 10);
+            parsedState[cleanKey] = isNaN(numValue) ? defaultValue : numValue;
+          } else if (typeof defaultValue === 'boolean') {
+            parsedState[cleanKey] = value === 'true';
+          } else {
+            parsedState[cleanKey] = processedValue;
           }
         }
       }
 
-      return { filters, pagination };
+      return parsedState;
     } catch (error) {
-      return { filters: {}, pagination: {} };
+      return {};
     }
-  }, [enabled, namespace, stableDefaultFilters, stableDefaultPagination]);
+  }, [enabled, namespace, stableDefaultState]);
 
   // Helper to get current path from hash
   const getCurrentPath = useCallback(() => {
@@ -130,40 +118,28 @@ export function useHashParams<
   }, []);
 
   // Initialize state - read from hash ONLY on initial mount
-  const [filters, setFiltersState] = useState<TFilters>(() => {
+  const [state, setStateInternal] = useState<TState>(() => {
     if (!enabled || typeof window === "undefined") {
-      currentFilters.current = stableDefaultFilters;
-      return stableDefaultFilters;
+      currentState.current = stableDefaultState;
+      return stableDefaultState;
     }
 
-    const { filters: hashFilters } = parseHashParams();
-    const initialFilters = { ...stableDefaultFilters, ...hashFilters };
-    currentFilters.current = initialFilters;
-    return initialFilters;
-  });
-
-  const [pagination, setPaginationState] = useState<TPagination>(() => {
-    if (!enabled || typeof window === "undefined") {
-      currentPagination.current = stableDefaultPagination;
-      return stableDefaultPagination;
-    }
-
-    const { pagination: hashPagination } = parseHashParams();
-    const initialPagination = { ...stableDefaultPagination, ...hashPagination };
-    currentPagination.current = initialPagination;
-    return initialPagination;
+    const hashState = parseHashParams();
+    const initialState = { ...stableDefaultState, ...hashState };
+    currentState.current = initialState;
+    return initialState;
   });
 
   // Helper to update hash params (write-only, preserves path and merges params)
   const updateHashParams = useCallback(
-    (newFilters: TFilters, newPagination: TPagination) => {
+    (newState: TState) => {
       if (!enabled || typeof window === "undefined") return;
 
       try {
         const currentPath = getCurrentPath();
         const params = new URLSearchParams();
 
-        // Preserve existing params that aren't our filters or pagination
+        // Preserve existing params that aren't our state keys
         const hash = window.location.hash.slice(1);
         if (hash) {
           const [, queryString] = hash.split("?");
@@ -176,11 +152,8 @@ export function useHashParams<
                   ? key.replace(`${namespace}_`, "")
                   : key;
 
-              // Keep param if it's not one of our filter/pagination keys
-              if (
-                !(cleanKey in stableDefaultFilters) &&
-                !(cleanKey in stableDefaultPagination)
-              ) {
+              // Keep param if it's not one of our state keys
+              if (!(cleanKey in stableDefaultState)) {
                 // But skip if it has a different namespace
                 if (
                   namespace &&
@@ -196,9 +169,8 @@ export function useHashParams<
           }
         }
 
-        // NOTE: We don't preserve old filter/pagination params - they get completely 
-        // replaced by the current state. This ensures removed filters (like selecting "All") 
-        // actually disappear from the URL.
+        // NOTE: We don't preserve old state params - they get completely 
+        // replaced by the current state. This ensures removed values actually disappear from the URL.
 
         // Canonical function to check if a value matches its default
         const isDefault = (value: any, defaultValue: any): boolean => {
@@ -221,23 +193,9 @@ export function useHashParams<
           return value === defaultValue;
         };
 
-        // Add filter params - only include non-default values
-        Object.entries(newFilters).forEach(([key, value]) => {
-          const defaultValue = stableDefaultFilters[key];
-          if (!isDefault(value, defaultValue)) {
-            // Skip undefined values to prevent "undefined" strings in URL
-            if (value !== undefined) {
-              const paramValue =
-                typeof value === "object" ? JSON.stringify(value) : String(value);
-              const namespacedKey = namespace ? `${namespace}_${key}` : key;
-              params.set(namespacedKey, paramValue);
-            }
-          }
-        });
-
-        // Add pagination params - only include non-default values
-        Object.entries(newPagination).forEach(([key, value]) => {
-          const defaultValue = stableDefaultPagination[key];
+        // Add state params - only include non-default values
+        Object.entries(newState).forEach(([key, value]) => {
+          const defaultValue = stableDefaultState[key];
           if (!isDefault(value, defaultValue)) {
             // Skip undefined values to prevent "undefined" strings in URL
             if (value !== undefined) {
@@ -263,68 +221,41 @@ export function useHashParams<
         }
       } catch (error) {}
     },
-    [
-      enabled,
-      namespace,
-    ],
+    [enabled, namespace, stableDefaultState],
   );
 
   // Debounced hash update
   const debouncedUpdateHash = useCallback(
-    (newFilters: TFilters, newPagination: TPagination) => {
+    (newState: TState) => {
       if (debounceTimeout.current) {
         clearTimeout(debounceTimeout.current);
       }
 
       debounceTimeout.current = setTimeout(() => {
-        updateHashParams(newFilters, newPagination);
+        updateHashParams(newState);
       }, 100);
     },
     [updateHashParams],
   );
 
-  // Filter setter
-  const setFilters = useCallback(
-    (updates: Partial<TFilters> | ((prev: TFilters) => TFilters)) => {
-      setFiltersState((prev) => {
-        const newFilters =
-          typeof updates === "function"
-            ? updates(prev)
-            : { ...prev, ...updates };
-
-
-        // Update ref
-        currentFilters.current = newFilters;
-
-        // Update hash params (write-only, never read back)
-        if (!isInitialMount.current) {
-          debouncedUpdateHash(newFilters, currentPagination.current);
-        }
-
-        return newFilters;
-      });
-    },
-    [debouncedUpdateHash],
-  );
-
-  // Pagination setter
-  const setPagination = useCallback(
-    (updates: Partial<TPagination> | ((prev: TPagination) => TPagination)) => {
-      setPaginationState((prev) => {
-        const newPagination =
+  // State setter
+  const setState = useCallback(
+    (updates: Partial<TState> | ((prev: TState) => TState)) => {
+      setStateInternal((prev) => {
+        const newState =
           typeof updates === "function"
             ? updates(prev)
             : { ...prev, ...updates };
 
         // Update ref
-        currentPagination.current = newPagination;
+        currentState.current = newState;
 
         // Update hash params (write-only, never read back)
         if (!isInitialMount.current) {
-          debouncedUpdateHash(currentFilters.current, newPagination);
+          debouncedUpdateHash(newState);
         }
 
-        return newPagination;
+        return newState;
       });
     },
     [debouncedUpdateHash],
@@ -342,8 +273,8 @@ export function useHashParams<
   // Sync hash function that can be called externally
   const syncHash = useCallback(() => {
     if (!enabled || typeof window === "undefined" || isInitialMount.current) return;
-    updateHashParams(filters, pagination);
-  }, [enabled, filters, pagination, updateHashParams]);
+    updateHashParams(state);
+  }, [enabled, state, updateHashParams]);
 
 
   // Cleanup debounce timeout
@@ -356,10 +287,8 @@ export function useHashParams<
   }, []);
 
   return {
-    filters,
-    setFilters,
-    pagination,
-    setPagination,
+    state,
+    setState,
     syncHash,
   };
 }

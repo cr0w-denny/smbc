@@ -32,7 +32,7 @@ export interface AppletProps {
 export const Applet: React.FC<AppletProps> = ({
   mountPath: _mountPath,
 }) => {
-  const { filters, setFilters } = useHashParams<UsageFilters>({
+  const { state: filters, setState: setFilters } = useHashParams<UsageFilters>({
     start_date: "2025-01-01",
     end_date: "2025-01-01",
     group: "UI",
