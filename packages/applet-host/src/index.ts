@@ -12,8 +12,6 @@
 // =============================================================================
 // CONVENIENCE UTILITIES (ONLY FROM THIS PACKAGE)
 // =============================================================================
-export * from "./createHostApp";
-export * from "./types";
 export { AppletMenu } from "./AppletMenu";
 export { AppletRouter } from "./AppletRouter";
 export { AppletHost } from "./AppletHost";
