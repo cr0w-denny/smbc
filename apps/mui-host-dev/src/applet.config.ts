@@ -23,7 +23,6 @@ import employeeDirectoryApplet from "../../../applets/employee-directory/mui/src
 import usageStatsApplet from "../../../applets/usage-stats/mui/src";
 import demoTasksApplet from "./demo";
 
-
 // =============================================================================
 // DEMO USER CONFIGURATION
 // =============================================================================
@@ -110,7 +109,7 @@ const permissionRequirements = createPermissionRequirements({
   }),
   "employee-directory": minRole(employeeDirectoryApplet, {
     VIEW_EMPLOYEES: "Staff",
-    EDIT_EMPLOYEES: "Manager", 
+    EDIT_EMPLOYEES: "Manager",
     MANAGE_EMPLOYEES: "Admin",
   }),
   "usage-stats": minRole(usageStatsApplet, {
@@ -151,7 +150,7 @@ const AdminUsers = () =>
 
 // Static applets configuration
 export const APPLETS: AppletMount[] = [
-  // Applet Guide 
+  // Applet Guide
   mountApplet(helloApplet, {
     id: "hello",
     label: "Applet Guide",
@@ -161,7 +160,7 @@ export const APPLETS: AppletMount[] = [
     version: "1.0.0",
     filterable: false,
   }),
-  
+
   // Standard mounting: applet at /user-management
   {
     id: "user-management",
@@ -207,20 +206,24 @@ export const APPLETS: AppletMount[] = [
   }),
   mountApplet(employeeDirectoryApplet, {
     id: "employee-directory",
-    label: "Employee Directory", 
+    label: "Employee Directory",
     path: "/employees",
     icon: BadgeIcon,
     permissions: [employeeDirectoryApplet.permissions.VIEW_EMPLOYEES],
     version: "1.0.0",
   }),
-  mountApplet(usageStatsApplet, {
-    id: "usage-stats",
-    label: "Usage Analytics",
-    path: "/usage-stats",
-    icon: AnalyticsIcon,
-    permissions: [usageStatsApplet.permissions.VIEW_USAGE_STATS],
-    version: "1.0.0",
-  }),
+  mountApplet(
+    usageStatsApplet,
+    {
+      id: "usage-stats",
+      label: "Usage Analytics",
+      path: "/usage-stats",
+      icon: AnalyticsIcon,
+      permissions: [usageStatsApplet.permissions.VIEW_USAGE_STATS],
+      version: "1.0.0",
+    },
+    [{ url: "http://localhost:8003/api/v1", description: "dev" }],
+  ),
   mountApplet(demoTasksApplet, {
     id: "demo-tasks",
     label: "Demo Tasks",
@@ -230,4 +233,3 @@ export const APPLETS: AppletMount[] = [
     version: "0.0.0",
   }),
 ];
-

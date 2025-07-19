@@ -11,8 +11,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon, Code as CodeIcon } from "@mui/icons-material";
 import SwaggerUI from "swagger-ui-react";
-// Note: swagger-ui-react CSS must be imported by the host application
-// import 'swagger-ui-react/swagger-ui.css' in your app's main.tsx or App.tsx
+import "swagger-ui-react/swagger-ui.css";
 
 
 export interface ApiDocsModalProps {

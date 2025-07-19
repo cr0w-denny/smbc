@@ -16,8 +16,7 @@ import {
 } from "@smbc/applet-core";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
-import { HostAppBar } from "@smbc/mui-dev-components";
-import { ApiDocsWrapper } from "./components/ApiDocsWrapper";
+import { HostAppBar, ApiDocsModal } from "@smbc/mui-dev-components";
 import { lightTheme, darkTheme } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import {
@@ -205,9 +204,9 @@ function Navigation({ applets }: { applets: AppletMount[] }) {
         <ActivityNotifications onNavigate={handleNavigate} />
       </HostAppBar>
 
-      {/* API Documentation Modal - dynamically loaded */}
+      {/* API Documentation Modal - direct usage */}
       {currentAppletInfo && currentAppletInfo.apiSpec && (
-        <ApiDocsWrapper
+        <ApiDocsModal
           open={apiDocsOpen}
           onClose={handleApiDocsClose}
           appletName={currentAppletInfo.label}
