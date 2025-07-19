@@ -15,7 +15,7 @@ import {
 import { getCurrentApplet, configureApplets } from "@smbc/applet-host";
 import { AppletDrawer } from "./components/AppletDrawer";
 import { AppletRouter } from "./components/AppletRouter";
-import { HostAppBar, ApiDocsModal } from "@smbc/mui-dev-components";
+import { HostAppBar, ApiDocsModal } from "@smbc/mui-applet-devtools";
 import { lightTheme, darkTheme } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import {

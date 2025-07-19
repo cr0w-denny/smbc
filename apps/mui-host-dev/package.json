@@ -26,7 +26,7 @@
     "@smbc/applet-host": "^0.1.0",
     "@smbc/mui-applet-core": "*",
     "@smbc/mui-components": "*",
-    "@smbc/mui-dev-components": "*",
+    "@smbc/mui-applet-devtools": "*",
     "@smbc/openapi-msw": "*",
     "@smbc/product-catalog-mui": "*",
     "@smbc/react-query-dataview": "*",

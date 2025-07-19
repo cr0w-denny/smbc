@@ -1,5 +1,5 @@
 {
-  "name": "@smbc/mui-dev-components",
+  "name": "@smbc/mui-applet-devtools",
   "version": "0.0.0",
   "description": "MUI development UI components for SMBC applications",
   "type": "module",
@@ -19,7 +19,7 @@
     "build": "vite build",
     "dev": "vite build --watch",
     "clean": "rm -rf dist",
-    "lint": "echo 'Lint: mui-dev-components'",
+    "lint": "echo 'Lint: mui-applet-devtools'",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

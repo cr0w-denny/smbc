@@ -7,7 +7,7 @@ import {
   type AppletMount,
 } from "@smbc/applet-core";
 import { useRoleManagement } from "@smbc/applet-host";
-import { RoleManager, type PermissionGroup } from "@smbc/mui-dev-components";
+import { RoleManager, type PermissionGroup } from "@smbc/mui-applet-devtools";
 
 interface DashboardProps {
   hostApplets: AppletMount[];
