@@ -21,7 +21,7 @@ import {
 } from "@smbc/applet-host";
 import { TreeMenu, type TreeMenuSection } from "@smbc/mui-components";
 
-interface AppletDrawerProps {
+export interface AppletDrawerProps {
   applets: AppletMount[];
   constants: {
     drawerWidth: number;

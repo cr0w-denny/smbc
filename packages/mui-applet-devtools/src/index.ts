@@ -2,6 +2,9 @@
 export { HostAppBar } from './HostAppBar';
 export type { HostAppBarProps, CurrentAppletInfo } from './HostAppBar';
 
+export { AppletDrawer } from './AppletDrawer';
+export type { AppletDrawerProps } from './AppletDrawer';
+
 
 
 export { ServerSelector } from './ServerSelector';
