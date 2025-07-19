@@ -13,8 +13,7 @@ import {
   type AppletMount,
 } from "@smbc/applet-core";
 import { getCurrentApplet, configureApplets } from "@smbc/applet-host";
-import { HostAppBar, ApiDocsModal, AppletDrawer } from "@smbc/mui-applet-devtools";
-import { AppletRouter } from "./components/AppletRouter";
+import { HostAppBar, ApiDocsModal, AppletDrawer, MuiAppletRouter } from "@smbc/mui-applet-devtools";
 import { lightTheme, darkTheme } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import {
@@ -149,10 +148,10 @@ function AppContentWithQueryAccess({ applets }: { applets: AppletMount[] }) {
           permissionMapping={{ "admin-users": "user-management" }}
           title={HOST.appName}
         />
-        <AppletRouter
+        <MuiAppletRouter
           applets={applets}
           roleConfig={ROLE_CONFIG}
-          constants={HOST}
+          drawerWidth={HOST.drawerWidth}
         />
       </Box>
       <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />

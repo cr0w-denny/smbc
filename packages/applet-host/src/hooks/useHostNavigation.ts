@@ -68,26 +68,8 @@ export function useHostNavigation({
             sectionVersion: applet.version,
             hasInternalNavigation: true,
             filterable: applet.filterable,
-            homeRoute: internalNav.homeRoute ? {
-              path: internalNav.homeRoute.path,
-              label: internalNav.homeRoute.label,
-              icon: internalNav.homeRoute.icon,
-              component: internalNav.homeRoute.component,
-              requiredPermissions: internalNav.homeRoute.requiredPermissions || [],
-            } : undefined,
-            groups: internalNav.groups.map(group => ({
-              id: group.id,
-              label: group.label,
-              icon: group.icon,
-              order: group.order,
-              routes: group.routes.map(route => ({
-                path: route.path,
-                label: route.label,
-                icon: route.icon,
-                component: route.component,
-                requiredPermissions: route.requiredPermissions || [],
-              })),
-            })),
+            homeRoute: internalNav.homeRoute,
+            groups: internalNav.groups,
           });
         } else {
           // No accessible internal routes, fall back to direct route
