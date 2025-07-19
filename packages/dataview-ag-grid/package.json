@@ -1,7 +1,7 @@
 {
-  "name": "@smbc/react-query-dataview-ag-grid",
+  "name": "@smbc/dataview-ag-grid",
   "version": "0.1.0",
-  "description": "AG-Grid renderer for react-query-dataview",
+  "description": "AG-Grid renderer for dataview",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans": "^5.2.6",
-    "@smbc/react-query-dataview": "*",
+    "@smbc/dataview": "*",
     "ag-grid-community": "^32.0.0",
     "ag-grid-react": "^32.0.0"
   },

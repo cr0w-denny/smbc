@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ICellRendererParams } from 'ag-grid-community';
-import type { RowAction } from '@smbc/react-query-dataview';
+import type { RowAction } from '@smbc/dataview';
 
 interface ActionsRendererProps extends ICellRendererParams {
   actions: RowAction<any>[];

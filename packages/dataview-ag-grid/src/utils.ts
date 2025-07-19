@@ -1,5 +1,5 @@
 import type { ColDef } from 'ag-grid-community';
-import type { DataColumn } from '@smbc/react-query-dataview';
+import type { DataColumn } from '@smbc/dataview';
 
 /**
  * Maps DataColumn to AG-Grid ColDef

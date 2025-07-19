@@ -1,5 +1,5 @@
 {
-  "name": "@smbc/react-query-dataview-mui",
+  "name": "@smbc/dataview-mui",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -25,7 +25,7 @@
     "react-dom": "^18.2.0"
   },
   "dependencies": {
-    "@smbc/react-query-dataview": "*"
+    "@smbc/dataview": "*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

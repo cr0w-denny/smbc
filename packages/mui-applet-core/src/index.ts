@@ -14,10 +14,10 @@ export { ActivityNotifications } from "./ActivityNotifications";
 export { ActivitySnackbar } from "./ActivitySnackbar";
 
 // Re-export MUI components from the separate package for convenience
-export { MuiDataView, MuiDataViewManager } from "@smbc/react-query-dataview-mui";
+export { MuiDataView, MuiDataViewManager } from "@smbc/dataview-mui";
 export type { 
   MuiDataViewManagerConfig,
   MuiDataViewManagerProps,
-} from "@smbc/react-query-dataview-mui";
+} from "@smbc/dataview-mui";
 
 

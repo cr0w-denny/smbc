@@ -3,7 +3,7 @@ import {
   useDataView,
   type DataViewConfig,
   type UseDataViewOptions,
-} from "@smbc/react-query-dataview";
+} from "@smbc/dataview";
 import { useQueryClient } from "@tanstack/react-query";
 import { MuiDataView } from "./MuiDataView";
 import {

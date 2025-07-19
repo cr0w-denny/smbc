@@ -1,11 +1,11 @@
-# @smbc/react-query-dataview-ag-grid
+# @smbc/dataview-ag-grid
 
-AG-Grid renderer for react-query-dataview
+AG-Grid renderer for dataview
 
 ## Installation
 
 ```bash
-npm install @smbc/react-query-dataview-ag-grid ag-grid-react ag-grid-community
+npm install @smbc/dataview-ag-grid ag-grid-react ag-grid-community
 ```
 
 For enterprise features (row grouping, pivoting, Excel export):
@@ -16,9 +16,9 @@ npm install ag-grid-enterprise
 ## Usage
 
 ```tsx
-import { useDataView } from '@smbc/react-query-dataview';
-import { AgGridDataView } from '@smbc/react-query-dataview-ag-grid';
-import type { AgGridConfig } from '@smbc/react-query-dataview-ag-grid';
+import { useDataView } from '@smbc/dataview';
+import { AgGridDataView } from '@smbc/dataview-ag-grid';
+import type { AgGridConfig } from '@smbc/dataview-ag-grid';
 
 interface Product {
   id: string;

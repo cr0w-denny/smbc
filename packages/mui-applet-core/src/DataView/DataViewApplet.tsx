@@ -1,10 +1,10 @@
 import React from "react";
-import { type UseDataViewOptions } from "@smbc/react-query-dataview";
+import { type UseDataViewOptions } from "@smbc/dataview";
 import { usePermissions, type PermissionDefinition, useHashParams } from "@smbc/applet-core";
 import { 
   MuiDataViewManager,
   type MuiDataViewManagerConfig,
-} from "@smbc/react-query-dataview-mui";
+} from "@smbc/dataview-mui";
 import { ActionBar } from "../ActionBar";
 import { Add as AddIcon } from "@mui/icons-material";
 
@@ -60,7 +60,7 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
  * - Integrates ActionBar component
  * - Provides applet-specific callbacks and configuration
  *
- * MuiDataViewManager (react-query-dataview-mui)
+ * MuiDataViewManager (dataview-mui)
  * - Generic data view management
  * - API calls, caching, optimistic updates
  * - Form dialogs and delete confirmations

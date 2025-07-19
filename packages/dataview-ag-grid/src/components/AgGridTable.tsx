@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { GridOptions, ColDef, SelectionChangedEvent } from 'ag-grid-community';
-import type { DataViewTableProps, RowAction } from '@smbc/react-query-dataview';
+import type { DataViewTableProps, RowAction } from '@smbc/dataview';
 import type { AgGridConfig } from '../types';
 import { mapDataColumnToColDef, mergeWithTransactionState, getRowStyle } from '../utils';
 import { ActionsRenderer } from './ActionsRenderer';

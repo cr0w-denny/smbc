@@ -13,8 +13,8 @@ import {
   Delete as DeleteIcon,
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
-import { useActivity } from "@smbc/react-query-dataview";
-import type { ActivityItem } from "@smbc/react-query-dataview";
+import { useActivity } from "@smbc/dataview";
+import type { ActivityItem } from "@smbc/dataview";
 
 const ActivityTypeIcons = {
   create: AddIcon,

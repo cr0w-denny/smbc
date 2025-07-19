@@ -1,4 +1,4 @@
-import type { DataView, DataViewConfig } from "@smbc/react-query-dataview";
+import type { DataView, DataViewConfig } from "@smbc/dataview";
 import type { AgGridConfig } from "./types";
 import { AgGridTable } from "./components/AgGridTable";
 
