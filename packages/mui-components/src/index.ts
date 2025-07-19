@@ -12,15 +12,13 @@ export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
 
 
-export { AppletDrawer } from "./AppletDrawer";
 export { TreeMenu } from "./TreeMenu";
 export type {
-  AppletDrawerProps,
   NavigationRoute,
   TreeMenuSection,
   TreeMenuGroup,
-} from "./AppletDrawer";
-export type { TreeMenuProps } from "./TreeMenu";
+  TreeMenuProps,
+} from "./TreeMenu";
 
 // Filter components and types
 export {
