@@ -11,12 +11,12 @@ interface AppletRouterProps {
  */
 export function AppletRouter({ defaultComponent: DefaultComponent }: AppletRouterProps) {
   const applets = useApplets();
-  const { currentPath } = useHashNavigation();
+  const { path } = useHashNavigation();
 
   // Find the first matching route
   for (const applet of applets) {
     const matchingRoute = applet.routes.find((route: HostAppletRoute) => 
-      currentPath.startsWith(route.path)
+      path.startsWith(route.path)
     );
     
     if (matchingRoute) {

@@ -5,7 +5,6 @@ export * from "./usePersistedRoles";
 
 // Navigation hooks
 export * from "./useHashNavigation";
-export * from "./useHashParams";
 export * from "./useInternalNavigation";
 
 // Misc hooks

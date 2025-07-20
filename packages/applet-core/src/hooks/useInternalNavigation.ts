@@ -25,7 +25,7 @@ export interface UseInternalNavigationOptions {
  * 
  * @example
  * ```tsx
- * const { currentPath, navigateTo, allowedRoutes, canAccess } = useInternalNavigation({
+ * const { path, navigate, allowedRoutes, canAccess } = useInternalNavigation({
  *   appletId: "hello",
  *   mountPath: "/hello", 
  *   routes: [
@@ -37,11 +37,11 @@ export interface UseInternalNavigationOptions {
  * return (
  *   <div>
  *     {allowedRoutes.map(route => (
- *       <button key={route.path} onClick={() => navigateTo(route.path)}>
+ *       <button key={route.path} onClick={() => navigate(route.path)}>
  *         {route.icon} {route.label}
  *       </button>
  *     ))}
- *     {canAccess(currentPath) ? <RouteContent /> : <AccessDenied />}
+ *     {canAccess(path) ? <RouteContent /> : <AccessDenied />}
  *   </div>
  * );
  * ```
@@ -81,7 +81,7 @@ export function useInternalNavigation({
   routes,
   navigationGroups = [],
 }: UseInternalNavigationOptions) {
-  const { currentPath, navigateTo } = useHashNavigation(mountPath);
+  const { path, navigate } = useHashNavigation({ mountPath });
   const { hasPermission } = usePermissions();
 
   // Memoize permission checks to avoid unnecessary re-renders
@@ -102,8 +102,8 @@ export function useInternalNavigation({
 
   // Find current route
   const currentRoute = useMemo(() => {
-    return routes.find(route => route.path === currentPath);
-  }, [routes, currentPath]);
+    return routes.find(route => route.path === path);
+  }, [routes, path]);
 
   // Build navigation groups for host consumption
   const hostNavigationGroups = useMemo(() => {
@@ -112,8 +112,8 @@ export function useInternalNavigation({
 
 
   return {
-    currentPath,
-    navigateTo,
+    path,
+    navigate,
     routes,
     allowedRoutes,
     currentRoute,

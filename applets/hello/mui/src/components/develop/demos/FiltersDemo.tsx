@@ -9,22 +9,24 @@ import {
   Paper,
 } from "@mui/material";
 import { Filter } from "@smbc/mui-components";
-import { useHashParams } from "@smbc/applet-core";
+import { useHashNavigation } from "@smbc/applet-core";
 import { CodeHighlight } from "../../CodeHighlight";
 
 const CodeExample: React.FC = () => (
   <CodeHighlight
     language="tsx"
     code={`import { Filter } from "@smbc/mui-components";
-import { useHashParams } from "@smbc/applet-core";
+import { useHashNavigation } from "@smbc/applet-core";
 
 function MyFilterApplet() {
-  const { state: filters, setState: setFilters } = useHashParams({
-    search: "",
-    status: "",
-    priority: "",
-    assignee: "",
-    category: ""
+  const { params: filters, setParams: setFilters } = useHashNavigation({
+    defaultParams: {
+      search: "",
+      status: "",
+      priority: "",
+      assignee: "",
+      category: ""
+    }
   });
 
   return (
@@ -83,12 +85,14 @@ function MyFilterApplet() {
 );
 
 const LiveDemo: React.FC = () => {
-  const { state: filterValues, setState: setFilterValues } = useHashParams({
-    search: "",
-    status: "",
-    priority: "",
-    assignee: "",
-    category: "",
+  const { params: filterValues, setParams: setFilterValues } = useHashNavigation({
+    defaultParams: {
+      search: "",
+      status: "",
+      priority: "",
+      assignee: "",
+      category: "",
+    }
   });
 
   return (

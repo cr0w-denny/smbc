@@ -306,12 +306,12 @@ function Navigation({
   const toggleDarkMode = useFeatureFlagToggle("darkMode");
   const [apiDocsOpen, setApiDocsOpen] = React.useState(false);
 
-  const { currentPath } = useHashNavigation();
-  const currentAppletInfo = getCurrentApplet(currentPath, applets);
+  const { path } = useHashNavigation();
+  const currentAppletInfo = getCurrentApplet(path, applets);
 
   React.useEffect(() => {
     setApiDocsOpen(false);
-  }, [currentPath]);
+  }, [path]);
 
   const handleApiDocsOpen = () => setApiDocsOpen(true);
   const handleApiDocsClose = () => setApiDocsOpen(false);

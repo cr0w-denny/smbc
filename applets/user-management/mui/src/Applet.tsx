@@ -39,7 +39,7 @@ export const Applet: FC<AppletProps> = ({
   userType = "all",
   permissionContext = "user-management",
 }) => {
-  const { currentPath, navigateTo } = useHashNavigation(mountPath);
+  const { path, navigate } = useHashNavigation({ mountPath });
 
   // Store the previous URL (including query params) when navigating to profile
   const previousUrlRef = useRef<string | null>(null);
@@ -49,8 +49,8 @@ export const Applet: FC<AppletProps> = ({
    */
   const renderCurrentRoute = () => {
     // Check for profile route with ID
-    if (currentPath.startsWith("/profile/")) {
-      const userId = currentPath.replace("/profile/", "");
+    if (path.startsWith("/profile/")) {
+      const userId = path.replace("/profile/", "");
       return (
         <UserProfile
           userId={userId}
@@ -60,14 +60,14 @@ export const Applet: FC<AppletProps> = ({
               window.location.hash = previousUrlRef.current;
               previousUrlRef.current = null;
             } else {
-              navigateTo("/");
+              navigate("/");
             }
           }}
         />
       );
     }
 
-    switch (currentPath) {
+    switch (path) {
       case "/analytics":
         return <UserAnalytics />;
       case "/":
@@ -79,7 +79,7 @@ export const Applet: FC<AppletProps> = ({
             onViewUser={(userId) => {
               // Store current URL (including query params) before navigating
               previousUrlRef.current = window.location.hash;
-              navigateTo(`/profile/${userId}`);
+              navigate(`/profile/${userId}`);
             }}
           />
         );
@@ -91,8 +91,8 @@ export const Applet: FC<AppletProps> = ({
       {/* Navigation */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <Tabs
-          value={currentPath}
-          onChange={(_, newValue) => navigateTo(newValue)}
+          value={path}
+          onChange={(_, newValue) => navigate(newValue)}
         >
           <Tab label="User Management" value="/" />
           <Tab label="Analytics" value="/analytics" />

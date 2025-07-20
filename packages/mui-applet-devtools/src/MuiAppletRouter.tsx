@@ -45,7 +45,7 @@ export function MuiAppletRouter({
   drawerWidth = 240,
   showDashboard = true,
 }: MuiAppletRouterProps) {
-  const { currentPath } = useHashNavigation();
+  const { path } = useHashNavigation();
   const [isInitialLoad, setIsInitialLoad] = React.useState(true);
 
   // Memoize allRoutes to prevent recreating the array on every render
@@ -110,7 +110,7 @@ export function MuiAppletRouter({
     >
       <Toolbar />
       {/* Show subtle loading state on initial load if not on root path */}
-      {isInitialLoad && currentPath !== "/" ? (
+      {isInitialLoad && path !== "/" ? (
         <Box
           sx={{
             minHeight: "50vh",
@@ -119,17 +119,17 @@ export function MuiAppletRouter({
           }}
         />
       ) : /* Simple routing - render dashboard or find matching applet */
-      currentPath === "/" && showDashboard ? (
+      path === "/" && showDashboard ? (
         <DashboardComponent />
       ) : (
         (() => {
           // Find the current route
           const currentRoute = allRoutes.find(
             (route) =>
-              route.path === currentPath ||
-              (currentPath !== "/" &&
+              route.path === path ||
+              (path !== "/" &&
                 route.path !== "/" &&
-                currentPath.startsWith(route.path)),
+                path.startsWith(route.path)),
           );
 
           if (currentRoute) {

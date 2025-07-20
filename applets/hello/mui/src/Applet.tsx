@@ -18,7 +18,7 @@ const routes = internalRoutes.map((route) => ({
 }));
 
 export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
-  const { currentPath, currentRoute, canAccess } = useInternalNavigation({
+  const { path, currentRoute, canAccess } = useInternalNavigation({
     appletId: "hello",
     mountPath,
     routes,
@@ -26,23 +26,23 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   });
 
   const renderContent = () => {
-    if (currentPath === "/introduction" && canAccess(currentPath)) {
+    if (path === "/introduction" && canAccess(path)) {
       return <Introduction />;
     }
 
-    if (currentPath === "/develop" && canAccess(currentPath)) {
+    if (path === "/develop" && canAccess(path)) {
       return <Develop />;
     }
 
-    if (currentPath === "/deploy" && canAccess(currentPath)) {
+    if (path === "/deploy" && canAccess(path)) {
       return <Deploy />;
     }
 
-    if (currentPath === "/integrate" && canAccess(currentPath)) {
+    if (path === "/integrate" && canAccess(path)) {
       return <Integrate />;
     }
 
-    if (currentRoute && !canAccess(currentPath)) {
+    if (currentRoute && !canAccess(path)) {
       return (
         <Box sx={{ textAlign: "center", mt: 4 }}>
           <Typography variant="h4" color="error">

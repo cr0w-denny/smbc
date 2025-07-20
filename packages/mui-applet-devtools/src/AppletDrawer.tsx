@@ -37,7 +37,7 @@ export function AppletDrawer({
   title,
   permissionMapping = {},
 }: AppletDrawerProps) {
-  const { currentPath, navigateTo } = useHashNavigation();
+  const { path, navigate } = useHashNavigation();
   const { hasAnyPermission } = useRoleManagement();
   const [searchTerm, setSearchTerm] = React.useState("");
 
@@ -208,8 +208,8 @@ export function AppletDrawer({
       {/* Non-filterable sections (Applet Guide) */}
       <Box sx={{ flexShrink: 0 }}>
         <TreeMenu
-          currentPath={currentPath}
-          onNavigate={navigateTo}
+          currentPath={path}
+          onNavigate={navigate}
           menuSections={nonFilterableSections}
           compact={true}
         />
@@ -240,7 +240,7 @@ export function AppletDrawer({
       {rootRoute && (
         <Box sx={{ px: 2, py: 1 }}>
           <Box
-            onClick={() => navigateTo(rootRoute.path)}
+            onClick={() => navigate(rootRoute.path)}
             sx={{
               cursor: "pointer",
               display: "flex",
@@ -266,8 +266,8 @@ export function AppletDrawer({
       {/* Filterable sections (Applet Store items) */}
       <Box sx={{ flexGrow: 1, overflow: "auto" }}>
         <TreeMenu
-          currentPath={currentPath}
-          onNavigate={navigateTo}
+          currentPath={path}
+          onNavigate={navigate}
           menuSections={filterableSections}
         />
       </Box>

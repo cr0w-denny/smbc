@@ -7,7 +7,7 @@ import "ag-grid-enterprise";
 import { Filter } from "@smbc/mui-components";
 import type { FilterSpec } from "@smbc/mui-components";
 import {
-  useHashParams,
+  useHashNavigation,
   useApiClient,
   useFeatureFlag,
   type Environment,
@@ -34,12 +34,23 @@ export interface AppletProps {
 }
 
 export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
-  const { state: filters, setState: setFilters } = useHashParams<UsageFilters>({
-    start_date: "2025-01-01",
-    end_date: "2025-01-01",
-    group: "UI",
-    show_sub: false,
+  const hashState = useHashNavigation({
+    defaultParams: {
+      start_date: "2025-01-01",
+      end_date: "2025-01-01",
+      group: "UI" as "UI" | "USER" | "EXCEPTION",
+      show_sub: false,
+    }
   });
+  
+  const filters = hashState.params as UsageFilters;
+  const setFilters = (updates: Partial<UsageFilters> | ((prev: UsageFilters) => UsageFilters)) => {
+    if (typeof updates === 'function') {
+      hashState.setParams((prev) => updates(prev as UsageFilters));
+    } else {
+      hashState.setParams(updates);
+    }
+  };
 
   // Get current environment to force remount when it changes
   const environment = useFeatureFlag<Environment>("environment") || "mock";
