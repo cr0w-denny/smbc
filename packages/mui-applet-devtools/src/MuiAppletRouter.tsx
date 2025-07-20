@@ -1,13 +1,13 @@
 import React from "react";
 import { Box, Toolbar } from "@mui/material";
-import { 
-  useHashNavigation, 
+import {
+  useHashNavigation,
   useUser,
   useAppletCore,
   usePersistedRoles,
   useAppletPermissions,
   type AppletMount,
-  type RoleConfig
+  type RoleConfig,
 } from "@smbc/applet-core";
 import { getAllRoutes, useRoleManagement } from "@smbc/applet-host";
 import { RoleManager, type PermissionGroup } from "./RoleManager";
@@ -20,18 +20,18 @@ export interface MuiAppletRouterProps {
 }
 
 /**
- * Material-UI styled AppletRouter with layout, loading states, and dashboard integration.
+ * MUI styled AppletRouter with layout, loading states, and dashboard integration.
  * Provides a complete routing solution for MUI-based host applications.
- * 
+ *
  * Features:
  * - Automatic layout adjustment for drawer
  * - Loading states during initial render
  * - Built-in dashboard/role management at root path
  * - Fallback to dashboard for unmatched routes
- * 
+ *
  * @example
  * ```tsx
- * <MuiAppletRouter 
+ * <MuiAppletRouter
  *   applets={applets}
  *   roleConfig={roleConfig}
  *   drawerWidth={240}
@@ -47,9 +47,12 @@ export function MuiAppletRouter({
 }: MuiAppletRouterProps) {
   const { currentPath } = useHashNavigation();
   const [isInitialLoad, setIsInitialLoad] = React.useState(true);
-  
+
   // Memoize allRoutes to prevent recreating the array on every render
-  const allRoutes = React.useMemo(() => getAllRoutes(applets), [applets]);
+  const allRoutes = React.useMemo(
+    () => getAllRoutes(applets),
+    [applets.length],
+  );
 
   // Clear initial load flag when we have applets and a valid route
   React.useEffect(() => {
@@ -58,7 +61,7 @@ export function MuiAppletRouter({
       const timer = setTimeout(() => setIsInitialLoad(false), 50);
       return () => clearTimeout(timer);
     }
-  }, [applets]);
+  }, [applets.length]);
 
   // Dashboard component with role management
   const DashboardComponent = React.useMemo(
@@ -110,33 +113,33 @@ export function MuiAppletRouter({
       {isInitialLoad && currentPath !== "/" ? (
         <Box
           sx={{
-            minHeight: '50vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+            minHeight: "50vh",
+            backgroundColor: "rgba(0, 0, 0, 0.02)",
             borderRadius: 1,
           }}
         />
+      ) : /* Simple routing - render dashboard or find matching applet */
+      currentPath === "/" && showDashboard ? (
+        <DashboardComponent />
       ) : (
-        /* Simple routing - render dashboard or find matching applet */
-        currentPath === "/" && showDashboard ? (
-          <DashboardComponent />
-        ) : (
-          (() => {
-            // Find the current route
-            const currentRoute = allRoutes.find(
-              (route) => 
-                route.path === currentPath || 
-                (currentPath !== "/" && route.path !== "/" && currentPath.startsWith(route.path))
-            );
-            
-            if (currentRoute) {
-              const RouteComponent = currentRoute.component;
-              return <RouteComponent />;
-            }
-            
-            // Fallback to dashboard if enabled, otherwise show nothing
-            return showDashboard ? <DashboardComponent /> : null;
-          })()
-        )
+        (() => {
+          // Find the current route
+          const currentRoute = allRoutes.find(
+            (route) =>
+              route.path === currentPath ||
+              (currentPath !== "/" &&
+                route.path !== "/" &&
+                currentPath.startsWith(route.path)),
+          );
+
+          if (currentRoute) {
+            const RouteComponent = currentRoute.component;
+            return <RouteComponent />;
+          }
+
+          // Fallback to dashboard if enabled, otherwise show nothing
+          return showDashboard ? <DashboardComponent /> : null;
+        })()
       )}
     </Box>
   );

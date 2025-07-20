@@ -92,17 +92,31 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       // Exclude local SMBC packages from optimization to enable HMR
       exclude: [
+        // Core packages
         "@smbc/applet-core",
         "@smbc/mui-applet-core",
         "@smbc/mui-components",
         "@smbc/mui-applet-devtools",
         "@smbc/dataview",
         "@smbc/applet-devtools",
-        "@smbc/mui-applet-devtools",
         "@smbc/applet-meta",
-        // MSW mocks contain TypeScript files
-        "@smbc/user-management-client/mocks",
-        "@smbc/product-catalog-client/mocks",
+        
+        // Applet packages
+        "@smbc/hello-mui",
+        "@smbc/user-management-mui",
+        "@smbc/product-catalog-mui",
+        "@smbc/employee-directory-mui",
+        "@smbc/usage-stats-mui",
+        
+        // API packages  
+        "@smbc/user-management-api",
+        "@smbc/product-catalog-api",
+        "@smbc/employee-directory-api",
+        "@smbc/usage-stats-api",
+        
+        // Other packages
+        "@smbc/openapi-msw",
+        "@smbc/typespec-core",
       ],
     },
   });

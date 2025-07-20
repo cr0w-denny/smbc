@@ -8,6 +8,9 @@ export type { AppletDrawerProps } from './AppletDrawer';
 export { MuiAppletRouter } from './MuiAppletRouter';
 export type { MuiAppletRouterProps } from './MuiAppletRouter';
 
+export { MuiHostApp } from './MuiHostApp';
+export type { MuiHostAppProps } from './MuiHostApp';
+
 export { ServerSelector } from './ServerSelector';
 export type { ServerSelectorProps } from './ServerSelector';
 
