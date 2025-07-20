@@ -10,7 +10,8 @@
     "generate-mocks": "./dist/generate-mocks.js",
     "applet-postinstall": "./dist/postinstall.js",
     "applet-list": "./dist/list-applets.js",
-    "applet-install": "./dist/install-applets.js"
+    "applet-install": "./dist/install-applets.js",
+    "create-host-app": "./dist/create-host-app.js"
   },
   "scripts": {
     "build": "tsc",

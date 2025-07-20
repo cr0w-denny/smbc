@@ -119,23 +119,17 @@ function AppWithEnvironment({
   const { actions } = useAppletCore();
   const queryClient = useQueryClient();
 
-  // Watch for environment changes and invalidate queries
+  // Log environment changes for debugging
   const prevEnvironmentRef = React.useRef(environment);
   React.useEffect(() => {
     if (prevEnvironmentRef.current !== environment) {
-      console.log("🔄 Environment changed, clearing cache:", {
+      console.log("🔄 Environment changed:", {
         from: prevEnvironmentRef.current,
         to: environment,
       });
-
-      queryClient.removeQueries();
-      setTimeout(() => {
-        queryClient.invalidateQueries();
-      }, 100);
-
       prevEnvironmentRef.current = environment;
     }
-  }, [environment, queryClient]);
+  }, [environment]);
 
   // Configure applets with their API URLs
   React.useEffect(() => {
@@ -382,7 +376,7 @@ function AppWithThemeProvider(props: MuiHostAppProps) {
 }
 
 /**
- * A complete Material-UI host application component with all necessary providers and setup.
+ * A complete MUI host application component with all necessary providers and setup.
  *
  * Features:
  * - Theme management with dark mode support

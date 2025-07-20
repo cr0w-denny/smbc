@@ -1,6 +1,6 @@
 // employee-directory/src/Applet.tsx
 import { MuiDataViewApplet } from "@smbc/mui-applet-core";
-import { usePermissions } from "@smbc/applet-core";
+import { usePermissions, useFeatureFlag, type Environment } from "@smbc/applet-core";
 import { useAppletConfig } from "./config";
 import permissions from "./permissions";
 
@@ -13,6 +13,9 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     mountPath: _mountPath,
     timestamp: Date.now()
   });
+  
+  // Get current environment to force remount when it changes
+  const environment = useFeatureFlag<Environment>("environment") || "mock";
   
   // Get permissions for the current context
   const { hasPermission } = usePermissions();
@@ -65,6 +68,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
 
   return (
     <MuiDataViewApplet
+      key={`employee-directory-${environment}`}
       config={config}
       permissionContext="employee-directory"
       onSuccess={handleSuccess}

@@ -1,5 +1,5 @@
 import { MuiDataViewApplet } from "@smbc/mui-applet-core";
-import { usePermissions } from "@smbc/applet-core";
+import { usePermissions, useFeatureFlag, type Environment } from "@smbc/applet-core";
 import { useUserManagerConfig } from "./config";
 import permissions from "../permissions";
 
@@ -41,6 +41,9 @@ export function UserManager({
     permissionContext,
     timestamp: Date.now()
   });
+  
+  // Get current environment to force remount when it changes
+  const environment = useFeatureFlag<Environment>("environment") || "mock";
   
   // Get permissions for the current context
   const { hasPermission } = usePermissions();
@@ -101,6 +104,7 @@ export function UserManager({
 
   return (
     <MuiDataViewApplet
+      key={`user-manager-${environment}-${permissionContext}-${userType}`}
       config={config}
       permissionContext={permissionContext}
       onSuccess={handleSuccess}

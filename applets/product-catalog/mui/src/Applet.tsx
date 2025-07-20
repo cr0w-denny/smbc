@@ -9,7 +9,7 @@ import {
 } from "@smbc/mui-applet-core";
 import { Box, Typography, Alert } from "@mui/material";
 import { Delete, CheckCircle, ErrorOutline } from "@mui/icons-material";
-import { useApiClient } from "@smbc/applet-core";
+import { useApiClient, useFeatureFlag, type Environment } from "@smbc/applet-core";
 import type {
   components,
   paths,
@@ -22,6 +22,8 @@ import {
 type Product = components["schemas"]["Product"];
 
 export function Applet() {
+  // Get current environment to force remount when it changes
+  const environment = useFeatureFlag<Environment>("environment") || "mock";
   const apiClient = useApiClient<paths>("product-catalog");
 
   console.log("DataViewOptimistic: Initializing with apiClient", apiClient);
@@ -322,6 +324,7 @@ export function Applet() {
       </Alert>
 
       <MuiDataViewApplet
+        key={`product-catalog-${environment}`}
         config={dataViewConfig}
         options={{
           // Disable transactions to enable optimistic mode

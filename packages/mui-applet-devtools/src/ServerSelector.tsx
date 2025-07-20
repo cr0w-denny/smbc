@@ -103,7 +103,7 @@ export function ServerSelector({
   const handleServerChange = (event: SelectChangeEvent<string>) => {
     const selectedDescription = event.target.value;
     
-    console.log("Server selector change:", {
+    console.log("🔄 Server selector change:", {
       selectedDescription,
       currentEnvironment: environment,
     });
