@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Card, Tabs, Tab } from "@mui/material";
 import { WhatIsAnApplet } from "./WhatIsAnApplet";
 import { ArchitecturalWalkthrough } from "./ArchitecturalWalkthrough";
+import { HostSetup } from "../host-setup";
 
 export const Introduction: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
@@ -12,8 +13,12 @@ export const Introduction: React.FC = () => {
       component: <WhatIsAnApplet />,
     },
     {
-      label: "Architectural Walkthrough",
+      label: "Architectural Walkthrough", 
       component: <ArchitecturalWalkthrough />,
+    },
+    {
+      label: "Host App Setup",
+      component: <HostSetup />,
     },
   ];
 
