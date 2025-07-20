@@ -188,8 +188,6 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
       return result.data as UsageStatsResponse;
     },
     enabled: !!endpoint,
-    // Don't keep previous data when environment changes
-    keepPreviousData: false,
   });
 
   // Extract records from response - clear data when environment changes
@@ -197,7 +195,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     console.log("🔍 Data computation:", {
       environment,
       hasResponse: !!response,
-      recordCount: response?.records?.length || 0,
+      recordCount: (response as UsageStatsResponse | undefined)?.records?.length || 0,
       queryKey: ["usage-stats", endpoint, queryParams]
     });
     return (response as UsageStatsResponse | undefined)?.records || [];
