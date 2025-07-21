@@ -23,7 +23,7 @@ import { ServerSelector } from './ServerSelector';
 export interface CurrentAppletInfo {
   id: string;
   label: string;
-  packageName: string;
+  packageName: string | false;
   apiSpec?: {
     spec: any;
   };
@@ -106,7 +106,8 @@ export function HostAppBar({
         {/* Applet Installation Guide Button */}
         {showAppletInstallation &&
           currentAppletInfo?.id &&
-          currentAppletInfo.id !== "hello" && (
+          currentAppletInfo.id !== "hello" &&
+          currentAppletInfo.packageName !== false && (
             <Tooltip title="View installation instructions">
               <Button
                 startIcon={<InstallIcon />}

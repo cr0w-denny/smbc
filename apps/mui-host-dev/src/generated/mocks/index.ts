@@ -90,7 +90,7 @@ export {
  * Metadata about generated mocks
  */
 export const mockMetadata = {
-  generatedAt: '2025-07-20T23:58:59.324Z',
+  generatedAt: '2025-07-21T02:57:34.798Z',
   applets: [
     {
       id: 'product-catalog',

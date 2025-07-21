@@ -6,7 +6,7 @@ const mockConfig = {
   baseUrl: '/api/v1/product-catalog',
   delay: { min: 0, max: 200 },
   errorRate: 0.15,
-  dataSetSize: { min: 10, max: 50 },
+  dataSetSize: { min: 100, max: 250 },
 };
 
 async function delay() {
@@ -20,7 +20,7 @@ function generateProduct(overrides = {}) {
     name: faker.commerce.productName(),
     description: faker.commerce.productDescription(),
     price: faker.commerce.price(),
-    category: faker.commerce.department(),
+    category: faker.helpers.arrayElement(["Electronics","Books","Clothing","Home","Sports","Beauty","Automotive","Health","Toys","Garden"]),
     sku: faker.string.alphanumeric(8),
     inStock: faker.datatype.boolean({ probability: 0.8 }),
     createdAt: format(faker.date.between({ from: '-90d', to: '-1d' }), 'yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\''),
@@ -60,38 +60,48 @@ export const handlers = [
     
     const url = new URL(request.url);
     
+    const page = url.searchParams.get('page');
+    const pageSize = url.searchParams.get('pageSize');
+    const sortBy = url.searchParams.get('sortBy');
+    const sortOrder = url.searchParams.get('sortOrder');
     const category = url.searchParams.get('category');
-    const search = url.searchParams.get('search');
     const inStock = url.searchParams.get('inStock');
+    const search = url.searchParams.get('search');
     
     const allItems = getAllProducts();
     let filteredItems = allItems;
     
     if (category !== null && category !== '') {
       filteredItems = filteredItems.filter((item: any) => 
-        item.category?.toString() === category
+        item.category?.toString().toLowerCase() === category.toLowerCase()
       );
+    }
+    if (inStock !== null && inStock !== '' && inStock === 'true') {
+      filteredItems = filteredItems.filter((item: any) => item.inStock === true);
     }
     if (search !== null && search !== '') {
-      filteredItems = filteredItems.filter((item: any) => 
-        item.name?.toString().toLowerCase().includes(search.toLowerCase())
-      );
+      filteredItems = filteredItems.filter((item: any) => item.name?.toString().toLowerCase().includes(search.toLowerCase()) || item.description?.toString().toLowerCase().includes(search.toLowerCase()) || item.sku?.toString().toLowerCase().includes(search.toLowerCase()));
     }
-    if (inStock !== null && inStock !== '') {
-      filteredItems = filteredItems.filter((item: any) => 
-        item.inStock?.toString() === inStock
-      );
+    if (sortBy) {
+      filteredItems.sort((a: any, b: any) => {
+        const aVal = a[sortBy];
+        const bVal = b[sortBy];
+        const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        return sortOrder === 'desc' ? -comparison : comparison;
+      });
     }
-
-
-    const paginatedItems = filteredItems;
+    const pageNum = parseInt(page || '1');
+    const pageSizeNum = parseInt(pageSize || '20');
+    const startIndex = (pageNum - 1) * pageSizeNum;
+    const endIndex = startIndex + pageSizeNum;
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
     
     return HttpResponse.json({
       "products": paginatedItems,
-      "total": 0,
-      "page": 0,
-      "pageSize": 0
+      "total": filteredItems.length,
+      "page": pageNum,
+      "pageSize": pageSizeNum
     });
   }),
   http.post(`${mockConfig.baseUrl}/products`, async ({ request }) => {

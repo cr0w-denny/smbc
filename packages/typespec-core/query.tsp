@@ -27,9 +27,10 @@ alias SortParams = {
 /**
  * Standard search parameters as explicit query params
  * Use by spreading into operation parameters
+ * Note: Override x-mock-search fields in your specific API to match your entity schema
  */
 alias SearchParams = {
-  @query @extension("x-mock-search", #{ fields: #["email", "firstName", "lastName"] }) search?: string;
+  @query @extension("x-mock-search", #{ fields: #[] }) search?: string;
 };
 
 /**

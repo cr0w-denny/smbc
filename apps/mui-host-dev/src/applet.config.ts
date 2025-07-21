@@ -169,6 +169,7 @@ export const APPLETS: AppletMount[] = [
     label: "User Management",
     apiSpec: userManagementApplet.apiSpec,
     version: "1.0.0",
+    packageName: "@smbc/user-management-mui",
     routes: [
       {
         path: "/user-management",
@@ -234,6 +235,7 @@ export const APPLETS: AppletMount[] = [
     icon: TaskIcon,
     permissions: [],
     version: "0.0.0",
+    packageName: false,
   }),
   mountApplet(filterDemoApplet, {
     id: "filter-demo",
@@ -242,5 +244,6 @@ export const APPLETS: AppletMount[] = [
     icon: FilterAltIcon,
     permissions: [],
     version: "0.0.0",
+    packageName: false,
   }),
 ];

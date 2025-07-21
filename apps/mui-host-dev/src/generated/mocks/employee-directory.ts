@@ -5,7 +5,7 @@ const mockConfig = {
   baseUrl: '/api/v1/employee-directory',
   delay: { min: 0, max: 200 },
   errorRate: 0.15,
-  dataSetSize: { min: 10, max: 50 },
+  dataSetSize: { min: 100, max: 250 },
 };
 
 async function delay() {
@@ -56,38 +56,48 @@ export const handlers = [
     
     const url = new URL(request.url);
     
-    const search = url.searchParams.get('search');
+    const page = url.searchParams.get('page');
+    const pageSize = url.searchParams.get('pageSize');
+    const sortBy = url.searchParams.get('sortBy');
+    const sortOrder = url.searchParams.get('sortOrder');
     const department = url.searchParams.get('department');
     const active = url.searchParams.get('active');
+    const search = url.searchParams.get('search');
     
     const allItems = getAllEmployees();
     let filteredItems = allItems;
     
-    if (search !== null && search !== '') {
-      filteredItems = filteredItems.filter((item: any) => 
-        item.name?.toString().toLowerCase().includes(search.toLowerCase())
-      );
-    }
     if (department !== null && department !== '') {
       filteredItems = filteredItems.filter((item: any) => 
-        item.department?.toString() === department
+        item.department?.toString().toLowerCase() === department.toLowerCase()
       );
     }
-    if (active !== null && active !== '') {
-      filteredItems = filteredItems.filter((item: any) => 
-        item.active?.toString() === active
-      );
+    if (active !== null && active !== '' && active === 'true') {
+      filteredItems = filteredItems.filter((item: any) => item.active === true);
     }
-
-
-    const paginatedItems = filteredItems;
+    if (search !== null && search !== '') {
+      filteredItems = filteredItems.filter((item: any) => item.name?.toString().toLowerCase().includes(search.toLowerCase()) || item.email?.toString().toLowerCase().includes(search.toLowerCase()));
+    }
+    if (sortBy) {
+      filteredItems.sort((a: any, b: any) => {
+        const aVal = a[sortBy];
+        const bVal = b[sortBy];
+        const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        return sortOrder === 'desc' ? -comparison : comparison;
+      });
+    }
+    const pageNum = parseInt(page || '1');
+    const pageSizeNum = parseInt(pageSize || '20');
+    const startIndex = (pageNum - 1) * pageSizeNum;
+    const endIndex = startIndex + pageSizeNum;
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
     
     return HttpResponse.json({
       "employees": paginatedItems,
-      "total": 0,
-      "page": 0,
-      "pageSize": 0
+      "total": filteredItems.length,
+      "page": pageNum,
+      "pageSize": pageSizeNum
     });
   }),
   http.post(`${mockConfig.baseUrl}/employees`, async ({ request }) => {

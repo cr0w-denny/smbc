@@ -95,6 +95,13 @@ model UpdateUserRequest {
 }
 
 /**
+ * User-specific search parameters
+ */
+alias UserSearchParams = {
+  @query @extension("x-mock-search", #{ fields: #["firstName", "lastName", "email", "username"] }) search?: string;
+};
+
+/**
  * User-specific filter parameters for list endpoint
  */
 alias UserFilterParams = {
@@ -139,7 +146,7 @@ interface Users {
     },
     default: "User"
   })
-  list(...BaseListParams, ...UserFilterParams): UserList | ErrorResponse;
+  list(...PaginationParams, ...SortParams, ...UserSearchParams, ...UserFilterParams): UserList | ErrorResponse;
 
   /**
    * Create a new user

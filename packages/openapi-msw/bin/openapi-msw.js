@@ -16,7 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 async function generateMocks(options) {
   const { TypeScriptMockGenerator } = await import('../dist/generator.js');
   
-  const { input, output, baseUrl = '', minSize = 10, maxSize = 50, errorRate = 0.15 } = options;
+  const { input, output, baseUrl = '', minSize = 100, maxSize = 250, errorRate = 0.15 } = options;
   
   // Read OpenAPI spec
   if (!existsSync(input)) {
@@ -79,8 +79,8 @@ program
   .requiredOption('-i, --input <path>', 'Path to OpenAPI spec file (JSON)')
   .requiredOption('-o, --output <path>', 'Output path for generated TypeScript file')
   .option('-b, --base-url <url>', 'Base URL for API endpoints', '')
-  .option('--min-size <number>', 'Minimum dataset size', '10')
-  .option('--max-size <number>', 'Maximum dataset size', '50')
+  .option('--min-size <number>', 'Minimum dataset size', '100')
+  .option('--max-size <number>', 'Maximum dataset size', '250')
   .option('--error-rate <number>', 'Error rate (0-1)', '0.15')
   .action(async (options) => {
     await generateMocks({

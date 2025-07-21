@@ -61,6 +61,7 @@ export function mountApplet(
     apiBaseUrl?: string;
     version?: string;
     filterable?: boolean;
+    packageName?: string | false;
   },
   servers?: Array<{ url: string; description?: string }>,
 ): AppletMount {
@@ -94,7 +95,7 @@ export function mountApplet(
     apiSpec: finalApiSpec,
     apiBaseUrl: config.apiBaseUrl,
     version: config.version,
-    packageName: `@smbc/${config.id}-mui`, // Auto-generate package name
+    packageName: config.packageName ?? `@smbc/${config.id}-mui`, // Use provided packageName or auto-generate
     filterable: config.filterable,
     getHostNavigation: applet.getHostNavigation,
     routes: [

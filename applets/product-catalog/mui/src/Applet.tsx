@@ -178,16 +178,12 @@ export function Applet() {
         },
         {
           name: "inStock",
-          type: "select",
-          label: "Stock Status",
-          options: [
-            { value: "", label: "All Products" },
-            { value: "true", label: "In Stock" },
-            { value: "false", label: "Out of Stock" },
-          ],
+          type: "boolean",
+          label: "In stock only",
+          defaultValue: false,
         },
       ],
-      initialValues: { search: "", category: "", inStock: "" },
+      initialValues: { search: "", category: "", inStock: false },
     },
 
     // Pagination configuration

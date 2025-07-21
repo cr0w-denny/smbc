@@ -191,7 +191,7 @@ export interface AppletMount {
   };
   apiBaseUrl?: string; // Optional API base URL for this applet
   version?: string; // Optional version number for the applet
-  packageName: string; // Package name (e.g., "@smbc/user-management-mui")
+  packageName: string | false; // Package name (e.g., "@smbc/user-management-mui") or false for demo/in-app applets
   filterable?: boolean; // Whether this applet participates in search/filtering (default: true)
   getHostNavigation?: (
     mountPath: string, 

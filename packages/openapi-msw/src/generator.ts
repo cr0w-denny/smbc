@@ -658,7 +658,7 @@ ${responseDiscrimination}
           case "exact":
             return `    if (${param.name} !== null && ${param.name} !== '') {
       filteredItems = filteredItems.filter((item: any) => 
-        item.${field}?.toString() === ${param.name}
+        item.${field}?.toString().toLowerCase() === ${param.name}.toLowerCase()
       );
     }`;
           case "boolean-choice":
@@ -691,9 +691,9 @@ ${mappingCases}
       filteredItems = filteredItems.filter((item: any) => item.${field} === boolValue);
     }`;
             } else {
-              return `    if (${param.name} !== null && ${param.name} !== '') {
-      const boolValue = ${param.name} === 'true';
-      filteredItems = filteredItems.filter((item: any) => item.${field} === boolValue);
+              // Boolean-choice: false means "show all", true means "filter for true values"
+              return `    if (${param.name} !== null && ${param.name} !== '' && ${param.name} === 'true') {
+      filteredItems = filteredItems.filter((item: any) => item.${field} === true);
     }`;
             }
           default:
@@ -970,7 +970,11 @@ ${defaultCase}
             value = "[]";
           }
         } else if (prop.type === "integer" || prop.type === "number") {
-          value = "0";
+          // For pagination info, use appropriate values
+          if (key === "total") value = "filteredItems.length";
+          else if (key === "page") value = "pageNum";
+          else if (key === "pageSize") value = "pageSizeNum";
+          else value = "0";
         } else if (prop.type === "object") {
           value = "{}";
         } else if (prop.type === "string") {
@@ -1175,7 +1179,7 @@ function main() {
     const spec = JSON.parse(readFileSync(inputFile, "utf-8"));
     const config = {
       baseUrl,
-      dataSetSize: { min: 10, max: 50 },
+      dataSetSize: { min: 100, max: 250 },
       errorRate: 0.15,
     };
 

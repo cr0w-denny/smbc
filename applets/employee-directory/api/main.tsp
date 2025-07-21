@@ -2,6 +2,7 @@
 import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi";
+import "../../../packages/typespec-core/query.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;
@@ -40,7 +41,7 @@ model Employee {
   
   @extension("x-mock-data", #{
     faker: "helpers.arrayElement",
-    args: #[#["Engineering", "Marketing", "Sales", "HR", "Finance", "Operations", "Legal", "IT", "Customer Support"]]
+    args: #[#["Customer Support", "Engineering", "Finance", "HR", "IT", "Legal", "Marketing", "Operations", "Sales"]]
   })
   department: string;
   
@@ -72,20 +73,24 @@ model EmployeeList {
 }
 
 /**
+ * Employee-specific search parameters
+ */
+alias EmployeeSearchParams = {
+  @query @extension("x-mock-search", #{ fields: #["name", "email"] }) search?: string;
+};
+
+/**
  * Employee-specific filter parameters for list endpoint
  */
 alias EmployeeFilterParams = {
-  @query @extension("x-mock-filter", #{ field: "name", strategy: "partial-match" }) search?: string;
   @query @extension("x-mock-filter", #{ field: "department", strategy: "exact" }) department?: string;
-  @query @extension("x-mock-filter", #{ field: "active", strategy: "exact" }) active?: boolean;
-  @query page?: int32;
-  @query pageSize?: int32;
+  @query @extension("x-mock-filter", #{ field: "active", strategy: "boolean-choice" }) active?: boolean;
 };
 
 @route("/employees")
 interface Employees {
   @get
-  list(...EmployeeFilterParams): EmployeeList;
+  list(...PaginationParams, ...SortParams, ...EmployeeSearchParams, ...EmployeeFilterParams): EmployeeList;
   
   @get
   @route("/{id}")
@@ -94,7 +99,7 @@ interface Employees {
   @post
   create(@body employee: Employee): Employee;
   
-  @patch
+  @patch(#{ implicitOptionality: true })
   @route("/{id}")
   update(@path id: string, @body updates: UpdateEmployeeRequest): Employee;
   

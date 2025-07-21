@@ -53,11 +53,15 @@ async function extractAppletIds(): Promise<string[]> {
         appletIds.push(match[1]);
       }
       
-      // Also look for manual applet definitions with id property
-      const manualAppletMatches = configContent.matchAll(/{\s*id:\s*["']([^"']+)["']/g);
-      for (const match of manualAppletMatches) {
-        if (!appletIds.includes(match[1])) {
-          appletIds.push(match[1]);
+      // Also look for manual applet definitions with id property in APPLETS array
+      const appletsArrayMatch = configContent.match(/export const APPLETS[^=]*=\s*\[([^\]]+)\]/s);
+      if (appletsArrayMatch) {
+        const appletsArrayContent = appletsArrayMatch[1];
+        const idMatches = appletsArrayContent.matchAll(/{\s*id:\s*["']([^"']+)["']/g);
+        for (const idMatch of idMatches) {
+          if (!appletIds.includes(idMatch[1])) {
+            appletIds.push(idMatch[1]);
+          }
         }
       }
       
@@ -371,9 +375,6 @@ async function main(): Promise<void> {
   for (const appletId of appletIds) {
     const apiPackage = checkApiPackageExists(appletId);
     if (apiPackage.exists) {
-      console.log(
-        `✅ Found API package for ${appletId}: ${apiPackage.packageName}`,
-      );
       appletsWithApis.push({ appletId, apiPackage });
     } else {
       console.log(

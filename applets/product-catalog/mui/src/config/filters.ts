@@ -2,15 +2,6 @@
  * Filter configuration for the Product Catalog
  */
 
-// Import types for proper typing
-interface ProductsQuery {
-  page?: number;
-  pageSize?: number;
-  category?: string;
-  search?: string;
-  inStock?: boolean;
-}
-
 // Product categories - in a real app, these might come from an API
 const PRODUCT_CATEGORIES = [
   { label: "All Categories", value: undefined },
@@ -30,32 +21,28 @@ export const createProductFiltersConfig = () => ({
   fields: [
     {
       name: "search",
-      type: "search" as const,
+      type: "search",
       label: "Search products...",
       placeholder: "Search by name, SKU, or description...",
       fullWidth: true,
     },
     {
       name: "category",
-      type: "select" as const,
+      type: "select",
       label: "Category",
       options: PRODUCT_CATEGORIES,
     },
     {
       name: "inStock",
-      type: "select" as const,
-      label: "Stock Status",
-      options: [
-        { label: "All Items", value: undefined },
-        { label: "In Stock", value: "true" },
-        { label: "Out of Stock", value: "false" },
-      ],
+      type: "boolean",
+      label: "In stock only",
+      defaultValue: false,
     },
   ],
   initialValues: {
     search: "",
     category: undefined,
-    inStock: undefined,
+    inStock: false,
   },
   title: "Product Filters",
   collapsible: true,
@@ -64,41 +51,3 @@ export const createProductFiltersConfig = () => ({
   showFilterCount: true,
   debounceMs: 300,
 });
-
-/**
- * Filter values interface
- */
-interface FilterValues {
-  search?: string;
-  category?: string;
-  inStock?: string;
-  [key: string]: unknown;
-}
-
-/**
- * Transform filter values for API consumption
- */
-export const transformProductFilters = (filters: FilterValues): Partial<ProductsQuery> => {
-  const transformed: any = { ...filters };
-
-  // Convert inStock string to boolean for API
-  if (transformed.inStock === "true") {
-    transformed.inStock = true;
-  } else if (transformed.inStock === "false") {
-    transformed.inStock = false;
-  } else {
-    delete transformed.inStock;
-  }
-
-  // Remove empty search
-  if (!transformed.search) {
-    delete transformed.search;
-  }
-
-  // Remove undefined category
-  if (!transformed.category) {
-    delete transformed.category;
-  }
-
-  return transformed;
-};

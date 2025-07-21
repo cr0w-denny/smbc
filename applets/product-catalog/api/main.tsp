@@ -1,6 +1,7 @@
 import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi";
+import "../../../packages/typespec-core/query.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;
@@ -41,7 +42,8 @@ model Product {
   price: float64;
   
   @extension("x-mock-data", #{
-    faker: "commerce.department"
+    faker: "helpers.arrayElement",
+    args: #[#["Electronics", "Books", "Clothing", "Home", "Sports", "Beauty", "Automotive", "Health", "Toys", "Garden"]]
   })
   category: string;
   
@@ -102,20 +104,24 @@ model ErrorResponse {
 }
 
 /**
+ * Product-specific search parameters
+ */
+alias ProductSearchParams = {
+  @query @extension("x-mock-search", #{ fields: #["name", "description", "sku"] }) search?: string;
+};
+
+/**
  * Product-specific filter parameters for list endpoint
  */
 alias ProductFilterParams = {
-  @query page?: int32 = 1;
-  @query pageSize?: int32 = 10;
   @query @extension("x-mock-filter", #{ field: "category", strategy: "exact" }) category?: string;
-  @query @extension("x-mock-filter", #{ field: "name", strategy: "partial-match" }) search?: string;
-  @query @extension("x-mock-filter", #{ field: "inStock", strategy: "exact" }) inStock?: boolean;
+  @query @extension("x-mock-filter", #{ field: "inStock", strategy: "boolean-choice" }) inStock?: boolean;
 };
 
 @route("/products")
 interface Products {
   @get
-  list(...ProductFilterParams): ProductList | ErrorResponse;
+  list(...PaginationParams, ...SortParams, ...ProductSearchParams, ...ProductFilterParams): ProductList | ErrorResponse;
 
   @post
   create(@body product: CreateProductRequest): Product | ErrorResponse;

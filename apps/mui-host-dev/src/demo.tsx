@@ -679,18 +679,6 @@ const createTaskConfig = (
     pageSizeOptions: [5, 10, 20], // Available page size options
   },
 
-  // =============================================================================
-  // ADVANCED OPTIONS
-  // =============================================================================
-  options: {
-    // Transform filters before sending to API
-    // This allows for complex filter processing, renaming, or formatting
-    transformFilters: (filters: any) => {
-      // In this demo, pass filters directly to our API client
-      // In production, you might transform field names, format dates, etc.
-      return filters;
-    },
-  },
 
   // =============================================================================
   // ACTIVITY TRACKING CONFIGURATION
@@ -757,6 +745,16 @@ const TasksDemo = () => {
           enabled: true, // Enable batch transaction support
           requireConfirmation: false, // Show confirmation dialog before commit
           emitActivities: true, // Emit activities when transactions are committed
+        },
+        // =============================================================================
+        // FILTER TRANSFORMATION
+        // =============================================================================
+        // Transform filters before sending to API
+        // This allows for complex filter processing, renaming, or formatting
+        transformFilters: (filters: any) => {
+          // In this demo, pass filters directly to our API client
+          // In production, you might transform field names, format dates, etc.
+          return filters;
         },
       }}
     />

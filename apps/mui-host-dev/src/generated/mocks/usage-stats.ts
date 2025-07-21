@@ -5,7 +5,7 @@ const mockConfig = {
   baseUrl: '/api/v1',
   delay: { min: 0, max: 200 },
   errorRate: 0.15,
-  dataSetSize: { min: 10, max: 50 },
+  dataSetSize: { min: 100, max: 250 },
 };
 
 async function delay() {

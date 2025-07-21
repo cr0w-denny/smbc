@@ -6,7 +6,7 @@ const mockConfig = {
   baseUrl: '/api/v1/user-management',
   delay: { min: 0, max: 200 },
   errorRate: 0.15,
-  dataSetSize: { min: 10, max: 50 },
+  dataSetSize: { min: 100, max: 250 },
 };
 
 async function delay() {
@@ -107,7 +107,7 @@ export const handlers = [
       filteredItems = filteredItems.filter((item: any) => item.isActive === boolValue);
     }
     if (search !== null && search !== '') {
-      filteredItems = filteredItems.filter((item: any) => item.email?.toString().toLowerCase().includes(search.toLowerCase()) || item.firstName?.toString().toLowerCase().includes(search.toLowerCase()) || item.lastName?.toString().toLowerCase().includes(search.toLowerCase()));
+      filteredItems = filteredItems.filter((item: any) => item.firstName?.toString().toLowerCase().includes(search.toLowerCase()) || item.lastName?.toString().toLowerCase().includes(search.toLowerCase()) || item.email?.toString().toLowerCase().includes(search.toLowerCase()) || item.username?.toString().toLowerCase().includes(search.toLowerCase()));
     }
     if (sortBy) {
       filteredItems.sort((a: any, b: any) => {

@@ -7,6 +7,16 @@ import { useHashNavigation } from "@smbc/applet-core";
 const filterSpec = {
   fields: [
     {
+      name: "startDate",
+      type: "date" as const,
+      label: "Start Date",
+    },
+    {
+      name: "endDate",
+      type: "date" as const,
+      label: "End Date",
+    },
+    {
       name: "search",
       type: "search" as const,
       label: "Search",
@@ -39,6 +49,8 @@ const filterSpec = {
     search: "",
     category: "",
     status: "",
+    startDate: "",
+    endDate: "",
   },
   debounceMs: 300,
 };
@@ -72,8 +84,9 @@ export default function FilterDemoApplet() {
       </Typography>
 
       <Typography variant="body1" sx={{ mb: 3 }}>
-        This simple demo showcases the Filter component usage with various field types
-        and demonstrates URL synchronization patterns for maintaining filter state.
+        This simple demo showcases the Filter component usage with various field
+        types and demonstrates URL synchronization patterns for maintaining
+        filter state.
       </Typography>
 
       <Filter
