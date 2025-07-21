@@ -53,7 +53,7 @@ const TEMPLATES = {
       'msw',
     ],
     devDependencies: [
-      '@smbc/applet-host-scripts',
+      '@smbc/applet-cli',
       '@types/react',
       '@types/react-dom',
       '@vitejs/plugin-react',

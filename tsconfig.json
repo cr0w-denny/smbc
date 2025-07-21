@@ -28,7 +28,7 @@
     { "path": "packages/ui-core" },
     { "path": "packages/applet-core" },
     { "path": "packages/applet-host" },
-    { "path": "packages/applet-host-scripts" },
+    { "path": "packages/applet-cli" },
     { "path": "packages/applet-meta" },
     { "path": "packages/dataview" },
     { "path": "packages/dataview-mui" },

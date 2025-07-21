@@ -58,10 +58,10 @@ export const HostSetup: React.FC = () => {
           <CodeHighlight
             language="bash"
             code={`# Create a new host app with MUI dev tools (recommended)
-npx @smbc/applet-host-scripts create-host-app my-host-app
+npx @smbc/applet-cli create-host-app my-host-app
 
 # Or create a basic host app
-npx @smbc/applet-host-scripts create-host-app my-host-app --template basic
+npx @smbc/applet-cli create-host-app my-host-app --template basic
 
 # Navigate to your new app
 cd my-host-app
@@ -207,7 +207,7 @@ export const APPLETS: AppletMount[] = [
       content: (
         <Box>
           <Alert severity="info" sx={{ mb: 3 }}>
-            Generate mock handlers for development using the applet-host-scripts wizard.
+            Generate mock handlers for development using the applet-cli wizard.
           </Alert>
 
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
