@@ -1,69 +1,60 @@
 #!/usr/bin/env node
-
 import { writeFile, mkdir } from 'fs/promises';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs';
-
-interface CreateHostAppOptions {
-  name: string;
-  directory?: string;
-  applets?: string[];
-  template?: 'basic' | 'mui-devtools';
-}
-
+import { CORE_DEPS } from '@smbc/applet-meta';
 const TEMPLATES = {
-  basic: {
-    description: 'Basic host app with minimal setup',
-    dependencies: [
-      '@smbc/applet-core',
-      '@smbc/applet-host',
-      '@mui/material',
-      '@emotion/react',
-      '@emotion/styled',
-      '@tanstack/react-query',
-      'react',
-      'react-dom',
-    ],
-    devDependencies: [
-      '@types/react',
-      '@types/react-dom',
-      '@vitejs/plugin-react',
-      'typescript',
-      'vite',
-    ],
-  },
-  'mui-devtools': {
-    description: 'Full-featured host app with MUI dev tools and mock generation',
-    dependencies: [
-      '@smbc/applet-core',
-      '@smbc/applet-host',
-      '@smbc/mui-applet-core',
-      '@smbc/mui-applet-devtools',
-      '@smbc/mui-components',
-      '@smbc/dataview',
-      '@smbc/openapi-msw',
-      '@mui/material',
-      '@mui/icons-material',
-      '@emotion/react',
-      '@emotion/styled',
-      '@tanstack/react-query',
-      '@tanstack/react-query-devtools',
-      'react',
-      'react-dom',
-      'msw',
-    ],
-    devDependencies: [
-      '@smbc/applet-cli',
-      '@types/react',
-      '@types/react-dom',
-      '@vitejs/plugin-react',
-      'typescript',
-      'vite',
-      'tsx',
-    ],
-  },
+    basic: {
+        description: 'Basic host app with minimal setup',
+        dependencies: [
+            '@smbc/applet-core',
+            '@smbc/applet-host',
+            '@mui/material',
+            '@emotion/react',
+            '@emotion/styled',
+            '@tanstack/react-query',
+            'react',
+            'react-dom',
+        ],
+        devDependencies: [
+            '@types/react',
+            '@types/react-dom',
+            '@vitejs/plugin-react',
+            'typescript',
+            'vite',
+        ],
+    },
+    'mui-devtools': {
+        description: 'Full-featured host app with MUI dev tools and mock generation',
+        dependencies: [
+            '@smbc/applet-core',
+            '@smbc/applet-host',
+            '@smbc/mui-applet-core',
+            '@smbc/mui-applet-devtools',
+            '@smbc/mui-components',
+            '@smbc/dataview',
+            '@smbc/openapi-msw',
+            '@mui/material',
+            '@mui/icons-material',
+            '@emotion/react',
+            '@emotion/styled',
+            '@tanstack/react-query',
+            '@tanstack/react-query-devtools',
+            'react',
+            'react-dom',
+            'msw',
+        ],
+        devDependencies: [
+            '@smbc/applet-cli',
+            '@types/react',
+            '@types/react-dom',
+            '@vitejs/plugin-react',
+            'typescript',
+            'vite',
+            'tsx',
+        ],
+    },
 };
-
 const BASIC_APP_TSX = `import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -88,7 +79,6 @@ function App() {
 
 export default App;
 `;
-
 const MUI_DEVTOOLS_APP_TSX = `import { MuiHostApp } from "@smbc/mui-applet-devtools";
 import { APPLETS, DEMO_USER, HOST, ROLE_CONFIG } from "./applet.config";
 import { allHandlers } from "./generated/mocks";
@@ -108,7 +98,6 @@ export function App() {
   );
 }
 `;
-
 const BASIC_CONFIG_TS = `import type { RoleConfig, AppletMount } from "@smbc/applet-core";
 import {
   generatePermissionMappings,
@@ -179,7 +168,6 @@ export const ROLE_CONFIG: RoleConfig = {
   ),
 };
 `;
-
 const MUI_DEVTOOLS_CONFIG_TS = `import type { RoleConfig, AppletMount, User } from "@smbc/applet-core";
 import {
   createPermissionRequirements,
@@ -277,36 +265,33 @@ export const APPLETS: AppletMount[] = [
   // }),
 ];
 `;
-
-const PACKAGE_JSON_TEMPLATE = (name: string, template: keyof typeof TEMPLATES) => ({
-  name,
-  private: true,
-  version: "0.0.0",
-  type: "module",
-  scripts: {
-    dev: "vite",
-    build: "tsc -b && vite build",
-    lint: "eslint .",
-    preview: "vite preview",
+const PACKAGE_JSON_TEMPLATE = (name, template) => ({
+    name,
+    private: true,
+    version: "0.0.0",
+    type: "module",
+    smbc: {
+        host: true
+    },
+    scripts: {
+        dev: "vite",
+        build: "tsc -b && vite build",
+        lint: "eslint .",
+        preview: "vite preview",
+        ...(template === 'mui-devtools' ? {
+            setup: "applet-install && generate-mocks",
+            "generate-mocks": "generate-mocks",
+            "install-applets": "applet-install",
+        } : {}),
+    },
+    dependencies: Object.fromEntries(TEMPLATES[template].dependencies.map(dep => [dep, dep.startsWith('@smbc/') ? '*' : (CORE_DEPS[dep] || 'latest')])),
+    devDependencies: Object.fromEntries(TEMPLATES[template].devDependencies.map(dep => [dep, dep.startsWith('@smbc/') ? '*' : (CORE_DEPS[dep] || 'latest')])),
     ...(template === 'mui-devtools' ? {
-      setup: "applet-install && generate-mocks",
-      "generate-mocks": "generate-mocks",
-      "install-applets": "applet-install",
+        msw: {
+            workerDirectory: ["public"]
+        }
     } : {}),
-  },
-  dependencies: Object.fromEntries(
-    TEMPLATES[template].dependencies.map(dep => [dep, dep.startsWith('@smbc/') ? '*' : '^18.0.0'])
-  ),
-  devDependencies: Object.fromEntries(
-    TEMPLATES[template].devDependencies.map(dep => [dep, '^5.0.0'])
-  ),
-  ...(template === 'mui-devtools' ? {
-    msw: {
-      workerDirectory: ["public"]
-    }
-  } : {}),
 });
-
 const VITE_CONFIG_BASIC = `import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -314,7 +299,6 @@ export default defineConfig({
   plugins: [react()],
 })
 `;
-
 const VITE_CONFIG_MUI_DEVTOOLS = `import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -347,7 +331,6 @@ export default defineConfig({
   },
 });
 `;
-
 const MAIN_TSX = `import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
@@ -358,7 +341,6 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 `;
-
 const MAIN_TSX_MUI_DEVTOOLS = `import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App.tsx'
@@ -369,8 +351,7 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 `;
-
-const INDEX_HTML = (title: string) => `<!doctype html>
+const INDEX_HTML = (title) => `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -384,29 +365,27 @@ const INDEX_HTML = (title: string) => `<!doctype html>
   </body>
 </html>
 `;
-
 const TSCONFIG_JSON = {
-  compilerOptions: {
-    target: "ES2020",
-    useDefineForClassFields: true,
-    lib: ["ES2020", "DOM", "DOM.Iterable"],
-    module: "ESNext",
-    skipLibCheck: true,
-    moduleResolution: "bundler",
-    allowImportingTsExtensions: true,
-    isolatedModules: true,
-    moduleDetection: "force",
-    noEmit: true,
-    jsx: "react-jsx",
-    strict: true,
-    noUnusedLocals: true,
-    noUnusedParameters: true,
-    noFallthroughCasesInSwitch: true,
-    noUncheckedSideEffectImports: true
-  },
-  include: ["src"]
+    compilerOptions: {
+        target: "ES2020",
+        useDefineForClassFields: true,
+        lib: ["ES2020", "DOM", "DOM.Iterable"],
+        module: "ESNext",
+        skipLibCheck: true,
+        moduleResolution: "bundler",
+        allowImportingTsExtensions: true,
+        isolatedModules: true,
+        moduleDetection: "force",
+        noEmit: true,
+        jsx: "react-jsx",
+        strict: true,
+        noUnusedLocals: true,
+        noUnusedParameters: true,
+        noFallthroughCasesInSwitch: true,
+        noUncheckedSideEffectImports: true
+    },
+    include: ["src"]
 };
-
 const VITE_ENV_D_TS = `/// <reference types="vite/client" />
 
 interface ImportMetaEnv {
@@ -417,113 +396,77 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 `;
-
-async function createHostApp(options: CreateHostAppOptions) {
-  const { name, directory = name, template = 'mui-devtools' } = options;
-  const targetDir = resolve(process.cwd(), directory);
-
-  console.log(`🚀 Creating host app "${name}" with ${template} template...`);
-
-  // Check if directory exists
-  if (existsSync(targetDir)) {
-    throw new Error(`Directory ${targetDir} already exists`);
-  }
-
-  // Create directory structure
-  await mkdir(targetDir, { recursive: true });
-  await mkdir(join(targetDir, 'src'), { recursive: true });
-  await mkdir(join(targetDir, 'public'), { recursive: true });
-
-  // Write package.json
-  await writeFile(
-    join(targetDir, 'package.json'),
-    JSON.stringify(PACKAGE_JSON_TEMPLATE(name, template), null, 2)
-  );
-
-  // Write configuration files
-  await writeFile(join(targetDir, 'tsconfig.json'), JSON.stringify(TSCONFIG_JSON, null, 2));
-  await writeFile(
-    join(targetDir, 'vite.config.ts'),
-    template === 'basic' ? VITE_CONFIG_BASIC : VITE_CONFIG_MUI_DEVTOOLS
-  );
-
-  // Write index.html
-  await writeFile(join(targetDir, 'index.html'), INDEX_HTML(name));
-
-  // Write source files
-  await writeFile(join(targetDir, 'src', 'vite-env.d.ts'), VITE_ENV_D_TS);
-  await writeFile(
-    join(targetDir, 'src', 'main.tsx'),
-    template === 'basic' ? MAIN_TSX : MAIN_TSX_MUI_DEVTOOLS
-  );
-  await writeFile(
-    join(targetDir, 'src', 'App.tsx'),
-    template === 'basic' ? BASIC_APP_TSX : MUI_DEVTOOLS_APP_TSX
-  );
-  await writeFile(
-    join(targetDir, 'src', 'applet.config.ts'),
-    template === 'basic' ? BASIC_CONFIG_TS : MUI_DEVTOOLS_CONFIG_TS
-  );
-
-  // Create generated directory and placeholder for mui-devtools template
-  if (template === 'mui-devtools') {
-    await mkdir(join(targetDir, 'src', 'generated'), { recursive: true });
-    await writeFile(
-      join(targetDir, 'src', 'generated', 'mocks.ts'),
-      `// Auto-generated mock handlers
+async function createHostApp(options) {
+    const { name, directory = name, template = 'mui-devtools' } = options;
+    const targetDir = resolve(process.cwd(), directory);
+    console.log(`🚀 Creating host app "${name}" with ${template} template...`);
+    // Check if directory exists
+    if (existsSync(targetDir)) {
+        throw new Error(`Directory ${targetDir} already exists`);
+    }
+    // Create directory structure
+    await mkdir(targetDir, { recursive: true });
+    await mkdir(join(targetDir, 'src'), { recursive: true });
+    await mkdir(join(targetDir, 'public'), { recursive: true });
+    // Write package.json
+    await writeFile(join(targetDir, 'package.json'), JSON.stringify(PACKAGE_JSON_TEMPLATE(name, template), null, 2));
+    // Write configuration files
+    await writeFile(join(targetDir, 'tsconfig.json'), JSON.stringify(TSCONFIG_JSON, null, 2));
+    await writeFile(join(targetDir, 'vite.config.ts'), template === 'basic' ? VITE_CONFIG_BASIC : VITE_CONFIG_MUI_DEVTOOLS);
+    // Write index.html
+    await writeFile(join(targetDir, 'index.html'), INDEX_HTML(name));
+    // Write source files
+    await writeFile(join(targetDir, 'src', 'vite-env.d.ts'), VITE_ENV_D_TS);
+    await writeFile(join(targetDir, 'src', 'main.tsx'), template === 'basic' ? MAIN_TSX : MAIN_TSX_MUI_DEVTOOLS);
+    await writeFile(join(targetDir, 'src', 'App.tsx'), template === 'basic' ? BASIC_APP_TSX : MUI_DEVTOOLS_APP_TSX);
+    await writeFile(join(targetDir, 'src', 'applet.config.ts'), template === 'basic' ? BASIC_CONFIG_TS : MUI_DEVTOOLS_CONFIG_TS);
+    // Create generated directory and placeholder for mui-devtools template
+    if (template === 'mui-devtools') {
+        await mkdir(join(targetDir, 'src', 'generated'), { recursive: true });
+        await writeFile(join(targetDir, 'src', 'generated', 'mocks.ts'), `// Auto-generated mock handlers
 // Run 'npm run generate-mocks' to populate this file
 export const allHandlers: any[] = [];
-`
-    );
-  }
-
-  console.log(`✅ Host app "${name}" created successfully!`);
-  console.log(``);
-  console.log(`Next steps:`);
-  console.log(`  cd ${directory}`);
-  console.log(`  npm install`);
-  
-  if (template === 'mui-devtools') {
-    console.log(`  npm run setup    # Install applets and generate mocks`);
-  }
-  
-  console.log(`  npm run dev      # Start development server`);
-  console.log(``);
-  console.log(`To add applets:`);
-  console.log(`  1. Install applet packages: npm install @smbc/usage-stats-mui`);
-  console.log(`  2. Update src/applet.config.ts to mount your applets`);
-  
-  if (template === 'mui-devtools') {
-    console.log(`  3. Run: npm run generate-mocks`);
-  }
+`);
+    }
+    console.log(`✅ Host app "${name}" created successfully!`);
+    console.log(``);
+    console.log(`Next steps:`);
+    console.log(`  cd ${directory}`);
+    console.log(`  npm install`);
+    if (template === 'mui-devtools') {
+        console.log(`  npm run setup    # Install applets and generate mocks`);
+    }
+    console.log(`  npm run dev      # Start development server`);
+    console.log(``);
+    console.log(`To add applets:`);
+    console.log(`  1. Install applet packages: npm install @smbc/usage-stats-mui`);
+    console.log(`  2. Update src/applet.config.ts to mount your applets`);
+    if (template === 'mui-devtools') {
+        console.log(`  3. Run: npm run generate-mocks`);
+    }
 }
-
 // CLI interface
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const args = process.argv.slice(2);
-  const name = args[0];
-  
-  if (!name) {
-    console.error('Usage: create-host-app <name> [options]');
-    console.error('');
-    console.error('Options:');
-    console.error('  --template <basic|mui-devtools>  Template to use (default: mui-devtools)');
-    console.error('  --dir <directory>                Directory name (default: same as name)');
-    process.exit(1);
-  }
-
-  const templateIndex = args.indexOf('--template');
-  const dirIndex = args.indexOf('--dir');
-  
-  const template = templateIndex !== -1 ? args[templateIndex + 1] as 'basic' | 'mui-devtools' : 'mui-devtools';
-  const directory = dirIndex !== -1 ? args[dirIndex + 1] : name;
-
-  try {
-    await createHostApp({ name, directory, template });
-  } catch (error) {
-    console.error('❌ Error creating host app:', error instanceof Error ? error.message : error);
-    process.exit(1);
-  }
+    const args = process.argv.slice(2);
+    const name = args[0];
+    if (!name) {
+        console.error('Usage: create-host-app <name> [options]');
+        console.error('');
+        console.error('Options:');
+        console.error('  --template <basic|mui-devtools>  Template to use (default: mui-devtools)');
+        console.error('  --dir <directory>                Directory name (default: same as name)');
+        process.exit(1);
+    }
+    const templateIndex = args.indexOf('--template');
+    const dirIndex = args.indexOf('--dir');
+    const template = templateIndex !== -1 ? args[templateIndex + 1] : 'mui-devtools';
+    const directory = dirIndex !== -1 ? args[dirIndex + 1] : name;
+    try {
+        await createHostApp({ name, directory, template });
+    }
+    catch (error) {
+        console.error('❌ Error creating host app:', error instanceof Error ? error.message : error);
+        process.exit(1);
+    }
 }
-
 export { createHostApp };

@@ -1,6 +1,6 @@
 {
   "name": "@smbc/applet-meta",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "SMBC applet metadata and shared dependency versions",
   "type": "module",
   "main": "./index.mjs",

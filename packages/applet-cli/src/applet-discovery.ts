@@ -68,11 +68,94 @@ export function getInstalledApplets(): DiscoveredApplet[] {
 }
 
 /**
+ * Search npm registry for available SMBC applets using keywords
+ */
+export function getAvailableApplets(): DiscoveredApplet[] {
+  try {
+    // Check which registry @smbc scope is using
+    const scopeConfig = execSync('npm config get @smbc:registry', {
+      cwd: process.cwd(),
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
+    
+    const isLocalRegistry = scopeConfig.includes('localhost:4873');
+    const registryUrl = isLocalRegistry 
+      ? 'http://localhost:4873/-/verdaccio/data/search/smbc-applet'
+      : 'https://registry.npmjs.org/-/v1/search?text=keywords:smbc-applet%20scope:smbc';
+    
+    // Make HTTP request to registry search API
+    const searchResult = execSync(`curl -s "${registryUrl}"`, {
+      cwd: process.cwd(),
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+    
+    const searchData = JSON.parse(searchResult);
+    const packages = isLocalRegistry ? searchData : searchData.objects?.map((obj: any) => obj.package) || [];
+    
+    const applets: DiscoveredApplet[] = [];
+    
+    for (const pkg of packages) {
+      // Only process @smbc packages
+      if (!pkg.name?.startsWith('@smbc/')) {
+        continue;
+      }
+      
+      try {
+        // Get detailed package info 
+        const viewResult = execSync(`npm view ${pkg.name} --json`, {
+          cwd: process.cwd(),
+          encoding: 'utf-8',
+          stdio: ['ignore', 'pipe', 'ignore']
+        });
+        
+        const packageInfo = JSON.parse(viewResult);
+        
+        // Check if it has applet metadata
+        if (packageInfo.smbc?.applet) {
+          const metadata = packageInfo.smbc.applet;
+          applets.push({
+            packageName: pkg.name,
+            version: packageInfo.version,
+            metadata: {
+              id: metadata.id,
+              name: metadata.name,
+              description: metadata.description || pkg.description,
+              framework: metadata.framework || 'mui',
+              icon: metadata.icon,
+              path: metadata.path,
+              permissions: metadata.permissions || [],
+              exportName: metadata.exportName
+            }
+          });
+        }
+      } catch (error) {
+        // Skip packages that can't be viewed
+        console.warn(`Could not get info for ${pkg.name}:`, (error as Error).message);
+      }
+    }
+    
+    return applets;
+  } catch (error) {
+    console.warn('Could not search npm registry for applets:', (error as Error).message);
+    return [];
+  }
+}
+
+/**
  * Get applets filtered by framework
  */
 export function getAppletsByFramework(framework = 'mui'): DiscoveredApplet[] {
-  const applets = getInstalledApplets();
-  return applets.filter(applet => applet.metadata.framework === framework);
+  // First try to get available applets from registry
+  const availableApplets = getAvailableApplets();
+  if (availableApplets.length > 0) {
+    return availableApplets.filter(applet => applet.metadata.framework === framework);
+  }
+  
+  // Fallback to installed applets
+  const installedApplets = getInstalledApplets();
+  return installedApplets.filter(applet => applet.metadata.framework === framework);
 }
 
 /**

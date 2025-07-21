@@ -2,6 +2,10 @@
   "name": "@smbc/hello-mui",
   "version": "0.0.0",
   "type": "module",
+  "keywords": [
+    "smbc-applet",
+    "smbc-mui-applet"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -17,21 +21,21 @@
     "react-syntax-highlighter": "^15.6.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@types/react-syntax-highlighter": "^15.5.13",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.3.3",
-    "vite": "^5.1.3"
+    "@vitejs/plugin-react": "^4.6.0",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",
     "access": "public"
   },
   "peerDependencies": {
-    "@mui/material": "^7.1.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@mui/material": "^7.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "smbc": {
     "applet": {

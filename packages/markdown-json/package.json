@@ -1,6 +1,6 @@
 {
   "name": "@smbc/markdown-json",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Converts markdown files to JSON format for static consumption",
   "type": "module",
   "main": "./dist/index.js",
@@ -28,7 +28,7 @@
   "devDependencies": {
     "@types/marked": "^6.0.0",
     "@types/node": "^20.11.17",
-    "typescript": "^5.3.3"
+    "typescript": "~5.8.3"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",

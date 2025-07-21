@@ -18,6 +18,7 @@ if [ "$1" = "--reset" ]; then
     echo "🧹 Resetting registry storage..."
     rm -rf "$VERDACCIO_DIR/storage"
     rm -f "$VERDACCIO_DIR/htpasswd"
+    rm -f "$VERDACCIO_DIR/.verdaccio-db.json"
     echo "✅ Registry storage cleared"
     RESET_FLAG=true
 fi

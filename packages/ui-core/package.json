@@ -41,7 +41,7 @@
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.0",
     "style-dictionary": "^5.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "~5.8.3"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",

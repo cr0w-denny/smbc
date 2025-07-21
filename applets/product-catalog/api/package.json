@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "openapi-typescript": "^7.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "~5.8.3"
   },
   "files": [
     "dist/@typespec/openapi3/openapi.json",

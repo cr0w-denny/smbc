@@ -16,7 +16,7 @@
     "@smbc/applet-core": "*",
     "@smbc/mui-applet-core": "*",
     "@smbc/mui-applet-devtools": "*",
-    "@smbc/react-query-dataview": "*"
+    "@smbc/dataview": "*"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^8.0.0",

@@ -16,12 +16,20 @@ import { getAppletsByFramework } from './applet-discovery.js';
 import readline from 'readline';
 import { spawn } from 'child_process';
 
-// Check if we're running in a monorepo context
+// Check if we're running in a monorepo context (skip if we're in a generated host app)
 const isInMonorepo = (() => {
   try {
-    // Look for root package.json to detect monorepo
-    const rootPackageJson = resolve(process.cwd(), '../../package.json');
-    return existsSync(rootPackageJson);
+    const packageJsonPath = resolve(process.cwd(), 'package.json');
+    if (existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+      // If this is a generated host app, don't skip
+      if (packageJson.smbc?.host) {
+        return false;
+      }
+    }
+    
+    // Look for SMBC monorepo by checking for packages/applet-core
+    return existsSync(resolve(process.cwd(), 'packages/applet-core'));
   } catch {
     return false;
   }
@@ -76,18 +84,8 @@ async function ensureTsxInstalled(): Promise<void> {
 // Run tsx installation first
 ensureTsxInstalled().then(() => {
   // Continue with the rest of the postinstall script
-  main();
+  setupApplets();
 }).catch(console.error);
-
-async function main() {
-  // Check if applet.config.ts already exists
-  const configPath = resolve(process.cwd(), 'src/applet.config.ts');
-  const configExists = existsSync(configPath);
-
-  if (configExists) {
-    console.log('✅ applet.config.ts already exists, skipping setup');
-    process.exit(0);
-  }
 
 // Detect framework from package.json dependencies
 function detectFramework(): string {
@@ -134,8 +132,17 @@ function prompt(question: string): Promise<string> {
   });
 }
 
-async function main(): Promise<void> {
+async function setupApplets(): Promise<void> {
   try {
+    // Check if applet.config.ts already exists
+    const configPath = resolve(process.cwd(), 'src/applet.config.ts');
+    const configExists = existsSync(configPath);
+
+    if (configExists) {
+      console.log('✅ applet.config.ts already exists, skipping setup');
+      process.exit(0);
+    }
+
     const framework = detectFramework();
     
     console.log('🚀 SMBC Applet Configuration Setup');
@@ -378,9 +385,27 @@ function generateConfig(framework: string, selectedApplets: any[]): string {
   
   const permissionConfigs = selectedApplets.map(applet => {
     const appletVarName = applet.metadata.exportName;
+    const permissions = applet.metadata.permissions || [];
+    
+    if (permissions.length === 0) {
+      return `  "${applet.metadata.id}": minRole(${appletVarName}, {
+    // No permissions required for this applet
+  }),`;
+    }
+    
+    const permMappings = permissions.map((perm: string) => {
+      // Assign sensible default roles based on permission name patterns
+      let defaultRole = 'User';
+      if (perm.includes('VIEW') || perm.includes('READ')) {
+        defaultRole = 'Guest';
+      } else if (perm.includes('DELETE') || perm.includes('MANAGE') || perm.includes('ADMIN') || perm.includes('EXPORT')) {
+        defaultRole = 'Admin';
+      }
+      return `    ${perm}: "${defaultRole}",`;
+    }).join('\n');
+    
     return `  "${applet.metadata.id}": minRole(${appletVarName}, {
-    // Add your permission mappings here
-    // TypeScript will suggest available permissions
+${permMappings}
   }),`;
   }).join('\n');
   
@@ -484,6 +509,4 @@ ${selectedApplets.map(applet => {
   },
 };
 `;
-}
-
 }

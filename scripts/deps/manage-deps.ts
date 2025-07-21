@@ -16,13 +16,14 @@ import { fileURLToPath } from "url";
 import { glob } from "glob";
 import chalk from "chalk";
 import { table } from "table";
-import { CORE_DEPS, SMBC_PACKAGES } from "../../packages/applet-meta/index.mjs";
+import { CORE_DEPS, SMBC_PACKAGES } from "@smbc/applet-meta";
 
 interface PackageJson {
   name?: string;
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
+  [key: string]: any;
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -51,12 +52,12 @@ async function findPackageJsonFiles(): Promise<string[]> {
 /**
  * Read and parse a package.json file
  */
-function readPackageJson(filePath) {
+function readPackageJson(filePath: string): PackageJson | null {
   try {
     const content = readFileSync(filePath, "utf-8");
     return JSON.parse(content);
   } catch (error) {
-    console.error(chalk.red(`Error reading ${filePath}: ${error.message}`));
+    console.error(chalk.red(`Error reading ${filePath}: ${error instanceof Error ? error.message : error}`));
     return null;
   }
 }
@@ -64,12 +65,12 @@ function readPackageJson(filePath) {
 /**
  * Write a package.json file with proper formatting
  */
-function writePackageJson(filePath, data) {
+function writePackageJson(filePath: string, data: PackageJson): boolean {
   try {
     writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n");
     return true;
   } catch (error) {
-    console.error(chalk.red(`Error writing ${filePath}: ${error.message}`));
+    console.error(chalk.red(`Error writing ${filePath}: ${error instanceof Error ? error.message : error}`));
     return false;
   }
 }
@@ -77,7 +78,7 @@ function writePackageJson(filePath, data) {
 /**
  * Get package info from file path
  */
-function getPackageInfo(filePath) {
+function getPackageInfo(filePath: string): { type: string; name: string } {
   const relativePath = filePath.replace(rootDir + "/", "");
   const parts = relativePath.split("/");
 
@@ -118,7 +119,7 @@ async function syncDependencies() {
     ]) {
       if (!pkg[depType]) continue;
 
-      for (const [depName, currentVersion] of Object.entries(pkg[depType])) {
+      for (const [depName, currentVersion] of Object.entries(pkg[depType] as Record<string, string>)) {
         // Handle core dependencies
         if (CORE_DEPS[depName]) {
           const targetVersion = CORE_DEPS[depName];
@@ -136,9 +137,10 @@ async function syncDependencies() {
         // For SMBC packages, npm workspaces will handle resolution automatically
         // We just log if we see version mismatches for awareness
         if (SMBC_PACKAGES.includes(depName) && info.type !== "root") {
-          // If it has a specific version (not ^0.0.1), it might need attention
+          // If it has a specific version (not * or ^0.0.1), it might need attention
           if (
             currentVersion !== "^0.0.1" &&
+            currentVersion !== "*" &&
             !currentVersion.startsWith("file:")
           ) {
             console.log(
@@ -165,7 +167,7 @@ async function syncDependencies() {
 /**
  * Update command - update a specific dependency
  */
-async function updateDependency(packageSpec) {
+async function updateDependency(packageSpec: string): Promise<void> {
   const match = packageSpec.match(/^(@?[^@]+)@(.+)$/);
   if (!match) {
     console.error(
@@ -242,7 +244,7 @@ async function validateDependencies() {
     ]) {
       if (!pkg[depType]) continue;
 
-      for (const [depName, version] of Object.entries(pkg[depType])) {
+      for (const [depName, version] of Object.entries(pkg[depType] as Record<string, string>)) {
         if (!depVersions.has(depName)) {
           depVersions.set(depName, new Map());
         }
@@ -312,11 +314,11 @@ async function listDependencies() {
     ]) {
       if (!pkg[depType]) continue;
 
-      for (const [depName, version] of Object.entries(pkg[depType])) {
+      for (const [depName, version] of Object.entries(pkg[depType] as Record<string, string>)) {
         if (!depVersions.has(depName)) {
-          depVersions.set(depName, new Set());
+          depVersions.set(depName, new Set<string>());
         }
-        depVersions.get(depName).add(version);
+        depVersions.get(depName)!.add(version);
       }
     }
   }
@@ -329,15 +331,24 @@ async function listDependencies() {
   );
 
   for (const [depName, versions] of sortedDeps) {
-    const versionArray = Array.from(versions);
+    const versionArray = Array.from(versions) as string[];
     const nonWorkspaceVersions = versionArray.filter(
-      (v) => !v.startsWith("workspace:"),
+      (v) => !v.startsWith("file:") && v !== "*",
     );
 
     let status = chalk.green("OK");
     let versionDisplay = versionArray.join(", ");
 
-    if (nonWorkspaceVersions.length > 1) {
+    // Check if this is a core dependency
+    if (CORE_DEPS[depName]) {
+      const coreVersion = CORE_DEPS[depName];
+      const hasCorrectVersion = versionArray.includes(coreVersion);
+      
+      if (!hasCorrectVersion) {
+        status = chalk.red("MISMATCH");
+        versionDisplay = chalk.yellow(versionDisplay) + chalk.gray(` (should be ${coreVersion})`);
+      }
+    } else if (nonWorkspaceVersions.length > 1) {
       status = chalk.yellow("WARN");
       versionDisplay = chalk.yellow(versionDisplay);
     }
@@ -349,8 +360,8 @@ async function listDependencies() {
     table(tableData, {
       columns: {
         0: { width: 40 },
-        1: { width: 30 },
-        2: { width: 6, alignment: "center" },
+        1: { width: 50 },
+        2: { width: 10, alignment: "center" },
       },
     }),
   );

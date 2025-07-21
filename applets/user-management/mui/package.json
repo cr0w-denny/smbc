@@ -5,6 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "keywords": [
+    "smbc-applet",
+    "smbc-mui-applet"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -27,26 +31,26 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^4.2.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.1",
-    "typescript": "^5.3.3",
-    "vite": "^5.1.3",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4",
     "vite-plugin-dts": "^4.5.4"
   },
   "peerDependencies": {
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^7.1.2",
-    "@mui/material": "^7.1.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.2.0",
+    "@mui/material": "^7.2.0",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",
     "msw": "^2.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "@smbc/user-management-api": "*"
   },
   "files": [
@@ -59,12 +63,19 @@
   "smbc": {
     "applet": {
       "id": "user-management",
-      "name": "User Management", 
+      "name": "User Management",
       "description": "Comprehensive user management with roles and permissions",
       "framework": "mui",
       "icon": "People",
       "path": "/users",
-      "permissions": ["users.read", "users.write"],
+      "permissions": [
+        "VIEW_USERS",
+        "CREATE_USERS", 
+        "EDIT_USERS",
+        "DELETE_USERS",
+        "MANAGE_ROLES",
+        "VIEW_ANALYTICS"
+      ],
       "exportName": "userManagementApplet"
     }
   }

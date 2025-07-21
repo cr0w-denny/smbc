@@ -19,12 +19,12 @@
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
-    "react": "^18.2.0"
+    "react": "^18.3.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
+    "@types/react": "^18.3.23",
     "turbo": "^2.5.4",
-    "typescript": "^5.3.3"
+    "typescript": "~5.8.3"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",

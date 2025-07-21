@@ -1,6 +1,6 @@
 {
   "name": "@smbc/openapi-msw",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Generate MSW mock handlers from OpenAPI specifications",
   "type": "module",
   "main": "dist/index.js",
@@ -45,11 +45,11 @@
     "@types/node": "^20.11.17",
     "@types/handlebars": "^4.0.40",
     "@types/fs-extra": "^11.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "~5.8.3"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",

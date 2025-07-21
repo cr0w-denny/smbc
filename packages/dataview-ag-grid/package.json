@@ -1,6 +1,6 @@
 {
   "name": "@smbc/dataview-ag-grid",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "AG-Grid renderer for dataview",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,13 +16,13 @@
     "ag-grid-react": "^32.0.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "typescript": "^5.3.3"
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "~5.8.3"
   },
   "files": [
     "dist"
