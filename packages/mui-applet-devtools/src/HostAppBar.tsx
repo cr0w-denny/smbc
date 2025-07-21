@@ -14,7 +14,6 @@ import {
   GetApp as InstallIcon,
 } from "@mui/icons-material";
 import { useFeatureFlag, useAppletCore, type Environment } from "@smbc/applet-core";
-import { getPackageName } from "./utils/getPackageName";
 import { InstallationModal } from './InstallationModal/InstallationModal';
 import { ServerSelector } from './ServerSelector';
 
@@ -24,6 +23,7 @@ import { ServerSelector } from './ServerSelector';
 export interface CurrentAppletInfo {
   id: string;
   label: string;
+  packageName: string;
   apiSpec?: {
     spec: any;
   };
@@ -123,7 +123,7 @@ export function HostAppBar({
                   },
                 }}
               >
-                Install {getPackageName(currentAppletInfo.id)}
+                Install {currentAppletInfo.packageName}
               </Button>
             </Tooltip>
           )}

@@ -41,6 +41,25 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const [localValue, setLocalValue] = React.useState(value);
   const debounceRef = React.useRef<ReturnType<typeof setTimeout>>();
   const isTypingRef = React.useRef(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const wasFocusedRef = React.useRef(false);
+
+  // Handle focus and blur events to track focus state
+  const handleFocus = React.useCallback(() => {
+    wasFocusedRef.current = true;
+  }, []);
+
+  const handleBlur = React.useCallback(() => {
+    wasFocusedRef.current = false;
+    isTypingRef.current = false;
+  }, []);
+
+  // Restore focus after remounting if it was previously focused
+  React.useEffect(() => {
+    if (wasFocusedRef.current && inputRef.current && document.activeElement !== inputRef.current) {
+      inputRef.current.focus();
+    }
+  });
 
   // Sync external value changes, but only when not actively typing
   React.useEffect(() => {
@@ -49,23 +68,23 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     }
   }, [value]);
 
-  // Debounced onChange
+  // Debounced onChange with improved StrictMode resilience
   React.useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
+    }
+
+    // Skip debouncing if value hasn't actually changed
+    if (localValue === value) {
+      return;
     }
 
     // Mark as typing when local value changes
     isTypingRef.current = true;
 
     debounceRef.current = setTimeout(() => {
-      // Only call onChange if localValue is still current
-      // (user hasn't typed more since this debounce was set)
-      const currentInputValue = document.activeElement?.tagName === 'INPUT' 
-        ? (document.activeElement as HTMLInputElement).value 
-        : localValue;
-      
-      if (currentInputValue === localValue && localValue !== value) {
+      // Only call onChange if component is still mounted and value is current
+      if (localValue !== value) {
         onChange(localValue);
       }
       // Mark typing as done after debounce completes
@@ -107,8 +126,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     <Box>
       <TextField
         {...textFieldProps}
+        inputRef={inputRef}
         value={localValue}
         onChange={handleInputChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}

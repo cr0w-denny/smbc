@@ -13,6 +13,7 @@ import {
   Badge as BadgeIcon,
   Analytics as AnalyticsIcon,
   Task as TaskIcon,
+  FilterAlt as FilterAltIcon,
 } from "@mui/icons-material";
 
 // Import applets directly from source during development
@@ -21,6 +22,7 @@ import productCatalogApplet from "../../../applets/product-catalog/mui/src";
 import helloApplet from "../../../applets/hello/mui/src";
 import employeeDirectoryApplet from "../../../applets/employee-directory/mui/src";
 import usageStatsApplet from "../../../applets/usage-stats/mui/src";
+import filterDemoApplet from "../../../applets/filter-demo/mui/src";
 import demoTasksApplet from "./demo";
 
 // =============================================================================
@@ -186,6 +188,7 @@ export const APPLETS: AppletMount[] = [
     label: "Admin Users",
     apiSpec: userManagementApplet.apiSpec,
     version: "1.0.0",
+    packageName: "@smbc/user-management-mui",
     routes: [
       {
         path: "/admin/users",
@@ -229,6 +232,14 @@ export const APPLETS: AppletMount[] = [
     label: "Demo Tasks",
     path: "/demo-tasks",
     icon: TaskIcon,
+    permissions: [],
+    version: "0.0.0",
+  }),
+  mountApplet(filterDemoApplet, {
+    id: "filter-demo",
+    label: "Filter Demo",
+    path: "/filter-demo",
+    icon: FilterAltIcon,
     permissions: [],
     version: "0.0.0",
   }),

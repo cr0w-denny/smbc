@@ -11,7 +11,7 @@ export interface ApiClientConfig {
 // Import type only to avoid circular dependencies
 import type { AppletMount, Environment } from './types';
 import { useFeatureFlag } from './FeatureFlagProvider';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 // Registry of applet configurations set by the host
 let appletRegistry = new Map<string, AppletMount>();
@@ -178,23 +178,23 @@ export function useApiClient<T extends Record<string, any> = Record<string, any>
 ): ReturnType<typeof createClientDefault<T>> {
   const environment = useFeatureFlag<Environment>('environment') || 'development';
   
-  // Add ref to track if client is being recreated unnecessarily
-  const clientRef = useRef<ReturnType<typeof createClientDefault<T>> | null>(null);
-  const lastEnvironmentRef = useRef<Environment | null>(null);
-  
   return useMemo(() => {
-    if (lastEnvironmentRef.current === environment && clientRef.current) {
-      console.log(`🔗 useApiClient reusing existing client for ${appletId} with environment: ${environment}`);
-      return clientRef.current;
+    const cacheKey = `${appletId}-${environment}`;
+    console.log(`🔗 useApiClient getting client for ${cacheKey}`);
+    
+    // Check if we already have a client for this applet + environment combination
+    if (apiClientRegistry.has(cacheKey)) {
+      console.log(`🔗 useApiClient reusing existing client for ${cacheKey}`);
+      return apiClientRegistry.get(cacheKey);
     }
     
-    console.log(`🔗 useApiClient creating new client for ${appletId} with environment: ${environment}`);
+    console.log(`🔗 useApiClient creating new client for ${cacheKey}`);
     const baseUrl = getAppletApiUrl(appletId, environment);
     const client = createClientDefault<T>({ baseUrl });
-    console.log(`🔗 useApiClient returning client for ${appletId} with baseUrl:`, baseUrl);
+    console.log(`🔗 useApiClient caching client for ${cacheKey} with baseUrl:`, baseUrl);
     
-    clientRef.current = client;
-    lastEnvironmentRef.current = environment;
+    // Cache the client with environment-specific key
+    apiClientRegistry.set(cacheKey, client);
     
     return client;
   }, [appletId, environment]);

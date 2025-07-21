@@ -6,6 +6,7 @@ import {
 } from "@smbc/dataview";
 import { useQueryClient } from "@tanstack/react-query";
 import { MuiDataView } from "./MuiDataView";
+import { Filter } from "@smbc/mui-components";
 import {
   Dialog,
   DialogTitle,
@@ -339,9 +340,39 @@ export function MuiDataViewManager<T extends Record<string, any>>({
     isTransactionExecuting,
   ]);
 
+  // Create our own stable Filter component using JSX
+  const FilterComponent = React.useMemo(() => {
+    if (!config.filters) return null;
+    
+    console.log('🎯 FilterComponent memoizing with:', {
+      filters: currentFilterState.filters,
+      setFilters: !!currentFilterState.setFilters
+    });
+    
+    return (
+      <Filter
+        spec={config.filters}
+        values={currentFilterState.filters}
+        onFiltersChange={(newFilters) => {
+          console.log('🎯 Filter onChange triggered:', { 
+            oldFilters: currentFilterState.filters,
+            newFilters 
+          });
+          currentFilterState.setFilters(newFilters);
+        }}
+      />
+    );
+  }, [config.filters, currentFilterState.filters, currentFilterState.setFilters]);
+
+  console.log('🔍 MuiDataViewManager rendering with:', {
+    hasFilters: !!config.filters,
+    hasFilterComponent: !!FilterComponent,
+    currentFilters: currentFilterState.filters
+  });
+
   return (
     <div className={className} style={style}>
-      <dataView.FilterComponent />
+      {FilterComponent}
 
       {ActionBarComponent && (
         <ActionBarComponent

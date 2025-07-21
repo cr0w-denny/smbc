@@ -40,10 +40,10 @@ export function useHostNavigation({
 
     applets.forEach(applet => {
       const appletId = permissionMapping[applet.id] || applet.id;
-      const appletMountPath = applet.routes[0]?.path || `/${applet.id}`;
+      const appletMountPath = applet.routes?.[0]?.path || `/${applet.id}`;
       
       // Check if user has permission to access this applet at all
-      const topLevelRoute = applet.routes[0];
+      const topLevelRoute = applet.routes?.[0];
       if (topLevelRoute?.requiredPermissions && topLevelRoute.requiredPermissions.length > 0) {
         if (!hasAnyPermission(appletId, topLevelRoute.requiredPermissions)) {
           return; // Skip this applet entirely

@@ -59,9 +59,12 @@ export function useDataView<T extends Record<string, any>>(
     actions: actionConfig = {},
     pagination: paginationConfig = { enabled: true, defaultPageSize: 10 },
     forms,
-    rendererConfig: rendererOptions = {},
+    rendererConfig,
     activity: activityConfig,
   } = config;
+
+  // Memoize rendererOptions to prevent recreation on every render
+  const rendererOptions = React.useMemo(() => rendererConfig || {}, [rendererConfig]);
 
   // Extract different action types
   const rowActions = actionConfig.row || [];
@@ -84,8 +87,12 @@ export function useDataView<T extends Record<string, any>>(
   // No need for transaction context - we'll register directly with global registry
 
   // Create a stable managerId that doesn't change across re-renders
+  // Use a more deterministic approach to help with React.StrictMode double renders
   const [managerId] = useState(() => {
-    const id = `dataview_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 11);
+    const id = `dataview_${timestamp}_${random}`;
+    console.log(`📋 Creating new DataView manager ID: ${id}`);
     return id;
   });
 
@@ -145,6 +152,12 @@ export function useDataView<T extends Record<string, any>>(
   // Use external state if provided, otherwise use local state
   const filters = options.filterState?.filters ?? localFilters;
   const baseSetFilters = options.filterState?.setFilters ?? setLocalFilters;
+  
+  console.log('🔍 useDataView filters:', {
+    hasExternalFilters: !!options.filterState?.filters,
+    filters,
+    managerId
+  });
   const pagination = options.paginationState?.pagination ?? localPagination;
   const setPaginationState =
     options.paginationState?.setPagination ?? setLocalPagination;
@@ -1544,17 +1557,7 @@ export function useDataView<T extends Record<string, any>>(
     rendererOptions,
   ]);
 
-  const FilterComponent = useMemo(() => {
-    if (!filterSpec) return () => null;
-
-    return () =>
-      React.createElement(renderer.FilterComponent, {
-        spec: filterSpec,
-        values: filters,
-        onFiltersChange: setFilters,
-        ...rendererOptions,
-      });
-  }, [renderer, filterSpec, setFilters, rendererOptions]); // Removed filters from dependencies
+  // FilterComponent removed - parent components should manage their own filters
 
   const CreateFormComponent = useMemo(() => {
     const createForm = forms?.create;
@@ -1675,7 +1678,6 @@ export function useDataView<T extends Record<string, any>>(
 
     // Components
     TableComponent,
-    FilterComponent,
     CreateFormComponent,
     EditFormComponent,
     PaginationComponent,

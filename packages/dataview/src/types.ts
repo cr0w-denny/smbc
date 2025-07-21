@@ -262,7 +262,6 @@ export interface DataViewResult<T> {
 
   // Components (pre-configured with data and handlers)
   TableComponent: React.ComponentType<{}>;
-  FilterComponent: React.ComponentType<{}>;
   CreateFormComponent: React.ComponentType<{}>;
   EditFormComponent: React.ComponentType<{ item: T }>;
   PaginationComponent: React.ComponentType<{}>;

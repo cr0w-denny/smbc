@@ -107,6 +107,7 @@ export default defineConfig(({ mode }) => {
         "@smbc/product-catalog-mui",
         "@smbc/employee-directory-mui",
         "@smbc/usage-stats-mui",
+        "@smbc/filter-test-mui",
         
         // API packages  
         "@smbc/user-management-api",

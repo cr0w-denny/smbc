@@ -100,7 +100,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     ? hasPermission(permissionContext, config.permissions.create)
     : false;
 
-  // Applet-specific: URL hash parameter synchronization
+  // URL should only be used for initial state, then reflect changes
   const defaultFilters = React.useMemo(() => 
     config.filters?.initialValues || {}, 
     [config.filters?.initialValues]
@@ -111,69 +111,72 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
     [config.pagination?.defaultPageSize]
   );
 
-  // URL sync functionality - combine filters and pagination into single state
-  const defaultState = React.useMemo(() => ({
-    ...defaultFilters,
-    page: defaultPagination.page,
-    pageSize: defaultPagination.pageSize
-  }), [defaultFilters, defaultPagination]);
-  
+  // Stabilize default params to prevent hash navigation from recreating callbacks
+  const stableDefaultParams = React.useMemo(() => {
+    if (!enableUrlSync) return {};
+    return { 
+      ...defaultFilters,
+      page: defaultPagination.page,
+      pageSize: defaultPagination.pageSize
+    };
+  }, [enableUrlSync, defaultFilters, defaultPagination]);
+
+  // Get initial state from URL on mount only
   const urlState = useHashNavigation({
-    defaultParams: enableUrlSync ? defaultState : {},
+    defaultParams: stableDefaultParams,
   });
 
-  // Stabilize URL state setters to prevent focus loss
-  const setUrlFilters = React.useCallback(
-    (filters: any) => {
-      console.log('🎯 setUrlFilters called', { filters, enableUrlSync });
-      if (enableUrlSync && urlState.setParams) {
-        urlState.setParams((prev) => ({ ...prev, ...filters }));
-      }
-    },
-    [enableUrlSync, urlState.setParams]
-  );
-  
-  const setUrlPagination = React.useCallback(
-    (paginationUpdateOrUpdater: any) => {
-      if (enableUrlSync && urlState.setParams) {
-        if (typeof paginationUpdateOrUpdater === 'function') {
-          // It's an updater function - extract pagination and apply
-          urlState.setParams((prev) => {
-            const currentPagination = { page: prev.page, pageSize: prev.pageSize };
-            const newPagination = paginationUpdateOrUpdater(currentPagination);
-            return { ...prev, ...newPagination };
-          });
-        } else {
-          // It's an object - merge with previous state
-          urlState.setParams((prev) => ({ ...prev, ...paginationUpdateOrUpdater }));
-        }
-      }
-    },
-    [enableUrlSync, urlState.setParams]
-  );
+  // Initialize local state from URL params or defaults (mount only)
+  const [localFilters, setLocalFilters] = React.useState(() => {
+    if (!enableUrlSync) return defaultFilters;
+    const { page, pageSize, ...urlFilters } = urlState.params;
+    return { ...defaultFilters, ...urlFilters };
+  });
 
-  // Extract filters and pagination from URL state
-  const urlFilters = React.useMemo(() => {
-    if (!enableUrlSync) return {};
-    const { page, pageSize, ...filters } = urlState.params;
-    return filters;
-  }, [enableUrlSync, urlState.params]);
-  
-  const urlPagination = React.useMemo(() => {
+  const [localPagination, setLocalPagination] = React.useState(() => {
     if (!enableUrlSync) return defaultPagination;
-    return { page: urlState.params.page || 0, pageSize: urlState.params.pageSize || 10 };
-  }, [enableUrlSync, urlState.params, defaultPagination]);
+    return { 
+      page: urlState.params.page || defaultPagination.page, 
+      pageSize: urlState.params.pageSize || defaultPagination.pageSize 
+    };
+  });
 
-  // Prepare state for the orchestrator
-  const filterState = enableUrlSync ? {
-    filters: urlFilters,
-    setFilters: setUrlFilters,
-  } : undefined;
+  // Wrap setters to sync state changes TO url (not FROM url)
+  const setFiltersWithUrlSync = React.useCallback((filters: any) => {
+    setLocalFilters(filters);
+    if (enableUrlSync && urlState.setParams) {
+      urlState.setParams((prev) => ({ ...prev, ...filters }));
+    }
+  }, [enableUrlSync, urlState.setParams]);
 
-  const paginationState = enableUrlSync ? {
-    pagination: urlPagination,
-    setPagination: setUrlPagination,
-  } : undefined;
+  const setPaginationWithUrlSync = React.useCallback((paginationUpdateOrUpdater: any) => {
+    let newPagination: any;
+    
+    if (typeof paginationUpdateOrUpdater === 'function') {
+      setLocalPagination((prev) => {
+        newPagination = paginationUpdateOrUpdater(prev);
+        return newPagination;
+      });
+    } else {
+      newPagination = paginationUpdateOrUpdater;
+      setLocalPagination(newPagination);
+    }
+
+    if (enableUrlSync && urlState.setParams) {
+      urlState.setParams((prev) => ({ ...prev, ...newPagination }));
+    }
+  }, [enableUrlSync, urlState.setParams]);
+
+  // State management: local state is source of truth
+  const filterState = React.useMemo(() => ({
+    filters: localFilters,
+    setFilters: setFiltersWithUrlSync,
+  }), [localFilters, setFiltersWithUrlSync]);
+
+  const paginationState = React.useMemo(() => ({
+    pagination: localPagination,
+    setPagination: setPaginationWithUrlSync,
+  }), [localPagination, setPaginationWithUrlSync]);
 
   // Process actions with permission filtering and add default create action
   const processedConfig = React.useMemo(() => {
@@ -234,8 +237,8 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       initialState={initialState}
       onStateChange={onStateChange}
       options={options}
-      filterState={filterState}
-      paginationState={paginationState}
+      filterState={enableUrlSync ? filterState : undefined}
+      paginationState={enableUrlSync ? paginationState : undefined}
       ActionBarComponent={AppletActionBar}
     />
   );

@@ -94,6 +94,7 @@ export function mountApplet(
     apiSpec: finalApiSpec,
     apiBaseUrl: config.apiBaseUrl,
     version: config.version,
+    packageName: `@smbc/${config.id}-mui`, // Auto-generate package name
     filterable: config.filterable,
     getHostNavigation: applet.getHostNavigation,
     routes: [

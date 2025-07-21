@@ -51,16 +51,33 @@ function getAllEmployees(): any[] {
 
 
 export const handlers = [
-  http.get(`${mockConfig.baseUrl}/employees`, async ({ request: _request }) => {
+  http.get(`${mockConfig.baseUrl}/employees`, async ({ request }) => {
     await delay();
     
+    const url = new URL(request.url);
     
-
+    const search = url.searchParams.get('search');
+    const department = url.searchParams.get('department');
+    const active = url.searchParams.get('active');
     
     const allItems = getAllEmployees();
     let filteredItems = allItems;
     
-
+    if (search !== null && search !== '') {
+      filteredItems = filteredItems.filter((item: any) => 
+        item.name?.toString().toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    if (department !== null && department !== '') {
+      filteredItems = filteredItems.filter((item: any) => 
+        item.department?.toString() === department
+      );
+    }
+    if (active !== null && active !== '') {
+      filteredItems = filteredItems.filter((item: any) => 
+        item.active?.toString() === active
+      );
+    }
 
 
     const paginatedItems = filteredItems;
@@ -68,9 +85,9 @@ export const handlers = [
     
     return HttpResponse.json({
       "employees": paginatedItems,
-      "total": filteredItems.length,
-      "page": 1,
-      "pageSize": paginatedItems.length
+      "total": 0,
+      "page": 0,
+      "pageSize": 0
     });
   }),
   http.post(`${mockConfig.baseUrl}/employees`, async ({ request }) => {

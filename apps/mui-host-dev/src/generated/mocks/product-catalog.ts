@@ -55,16 +55,33 @@ function getAllProducts(): any[] {
 
 
 export const handlers = [
-  http.get(`${mockConfig.baseUrl}/products`, async ({ request: _request }) => {
+  http.get(`${mockConfig.baseUrl}/products`, async ({ request }) => {
     await delay();
     
+    const url = new URL(request.url);
     
-
+    const category = url.searchParams.get('category');
+    const search = url.searchParams.get('search');
+    const inStock = url.searchParams.get('inStock');
     
     const allItems = getAllProducts();
     let filteredItems = allItems;
     
-
+    if (category !== null && category !== '') {
+      filteredItems = filteredItems.filter((item: any) => 
+        item.category?.toString() === category
+      );
+    }
+    if (search !== null && search !== '') {
+      filteredItems = filteredItems.filter((item: any) => 
+        item.name?.toString().toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    if (inStock !== null && inStock !== '') {
+      filteredItems = filteredItems.filter((item: any) => 
+        item.inStock?.toString() === inStock
+      );
+    }
 
 
     const paginatedItems = filteredItems;

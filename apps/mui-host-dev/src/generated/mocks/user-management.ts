@@ -69,11 +69,6 @@ function transformItemsToUser(items: any[]): any[] {
 
 export const handlers = [
   http.get(`${mockConfig.baseUrl}/users`, async ({ request }) => {
-    console.log('🎭 User Management Mock Handler - GET /users hit:', {
-      url: request.url,
-      method: request.method,
-      timestamp: new Date().toISOString()
-    });
     await delay();
     
     const url = new URL(request.url);
@@ -183,12 +178,6 @@ export const handlers = [
     return HttpResponse.json(paginatedItems[0] || {});
   }),
   http.patch(`${mockConfig.baseUrl}/users/:id`, async ({ request, params }) => {
-    console.log('🎭 User Management Mock Handler - PATCH /users/:id hit:', {
-      url: request.url,
-      method: request.method,
-      params,
-      timestamp: new Date().toISOString()
-    });
     await delay();
     
     if (Math.random() < mockConfig.errorRate) {
