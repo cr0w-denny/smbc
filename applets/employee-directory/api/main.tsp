@@ -71,16 +71,21 @@ model EmployeeList {
   pageSize: int32;
 }
 
+/**
+ * Employee-specific filter parameters for list endpoint
+ */
+alias EmployeeFilterParams = {
+  @query @extension("x-mock-filter", #{ field: "name", strategy: "partial-match" }) search?: string;
+  @query @extension("x-mock-filter", #{ field: "department", strategy: "exact" }) department?: string;
+  @query @extension("x-mock-filter", #{ field: "active", strategy: "exact" }) active?: boolean;
+  @query page?: int32;
+  @query pageSize?: int32;
+};
+
 @route("/employees")
 interface Employees {
   @get
-  list(
-    @query search?: string,
-    @query department?: string,
-    @query active?: boolean,
-    @query page?: int32,
-    @query pageSize?: int32
-  ): EmployeeList;
+  list(...EmployeeFilterParams): EmployeeList;
   
   @get
   @route("/{id}")

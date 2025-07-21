@@ -28,6 +28,13 @@ export const createFiltersConfig = () => ({
       name: "active",
       type: "boolean" as const,
       label: "Active only",
+      defaultValue: false,
     },
   ],
+  initialValues: {
+    search: "",
+    department: "",
+    active: false,
+  },
+  debounceMs: 300,
 });

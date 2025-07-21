@@ -1,4 +1,5 @@
 // employee-directory/src/Applet.tsx
+import React from "react";
 import { MuiDataViewApplet } from "@smbc/mui-applet-core";
 import { usePermissions, useFeatureFlag, type Environment } from "@smbc/applet-core";
 import { useAppletConfig } from "./config";
@@ -14,23 +15,34 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     timestamp: Date.now()
   });
   
-  // Get current environment to force remount when it changes
+  
+  // Get environment for key
   const environment = useFeatureFlag<Environment>("environment") || "mock";
   
   // Get permissions for the current context
   const { hasPermission } = usePermissions();
 
+  // Memoize permissions to prevent config recreation
+  const permissionsConfig = React.useMemo(() => ({
+    canCreate: hasPermission("employee-directory", permissions.MANAGE_EMPLOYEES),
+    canEdit: hasPermission("employee-directory", permissions.EDIT_EMPLOYEES),
+    canDelete: hasPermission("employee-directory", permissions.MANAGE_EMPLOYEES),
+  }), [hasPermission]);
+
   // Create the configuration
   const config = useAppletConfig({
-    permissions: {
-      canCreate: hasPermission("employee-directory", permissions.MANAGE_EMPLOYEES),
-      canEdit: hasPermission("employee-directory", permissions.EDIT_EMPLOYEES),
-      canDelete: hasPermission("employee-directory", permissions.MANAGE_EMPLOYEES),
-    },
+    permissions: permissionsConfig,
   });
+  
+  // Track config changes
+  const prevConfigRef = React.useRef(config);
+  const configChanged = prevConfigRef.current !== config;
+  prevConfigRef.current = config;
   
   console.log('🔍 EmployeeDirectory config created:', {
     config: !!config,
+    configChanged,
+    permissionsIdentity: permissionsConfig,
     timestamp: Date.now()
   });
 

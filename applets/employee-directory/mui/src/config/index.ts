@@ -2,6 +2,7 @@
  * Employee Directory Configuration System
  */
 
+import { useMemo } from "react";
 import { type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
 import type { components } from "@smbc/employee-directory-api/types";
 
@@ -36,7 +37,7 @@ export function useAppletConfig({
     canDelete: permissions.canDelete,
   });
   
-  return {
+  return useMemo(() => ({
     // API configuration
     api: apiConfig,
 
@@ -81,5 +82,5 @@ export function useAppletConfig({
       labelGenerator: (employee: Employee) => employee.name,
       urlGenerator: (employee: Employee) => `#/employees/${employee.id}`,
     },
-  };
+  }), [apiConfig, bulkActions, permissions]);
 }

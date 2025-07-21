@@ -101,16 +101,21 @@ model ErrorResponse {
   details?: string;
 }
 
+/**
+ * Product-specific filter parameters for list endpoint
+ */
+alias ProductFilterParams = {
+  @query page?: int32 = 1;
+  @query pageSize?: int32 = 10;
+  @query @extension("x-mock-filter", #{ field: "category", strategy: "exact" }) category?: string;
+  @query @extension("x-mock-filter", #{ field: "name", strategy: "partial-match" }) search?: string;
+  @query @extension("x-mock-filter", #{ field: "inStock", strategy: "exact" }) inStock?: boolean;
+};
+
 @route("/products")
 interface Products {
   @get
-  list(
-    @query page?: int32 = 1,
-    @query pageSize?: int32 = 10,
-    @query category?: string,
-    @query search?: string,
-    @query inStock?: boolean
-  ): ProductList | ErrorResponse;
+  list(...ProductFilterParams): ProductList | ErrorResponse;
 
   @post
   create(@body product: CreateProductRequest): Product | ErrorResponse;
