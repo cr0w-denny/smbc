@@ -48,13 +48,14 @@ export const HostSetup: React.FC = () => {
       content: (
         <Box>
           <Alert severity="info" sx={{ mb: 3 }}>
-            Use the <code>create-host-app</code> script to scaffold a new host application with all necessary dependencies and configuration.
+            Use the <code>create-host-app</code> script to scaffold a new host
+            application with all necessary dependencies and configuration.
           </Alert>
 
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
             🚀 Quick Start
           </Typography>
-          
+
           <CodeHighlight
             language="bash"
             code={`# Create a new host app with MUI dev tools (recommended)
@@ -97,7 +98,7 @@ npm install`}
           <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: "bold" }}>
             What gets created:
           </Typography>
-          
+
           <CodeHighlight
             language="text"
             code={`my-host-app/
@@ -128,7 +129,7 @@ npm install`}
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
             📦 Install Applet Packages
           </Typography>
-          
+
           <CodeHighlight
             language="bash"
             code={`# Install applets you want to use
@@ -145,7 +146,7 @@ npm install @smbc/employee-directory-api`}
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", mt: 3 }}>
             ⚙️ Configure Applets
           </Typography>
-          
+
           <Typography variant="body2" sx={{ mb: 2 }}>
             Update <code>src/applet.config.ts</code> to mount your applets:
           </Typography>
@@ -213,9 +214,10 @@ export const APPLETS: AppletMount[] = [
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
             🎭 Generate Mock Data
           </Typography>
-          
+
           <Typography variant="body2" sx={{ mb: 2 }}>
-            For mui-devtools template, run the setup script to automatically generate mocks:
+            For mui-devtools template, run the setup script to automatically
+            generate mocks:
           </Typography>
 
           <CodeHighlight
@@ -228,7 +230,8 @@ npm run setup`}
           />
 
           <Typography variant="body2" sx={{ mb: 2, mt: 3 }}>
-            This will analyze your applet configuration and create mock handlers in <code>src/generated/mocks.ts</code>:
+            This will analyze your applet configuration and create mock handlers
+            in <code>src/generated/mocks.ts</code>:
           </Typography>
 
           <CodeHighlight
@@ -265,7 +268,9 @@ export const allHandlers = [
 
           <Alert severity="success" sx={{ mt: 3 }}>
             <Typography variant="body2">
-              <strong>Pro tip:</strong> The mock generation is intelligent and creates realistic data based on your API specifications. You can customize the generated mocks by editing the generated files.
+              <strong>Pro tip:</strong> The mock generation is intelligent and
+              creates realistic data based on your API specifications. You can
+              customize the generated mocks by editing the generated files.
             </Typography>
           </Alert>
         </Box>
@@ -277,13 +282,14 @@ export const allHandlers = [
       content: (
         <Box>
           <Alert severity="success" sx={{ mb: 3 }}>
-            Your host application is ready! Start the development server and begin using your applets.
+            Your host application is ready! Start the development server and
+            begin using your applets.
           </Alert>
 
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
             🎉 Start Development
           </Typography>
-          
+
           <CodeHighlight
             language="bash"
             code={`# Start the development server
@@ -299,31 +305,45 @@ npm run dev
 
           <List>
             <ListItem>
-              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemIcon>
+                <CheckIcon color="success" />
+              </ListItemIcon>
               <ListItemText primary="Complete MUI-themed host app with navigation drawer" />
             </ListItem>
             <ListItem>
-              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemIcon>
+                <CheckIcon color="success" />
+              </ListItemIcon>
               <ListItemText primary="Mock Service Worker for API simulation" />
             </ListItem>
             <ListItem>
-              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemIcon>
+                <CheckIcon color="success" />
+              </ListItemIcon>
               <ListItemText primary="Environment switching (mock/dev/staging/prod)" />
             </ListItem>
             <ListItem>
-              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemIcon>
+                <CheckIcon color="success" />
+              </ListItemIcon>
               <ListItemText primary="Role-based permissions with live preview" />
             </ListItem>
             <ListItem>
-              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemIcon>
+                <CheckIcon color="success" />
+              </ListItemIcon>
               <ListItemText primary="React Query dev tools for debugging" />
             </ListItem>
             <ListItem>
-              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemIcon>
+                <CheckIcon color="success" />
+              </ListItemIcon>
               <ListItemText primary="Hot module reloading for fast development" />
             </ListItem>
             <ListItem>
-              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemIcon>
+                <CheckIcon color="success" />
+              </ListItemIcon>
               <ListItemText primary="API documentation modal for each applet" />
             </ListItem>
           </List>
@@ -333,9 +353,10 @@ npm run dev
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
             🔧 Environment Variables
           </Typography>
-          
+
           <Typography variant="body2" sx={{ mb: 2 }}>
-            Create a <code>.env</code> file to customize your development environment:
+            Create a <code>.env</code> file to customize your development
+            environment:
           </Typography>
 
           <CodeHighlight
@@ -350,7 +371,10 @@ VITE_PORT=3000`}
 
           <Alert severity="info" sx={{ mt: 3 }}>
             <Typography variant="body2">
-              <strong>Next steps:</strong> Try switching between different user roles in the dashboard, explore the API documentation, and test your applets in the mock environment before connecting to real APIs.
+              <strong>Next steps:</strong> Try switching between different user
+              roles in the dashboard, explore the API documentation, and test
+              your applets in the mock environment before connecting to real
+              APIs.
             </Typography>
           </Alert>
         </Box>
@@ -361,13 +385,14 @@ VITE_PORT=3000`}
   return (
     <Box sx={{ mt: 1 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
-          🏗️ Host App Setup Walkthrough
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Learn how to create a complete host application using the SMBC applet ecosystem. 
-          This walkthrough will guide you through creating a new host app, installing applets, 
-          generating mocks, and running your development environment.
+        <Typography
+          variant="body1"
+          sx={{ mb: 4, maxWidth: "800px", lineHeight: 1.6 }}
+        >
+          Learn how to create a complete host application using the SMBC applet
+          ecosystem. This walkthrough will guide you through creating a new host
+          app, installing applets, generating mocks, and running your
+          development environment.
         </Typography>
       </Box>
 
@@ -378,7 +403,7 @@ VITE_PORT=3000`}
               <Step key={step.label}>
                 <StepLabel
                   onClick={() => handleStepClick(index)}
-                  sx={{ cursor: 'pointer' }}
+                  sx={{ cursor: "pointer" }}
                   icon={step.icon}
                 >
                   <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -394,7 +419,7 @@ VITE_PORT=3000`}
                       sx={{ mr: 1 }}
                       disabled={activeStep === steps.length - 1}
                     >
-                      {activeStep === steps.length - 1 ? 'Finish' : 'Continue'}
+                      {activeStep === steps.length - 1 ? "Finish" : "Continue"}
                     </Button>
                     <Button
                       disabled={activeStep === 0}
@@ -415,9 +440,10 @@ VITE_PORT=3000`}
                 🎉 Congratulations!
               </Typography>
               <Typography variant="body2">
-                You've successfully set up a complete host application with the SMBC applet ecosystem. 
-                Your app now has professional-grade infrastructure including routing, permissions, 
-                mock APIs, and development tools.
+                You've successfully set up a complete host application with the
+                SMBC applet ecosystem. Your app now has professional-grade
+                infrastructure including routing, permissions, mock APIs, and
+                development tools.
               </Typography>
               <Button
                 onClick={() => setActiveStep(0)}
