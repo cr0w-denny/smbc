@@ -29,6 +29,7 @@ export interface AppletDrawerProps {
   };
   title?: string;
   permissionMapping?: Record<string, string>;
+  showAppletHeading?: boolean;
 }
 
 export function AppletDrawer({
@@ -36,6 +37,7 @@ export function AppletDrawer({
   constants,
   title,
   permissionMapping = {},
+  showAppletHeading = false,
 }: AppletDrawerProps) {
   const { path, navigate } = useHashNavigation();
   const { hasAnyPermission } = useRoleManagement();
@@ -216,25 +218,27 @@ export function AppletDrawer({
       </Box>
 
       {/* Applet Store Header */}
-      <Box
-        sx={{
-          px: 2,
-          py: 1,
-          mt: 1,
-          color: "text.secondary",
-          fontSize: "0.875rem",
-          fontWeight: "bold",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <span style={{ marginLeft: 10, marginRight: 8 }}>📱</span>
-        Applet Store
-      </Box>
+      {showAppletHeading && (
+        <Box
+          sx={{
+            px: 2,
+            py: 1,
+            mt: 1,
+            color: "text.secondary",
+            fontSize: "0.875rem",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ marginLeft: 10, marginRight: 8 }}>📱</span>
+          Applet Store
+        </Box>
+      )}
 
       {/* Role Manager */}
       {rootRoute && (

@@ -44,6 +44,8 @@ export interface MuiHostAppProps {
   disableMSW?: boolean; // Allow disabling MSW via prop instead of env var
   // Optional permission mapping for applet IDs
   permissionMapping?: Record<string, string>;
+  // UI configuration - defaults to false so heading is hidden by default
+  showAppletHeading?: boolean;
   // Optional feature flags configuration
   featureFlags?: Array<{
     key: string;
@@ -106,12 +108,14 @@ const createDefaultQueryClient = () =>
 function AppWithEnvironment({
   applets,
   roleConfig,
+  demoUser,
   appName,
   drawerWidth = 240,
   permissionMapping,
   mswHandlers = [],
   enableMocksByDefault = true,
   disableMSW = false,
+  showAppletHeading = false,
 }: MuiHostAppProps) {
   const environment = useFeatureFlag<Environment>("environment") || "mock";
   const isMockEnvironment = environment === "mock";
@@ -237,6 +241,7 @@ function AppWithEnvironment({
         appName={appName}
         drawerWidth={drawerWidth}
         permissionMapping={permissionMapping}
+        showAppletHeading={showAppletHeading}
       />
     );
   }
@@ -248,6 +253,7 @@ function AppWithEnvironment({
       appName={appName}
       drawerWidth={drawerWidth}
       permissionMapping={permissionMapping}
+      showAppletHeading={showAppletHeading}
     />
   );
 }
@@ -259,9 +265,10 @@ function AppContentWithQueryAccess({
   appName,
   drawerWidth = 240,
   permissionMapping = {},
+  showAppletHeading = false,
 }: Pick<
   MuiHostAppProps,
-  "applets" | "roleConfig" | "appName" | "drawerWidth" | "permissionMapping"
+  "applets" | "roleConfig" | "appName" | "drawerWidth" | "permissionMapping" | "showAppletHeading"
 >) {
   const handleNavigate = (url: string) => {
     window.location.hash = url;
@@ -280,6 +287,7 @@ function AppContentWithQueryAccess({
           constants={{ appName, drawerWidth }}
           permissionMapping={permissionMapping}
           title={appName}
+          showAppletHeading={showAppletHeading}
         />
         <MuiAppletRouter
           applets={applets}

@@ -80,8 +80,25 @@ function App() {
 export default App;
 `;
 const MUI_DEVTOOLS_APP_TSX = `import { MuiHostApp } from "@smbc/mui-applet-devtools";
-import { APPLETS, DEMO_USER, HOST, ROLE_CONFIG } from "./applet.config";
+import { APPLETS, ROLE_CONFIG } from "./applet.config";
 import { allHandlers } from "./generated/mocks";
+
+const DEMO_USER = {
+  id: "1",
+  email: "staff@example.com",
+  name: "Demo Staff",
+  roles: ["Admin"],
+  preferences: {
+    theme: "light" as const,
+    language: "en",
+    timezone: "UTC",
+    notifications: {
+      email: true,
+      push: true,
+      desktop: true,
+    },
+  },
+};
 
 export function App() {
   return (
@@ -89,8 +106,8 @@ export function App() {
       applets={APPLETS}
       roleConfig={ROLE_CONFIG}
       demoUser={DEMO_USER}
-      appName={HOST.appName}
-      drawerWidth={HOST.drawerWidth}
+      appName="My Host App"
+      drawerWidth={320}
       mswHandlers={allHandlers}
       permissionMapping={{}}
       disableMSW={import.meta.env.VITE_DISABLE_MSW === "true"}
@@ -102,8 +119,8 @@ const BASIC_CONFIG_TS = `import type { RoleConfig, AppletMount } from "@smbc/app
 import {
   generatePermissionMappings,
   createPermissionRequirements,
-  mountApplet,
 } from "@smbc/applet-core";
+import { mountApplet } from "@smbc/applet-host";
 
 // =============================================================================
 // DEMO USER CONFIGURATION
@@ -173,42 +190,12 @@ import {
   createPermissionRequirements,
   generatePermissionMappings,
   createMinRole,
-  mountApplet,
 } from "@smbc/applet-core";
+import { mountApplet } from "@smbc/applet-host";
 
 // TODO: Import your applets here
 // import usageStatsApplet from "@smbc/usage-stats-mui";
 // import { Analytics as AnalyticsIcon } from "@mui/icons-material";
-
-// =============================================================================
-// DEMO USER CONFIGURATION
-// =============================================================================
-
-export const DEMO_USER: User = {
-  id: "1",
-  email: "staff@example.com",
-  name: "Demo Staff",
-  roles: ["Admin"],
-  preferences: {
-    theme: "light" as const,
-    language: "en",
-    timezone: "UTC",
-    notifications: {
-      email: true,
-      push: true,
-      desktop: true,
-    },
-  },
-};
-
-// =============================================================================
-// HOST CONSTANTS
-// =============================================================================
-
-export const HOST = {
-  drawerWidth: 320,
-  appName: "My Host App",
-} as const;
 
 // =============================================================================
 // HOST APPLICATION ROLES
@@ -279,9 +266,8 @@ const PACKAGE_JSON_TEMPLATE = (name, template) => ({
         lint: "eslint .",
         preview: "vite preview",
         ...(template === 'mui-devtools' ? {
-            setup: "applet-install && generate-mocks",
+            setup: "applet-setup && generate-mocks",
             "generate-mocks": "generate-mocks",
-            "install-applets": "applet-install",
         } : {}),
     },
     dependencies: Object.fromEntries(TEMPLATES[template].dependencies.map(dep => [dep, dep.startsWith('@smbc/') ? '*' : (CORE_DEPS[dep] || 'latest')])),
@@ -318,17 +304,6 @@ export default defineConfig({
       ? JSON.stringify(process.env.VITE_DISABLE_MSW)
       : JSON.stringify("false"),
   },
-  optimizeDeps: {
-    exclude: [
-      // Exclude SMBC packages from optimization to enable better development experience
-      "@smbc/applet-core",
-      "@smbc/mui-applet-core", 
-      "@smbc/mui-components",
-      "@smbc/mui-applet-devtools",
-      "@smbc/dataview",
-      "@smbc/openapi-msw",
-    ],
-  },
 });
 `;
 const MAIN_TSX = `import { StrictMode } from 'react'
@@ -344,6 +319,9 @@ createRoot(document.getElementById('root')!).render(
 const MAIN_TSX_MUI_DEVTOOLS = `import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App.tsx'
+import "swagger-ui-react/swagger-ui.css";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -389,7 +367,11 @@ const TSCONFIG_JSON = {
 const VITE_ENV_D_TS = `/// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_DISABLE_MSW?: string;
+  readonly DEV: boolean
+  readonly MODE: string
+  readonly PROD: boolean
+  readonly SSR: boolean
+  readonly VITE_DISABLE_MSW?: string
 }
 
 interface ImportMeta {
@@ -420,13 +402,9 @@ async function createHostApp(options) {
     await writeFile(join(targetDir, 'src', 'main.tsx'), template === 'basic' ? MAIN_TSX : MAIN_TSX_MUI_DEVTOOLS);
     await writeFile(join(targetDir, 'src', 'App.tsx'), template === 'basic' ? BASIC_APP_TSX : MUI_DEVTOOLS_APP_TSX);
     await writeFile(join(targetDir, 'src', 'applet.config.ts'), template === 'basic' ? BASIC_CONFIG_TS : MUI_DEVTOOLS_CONFIG_TS);
-    // Create generated directory and placeholder for mui-devtools template
+    // Create generated directory for mui-devtools template
     if (template === 'mui-devtools') {
         await mkdir(join(targetDir, 'src', 'generated'), { recursive: true });
-        await writeFile(join(targetDir, 'src', 'generated', 'mocks.ts'), `// Auto-generated mock handlers
-// Run 'npm run generate-mocks' to populate this file
-export const allHandlers: any[] = [];
-`);
     }
     console.log(`✅ Host app "${name}" created successfully!`);
     console.log(``);

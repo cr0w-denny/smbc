@@ -12,7 +12,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rimraf dist",
-    "postinstall": "npx applet-postinstall"
+    "postinstall": "npx applet-setup"
   },
   "keywords": [
     "smbc",

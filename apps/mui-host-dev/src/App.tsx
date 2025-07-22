@@ -13,6 +13,7 @@ export function App() {
       mswHandlers={allHandlers}
       permissionMapping={{ "admin-users": "user-management" }}
       disableMSW={import.meta.env.VITE_DISABLE_MSW === "true"}
+      showAppletHeading={true}
     />
   );
 }

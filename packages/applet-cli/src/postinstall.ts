@@ -264,16 +264,13 @@ async function setupApplets(): Promise<void> {
 }
 
 function generateMinimalConfig(framework: string): string {
-  return `import type {
-  RoleConfig,
-  AppletMount,
-} from "@smbc/applet-core";
+  return `import type { RoleConfig, AppletMount, User } from "@smbc/applet-core";
 import {
-  generatePermissionMappings,
   createPermissionRequirements,
+  generatePermissionMappings,
   createMinRole,
-  mountApplet,
 } from "@smbc/applet-core";
+import { mountApplet } from "@smbc/applet-host";
 
 // =============================================================================
 // APPLET CONFIGURATION
@@ -303,11 +300,11 @@ export type HostRole = (typeof HOST_ROLES)[number];
 // DEMO USER CONFIGURATION
 // =============================================================================
 
-export const demoUser = {
+export const DEMO_USER: User = {
   id: "1",
-  email: "user@example.com",
-  name: "Demo User",
-  roles: ["User"],
+  email: "staff@example.com",
+  name: "Demo Staff",
+  roles: ["Admin"],
   preferences: {
     theme: "light" as const,
     language: "en",
@@ -343,16 +340,6 @@ export const ROLE_CONFIG: RoleConfig = {
   ),
 };
 
-// =============================================================================
-// METADATA (Used by tooling - do not modify)
-// =============================================================================
-
-export const __APPLET_METADATA__ = {
-  version: "1.0.0",
-  generated: "${new Date().toISOString()}",
-  framework: "${framework}",
-  applets: {}
-};
 `;
 }
 
@@ -373,12 +360,17 @@ function generateConfig(framework: string, selectedApplets: any[]): string {
   const appletConfigs = selectedApplets.map(applet => {
     const iconName = applet.metadata.icon;
     const appletVarName = applet.metadata.exportName;
+    const permissions = applet.metadata.permissions || [];
+    const permissionLine = permissions.length > 0 
+      ? `[${appletVarName}.permissions.${permissions[0]}]`
+      : '[]';
+    
     return `  mountApplet(${appletVarName}, {
     id: "${applet.metadata.id}",
     label: "${applet.metadata.name}",
     path: "${applet.metadata.path}",
     icon: ${iconName},
-    permissions: [],
+    permissions: ${permissionLine},
     version: "0.0.0", // Will be read from package.json at runtime
   }),`;
   }).join('\n');
@@ -409,16 +401,13 @@ ${permMappings}
   }),`;
   }).join('\n');
   
-  return `import type {
-  RoleConfig,
-  AppletMount,
-} from "@smbc/applet-core";
+  return `import type { RoleConfig, AppletMount, User } from "@smbc/applet-core";
 import {
-  generatePermissionMappings,
   createPermissionRequirements,
+  generatePermissionMappings,
   createMinRole,
-  mountApplet,
 } from "@smbc/applet-core";
+import { mountApplet } from "@smbc/applet-host";
 ${iconImportLine}
 
 // Import applets
@@ -452,11 +441,11 @@ export type HostRole = (typeof HOST_ROLES)[number];
 // DEMO USER CONFIGURATION
 // =============================================================================
 
-export const demoUser = {
+export const DEMO_USER: User = {
   id: "1",
-  email: "user@example.com",
-  name: "Demo User",
-  roles: ["User"],
+  email: "staff@example.com",
+  name: "Demo Staff",
+  roles: ["Admin"],
   preferences: {
     theme: "light" as const,
     language: "en",
@@ -488,25 +477,5 @@ export const ROLE_CONFIG: RoleConfig = {
   ),
 };
 
-// =============================================================================
-// METADATA (Used by tooling - do not modify)
-// =============================================================================
-
-export const __APPLET_METADATA__ = {
-  version: "1.0.0",
-  generated: "${new Date().toISOString()}",
-  framework: "${framework}",
-  applets: {
-${selectedApplets.map(applet => {
-  return `    "${applet.packageName}": {
-      name: "${applet.metadata.name}",
-      description: "${applet.metadata.description}",
-      icon: "${applet.metadata.icon}",
-      path: "${applet.metadata.path}",
-      permissions: [${applet.metadata.permissions.map((p: string) => `"${p}"`).join(', ')}],
-    },`;
-}).join('\n')}
-  },
-};
 `;
 }
