@@ -264,7 +264,7 @@ async function setupApplets(): Promise<void> {
 }
 
 function generateMinimalConfig(framework: string): string {
-  return `import type { RoleConfig, AppletMount, User } from "@smbc/applet-core";
+  return `import type { RoleConfig, AppletMount } from "@smbc/applet-core";
 import {
   createPermissionRequirements,
   generatePermissionMappings,
@@ -401,7 +401,7 @@ ${permMappings}
   }),`;
   }).join('\n');
   
-  return `import type { RoleConfig, AppletMount, User } from "@smbc/applet-core";
+  return `import type { RoleConfig, AppletMount } from "@smbc/applet-core";
 import {
   createPermissionRequirements,
   generatePermissionMappings,

@@ -263,8 +263,8 @@ function initialize${schemaName}DataStore() {
   
   items.forEach((item, index) => {
     // Ensure each item has a consistent ID
-    if (!item.id) item.id = String(index + 1);
-    ${varName}DataStore.set(item.id, item);
+    if (!(item as any).id) (item as any).id = String(index + 1);
+    ${varName}DataStore.set((item as any).id, item);
   });
   
   ${varName}DataInitialized = true;

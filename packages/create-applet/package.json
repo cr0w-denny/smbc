@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "description": "CLI tool for creating SMBC applets",
   "type": "module",
-  "bin": {
-    "create-applet": "./create-applet.js"
-  },
+  "bin": "./index.mjs",
   "files": [
+    "index.mjs",
     "create-applet.js",
     "templates/"
   ],

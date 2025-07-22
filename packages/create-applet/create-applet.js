@@ -367,17 +367,32 @@ export default defineConfig({
   
   await writeFile(join(muiDir, 'vite.config.ts'), viteConfig);
   
-  // tsconfig.json
+  // tsconfig.json - check if we're in a monorepo or standalone project
+  const projectRoot = await findProjectRoot();
+  const isMonorepo = projectRoot && projectRoot !== process.cwd();
+  
   const tsConfig = {
-    extends: "../../tsconfig.base.json",
+    ...(isMonorepo ? { extends: "../../tsconfig.base.json" } : {}),
     compilerOptions: {
+      target: "ES2020",
+      lib: ["ES2020", "DOM", "DOM.Iterable"],
+      allowJs: false,
+      skipLibCheck: true,
+      esModuleInterop: false,
+      allowSyntheticDefaultImports: true,
+      strict: true,
+      forceConsistentCasingInFileNames: true,
+      module: "ESNext",
+      moduleResolution: "bundler",
+      resolveJsonModule: true,
+      isolatedModules: true,
+      noEmit: false,
       outDir: "./dist",
       rootDir: "./src", 
       declaration: true,
       declarationMap: false,
       sourceMap: false,
-      jsx: "react-jsx",
-      noEmit: false
+      jsx: "react-jsx"
     },
     include: ["src/**/*"],
     exclude: ["dist", "node_modules"]
