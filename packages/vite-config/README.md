@@ -129,7 +129,7 @@ By default (using the `full` preset), the following are externalized:
 - `@smbc/applet-core`
 - `@smbc/mui-applet-core`
 - `@smbc/mui-components`
-- `@smbc/react-query-dataview`
+- `@smbc/dataview`
 
 ## Build Output
 

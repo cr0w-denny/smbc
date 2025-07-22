@@ -11,7 +11,7 @@ const OptimisticCodeExample: React.FC = () => (
     language="tsx"
     code={`import { MuiDataViewApplet, type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
 import { getApiClient } from "@smbc/applet-core";
-import { createOptimisticBulkUpdateAction } from "@smbc/react-query-dataview";
+import { createOptimisticBulkUpdateAction } from "@smbc/dataview";
 import type { paths, components } from "@smbc/product-catalog-api/types";
 
 type Product = components["schemas"]["Product"];
@@ -108,7 +108,7 @@ const TransactionCodeExample: React.FC = () => (
     language="tsx"
     code={`import { MuiDataViewApplet, type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
 import { getApiClient } from "@smbc/applet-core";
-import { createBulkUpdateAction, createBulkDeleteAction } from "@smbc/react-query-dataview";
+import { createBulkUpdateAction, createBulkDeleteAction } from "@smbc/dataview";
 import type { paths, components } from "@smbc/employee-directory-api/types";
 
 type Employee = components["schemas"]["Employee"];

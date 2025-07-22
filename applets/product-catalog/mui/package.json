@@ -66,7 +66,13 @@
       "icon": "Inventory",
       "path": "/products",
       "permissions": [
-        "products.read"
+        "VIEW_PRODUCTS",
+        "CREATE_PRODUCTS",
+        "EDIT_PRODUCTS",
+        "DELETE_PRODUCTS",
+        "MANAGE_CATEGORIES",
+        "VIEW_INVENTORY",
+        "MANAGE_PRICING"
       ],
       "exportName": "productCatalogApplet"
     }

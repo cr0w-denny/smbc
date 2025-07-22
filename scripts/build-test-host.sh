@@ -16,7 +16,7 @@ cd /Users/developer/ws-cr0w/zzz
 npm run build -w packages/applet-core
 npm run build -w packages/mui-components  
 npm run build -w packages/mui-applet-core
-npm run build -w packages/react-query-dataview
+npm run build -w packages/dataview
 npm run build -w packages/ui-core
 npm run build -w packages/mui-applet-host
 npm run build -w applets/hello/mui
@@ -33,8 +33,8 @@ cd ../mui-applet-core && MUI_CORE_FILE=$(npm pack --pack-destination $TEMP_DIR)
 echo "  - Packing mui-components..."
 cd ../mui-components && MUI_COMP_FILE=$(npm pack --pack-destination $TEMP_DIR)
 
-echo "  - Packing react-query-dataview..."
-cd ../react-query-dataview && DATAVIEW_FILE=$(npm pack --pack-destination $TEMP_DIR)
+echo "  - Packing dataview..."
+cd ../dataview && DATAVIEW_FILE=$(npm pack --pack-destination $TEMP_DIR)
 
 echo "  - Packing ui-core..."
 cd ../ui-core && UI_CORE_FILE=$(npm pack --pack-destination $TEMP_DIR)
@@ -70,7 +70,7 @@ cat > package.json << EOF
     "@smbc/applet-core": "file:$CORE_FILE",
     "@smbc/mui-applet-core": "file:$MUI_CORE_FILE",
     "@smbc/mui-components": "file:$MUI_COMP_FILE",
-    "@smbc/react-query-dataview": "file:$DATAVIEW_FILE",
+    "@smbc/dataview": "file:$DATAVIEW_FILE",
     "@smbc/ui-core": "file:$UI_CORE_FILE",
     "@smbc/mui-applet-host": "file:$HOST_FILE",
     "@smbc/hello-mui": "file:$HELLO_FILE"
@@ -86,7 +86,7 @@ cat > package.json << EOF
     "@smbc/applet-core": "file:$CORE_FILE",
     "@smbc/mui-applet-core": "file:$MUI_CORE_FILE", 
     "@smbc/mui-components": "file:$MUI_COMP_FILE",
-    "@smbc/react-query-dataview": "file:$DATAVIEW_FILE",
+    "@smbc/dataview": "file:$DATAVIEW_FILE",
     "@smbc/ui-core": "file:$UI_CORE_FILE",
     "@smbc/mui-applet-host": "file:$HOST_FILE",
     "@smbc/hello-mui": "file:$HELLO_FILE"

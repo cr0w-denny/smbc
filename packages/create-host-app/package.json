@@ -9,7 +9,8 @@
     "create-host-app.js"
   ],
   "dependencies": {
-    "@smbc/applet-meta": "*"
+    "@smbc/applet-meta": "*",
+    "prompts": "^2.4.2"
   },
   "publishConfig": {
     "access": "public",

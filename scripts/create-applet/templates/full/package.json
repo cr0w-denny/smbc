@@ -23,7 +23,7 @@
   "dependencies": {
     "@smbc/applet-core": "*",
     "@smbc/mui-components": "*",
-    "@smbc/react-query-dataview": "*"
+    "@smbc/dataview": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

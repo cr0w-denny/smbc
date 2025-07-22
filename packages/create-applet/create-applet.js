@@ -2,8 +2,8 @@
 import { writeFile, mkdir, readFile } from 'fs/promises';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs';
-import { createInterface } from 'readline';
 import { CORE_DEPS } from '@smbc/applet-meta';
+import prompts from 'prompts';
 
 async function createApplet(options) {
   const { name, directory } = options;
@@ -584,25 +584,62 @@ django-cors-headers>=4.0.0
   await writeFile(join(djangoDir, 'requirements.txt'), requirements);
 }
 
+// Configure prompts to handle Ctrl+C gracefully
+prompts.override({
+  onCancel: () => {
+    console.log('\n❌ Applet creation cancelled');
+    process.exit(0);
+  }
+});
+
 // CLI interface
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
-  const name = args[0];
+  let name = args[0];
   
+  // If no name provided, prompt for it
   if (!name) {
-    console.error('Usage: create-applet <name> [options]');
-    console.error('');
-    console.error('Example:');
-    console.error('  create-applet "My Custom Applet"');
-    console.error('  create-applet my-applet --dir custom-directory');
-    console.error('');
-    console.error('Options:');
-    console.error('  --dir <directory>    Directory name (default: same as name)');
-    process.exit(1);
+    console.log('🚀 SMBC Applet Creator');
+    console.log('=====================');
+    console.log('');
+    
+    const response = await prompts({
+      type: 'text',
+      name: 'name',
+      message: '📝 What is your applet name?',
+      validate: value => value.trim().length > 0 ? true : 'Name cannot be empty'
+    });
+    
+    name = response.name;
+    if (!name) process.exit(0);
   }
   
   const dirIndex = args.indexOf('--dir');
-  const directory = dirIndex !== -1 ? args[dirIndex + 1] : undefined;
+  let directory = dirIndex !== -1 ? args[dirIndex + 1] : undefined;
+  
+  // If directory not specified and name contains spaces/caps, suggest kebab case
+  const suggestedDir = name.toLowerCase().replace(/\s+/g, '-');
+  if (!directory && suggestedDir !== name) {
+    const response = await prompts({
+      type: 'confirm',
+      name: 'useKebab',
+      message: `📁 Create in directory "${suggestedDir}"?`,
+      initial: true
+    });
+    
+    if (response.useKebab) {
+      directory = suggestedDir;
+    } else {
+      const dirResponse = await prompts({
+        type: 'text',
+        name: 'directory',
+        message: '📁 Enter directory name:',
+        initial: suggestedDir,
+        validate: value => value.trim().length > 0 ? true : 'Directory cannot be empty'
+      });
+      directory = dirResponse.directory;
+    }
+  }
   
   try {
     await createApplet({ name, directory });

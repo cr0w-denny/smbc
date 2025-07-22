@@ -3,11 +3,11 @@ import {
   Delete as DeleteIcon,
   CheckCircle as ActivateIcon,
 } from "@mui/icons-material";
-import type { BulkAction } from "@smbc/react-query-dataview";
+import type { BulkAction } from "@smbc/dataview";
 import {
   createBulkDeleteAction,
   createBulkUpdateAction,
-} from "@smbc/react-query-dataview";
+} from "@smbc/dataview";
 import { useApiClient } from "@smbc/applet-core";
 import type { components, paths } from "@smbc/employee-directory-api/types";
 

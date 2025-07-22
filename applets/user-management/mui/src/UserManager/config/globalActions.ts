@@ -3,7 +3,7 @@ import {
   Refresh as RefreshIcon,
   GetApp as ExportIcon,
 } from "@mui/icons-material";
-import type { GlobalAction } from "@smbc/react-query-dataview";
+import type { GlobalAction } from "@smbc/dataview";
 
 /**
  * Global action configuration for the UserManager component

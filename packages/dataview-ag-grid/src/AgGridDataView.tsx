@@ -15,7 +15,7 @@ function PlaceholderComponent() {
 }
 
 /**
- * AG-Grid renderer for react-query-dataview
+ * AG-Grid renderer for dataview
  */
 export const AgGridDataView: DataView<any, AgGridConfig> = {
   name: "AgGrid",

@@ -24,11 +24,13 @@
   ],
   "dependencies": {
     "@smbc/applet-core": "*",
-    "@smbc/applet-meta": "*"
+    "@smbc/applet-meta": "*",
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
     "typescript": "~5.8.3",
     "@types/node": "^20.0.0",
+    "@types/prompts": "^2.4.9",
     "rimraf": "^6.0.1",
     "tsx": "^4.0.0",
     "glob": "^10.0.0"

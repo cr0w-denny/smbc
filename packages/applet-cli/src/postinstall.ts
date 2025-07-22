@@ -13,7 +13,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
 import { getAppletsByFramework } from './applet-discovery.js';
-import readline from 'readline';
+import prompts from 'prompts';
 import { spawn } from 'child_process';
 
 // Check if we're running in a monorepo context (skip if we're in a generated host app)
@@ -120,17 +120,13 @@ function detectFramework(): string {
   }
 }
 
-// Simple readline interface for prompts
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+// Configure prompts to handle Ctrl+C gracefully
+prompts.override({
+  onCancel: () => {
+    console.log('\n❌ Setup cancelled');
+    process.exit(0);
+  }
 });
-
-function prompt(question: string): Promise<string> {
-  return new Promise(resolve => {
-    rl.question(question, resolve);
-  });
-}
 
 async function setupApplets(): Promise<void> {
   try {
@@ -181,24 +177,23 @@ async function setupApplets(): Promise<void> {
       console.log('1. Installing applet packages');
       console.log('2. Adding imports and configuration to applet.config.ts');
       
-      rl.close();
       return;
     }
     
-    // Show available applets
-    console.log(`📦 Available ${framework} applets:`);
-    availableApplets.forEach((applet, index) => {
-      console.log(`${index + 1}. ${applet.metadata.name} - ${applet.metadata.description}`);
+    // Get selected applets with nice multi-select interface
+    const response = await prompts({
+      type: 'multiselect',
+      name: 'selectedApplets',
+      message: `📦 Select ${framework} applets to install:`,
+      choices: availableApplets.map(applet => ({
+        title: applet.metadata.name,
+        description: applet.metadata.description,
+        value: applet
+      })),
+      hint: '- Space to select. Return to submit'
     });
-    console.log('');
     
-    // Get selected applets
-    const selection = await prompt('Select applets (comma-separated numbers, e.g., "1,3", or press Enter for none): ');
-    const selectedIndices = selection.trim() ? 
-      selection.split(',').map(s => parseInt(s.trim()) - 1).filter(i => i >= 0 && i < availableApplets.length) : 
-      [];
-    
-    const selectedApplets = selectedIndices.map(i => availableApplets[i]);
+    const selectedApplets = response.selectedApplets || [];
     
     // Create src directory if it doesn't exist
     const srcDir = resolve(process.cwd(), 'src');
@@ -225,7 +220,7 @@ async function setupApplets(): Promise<void> {
       const packageManager = useYarn ? 'yarn' : 'npm';
       const installCmd = useYarn ? 'add' : 'install';
       
-      const packageNames = selectedApplets.map(applet => applet.packageName);
+      const packageNames = selectedApplets.map((applet: any) => applet.packageName);
       const installProcess = spawn(packageManager, [installCmd, ...packageNames], {
         stdio: 'inherit',
         cwd: process.cwd()
@@ -240,12 +235,11 @@ async function setupApplets(): Promise<void> {
         } else {
           console.log('');
           console.log('⚠️  Applet installation failed. You can install them manually:');
-          selectedApplets.forEach(applet => {
+          selectedApplets.forEach((applet: any) => {
             console.log(`   ${packageManager} ${installCmd} ${applet.packageName}`);
           });
         }
-        rl.close();
-      });
+        });
     } else {
       console.log('');
       console.log('🎉 Setup complete!');
@@ -253,12 +247,10 @@ async function setupApplets(): Promise<void> {
       console.log('Add applets later by:');
       console.log('1. Installing applet packages');
       console.log('2. Adding them to the APPLETS array in applet.config.ts');
-      rl.close();
     }
     
   } catch (error) {
     console.error('❌ Setup failed:', (error as Error).message);
-    rl.close();
     process.exit(1);
   }
 }

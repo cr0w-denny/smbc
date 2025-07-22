@@ -81,6 +81,10 @@ export function createAppletConfig(options: AppletConfigOptions): UserConfig {
   // Applet-specific configuration
   const appletConfig: UserConfig = {
     plugins: pluginOptions,
+    // Always strip console logs from package builds (libraries)
+    esbuild: {
+      drop: ['console', 'debugger']
+    },
     build: {
       ...baseConfig.build,
       lib: {

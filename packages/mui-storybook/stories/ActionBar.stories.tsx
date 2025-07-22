@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { ActionBar } from "@smbc/mui-applet-core";
-import { BulkAction, GlobalAction } from "@smbc/react-query-dataview";
+import { BulkAction, GlobalAction } from "@smbc/dataview";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,

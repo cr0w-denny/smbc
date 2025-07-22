@@ -118,7 +118,7 @@ export function getFullAppletDependencies(): DependencyGroup {
       ...basic.dependencies,
       // Add SMBC packages for full functionality
       "@smbc/mui-components": "*",
-      "@smbc/react-query-dataview": "*",
+      "@smbc/dataview": "*",
     },
 
     devDependencies: {
@@ -138,7 +138,7 @@ export function getFullAppletDependencies(): DependencyGroup {
 
       // SMBC packages
       "@smbc/mui-components": "*",
-      "@smbc/react-query-dataview": "*",
+      "@smbc/dataview": "*",
 
       // Development/Testing
       msw: CORE_DEPS["msw"],

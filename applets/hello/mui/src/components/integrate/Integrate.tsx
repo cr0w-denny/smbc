@@ -118,7 +118,7 @@ import {
   FeatureFlagProvider,
   calculatePermissionsFromRoles 
 } from '@smbc/applet-core';
-import { ActivityProvider, TransactionProvider } from '@smbc/react-query-dataview';
+import { ActivityProvider, TransactionProvider } from '@smbc/dataview';
 
 import { lightTheme } from '@smbc/mui-components';
 import { AppletRouter } from './components/AppletRouter';

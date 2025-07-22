@@ -3,6 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs';
 import { CORE_DEPS } from '@smbc/applet-meta';
+import prompts from 'prompts';
 const TEMPLATES = {
     basic: {
         description: 'Basic host app with minimal setup',
@@ -423,22 +424,89 @@ async function createHostApp(options) {
         console.log(`  3. Run: npm run generate-mocks`);
     }
 }
+// Configure prompts to handle Ctrl+C gracefully
+prompts.override({
+    onCancel: () => {
+        console.log('\n❌ Host app creation cancelled');
+        process.exit(0);
+    }
+});
+
 // CLI interface
 if (import.meta.url === `file://${process.argv[1]}`) {
     const args = process.argv.slice(2);
-    const name = args[0];
+    let name = args[0];
+    
+    // If no name provided, prompt for it
     if (!name) {
-        console.error('Usage: create-host-app <name> [options]');
-        console.error('');
-        console.error('Options:');
-        console.error('  --template <basic|mui-devtools>  Template to use (default: mui-devtools)');
-        console.error('  --dir <directory>                Directory name (default: same as name)');
-        process.exit(1);
+        console.log('🚀 SMBC Host App Creator');
+        console.log('========================');
+        console.log('');
+        
+        const response = await prompts({
+            type: 'text',
+            name: 'name',
+            message: '📝 What is your host app name?',
+            validate: value => value.trim().length > 0 ? true : 'Name cannot be empty'
+        });
+        
+        name = response.name;
+        if (!name) process.exit(0);
     }
+    
+    // Check for CLI args, otherwise prompt
     const templateIndex = args.indexOf('--template');
     const dirIndex = args.indexOf('--dir');
-    const template = templateIndex !== -1 ? args[templateIndex + 1] : 'mui-devtools';
-    const directory = dirIndex !== -1 ? args[dirIndex + 1] : name;
+    
+    let template = templateIndex !== -1 ? args[templateIndex + 1] : null;
+    let directory = dirIndex !== -1 ? args[dirIndex + 1] : name;
+    
+    // If template not specified via CLI, prompt for it
+    if (!template) {
+        const response = await prompts({
+            type: 'select',
+            name: 'template',
+            message: '🎨 Select a template:',
+            choices: [
+                {
+                    title: 'MUI DevTools (Recommended)',
+                    description: 'Full-featured host with MUI, dev tools, and mock generation',
+                    value: 'mui-devtools'
+                },
+                {
+                    title: 'Basic',
+                    description: 'Minimal host app with basic setup',
+                    value: 'basic'
+                }
+            ],
+            initial: 0
+        });
+        
+        template = response.template;
+        if (!template) process.exit(0);
+    }
+    
+    // Confirm directory if different from name
+    if (directory !== name) {
+        const response = await prompts({
+            type: 'confirm',
+            name: 'confirmDir',
+            message: `📁 Create in directory "${directory}"?`,
+            initial: true
+        });
+        
+        if (!response.confirmDir) {
+            const dirResponse = await prompts({
+                type: 'text',
+                name: 'directory',
+                message: '📁 Enter directory name:',
+                initial: name,
+                validate: value => value.trim().length > 0 ? true : 'Directory cannot be empty'
+            });
+            directory = dirResponse.directory || name;
+        }
+    }
+    
     try {
         await createHostApp({ name, directory, template });
     }

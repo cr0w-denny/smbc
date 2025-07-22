@@ -17,7 +17,7 @@ import type {
 import {
   createOptimisticBulkUpdateAction,
   createOptimisticBulkDeleteAction,
-} from "@smbc/react-query-dataview";
+} from "@smbc/dataview";
 
 type Product = components["schemas"]["Product"];
 

@@ -46,7 +46,9 @@
       "icon": "ContactPage",
       "path": "/employees",
       "permissions": [
-        "employees.read"
+        "VIEW_EMPLOYEES",
+        "EDIT_EMPLOYEES",
+        "MANAGE_EMPLOYEES"
       ],
       "exportName": "employeeDirectoryApplet"
     }

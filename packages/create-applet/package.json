@@ -10,7 +10,8 @@
     "templates/"
   ],
   "dependencies": {
-    "@smbc/applet-meta": "*"
+    "@smbc/applet-meta": "*",
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0"
