@@ -47,8 +47,8 @@ if [ "$RESET_FLAG" = true ]; then
     npx verdaccio --config config.yaml &
     VERDACCIO_PID=$!
     
-    # Run postreset script in background
-    "$VERDACCIO_DIR/postreset.sh" &
+    # Give registry a moment to start, then run postreset script
+    (sleep 3 && echo "🚀 Starting post-reset automation..." && bash "$VERDACCIO_DIR/postreset.sh") &
     
     # Wait for verdaccio to keep running
     wait $VERDACCIO_PID

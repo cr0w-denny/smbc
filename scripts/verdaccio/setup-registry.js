@@ -54,22 +54,35 @@ async function configureNpm() {
 async function authenticateUser() {
   console.log('🔑 Setting up authentication...');
   
-  // Create a simple auth token approach instead of using expect
   try {
     // Try to get current user info
     await execAsync(`npm whoami --registry ${REGISTRY_URL}`);
     console.log('✅ Already authenticated');
-    return;
+    return true;
   } catch (error) {
-    // Not authenticated, need to set up
-    console.log('📝 Authentication required');
-    console.log('');
-    console.log('Please run the following command manually:');
-    console.log(`npm adduser --registry ${REGISTRY_URL}`);
-    console.log('Use credentials: dev/dev/dev@example.com');
-    console.log('');
-    console.log('After authentication, run: npm run registry:publish');
-    return false;
+    // Manually set up auth using npm config (works with existing htpasswd)
+    console.log('📝 Configuring authentication...');
+    try {
+      const registryHost = REGISTRY_URL.replace('http://', '');
+      
+      // Set auth token based on the htpasswd entry we have
+      // The htpasswd format is: dev:$2a$10$... so we need to create a matching token
+      await execAsync(`npm config set //${registryHost}/:username dev`);
+      await execAsync(`npm config set //${registryHost}/:_password ZGV2`); // base64 of "dev"
+      await execAsync(`npm config set //${registryHost}/:email dev@example.com`);
+      
+      // Verify authentication works
+      await execAsync(`npm whoami --registry ${REGISTRY_URL}`);
+      console.log('✅ Authentication successful');
+      return true;
+    } catch (authError) {
+      console.error('❌ Failed to configure authentication:', authError.message);
+      console.log('');
+      console.log('Manual authentication required:');
+      console.log(`npm adduser --registry ${REGISTRY_URL}`);
+      console.log('Use credentials: dev/dev/dev@example.com');
+      return false;
+    }
   }
 }
 
@@ -103,10 +116,11 @@ async function setupRegistry(reset = false) {
     console.log('📁 Created storage directory');
   }
   
-  // Create empty htpasswd file
+  // htpasswd file should already exist with dev user
   if (!existsSync(HTPASSWD_FILE)) {
-    writeFileSync(HTPASSWD_FILE, '');
-    console.log('📝 Created empty htpasswd file');
+    console.log('⚠️  htpasswd file missing - auth may not work');
+  } else {
+    console.log('✅ Using existing htpasswd file');
   }
   
   // Start Verdaccio
@@ -128,7 +142,7 @@ async function setupRegistry(reset = false) {
         await configureNpm();
         
         const authenticated = await authenticateUser();
-        if (authenticated !== false) {
+        if (authenticated) {
           await publishPackages();
           console.log('');
           console.log('🎉 Registry setup completed!');

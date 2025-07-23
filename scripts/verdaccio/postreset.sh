@@ -46,12 +46,17 @@ send "dev@example.com\r"
 expect eof
 EOF
 else
-    echo "⚠️  'expect' not found. Please manually run:"
-    echo "   npm adduser --registry $REGISTRY_URL"
-    echo "   Use: dev/dev/dev@example.com"
-    echo ""
-    echo "Then run: npm run registry:publish"
-    exit 0
+    echo "⚠️  'expect' not found. Trying alternative authentication..."
+    # Try using printf to pipe credentials to npm adduser
+    printf "dev\ndev\ndev@example.com\n" | npm adduser --registry $REGISTRY_URL 2>/dev/null || {
+        echo "❌ Automatic authentication failed."
+        echo "Manual authentication required:"
+        echo "   npm adduser --registry $REGISTRY_URL"
+        echo "   Use: dev/dev/dev@example.com"
+        echo ""
+        echo "After authentication, manually run: npm run registry:publish"
+        exit 1
+    }
 fi
 
 # Build and publish packages
