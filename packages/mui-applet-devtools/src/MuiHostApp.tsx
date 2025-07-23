@@ -184,7 +184,10 @@ function AppWithEnvironment({
         }
 
         try {
-          await setupMSW(mswHandlers, { verbose: true });
+          await setupMSW(mswHandlers, { 
+            verbose: true,
+            baseUrl: (import.meta as any).env?.BASE_URL || '/'
+          });
           console.log("✅ MSW worker started successfully");
           setMswReady(true);
           actions.setMswStatus({

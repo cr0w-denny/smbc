@@ -18,7 +18,7 @@ let worker: ReturnType<typeof setupWorker> | null = null;
  * Apps should generate their own handlers using the CLI tool
  */
 export async function setupMSW(handlers: any[], config: MockConfig = {}) {
-  const { enabled = true, verbose = false } = config;
+  const { enabled = true, verbose = false, baseUrl } = config;
   
   if (!enabled) {
     if (verbose) console.log('🔇 MSW disabled');
@@ -33,7 +33,7 @@ export async function setupMSW(handlers: any[], config: MockConfig = {}) {
     await worker.start({
       onUnhandledRequest: verbose ? 'warn' : 'bypass',
       serviceWorker: {
-        url: `${(globalThis as any).import?.meta?.env?.BASE_URL || '/'}mockServiceWorker.js`
+        url: `${baseUrl || '/'}mockServiceWorker.js`
       }
     });
     
