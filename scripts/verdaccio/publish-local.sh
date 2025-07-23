@@ -6,9 +6,15 @@
 set -e
 
 REGISTRY_URL="http://localhost:4873"
-ROOT_DIR="$(pwd)"
+# Get the monorepo root directory (two levels up from this script)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 echo "📦 Publishing all @smbc packages to local registry..."
+echo "📂 Monorepo root: $ROOT_DIR"
+
+# Change to monorepo root
+cd "$ROOT_DIR"
 
 # Check if registry is accessible
 if ! curl -s "$REGISTRY_URL" > /dev/null; then
@@ -62,11 +68,15 @@ publish_package() {
 
 # Find and publish all @smbc packages
 echo "🔍 Finding @smbc packages to publish..."
+echo "📁 Current directory: $(pwd)"
 
 # Publish packages in dependency order
 for dir in packages/* applets/*/api applets/*/mui; do
     if [ -d "$dir" ] && [ -f "$dir/package.json" ]; then
+        echo "📦 Found package: $dir"
         publish_package "$dir"
+    else
+        echo "⚠️  Skipping $dir (not a directory or no package.json)"
     fi
 done
 
