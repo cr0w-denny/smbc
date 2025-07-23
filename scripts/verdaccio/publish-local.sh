@@ -29,9 +29,9 @@ if ! npm whoami --registry="$REGISTRY_URL" > /dev/null 2>&1; then
     exit 1
 fi
 
-# Build all packages first (excluding apps)
+# Build all packages first
 echo "🏗️  Building all packages..."
-npm run build:libs && npm run build:applet-core && npm run build:apis && npm run build:applets
+npm run build
 
 # Function to publish a package
 publish_package() {

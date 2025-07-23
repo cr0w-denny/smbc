@@ -6,14 +6,6 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "tsp-output/**", ".vite/**"]
     },
-    "build:libs": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
-    },
-    "build:apis": {
-      "dependsOn": ["^build"],
-      "outputs": ["tsp-output/**"]
-    },
     "dev": {
       "cache": false,
       "persistent": true

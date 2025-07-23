@@ -105,12 +105,11 @@ const permissionMappings = {
 
 ## Build System
 
-The monorepo uses npm workspaces with TypeScript project references:
+The monorepo uses npm workspaces with Turbo for dependency management:
 
 ```bash
-npm run build:libs        # Build shared packages first
-npm run build:apis        # Generate API specifications
-npm run build:api-clients # Build TypeScript clients
-npm run build:applets     # Build React UI components
-npm run build:apps        # Build host applications
+npm run build             # Build all packages in dependency order
+npm run dev               # Start development servers
+npm run test              # Run tests
+npm run lint              # Run linting
 ```
