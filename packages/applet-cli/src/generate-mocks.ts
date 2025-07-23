@@ -162,7 +162,7 @@ function generateAppletMocks(
 
     // Find the OpenAPI spec file in the API package
     const apiPackageDir = apiPackage.packageJsonPath!.replace(
-      "/package.json",
+      /[/\\]package\.json$/,
       "",
     );
     let specPath = join(

@@ -289,6 +289,9 @@ const PACKAGE_JSON_TEMPLATE = (name, template) => ({
     },
     dependencies: Object.fromEntries(TEMPLATES[template].dependencies.map(dep => [dep, dep.startsWith('@smbc/') ? '*' : (CORE_DEPS[dep] || 'latest')])),
     devDependencies: Object.fromEntries(TEMPLATES[template].devDependencies.map(dep => [dep, dep.startsWith('@smbc/') ? '*' : (CORE_DEPS[dep] || 'latest')])),
+    overrides: {
+        "prismjs": "1.29.0"
+    },
     ...(template === 'mui-devtools' ? {
         msw: {
             workerDirectory: ["public"]
