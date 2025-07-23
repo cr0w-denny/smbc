@@ -33,7 +33,7 @@ export async function setupMSW(handlers: any[], config: MockConfig = {}) {
     await worker.start({
       onUnhandledRequest: verbose ? 'warn' : 'bypass',
       serviceWorker: {
-        url: '/mockServiceWorker.js'
+        url: `${(globalThis as any).import?.meta?.env?.BASE_URL || '/'}mockServiceWorker.js`
       }
     });
     
