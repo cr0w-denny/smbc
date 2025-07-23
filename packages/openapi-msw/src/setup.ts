@@ -30,10 +30,16 @@ export async function setupMSW(handlers: any[], config: MockConfig = {}) {
     worker = setupWorker(...handlers);
     
     // Start the worker
+    const serviceWorkerUrl = `${baseUrl || '/'}mockServiceWorker.js`;
+    if (verbose) {
+      console.log('🔧 MSW service worker URL:', serviceWorkerUrl);
+      console.log('🔧 Base URL:', baseUrl);
+    }
+    
     await worker.start({
       onUnhandledRequest: verbose ? 'warn' : 'bypass',
       serviceWorker: {
-        url: `${baseUrl || '/'}mockServiceWorker.js`
+        url: serviceWorkerUrl
       }
     });
     
