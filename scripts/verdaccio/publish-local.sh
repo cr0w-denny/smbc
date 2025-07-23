@@ -7,8 +7,8 @@ set -e
 
 REGISTRY_URL="http://localhost:4873"
 # Get the monorepo root directory (two levels up from this script)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+ROOT_DIR="$(realpath "$SCRIPT_DIR/../..")"
 
 echo "📦 Publishing all @smbc packages to local registry..."
 echo "📂 Monorepo root: $ROOT_DIR"
@@ -39,10 +39,20 @@ fi
 echo "🏗️  Building all packages..."
 npm run build
 
-# Function to publish a package
+# Function to publish a package  
 publish_package() {
     local package_dir="$1"
-    local package_name=$(node -p "require('$ROOT_DIR/$package_dir/package.json').name")
+    local package_json_path="$ROOT_DIR/$package_dir/package.json"
+    
+    echo "🔍 Checking package at: $package_dir"
+    echo "📄 Looking for package.json at: $package_json_path"
+    
+    if [ ! -f "$package_json_path" ]; then
+        echo "❌ package.json not found at $package_json_path"
+        return 1
+    fi
+    
+    local package_name=$(node -p "require('$package_json_path').name")
     
     if [[ $package_name == @smbc/* ]]; then
         echo "📦 Publishing $package_name..."
@@ -54,9 +64,9 @@ publish_package() {
             # Add publishConfig to package.json if it doesn't exist
             node -e "
                 const fs = require('fs');
-                const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                const pkg = JSON.parse(fs.readFileSync('$package_json_path', 'utf8'));
                 pkg.publishConfig = { registry: '$REGISTRY_URL' };
-                fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+                fs.writeFileSync('$package_json_path', JSON.stringify(pkg, null, 2) + '\n');
             "
         fi
         
