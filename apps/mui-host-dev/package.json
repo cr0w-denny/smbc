@@ -23,6 +23,7 @@
     "@smbc/mui-applet-devtools": "*",
     "@smbc/openapi-msw": "*",
     "@smbc/product-catalog-mui": "*",
+    "@smbc/employee-directory-mui": "*",
     "@smbc/dataview": "*",
     "@smbc/ui-core": "*",
     "@smbc/usage-stats-mui": "*",

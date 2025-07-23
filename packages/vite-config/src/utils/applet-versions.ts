@@ -7,13 +7,18 @@ import path from "path";
 function getWorkspacePackageVersion(packageName: string, hostPackageJsonPath: string): string | null {
   const hostDir = path.dirname(hostPackageJsonPath);
   
+  // If we're in apps/mui-host-dev, go up to root
+  const rootDir = hostDir.includes('/apps/') 
+    ? path.resolve(hostDir, '../..')
+    : hostDir;
+  
   // Look for applet workspace packages
   const packageNameWithoutScope = packageName.replace('@smbc/', '');
   const possiblePaths = [
     // applets/package-name/mui/package.json (for MUI applets)  
-    path.join(hostDir, 'applets', packageNameWithoutScope.replace('-mui', ''), 'mui', 'package.json'),
+    path.join(rootDir, 'applets', packageNameWithoutScope.replace('-mui', ''), 'mui', 'package.json'),
     // applets/package-name/api/package.json (for API packages)
-    path.join(hostDir, 'applets', packageNameWithoutScope.replace('-api', ''), 'api', 'package.json'),
+    path.join(rootDir, 'applets', packageNameWithoutScope.replace('-api', ''), 'api', 'package.json'),
   ];
   
   for (const possiblePath of possiblePaths) {

@@ -29,9 +29,9 @@ export default defineConfig(({ mode }) => {
     ...envConfig,
     // Set base path for GitHub Pages deployment
     base: process.env.VITE_BASE_PATH || "/",
-    // Remove console logs in production builds (temporarily disabled for MSW debugging)
+    // Remove console logs in production builds
     esbuild: {
-      drop: isProduction ? ['debugger'] : []
+      drop: isProduction ? ['console', 'debugger'] : []
     },
     define: {
       ...envConfig.define,
@@ -127,10 +127,10 @@ export default defineConfig(({ mode }) => {
 
   const finalConfig = mergeConfig(sharedViteConfig, appSpecificConfig);
   
-  // Ensure esbuild configuration is properly applied (temporarily disabled for MSW debugging)
+  // Ensure esbuild configuration is properly applied
   if (isProduction) {
     finalConfig.esbuild = {
-      drop: ['debugger']
+      drop: ['console', 'debugger']
     };
   }
   
