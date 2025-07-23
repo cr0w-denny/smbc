@@ -19,7 +19,6 @@
     "build:changed": "turbo run build --filter=[HEAD^1]",
     "build:libs": "npm run build -w packages/ui-core && npm run build -w packages/mui-components",
     "build:sequential": "npm run build:libs && npm run build:applet-core && npm run build:apis && npm run build:applets && npm run build:apps",
-    "build:test-host": "./scripts/build-test-host.sh",
     "bundle:analyze": "./scripts/bundle-analyzer/analyze-bundle.ts",
     "bundle:analyze-all": "./scripts/bundle-analyzer/analyze-bundle.ts --all",
     "bundle:report": "./scripts/bundle-analyzer/analyze-bundle.ts --report",
