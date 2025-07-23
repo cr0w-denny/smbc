@@ -27,6 +27,10 @@ runs:
         npm run build -w packages/mui-applet-devtools
         npm run build -w packages/dataview
         npm run build -w packages/ui-core
+        npm run build -w applets/user-management/api
+        npm run build -w applets/product-catalog/api
+        npm run build -w applets/employee-directory/api
+        npm run build -w applets/usage-stats/api
       shell: bash
 
     - name: Build remaining packages
