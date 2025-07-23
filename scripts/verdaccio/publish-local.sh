@@ -52,7 +52,13 @@ publish_package() {
         return 1
     fi
     
-    local package_name=$(node -p "require('$package_json_path').name")
+    # Convert path to Windows format for Node.js if on Windows
+    local node_path="$package_json_path"
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        node_path=$(cygpath -w "$package_json_path" 2>/dev/null || echo "$package_json_path")
+    fi
+    
+    local package_name=$(node -p "require('$node_path').name")
     
     if [[ $package_name == @smbc/* ]]; then
         echo "📦 Publishing $package_name..."
@@ -64,9 +70,9 @@ publish_package() {
             # Add publishConfig to package.json if it doesn't exist
             node -e "
                 const fs = require('fs');
-                const pkg = JSON.parse(fs.readFileSync('$package_json_path', 'utf8'));
+                const pkg = JSON.parse(fs.readFileSync('$node_path', 'utf8'));
                 pkg.publishConfig = { registry: '$REGISTRY_URL' };
-                fs.writeFileSync('$package_json_path', JSON.stringify(pkg, null, 2) + '\n');
+                fs.writeFileSync('$node_path', JSON.stringify(pkg, null, 2) + '\n');
             "
         fi
         
