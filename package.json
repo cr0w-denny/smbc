@@ -45,6 +45,7 @@
     "reboot": "npm run reset && npm install && npm run build",
     "registry:setup": "./scripts/verdaccio/setup-packages.sh",
     "registry:start": "./scripts/verdaccio/start.sh --reset",
+    "registry:start-cross": "node ./scripts/verdaccio/setup-registry.js --reset",
     "registry:use-local": "./scripts/verdaccio/use-local.sh",
     "registry:use-npm": "./scripts/verdaccio/use-npm.sh",
     "registry:publish": "./scripts/verdaccio/publish-local.sh",
