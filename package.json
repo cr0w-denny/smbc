@@ -30,7 +30,7 @@
     "clean-console": "./scripts/clean-console.ts",
     "clean-console:dry": "./scripts/clean-console.ts --dry-run --verbose",
     "clean-ts": "find ./packages ./apps ./applets -path '*/src/*.d.ts' -not -name 'vite-env.d.ts' -delete && find ./packages ./apps ./applets -path '*/src/*.d.ts.map' -delete && find ./packages ./apps ./applets -path '*/src/*.js' -delete",
-    "create-applet": "tsx scripts/create-applet/cli.ts",
+    "create-applet": "node packages/create-applet/index.mjs",
     "deps:sync": "tsx scripts/deps/manage-deps.ts sync",
     "deps:validate": "tsx scripts/deps/manage-deps.ts validate",
     "deps:list": "tsx scripts/deps/manage-deps.ts list",
