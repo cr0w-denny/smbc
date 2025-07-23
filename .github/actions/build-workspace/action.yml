@@ -11,7 +11,7 @@ runs:
         cache: 'npm'
 
     - name: Install Dependencies
-      run: npm ci --ignore-scripts
+      run: rm -f package-lock.json && npm install --ignore-scripts
       shell: bash
 
     - name: Build workspace packages in dependency order
