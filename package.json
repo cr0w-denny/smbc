@@ -12,13 +12,6 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "build:apis": "npm run build -w applets/employee-directory/api -w applets/product-catalog/api -w applets/usage-stats/api -w applets/user-management/api",
-    "build:apps": "npm run build -w apps/*",
-    "build:applet-core": "npm run build -w packages/applet-core -w packages/applet-devtools -w packages/dataview && npm run build -w packages/mui-applet-core",
-    "build:applets": "npm run build -w applets/product-catalog/mui -w applets/user-management/mui",
-    "build:changed": "turbo run build --filter=[HEAD^1]",
-    "build:libs": "npm run build -w packages/ui-core && npm run build -w packages/mui-components",
-    "build:sequential": "npm run build:libs && npm run build:applet-core && npm run build:apis && npm run build:applets && npm run build:apps",
     "bundle:analyze": "./scripts/bundle-analyzer/analyze-bundle.ts",
     "bundle:analyze-all": "./scripts/bundle-analyzer/analyze-bundle.ts --all",
     "bundle:report": "./scripts/bundle-analyzer/analyze-bundle.ts --report",
