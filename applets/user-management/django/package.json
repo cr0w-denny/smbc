@@ -1,6 +1,6 @@
 {
   "name": "@smbc/user-management-django",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Django backend implementation for user management",
   "private": true,
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@smbc/openapi-msw",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Generate MSW mock handlers from OpenAPI specifications",
   "type": "module",
   "main": "dist/index.js",

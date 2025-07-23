@@ -1,6 +1,6 @@
 {
   "name": "@smbc/mui-storybook",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Storybook stories for all MUI components across SMBC packages",
   "private": true,

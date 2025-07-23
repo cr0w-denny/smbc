@@ -1,6 +1,6 @@
 {
   "name": "@smbc/mui-applet-devtools",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "MUI development UI components for SMBC applications",
   "type": "module",
   "main": "dist/index.js",

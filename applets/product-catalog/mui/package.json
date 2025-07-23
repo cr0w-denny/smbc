@@ -1,6 +1,6 @@
 {
   "name": "@smbc/product-catalog-mui",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Material-UI React components for product catalog",
   "main": "dist/index.es.js",
   "types": "dist/index.d.ts",

@@ -1,6 +1,6 @@
 {
   "name": "@smbc/product-catalog-api",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "TypeSpec API definition for product catalog",
   "main": "dist/@typespec/openapi3/openapi.json",
   "type": "module",

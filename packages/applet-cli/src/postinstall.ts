@@ -19,13 +19,36 @@ import { spawn } from 'child_process';
 // Check if we're running in a monorepo context (skip if we're in a generated host app)
 const isInMonorepo = (() => {
   try {
+    // First check if current package.json has workspaces (we're at repo root)
     const packageJsonPath = resolve(process.cwd(), 'package.json');
     if (existsSync(packageJsonPath)) {
       const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+      
       // If this is a generated host app, don't skip
       if (packageJson.smbc?.host) {
         return false;
       }
+      
+      // If this package.json has workspaces, we're in monorepo root
+      if (packageJson.workspaces) {
+        return true;
+      }
+    }
+    
+    // Check if we're in a workspace package by looking for workspace root
+    let currentDir = process.cwd();
+    while (currentDir !== '/' && currentDir !== '') {
+      const parentPackageJson = resolve(currentDir, '..', 'package.json');
+      if (existsSync(parentPackageJson)) {
+        const parentJson = JSON.parse(readFileSync(parentPackageJson, 'utf8'));
+        if (parentJson.workspaces) {
+          return true;
+        }
+      }
+      currentDir = resolve(currentDir, '..');
+      
+      // Safety check to avoid infinite loop
+      if (currentDir === resolve(currentDir, '..')) break;
     }
     
     // Look for SMBC monorepo by checking for packages/applet-core
@@ -256,7 +279,7 @@ async function setupApplets(): Promise<void> {
 }
 
 function generateMinimalConfig(framework: string): string {
-  return `import type { RoleConfig, AppletMount } from "@smbc/applet-core";
+  return `import type { RoleConfig, AppletMount, User } from "@smbc/applet-core";
 import {
   createPermissionRequirements,
   generatePermissionMappings,
@@ -393,7 +416,7 @@ ${permMappings}
   }),`;
   }).join('\n');
   
-  return `import type { RoleConfig, AppletMount } from "@smbc/applet-core";
+  return `import type { RoleConfig, AppletMount, User } from "@smbc/applet-core";
 import {
   createPermissionRequirements,
   generatePermissionMappings,

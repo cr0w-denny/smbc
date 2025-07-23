@@ -1,6 +1,6 @@
 {
   "name": "@smbc/usage-stats-mui",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Usage Stats MUI Applet",
   "type": "module",
   "main": "dist/index.js",

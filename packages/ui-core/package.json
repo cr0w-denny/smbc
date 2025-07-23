@@ -1,6 +1,6 @@
 {
   "name": "@smbc/ui-core",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Framework-agnostic UI core primitives for SMBC applications (design tokens, types, etc.)",
   "main": "dist/index.js",

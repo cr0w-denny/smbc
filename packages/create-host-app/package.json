@@ -1,6 +1,6 @@
 {
   "name": "@smbc/create-host-app",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Create a new SMBC host application",
   "type": "module",
   "bin": "./index.mjs",

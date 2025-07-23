@@ -1,6 +1,6 @@
 {
   "name": "@smbc/user-management-mui",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "User management applet for MUI hosts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

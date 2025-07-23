@@ -1,6 +1,6 @@
 {
   "name": "@smbc/dataview",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "React Query-based DataView for CRUD operations",
   "type": "module",
   "main": "dist/index.js",
