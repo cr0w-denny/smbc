@@ -12,11 +12,16 @@ VERDACCIO_DIR="$SCRIPT_DIR"
 echo "🚀 Starting Verdaccio local registry..."
 echo "📁 Working directory: $VERDACCIO_DIR"
 
-echo "🧹 Resetting registry storage..."
-rm -rf "$VERDACCIO_DIR/storage"
-rm -f "$VERDACCIO_DIR/htpasswd"
-rm -f "$VERDACCIO_DIR/.verdaccio-db.json"
-echo "✅ Registry storage cleared"
+# Check if we should reset the registry (--reset flag)
+RESET_FLAG=false
+if [ "$1" = "--reset" ]; then
+    echo "🧹 Resetting registry storage..."
+    rm -rf "$VERDACCIO_DIR/storage"
+    rm -f "$VERDACCIO_DIR/htpasswd"
+    rm -f "$VERDACCIO_DIR/.verdaccio-db.json"
+    echo "✅ Registry storage cleared"
+    RESET_FLAG=true
+fi
 
 # Create storage directory if it doesn't exist
 mkdir -p "$VERDACCIO_DIR/storage"

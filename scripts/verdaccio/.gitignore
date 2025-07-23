@@ -1,0 +1,4 @@
+# Verdaccio runtime files
+storage/
+htpasswd
+.verdaccio-db.json
