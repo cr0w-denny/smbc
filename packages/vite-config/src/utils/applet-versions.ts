@@ -2,6 +2,37 @@ import fs from "fs";
 import path from "path";
 
 /**
+ * Helper function to find the version of a workspace package
+ */
+function getWorkspacePackageVersion(packageName: string, hostPackageJsonPath: string): string | null {
+  const hostDir = path.dirname(hostPackageJsonPath);
+  
+  // Look for applet workspace packages
+  const packageNameWithoutScope = packageName.replace('@smbc/', '');
+  const possiblePaths = [
+    // applets/package-name/mui/package.json (for MUI applets)  
+    path.join(hostDir, 'applets', packageNameWithoutScope.replace('-mui', ''), 'mui', 'package.json'),
+    // applets/package-name/api/package.json (for API packages)
+    path.join(hostDir, 'applets', packageNameWithoutScope.replace('-api', ''), 'api', 'package.json'),
+  ];
+  
+  for (const possiblePath of possiblePaths) {
+    try {
+      if (fs.existsSync(possiblePath)) {
+        const packageJson = JSON.parse(fs.readFileSync(possiblePath, 'utf-8'));
+        if (packageJson.name === packageName && packageJson.version) {
+          return packageJson.version;
+        }
+      }
+    } catch (error) {
+      // Continue to next path
+    }
+  }
+  
+  return null;
+}
+
+/**
  * Reads package.json and extracts versions for @smbc packages
  * Returns an object that can be injected as a global constant
  */
@@ -15,8 +46,16 @@ export function getAppletVersions(packageJsonPath?: string): Record<string, stri
     // Extract versions for all @smbc packages
     const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies };
     for (const [pkg, version] of Object.entries(allDeps)) {
-      if (pkg.startsWith("@smbc/") && typeof version === "string" && version !== "*") {
-        appletVersions[pkg] = version.replace(/^[\^~]/, "");
+      if (pkg.startsWith("@smbc/") && typeof version === "string") {
+        if (version === "*") {
+          // For workspace packages with "*", try to read their actual version
+          const workspaceVersion = getWorkspacePackageVersion(pkg, resolvedPath);
+          if (workspaceVersion) {
+            appletVersions[pkg] = workspaceVersion;
+          }
+        } else {
+          appletVersions[pkg] = version.replace(/^[\^~]/, "");
+        }
       }
     }
     
