@@ -19,12 +19,12 @@ uplinks:
     fail_timeout: 5m
 
 packages:
-  # @smbc packages - only serve locally
+  # @smbc packages - only serve locally, no proxy
   '@smbc/*':
     access: $all
     publish: $all
     unpublish: $all
-    proxy: npmjs
+    # No proxy - these packages only exist locally
 
   # all other packages proxy to npmjs
   '**':
@@ -66,4 +66,4 @@ server:
 
 # publishing settings
 publish:
-  allow_offline: false
+  allow_offline: true
