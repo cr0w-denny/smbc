@@ -1,7 +1,7 @@
 import { defineConfig, mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { suppressUseClientWarnings } from "../../scripts/vite/suppress-warnings.ts";
+import { suppressUseClientWarnings, injectAppletVersions } from "@smbc/vite-config";
 import { sharedViteConfig } from "../../vite.shared.config.ts";
 
 // https://vitejs.dev/config/
@@ -36,6 +36,7 @@ export default defineConfig(({ mode }) => {
     define: {
       ...envConfig.define,
       ...productionDefines,
+      ...injectAppletVersions(),
       // Define environment flags for conditional imports
       __DEV__: !isProduction,
       __ENABLE_API_DOCS__:
@@ -46,6 +47,7 @@ export default defineConfig(({ mode }) => {
         // Point to source files for HMR during development
         "@smbc/mui-components": path.resolve(__dirname, "../../packages/mui-components/src"),
         "@smbc/applet-core": path.resolve(__dirname, "../../packages/applet-core/src"),
+        "@smbc/applet-host": path.resolve(__dirname, "../../packages/applet-host/src"),
         "@smbc/mui-applet-core": path.resolve(__dirname, "../../packages/mui-applet-core/src"),
         "@smbc/mui-applet-devtools": path.resolve(__dirname, "../../packages/mui-applet-devtools/src"),
         "@smbc/dataview": path.resolve(__dirname, "../../packages/dataview/src"),
@@ -94,6 +96,7 @@ export default defineConfig(({ mode }) => {
       exclude: [
         // Core packages
         "@smbc/applet-core",
+        "@smbc/applet-host",
         "@smbc/mui-applet-core",
         "@smbc/mui-components",
         "@smbc/mui-applet-devtools",

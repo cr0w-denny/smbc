@@ -26,7 +26,7 @@
     "@smbc/dataview": "*",
     "@smbc/ui-core": "*",
     "@smbc/usage-stats-mui": "*",
-    "@smbc/user-management-mui": "*",
+    "@smbc/user-management-mui": "1.0.0",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",
     "msw": "^2.2.0",

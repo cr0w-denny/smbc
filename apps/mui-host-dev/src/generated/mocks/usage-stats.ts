@@ -36,8 +36,8 @@ function initializeUsageStatsExceptionObjDataStore() {
   
   items.forEach((item, index) => {
     // Ensure each item has a consistent ID
-    if (!item.id) item.id = String(index + 1);
-    usagestatsexceptionobjDataStore.set(item.id, item);
+    if (!(item as any).id) (item as any).id = String(index + 1);
+    usagestatsexceptionobjDataStore.set((item as any).id, item);
   });
   
   usagestatsexceptionobjDataInitialized = true;
@@ -67,8 +67,8 @@ function initializeUsageStatsComponentObjDataStore() {
   
   items.forEach((item, index) => {
     // Ensure each item has a consistent ID
-    if (!item.id) item.id = String(index + 1);
-    usagestatscomponentobjDataStore.set(item.id, item);
+    if (!(item as any).id) (item as any).id = String(index + 1);
+    usagestatscomponentobjDataStore.set((item as any).id, item);
   });
   
   usagestatscomponentobjDataInitialized = true;
@@ -99,8 +99,8 @@ function initializeUsageStatsUserObjDataStore() {
   
   items.forEach((item, index) => {
     // Ensure each item has a consistent ID
-    if (!item.id) item.id = String(index + 1);
-    usagestatsuserobjDataStore.set(item.id, item);
+    if (!(item as any).id) (item as any).id = String(index + 1);
+    usagestatsuserobjDataStore.set((item as any).id, item);
   });
   
   usagestatsuserobjDataInitialized = true;

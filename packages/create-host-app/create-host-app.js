@@ -47,6 +47,7 @@ const TEMPLATES = {
         ],
         devDependencies: [
             '@smbc/applet-cli',
+            '@smbc/vite-config',
             '@types/react',
             '@types/react-dom',
             '@vitejs/plugin-react',
@@ -101,10 +102,25 @@ const DEMO_USER = {
   },
 };
 
+// Global constant injected by Vite at build time
+declare const __APPLET_VERSIONS__: Record<string, string>;
+
 export function App() {
+  // Add version info to all applets based on their packageName
+  const appletsWithVersions = APPLETS.map((applet) => {
+    const version = applet.packageName && __APPLET_VERSIONS__[applet.packageName] 
+      ? __APPLET_VERSIONS__[applet.packageName]
+      : (applet.version || "");
+    
+    return {
+      ...applet,
+      version,
+    };
+  });
+
   return (
     <MuiHostApp
-      applets={APPLETS}
+      applets={appletsWithVersions}
       roleConfig={ROLE_CONFIG}
       demoUser={DEMO_USER}
       appName="My Host App"
@@ -289,9 +305,10 @@ export default defineConfig({
 const VITE_CONFIG_MUI_DEVTOOLS = `import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { suppressUseClientWarnings, injectAppletVersions } from "@smbc/vite-config";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), suppressUseClientWarnings()],
   server: {
     port: 3000,
     open: true,
@@ -300,6 +317,7 @@ export default defineConfig({
     },
   },
   define: {
+    ...injectAppletVersions(),
     // Allow disabling MSW via environment variable
     "import.meta.env.VITE_DISABLE_MSW": process.env.VITE_DISABLE_MSW
       ? JSON.stringify(process.env.VITE_DISABLE_MSW)

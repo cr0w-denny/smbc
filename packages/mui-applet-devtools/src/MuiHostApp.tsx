@@ -108,7 +108,6 @@ const createDefaultQueryClient = () =>
 function AppWithEnvironment({
   applets,
   roleConfig,
-  demoUser,
   appName,
   drawerWidth = 240,
   permissionMapping,
@@ -268,7 +267,12 @@ function AppContentWithQueryAccess({
   showAppletHeading = false,
 }: Pick<
   MuiHostAppProps,
-  "applets" | "roleConfig" | "appName" | "drawerWidth" | "permissionMapping" | "showAppletHeading"
+  | "applets"
+  | "roleConfig"
+  | "appName"
+  | "drawerWidth"
+  | "permissionMapping"
+  | "showAppletHeading"
 >) {
   const handleNavigate = (url: string) => {
     window.location.hash = url;

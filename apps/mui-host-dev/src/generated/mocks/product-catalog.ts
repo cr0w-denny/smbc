@@ -40,8 +40,8 @@ function initializeProductDataStore() {
   
   items.forEach((item, index) => {
     // Ensure each item has a consistent ID
-    if (!item.id) item.id = String(index + 1);
-    productDataStore.set(item.id, item);
+    if (!(item as any).id) (item as any).id = String(index + 1);
+    productDataStore.set((item as any).id, item);
   });
   
   productDataInitialized = true;
@@ -116,11 +116,21 @@ export const handlers = [
     
     return HttpResponse.json(newItem, { status: 201 });
   }),
-  http.get(`${mockConfig.baseUrl}/products/:id`, async ({ request: _request }) => {
+  http.get(`${mockConfig.baseUrl}/products/:id`, async ({ request, params }) => {
     await delay();
     
     
 
+    
+    // Handle single resource lookup by ID
+    const entityId = params.id as string;
+    if (entityId) {
+      const item = productDataStore.get(entityId);
+      if (!item) {
+        return HttpResponse.json({ error: 'Product not found' }, { status: 404 });
+      }
+      return HttpResponse.json(item);
+    }
     
     const allItems = getAllProducts();
     let filteredItems = allItems;

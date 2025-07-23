@@ -12,7 +12,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
-import { getApiClient } from "@smbc/applet-core";
+import { useApiClient } from "@smbc/applet-core";
 import type { components, paths } from "@smbc/user-management-api/types";
 
 type User = components["schemas"]["User"];
@@ -46,6 +46,8 @@ export const UserProfile: FC<UserProfileProps> = ({
   user: providedUser,
   onBack,
 }) => {
+  const apiClient = useApiClient<paths>("user-management");
+  
   // Use React Query to fetch user data if not provided
   const {
     data: fetchedUser,
@@ -54,7 +56,7 @@ export const UserProfile: FC<UserProfileProps> = ({
   } = useQuery({
     queryKey: ['user', userId || 'current'],
     queryFn: async () => {
-      const result = await getApiClient<paths>("user-management").GET("/users/{id}", {
+      const result = await apiClient.GET("/users/{id}", {
         params: { path: { id: userId || "current" } },
       });
       

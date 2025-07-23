@@ -40,8 +40,8 @@ function initializeUserDataStore() {
   
   items.forEach((item, index) => {
     // Ensure each item has a consistent ID
-    if (!item.id) item.id = String(index + 1);
-    userDataStore.set(item.id, item);
+    if (!(item as any).id) (item as any).id = String(index + 1);
+    userDataStore.set((item as any).id, item);
   });
   
   userDataInitialized = true;
@@ -94,7 +94,7 @@ export const handlers = [
     }
     if (isAdmin !== null && isAdmin !== '') {
       filteredItems = filteredItems.filter((item: any) => 
-        item.isAdmin?.toString() === isAdmin
+        item.isAdmin?.toString().toLowerCase() === isAdmin.toLowerCase()
       );
     }
     if (email !== null && email !== '') {
@@ -160,11 +160,21 @@ export const handlers = [
     
     return HttpResponse.json(newItem, { status: 201 });
   }),
-  http.get(`${mockConfig.baseUrl}/users/:id`, async ({ request: _request }) => {
+  http.get(`${mockConfig.baseUrl}/users/:id`, async ({ request, params }) => {
     await delay();
     
     
 
+    
+    // Handle single resource lookup by ID
+    const entityId = params.id as string;
+    if (entityId) {
+      const item = userDataStore.get(entityId);
+      if (!item) {
+        return HttpResponse.json({ error: 'User not found' }, { status: 404 });
+      }
+      return HttpResponse.json(item);
+    }
     
     const allItems = getAllUsers();
     let filteredItems = allItems;

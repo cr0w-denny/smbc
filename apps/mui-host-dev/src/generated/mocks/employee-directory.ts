@@ -18,7 +18,7 @@ function generateEmployee(overrides = {}) {
     id: faker.string.uuid(),
     name: faker.person.fullName(),
     email: faker.helpers.unique(() => faker.internet.email()),
-    department: faker.helpers.arrayElement(["Engineering","Marketing","Sales","HR","Finance","Operations","Legal","IT","Customer Support"]),
+    department: faker.helpers.arrayElement(["Customer Support","Engineering","Finance","HR","IT","Legal","Marketing","Operations","Sales"]),
     role: faker.person.jobTitle(),
     active: faker.datatype.boolean({ probability: 0.9 }),
     ...overrides
@@ -36,8 +36,8 @@ function initializeEmployeeDataStore() {
   
   items.forEach((item, index) => {
     // Ensure each item has a consistent ID
-    if (!item.id) item.id = String(index + 1);
-    employeeDataStore.set(item.id, item);
+    if (!(item as any).id) (item as any).id = String(index + 1);
+    employeeDataStore.set((item as any).id, item);
   });
   
   employeeDataInitialized = true;
@@ -112,11 +112,21 @@ export const handlers = [
     
     return HttpResponse.json(newItem, { status: 201 });
   }),
-  http.get(`${mockConfig.baseUrl}/employees/:id`, async ({ request: _request }) => {
+  http.get(`${mockConfig.baseUrl}/employees/:id`, async ({ request, params }) => {
     await delay();
     
     
 
+    
+    // Handle single resource lookup by ID
+    const entityId = params.id as string;
+    if (entityId) {
+      const item = employeeDataStore.get(entityId);
+      if (!item) {
+        return HttpResponse.json({ error: 'Employee not found' }, { status: 404 });
+      }
+      return HttpResponse.json(item);
+    }
     
     const allItems = getAllEmployees();
     let filteredItems = allItems;

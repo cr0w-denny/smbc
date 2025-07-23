@@ -342,9 +342,12 @@ ${handlers.map((h) => `  ${h}`).join(",\n")}
     );
 
     const hasDiscrimination = responseDiscrimination.trim().length > 0;
+    const hasPathParams = path.includes("{");
     const needsUrl = usedParams.length > 0 || hasDiscrimination;
-    const requestDestructure = needsUrl
-      ? "{ request }"
+    const requestParam = "request";
+    const paramsParam = hasPathParams ? ", params" : "";
+    const requestDestructure = needsUrl || hasPathParams
+      ? `{ ${requestParam}${paramsParam} }`
       : "{ request: _request }";
 
     return `http.get(\`\${mockConfig.baseUrl}${mswPath}\`, async (${requestDestructure}) => {
@@ -356,7 +359,17 @@ ${handlers.map((h) => `  ${h}`).join(",\n")}
         : ""
     }
     
-${paramExtraction}
+${paramExtraction}${hasPathParams ? `
+    
+    // Handle single resource lookup by ID
+    const entityId = params.id as string;
+    if (entityId) {
+      const item = ${dataStoreSchemaName.toLowerCase()}DataStore.get(entityId);
+      if (!item) {
+        return HttpResponse.json({ error: '${dataStoreSchemaName} not found' }, { status: 404 });
+      }
+      return HttpResponse.json(item);
+    }` : ""}
     
     const allItems = getAll${dataStoreSchemaName}s();
     let filteredItems = allItems;

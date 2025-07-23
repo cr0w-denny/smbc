@@ -28,3 +28,4 @@ export { useRoleManagement } from "./hooks/useRoleManagement";
 export { getAllRoutes, getCurrentApplet } from "./utils/applet-utils";
 export { mountApplet, mountApplets } from "./utils/mounting";
 export { configureApplets, getAppletConfig, getAllApplets } from "./utils/applet-registry";
+export { getPackageVersion } from "./utils/get-package-version";

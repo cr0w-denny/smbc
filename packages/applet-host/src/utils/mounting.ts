@@ -50,7 +50,6 @@ export function mountApplet(
     apiSpec?: any;
     permissions?: any;
     getHostNavigation?: any;
-    version?: string;
   },
   config: {
     id: string;
@@ -59,7 +58,6 @@ export function mountApplet(
     icon?: any;
     permissions?: any[];
     apiBaseUrl?: string;
-    version?: string;
     filterable?: boolean;
     packageName?: string | false;
   },
@@ -82,20 +80,21 @@ export function mountApplet(
       name: applet.apiSpec.name,
       spec: {
         ...applet.apiSpec.spec,
-        servers: existingServers.map((existing: any) =>
-          overrideMap.get(existing.description) || existing,
+        servers: existingServers.map(
+          (existing: any) => overrideMap.get(existing.description) || existing,
         ),
       },
     };
   }
+
+  const finalPackageName = config.packageName ?? `@smbc/${config.id}-mui`;
 
   return {
     id: config.id,
     label: config.label,
     apiSpec: finalApiSpec,
     apiBaseUrl: config.apiBaseUrl,
-    version: config.version,
-    packageName: config.packageName ?? `@smbc/${config.id}-mui`, // Use provided packageName or auto-generate
+    packageName: finalPackageName,
     filterable: config.filterable,
     getHostNavigation: applet.getHostNavigation,
     routes: [
@@ -177,8 +176,7 @@ export function mountApplets(
       label: config.label,
       path: config.path,
       icon: config.icon,
-      permissions: [], // Will be handled by permission requirements
-      version: config.applet.version || "0.0.0",
+      permissions: [],
     });
   }
 

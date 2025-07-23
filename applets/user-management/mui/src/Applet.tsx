@@ -86,12 +86,23 @@ export const Applet: FC<AppletProps> = ({
     }
   };
 
+  // Calculate active tab value based on current path
+  const getActiveTabValue = () => {
+    if (path.startsWith("/profile/")) {
+      return "/"; // Profile pages show User Management tab as active
+    }
+    if (path === "/analytics") {
+      return "/analytics";
+    }
+    return "/"; // Default to User Management tab
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Navigation */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <Tabs
-          value={path}
+          value={getActiveTabValue()}
           onChange={(_, newValue) => navigate(newValue)}
         >
           <Tab label="User Management" value="/" />

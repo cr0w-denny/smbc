@@ -159,7 +159,6 @@ export const APPLETS: AppletMount[] = [
     path: "/hello",
     icon: LanguageIcon,
     permissions: [helloApplet.permissions.VIEW_ROUTE_ONE],
-    version: "1.0.0",
     filterable: false,
   }),
 
@@ -168,7 +167,6 @@ export const APPLETS: AppletMount[] = [
     id: "user-management",
     label: "User Management",
     apiSpec: userManagementApplet.apiSpec,
-    version: "1.0.0",
     packageName: "@smbc/user-management-mui",
     routes: [
       {
@@ -188,7 +186,6 @@ export const APPLETS: AppletMount[] = [
     id: "admin-users",
     label: "Admin Users",
     apiSpec: userManagementApplet.apiSpec,
-    version: "1.0.0",
     packageName: "@smbc/user-management-mui",
     routes: [
       {
@@ -206,7 +203,6 @@ export const APPLETS: AppletMount[] = [
     path: "/product-catalog",
     icon: InventoryIcon,
     permissions: [productCatalogApplet.permissions.VIEW_PRODUCTS],
-    version: "1.0.0",
   }),
   mountApplet(employeeDirectoryApplet, {
     id: "employee-directory",
@@ -214,7 +210,6 @@ export const APPLETS: AppletMount[] = [
     path: "/employees",
     icon: BadgeIcon,
     permissions: [employeeDirectoryApplet.permissions.VIEW_EMPLOYEES],
-    version: "1.0.0",
   }),
   mountApplet(
     usageStatsApplet,
@@ -224,7 +219,6 @@ export const APPLETS: AppletMount[] = [
       path: "/usage-stats",
       icon: AnalyticsIcon,
       permissions: [usageStatsApplet.permissions.VIEW_USAGE_STATS],
-      version: "1.0.0",
     },
     [{ url: "http://localhost:8003/api/v1", description: "dev" }],
   ),
@@ -234,7 +228,6 @@ export const APPLETS: AppletMount[] = [
     path: "/demo-tasks",
     icon: TaskIcon,
     permissions: [],
-    version: "0.0.0",
     packageName: false,
   }),
   mountApplet(filterDemoApplet, {
@@ -243,7 +236,6 @@ export const APPLETS: AppletMount[] = [
     path: "/filter-demo",
     icon: FilterAltIcon,
     permissions: [],
-    version: "0.0.0",
     packageName: false,
   }),
 ];
