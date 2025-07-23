@@ -31,7 +31,7 @@ echo "🔄 Configuring local registry..."
 echo "🔑 Checking authentication..."
 if ! npm whoami --registry="$REGISTRY_URL" > /dev/null 2>&1; then
     echo "⚠️  Not authenticated. Please run: npm adduser --registry=$REGISTRY_URL"
-    echo "   Use any username/password/email - it's just for local development"
+    echo "   Use: dev/dev/dev@example.com"
     exit 1
 fi
 
