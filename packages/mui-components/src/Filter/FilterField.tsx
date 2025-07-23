@@ -20,6 +20,24 @@ import { SearchInput } from "../SearchInput";
 import type { FilterFieldConfig } from "./types";
 import { parseDate, formatDate } from "./utils/dateUtils";
 
+/**
+ * Normalize options to ensure they are in { label, value } format
+ */
+function normalizeOptions(options?: FilterFieldConfig['options']) {
+  if (!options) return [];
+  
+  // If it's already an array of objects, return as-is
+  if (options.length > 0 && typeof options[0] === 'object' && 'label' in options[0]) {
+    return options as Array<{ label: string; value: any }>;
+  }
+  
+  // If it's an array of strings, convert to { label, value } objects
+  return (options as string[]).map(option => ({ 
+    label: option, 
+    value: option 
+  }));
+}
+
 export interface FilterFieldProps {
   field: FilterFieldConfig;
   value: any;
@@ -69,7 +87,9 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         </Box>
       );
 
-    case "select":
+    case "select": {
+      const normalizedOptions = normalizeOptions(field.options);
+      
       return (
         <FormControl {...commonProps} sx={{ minWidth: 120 }}>
           <InputLabel shrink={true}>{field.label}</InputLabel>
@@ -85,16 +105,16 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             renderValue={(selected) => {
               // Handle undefined/null as the first option (usually "All")
               if (selected === "" || selected === undefined || selected === null) {
-                const firstOption = field.options?.[0];
+                const firstOption = normalizedOptions[0];
                 return firstOption?.label || "All";
               }
-              const option = field.options?.find(
+              const option = normalizedOptions.find(
                 (opt) => opt.value === selected,
               );
               return option?.label || selected;
             }}
           >
-            {field.options?.map((option) => (
+            {normalizedOptions.map((option) => (
               <MenuItem 
                 key={option.value ?? ""} 
                 value={option.value ?? ""}
@@ -106,6 +126,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           {error && <FormHelperText error>{error}</FormHelperText>}
         </FormControl>
       );
+    }
 
     case "number":
       return (

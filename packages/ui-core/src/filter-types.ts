@@ -17,7 +17,7 @@ export interface FilterFieldConfig {
     | "daterange"
     | "datetime";
   placeholder?: string;
-  options?: Array<{ label: string; value: any }>;
+  options?: Array<{ label: string; value: any }> | string[];
   defaultValue?: any;
   required?: boolean;
   disabled?: boolean;

@@ -35,6 +35,25 @@ import type {
   DataViewPaginationProps,
   DataViewCreateButtonProps,
 } from "@smbc/dataview";
+import type { DataField } from "@smbc/dataview";
+
+/**
+ * Normalize options to ensure they are in { label, value } format
+ */
+function normalizeOptions(options?: DataField['options']) {
+  if (!options) return [];
+  
+  // If it's already an array of objects, return as-is
+  if (options.length > 0 && typeof options[0] === 'object' && 'label' in options[0]) {
+    return options as Array<{ label: string; value: any }>;
+  }
+  
+  // If it's an array of strings, convert to { label, value } objects
+  return (options as string[]).map(option => ({ 
+    label: option, 
+    value: option 
+  }));
+}
 
 // MUI-specific table component
 function MuiDataTable<T extends Record<string, any>>({
@@ -378,6 +397,8 @@ function MuiDataForm<T extends Record<string, any>>({
             }
 
             if (field.type === "select") {
+              const normalizedOptions = normalizeOptions(field.options);
+              
               return (
                 <FormControl
                   key={field.name}
@@ -410,7 +431,7 @@ function MuiDataForm<T extends Record<string, any>>({
                       },
                     }}
                   >
-                    {(field as any).options?.map((option: any) => (
+                    {normalizedOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {option.label}
                       </MenuItem>

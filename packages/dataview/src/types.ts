@@ -5,7 +5,7 @@ export interface DataField {
   label?: string;
   required?: boolean;
   validation?: any; // Can be extended for specific validation rules
-  options?: Array<{ label: string; value: any }>; // For select fields
+  options?: Array<{ label: string; value: any }> | string[]; // For select fields - can be string array for convenience
 }
 
 // Schema definition for the data type

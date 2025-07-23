@@ -26,11 +26,15 @@ export const createFormsConfig = (permissions: {
             label: "Department",
             required: true,
             options: [
-              { label: "Engineering", value: "engineering" },
-              { label: "Sales", value: "sales" },
-              { label: "Marketing", value: "marketing" },
-              { label: "HR", value: "hr" },
-              { label: "Finance", value: "finance" },
+              "Customer Support",
+              "Engineering", 
+              "Finance",
+              "HR",
+              "IT",
+              "Legal",
+              "Marketing",
+              "Operations",
+              "Sales"
             ],
           },
           {
@@ -72,11 +76,15 @@ export const createFormsConfig = (permissions: {
             label: "Department",
             required: true,
             options: [
-              { label: "Engineering", value: "engineering" },
-              { label: "Sales", value: "sales" },
-              { label: "Marketing", value: "marketing" },
-              { label: "HR", value: "hr" },
-              { label: "Finance", value: "finance" },
+              "Customer Support",
+              "Engineering", 
+              "Finance",
+              "HR",
+              "IT",
+              "Legal",
+              "Marketing",
+              "Operations",
+              "Sales"
             ],
           },
           {

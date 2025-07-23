@@ -204,11 +204,18 @@ function generateAppletMocks(
 
     // Create the command to generate mocks using the OpenAPI spec file
     const command = baseUrl 
-      ? `npx @smbc/openapi-msw generate --input ${specPath} --output ${outputPath} --base-url ${baseUrl}`
-      : `npx @smbc/openapi-msw generate --input ${specPath} --output ${outputPath}`;
+      ? `npx @smbc/openapi-msw generate --input "${specPath}" --output "${outputPath}" --base-url "${baseUrl}"`
+      : `npx @smbc/openapi-msw generate --input "${specPath}" --output "${outputPath}"`;
 
     console.log(`   Running: ${command}`);
-    execSync(command, { stdio: "inherit", cwd: CWD });
+    
+    // Set environment variable to prevent Git Bash path conversion
+    const env = { 
+      ...process.env, 
+      MSYS_NO_PATHCONV: '1'  // Prevents Git Bash from converting Unix paths
+    };
+    
+    execSync(command, { stdio: "inherit", cwd: CWD, env });
 
     console.log(`✅ Generated mocks for ${appletId} at ${outputPath}`);
     return { appletId, outputPath, packageName: apiPackage.packageName };
