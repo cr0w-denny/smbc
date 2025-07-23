@@ -87,7 +87,10 @@ async function ensureTsxInstalled(): Promise<void> {
       console.log('📦 Installing tsx for TypeScript script execution...');
       
       await new Promise((resolve, reject) => {
-        const child = spawn('npm', ['install', '--save-dev', 'tsx'], { stdio: 'inherit' });
+        const child = spawn('npm', ['install', '--save-dev', 'tsx'], { 
+          stdio: 'inherit',
+          shell: true
+        });
         child.on('close', (code) => {
           if (code === 0) {
             console.log('✅ tsx installed successfully');
@@ -246,7 +249,8 @@ async function setupApplets(): Promise<void> {
       const packageNames = selectedApplets.map((applet: any) => applet.packageName);
       const installProcess = spawn(packageManager, [installCmd, ...packageNames], {
         stdio: 'inherit',
-        cwd: process.cwd()
+        cwd: process.cwd(),
+        shell: true
       });
       
       installProcess.on('close', (code) => {
