@@ -2,8 +2,13 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 import { resolve } from "path";
-import { suppressUseClientWarnings } from "../../../scripts/vite/suppress-warnings.ts";
-import { getSMBCExternals } from "../../../scripts/vite/externals.ts";
+import { 
+  suppressUseClientWarnings, 
+  getSMBCExternals,
+  REACT_EXTERNALS,
+  MUI_EXTERNALS,
+  API_EXTERNALS 
+} from "@smbc/vite-config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -23,15 +28,16 @@ export default defineConfig({
       fileName: () => "index.es.js",
     },
     rollupOptions: {
-      external: getSMBCExternals("full", [
-        "@smbc/applet-core",
-        "@smbc/ui-core",
-        "@smbc/mui-components",
-        "@smbc/mui-applet-core",
-        "@smbc/applet-query-client",
-        "@smbc/product-catalog-api",
-        "@smbc/product-catalog-client",
-      ]),
+      external: [
+        ...getSMBCExternals([
+          "@smbc/applet-query-client",
+          "@smbc/product-catalog-api",
+          "@smbc/product-catalog-client",
+        ]),
+        ...REACT_EXTERNALS,
+        ...MUI_EXTERNALS,
+        ...API_EXTERNALS,
+      ],
     },
   },
   optimizeDeps: {
