@@ -39,62 +39,70 @@ fi
 echo "🏗️  Building all packages..."
 npm run build
 
-# Function to publish a package  
+# Get all @smbc workspace packages from package-lock.json
+get_workspace_packages() {
+    local temp_script=$(mktemp)
+    cat > "$temp_script" << 'EOF'
+const fs = require('fs');
+const lockfile = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+
+// Get workspace packages that start with @smbc
+const workspaces = lockfile.packages || {};
+const smbcPackages = [];
+
+for (const [path, pkg] of Object.entries(workspaces)) {
+    if (path.startsWith('node_modules/') || path === '') continue;
+    if (pkg.name && pkg.name.startsWith('@smbc/')) {
+        smbcPackages.push({
+            name: pkg.name,
+            path: path
+        });
+    }
+}
+
+smbcPackages.forEach(p => console.log(`${p.path}:${p.name}`));
+EOF
+    
+    node "$temp_script"
+    rm "$temp_script"
+}
+
+# Function to publish a package
 publish_package() {
-    local package_dir="$1"
-    local package_json_path="$ROOT_DIR/$package_dir/package.json"
+    local package_path="$1"
+    local package_name="$2"
     
-    echo "🔍 Checking package at: $package_dir"
-    echo "📄 Looking for package.json at: $package_json_path"
+    echo "📦 Publishing $package_name from $package_path..."
+    cd "$ROOT_DIR/$package_path"
     
-    if [ ! -f "$package_json_path" ]; then
-        echo "❌ package.json not found at $package_json_path"
-        return 1
+    # Check if package.json has the correct publishConfig
+    if ! grep -q '"registry"' package.json 2>/dev/null; then
+        echo "   📝 Adding publishConfig to package.json..."
+        local temp_script=$(mktemp)
+        cat > "$temp_script" << EOF
+const fs = require('fs');
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+pkg.publishConfig = { registry: '$REGISTRY_URL' };
+fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+EOF
+        node "$temp_script"
+        rm "$temp_script"
     fi
     
-    # Convert path to Windows format for Node.js if on Windows
-    local node_path="$package_json_path"
-    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
-        node_path=$(cygpath -w "$package_json_path" 2>/dev/null || echo "$package_json_path")
-    fi
-    
-    local package_name=$(node -p "require('$node_path').name")
-    
-    if [[ $package_name == @smbc/* ]]; then
-        echo "📦 Publishing $package_name..."
-        cd "$ROOT_DIR/$package_dir"
-        
-        # Check if package.json has the correct publishConfig
-        if ! grep -q '"registry"' package.json 2>/dev/null; then
-            echo "   📝 Adding publishConfig to package.json..."
-            # Add publishConfig to package.json if it doesn't exist
-            node -e "
-                const fs = require('fs');
-                const pkg = JSON.parse(fs.readFileSync('$node_path', 'utf8'));
-                pkg.publishConfig = { registry: '$REGISTRY_URL' };
-                fs.writeFileSync('$node_path', JSON.stringify(pkg, null, 2) + '\n');
-            "
-        fi
-        
-        # Publish to local registry
-        npm publish --registry="$REGISTRY_URL" || echo "   ⚠️  $package_name may already be published"
-        cd "$ROOT_DIR" > /dev/null
-    fi
+    # Publish to local registry
+    npm publish --registry="$REGISTRY_URL" || echo "   ⚠️  $package_name may already be published"
+    cd "$ROOT_DIR" > /dev/null
 }
 
 # Find and publish all @smbc packages
-echo "🔍 Finding @smbc packages to publish..."
-echo "📁 Current directory: $(pwd)"
+echo "🔍 Reading @smbc packages from package-lock.json..."
 
-# Publish packages in dependency order
-for dir in packages/* applets/*/api applets/*/mui; do
-    if [ -d "$dir" ] && [ -f "$dir/package.json" ]; then
-        echo "📦 Found package: $dir"
-        publish_package "$dir"
-    else
-        echo "⚠️  Skipping $dir (not a directory or no package.json)"
+# Get packages from lockfile and publish them
+while IFS=':' read -r package_path package_name; do
+    if [ -n "$package_path" ] && [ -n "$package_name" ]; then
+        publish_package "$package_path" "$package_name"
     fi
-done
+done < <(get_workspace_packages)
 
 echo ""
 echo "✅ Finished publishing packages to local registry"
