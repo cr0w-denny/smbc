@@ -15,12 +15,11 @@ export const sharedViteConfig = defineConfig({
         // Manual chunking for better caching
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'mui-vendor': ['@mui/material', '@mui/icons-material'],
+          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
           'query-vendor': ['@tanstack/react-query'],
           'devtools': ['@smbc/mui-applet-devtools'],
           'swagger-ui': ['swagger-ui-react'],
           'msw': ['msw'],
-          'emotion': ['@emotion/react', '@emotion/styled'],
         },
       },
     },
