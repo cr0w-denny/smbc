@@ -80,15 +80,6 @@ export default defineConfig(({ mode }) => {
           if (warning.loc && warning.loc.file && warning.loc.file.includes("node_modules")) return;
           warn(warning);
         },
-        output: {
-          manualChunks: (id) => {
-            // Force devtools into separate chunks for dynamic loading
-            if (id.includes("@smbc/applet-devtools") || id.includes("@smbc/mui-applet-devtools")) {
-              return "devtools";
-            }
-            // Let shared config handle the rest
-          },
-        },
       },
     },
     optimizeDeps: {

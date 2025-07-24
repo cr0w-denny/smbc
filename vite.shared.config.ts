@@ -17,6 +17,7 @@ export const sharedViteConfig = defineConfig({
           'react-vendor': ['react', 'react-dom'],
           'mui-vendor': ['@mui/material', '@mui/icons-material'],
           'query-vendor': ['@tanstack/react-query'],
+          'devtools': ['@smbc/applet-devtools', '@smbc/mui-applet-devtools'],
         },
       },
     },
