@@ -23,10 +23,6 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@smbc/applet-core": "*",
-    "@smbc/applet-host": "*",
-    "@smbc/mui-components": "*",
-    "@smbc/applet-meta": "*",
     "swagger-ui-react": "^5.26.2",
     "github-markdown-css": "^5.5.1"
   },
@@ -35,6 +31,11 @@
     "@types/react-dom": "^18.3.7",
     "@types/swagger-ui-react": "^5.18.0",
     "@vitejs/plugin-react": "^4.6.0",
+    "@smbc/applet-core": "*",
+    "@smbc/applet-host": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/applet-meta": "*",
+    "@smbc/mui-applet-core": "*",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
     "vite-plugin-dts": "^4.5.4"
@@ -46,7 +47,12 @@
     "@mui/material": "^7.2.0",
     "@tanstack/react-query": "^5.0.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
+    "@smbc/applet-host": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/applet-meta": "*"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",

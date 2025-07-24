@@ -11,17 +11,18 @@
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans": "^5.2.6",
-    "@smbc/dataview": "*",
     "ag-grid-community": "^32.0.0",
     "ag-grid-react": "^32.0.0"
   },
   "peerDependencies": {
+    "@smbc/dataview": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
+    "@smbc/dataview": "*",
     "typescript": "~5.8.3"
   },
   "files": [

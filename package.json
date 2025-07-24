@@ -11,7 +11,7 @@
     "applets/*/*"
   ],
   "scripts": {
-    "build": "turbo run build",
+    "build": "npm run build --workspace=@smbc/ui-core && turbo run build",
     "bundle:analyze": "./scripts/bundle-analyzer/analyze-bundle.ts",
     "bundle:analyze-all": "./scripts/bundle-analyzer/analyze-bundle.ts --all",
     "bundle:report": "./scripts/bundle-analyzer/analyze-bundle.ts --report",

@@ -15,14 +15,13 @@
     "preview": "vite preview",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {
-    "@smbc/applet-core": "*",
-    "@smbc/mui-applet-core": "*",
-    "@smbc/mui-components": "*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
+    "@smbc/applet-core": "*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
   },
@@ -37,7 +36,10 @@
     "ag-grid-enterprise": "^32.0.0",
     "ag-grid-react": "^32.0.0",
     "openapi-fetch": "^0.9.0",
-    "@smbc/usage-stats-api": "*"
+    "@smbc/usage-stats-api": "*",
+    "@smbc/applet-core": "*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*"
   },
   "publishConfig": {
     "registry": "http://localhost:4873"

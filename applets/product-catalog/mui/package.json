@@ -23,14 +23,14 @@
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
-  "dependencies": {
-    "@smbc/applet-core": "*",
-    "@smbc/mui-components": "*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.6.0",
+    "@smbc/applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/mui-applet-core": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.1",
@@ -48,7 +48,10 @@
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",
     "msw": "^2.2.0",
-    "@smbc/product-catalog-api": "*"
+    "@smbc/product-catalog-api": "*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
+    "@smbc/mui-components": "*"
   },
   "files": [
     "dist/**/*"

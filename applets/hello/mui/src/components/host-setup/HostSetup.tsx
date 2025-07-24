@@ -59,10 +59,10 @@ export const HostSetup: React.FC = () => {
           <CodeHighlight
             language="bash"
             code={`# Create a new host app with MUI dev tools (recommended)
-npx @smbc/applet-cli create-host-app my-host-app
+npm create @smbc/host-app my-host-app
 
 # Or create a basic host app
-npx @smbc/applet-cli create-host-app my-host-app --template basic
+npm create @smbc/host-app my-host-app -- --template basic
 
 # Navigate to your new app
 cd my-host-app

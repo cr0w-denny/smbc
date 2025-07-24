@@ -12,7 +12,6 @@
   "include": ["src"],
   "exclude": ["dist", "node_modules"],
   "references": [
-    { "path": "../ui-core" },
     { "path": "../applet-core" },
     { "path": "../applet-host" },
     { "path": "../mui-components" },

@@ -24,16 +24,16 @@
     "clean": "rm -rf dist",
     "test": "echo 'No tests configured'"
   },
-  "dependencies": {
-    "@smbc/applet-core": "*",
-    "@smbc/mui-components": "*",
-    "@smbc/dataview": "*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^20.11.17",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.6.0",
+    "@smbc/applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/dataview": "*",
+    "@smbc/mui-applet-core": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.1",
@@ -51,7 +51,11 @@
     "msw": "^2.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@smbc/user-management-api": "*"
+    "@smbc/user-management-api": "*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/applet-core": "*",
+    "@smbc/mui-components": "*",
+    "@smbc/dataview": "*"
   },
   "files": [
     "dist/**/*"
