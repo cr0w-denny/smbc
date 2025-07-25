@@ -11,12 +11,16 @@
     }
   },
   "scripts": {
-    "build": "echo 'No build needed - static files'"
+    "build": "node scripts/generate-versions.js"
   },
   "files": [
     "index.mjs",
-    "index.d.ts"
+    "index.d.ts",
+    "versions.generated.mjs"
   ],
+  "devDependencies": {
+    "glob": "^11.0.3"
+  },
   "publishConfig": {
     "registry": "http://localhost:4873",
     "access": "public"

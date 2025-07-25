@@ -13,7 +13,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@smbc/applet-meta": "*"
+    "@smbc/applet-meta": "*",
+    "glob": "^11.0.3"
   },
   "peerDependencies": {
     "@smbc/applet-meta": "*"

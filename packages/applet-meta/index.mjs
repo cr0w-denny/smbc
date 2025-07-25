@@ -50,3 +50,6 @@ export const CORE_PEER_DEPS = {
   "@mui/material": CORE_DEPS["@mui/material"],
   "@mui/icons-material": CORE_DEPS["@mui/icons-material"],
 };
+
+// Generated package versions (created at build time)
+export { SMBC_PACKAGE_VERSIONS } from "./versions.generated.mjs";
