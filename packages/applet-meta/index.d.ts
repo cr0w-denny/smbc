@@ -6,3 +6,6 @@ export const SMBC_PACKAGES: string[];
 
 // Core peer dependencies for applet components
 export const CORE_PEER_DEPS: Record<string, string>;
+
+// Generated package versions (created at build time)
+export const SMBC_PACKAGE_VERSIONS: Record<string, string>;

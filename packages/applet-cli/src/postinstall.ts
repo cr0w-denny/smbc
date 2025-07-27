@@ -15,6 +15,7 @@ import { resolve } from 'path';
 import { getAppletsByFramework } from './applet-discovery.js';
 import prompts from 'prompts';
 import { spawn } from 'child_process';
+import { SMBC_PACKAGE_VERSIONS } from '@smbc/applet-meta';
 
 // Check if we're running in a monorepo context (skip if we're in a generated host app)
 const isInMonorepo = (() => {
@@ -246,8 +247,13 @@ async function setupApplets(): Promise<void> {
       const packageManager = useYarn ? 'yarn' : 'npm';
       const installCmd = useYarn ? 'add' : 'install';
       
-      const packageNames = selectedApplets.map((applet: any) => applet.packageName);
-      const installProcess = spawn(packageManager, [installCmd, ...packageNames], {
+      // Map packages to include specific versions from applet-meta
+      const packageSpecs = selectedApplets.map((applet: any) => {
+        const version = SMBC_PACKAGE_VERSIONS[applet.packageName];
+        return version ? `${applet.packageName}@${version.replace('^', '')}` : applet.packageName;
+      });
+      
+      const installProcess = spawn(packageManager, [installCmd, ...packageSpecs], {
         stdio: 'inherit',
         cwd: process.cwd(),
         shell: true
@@ -263,7 +269,9 @@ async function setupApplets(): Promise<void> {
           console.log('');
           console.log('⚠️  Applet installation failed. You can install them manually:');
           selectedApplets.forEach((applet: any) => {
-            console.log(`   ${packageManager} ${installCmd} ${applet.packageName}`);
+            const version = SMBC_PACKAGE_VERSIONS[applet.packageName];
+            const packageSpec = version ? `${applet.packageName}@${version.replace('^', '')}` : applet.packageName;
+            console.log(`   ${packageManager} ${installCmd} ${packageSpec}`);
           });
         }
         });

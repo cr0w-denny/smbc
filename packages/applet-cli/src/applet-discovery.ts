@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
+import { SMBC_PACKAGE_VERSIONS, SMBC_PACKAGES } from '@smbc/applet-meta';
 
 export interface AppletMetadata {
   id: string;
@@ -69,76 +70,74 @@ export function getInstalledApplets(): DiscoveredApplet[] {
 
 /**
  * Search npm registry for available SMBC applets using keywords
+ * Now uses local version data from applet-meta to avoid network calls
  */
 export function getAvailableApplets(): DiscoveredApplet[] {
   try {
-    // Check which registry @smbc scope is using
-    const scopeConfig = execSync('npm config get @smbc:registry', {
-      cwd: process.cwd(),
-      encoding: 'utf-8',
-      stdio: ['ignore', 'pipe', 'ignore']
-    }).trim();
-    
-    const isLocalRegistry = scopeConfig.includes('localhost:4873');
-    const registryUrl = isLocalRegistry 
-      ? 'http://localhost:4873/-/verdaccio/data/search/smbc-applet'
-      : 'https://registry.npmjs.org/-/v1/search?text=keywords:smbc-applet%20scope:smbc';
-    
-    // Make HTTP request to registry search API
-    const searchResult = execSync(`curl -s "${registryUrl}"`, {
-      cwd: process.cwd(),
-      encoding: 'utf-8',
-      stdio: ['ignore', 'pipe', 'ignore']
-    });
-    
-    const searchData = JSON.parse(searchResult);
-    const packages = isLocalRegistry ? searchData : searchData.objects?.map((obj: any) => obj.package) || [];
-    
     const applets: DiscoveredApplet[] = [];
     
-    for (const pkg of packages) {
-      // Only process @smbc packages
-      if (!pkg.name?.startsWith('@smbc/')) {
-        continue;
-      }
-      
+    // Filter SMBC_PACKAGES for applet packages (those ending with -mui)
+    const appletPackages = SMBC_PACKAGES.filter(pkg => 
+      pkg.includes('-mui') && !pkg.includes('storybook')
+    );
+    
+    for (const packageName of appletPackages) {
       try {
-        // Get detailed package info 
-        const viewResult = execSync(`npm view ${pkg.name} --json`, {
-          cwd: process.cwd(),
-          encoding: 'utf-8',
-          stdio: ['ignore', 'pipe', 'ignore']
-        });
-        
-        const packageInfo = JSON.parse(viewResult);
-        
-        // Check if it has applet metadata
-        if (packageInfo.smbc?.applet) {
-          const metadata = packageInfo.smbc.applet;
-          applets.push({
-            packageName: pkg.name,
-            version: packageInfo.version,
-            metadata: {
-              id: metadata.id,
-              name: metadata.name,
-              description: metadata.description || pkg.description,
-              framework: metadata.framework || 'mui',
-              icon: metadata.icon,
-              path: metadata.path,
-              permissions: metadata.permissions || [],
-              exportName: metadata.exportName
-            }
-          });
+        // First check if the package is installed locally
+        const packageJsonPath = resolve(process.cwd(), 'node_modules', packageName, 'package.json');
+        if (existsSync(packageJsonPath)) {
+          const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+          
+          // Check if it has applet metadata
+          if (packageJson.smbc?.applet) {
+            const metadata = packageJson.smbc.applet;
+            applets.push({
+              packageName,
+              version: SMBC_PACKAGE_VERSIONS[packageName] || packageJson.version,
+              metadata: {
+                id: metadata.id,
+                name: metadata.name,
+                description: metadata.description || packageJson.description,
+                framework: metadata.framework || 'mui',
+                icon: metadata.icon,
+                path: metadata.path,
+                permissions: metadata.permissions || [],
+                exportName: metadata.exportName
+              }
+            });
+          }
+        } else {
+          // Package not installed locally - we know it exists from SMBC_PACKAGES
+          // but we can't access its metadata without installation
+          // Extract ID from package name (e.g., @smbc/hello-mui -> hello)
+          const match = packageName.match(/@smbc\/(.+)-mui$/);
+          if (match) {
+            const id = match[1];
+            applets.push({
+              packageName,
+              version: SMBC_PACKAGE_VERSIONS[packageName] || 'latest',
+              metadata: {
+                id,
+                name: id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, ' '),
+                description: `${id} applet (install to see full details)`,
+                framework: 'mui',
+                icon: '',
+                path: `/${id}`,
+                permissions: [],
+                exportName: 'default'
+              }
+            });
+          }
         }
       } catch (error) {
-        // Skip packages that can't be viewed
-        console.warn(`Could not get info for ${pkg.name}:`, (error as Error).message);
+        // Skip packages that can't be read
+        console.warn(`Could not read metadata for ${packageName}:`, (error as Error).message);
       }
     }
     
     return applets;
   } catch (error) {
-    console.warn('Could not search npm registry for applets:', (error as Error).message);
+    console.warn('Could not get available applets:', (error as Error).message);
     return [];
   }
 }
