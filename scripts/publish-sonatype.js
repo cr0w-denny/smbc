@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import { execSync } from "child_process";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync, unlinkSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { glob } from "glob";
 import { getPackages } from "@manypkg/get-packages";
+import os from "os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
@@ -215,11 +216,19 @@ for (const pkg of packages) {
 
       try {
         // Check current published version vs local version
-        const currentVersionCmd = `npm view ${pkg.name} version --registry ${SONATYPE_REGISTRY} 2>/dev/null || echo "NOT_FOUND"`;
-        const publishedVersion = execSync(currentVersionCmd, {
-          cwd: pkg.dir,
-          encoding: "utf8",
-        }).trim();
+        let publishedVersion = "NOT_FOUND";
+        try {
+          publishedVersion = execSync(
+            `npm view ${pkg.name} version --registry ${SONATYPE_REGISTRY}`,
+            {
+              cwd: pkg.dir,
+              encoding: "utf8",
+              stdio: ["pipe", "pipe", "ignore"], // Ignore stderr
+            },
+          ).trim();
+        } catch (error) {
+          // Package not found in registry, keep default
+        }
 
         if (
           publishedVersion !== "NOT_FOUND" &&
@@ -230,7 +239,7 @@ for (const pkg of packages) {
           );
           // Restore backup
           writeFileSync(pkg.path, readFileSync(backupPath, "utf8"));
-          execSync(`rm ${backupPath}`);
+          unlinkSync(backupPath);
           skippedCount++;
           results.skipped.push({
             name: pkg.name,
@@ -250,7 +259,9 @@ for (const pkg of packages) {
 
         // Publish
         console.log(`  📤 Publishing ${pkg.name}@${updated.version}...`);
-        execSync(`npm publish --registry ${SONATYPE_REGISTRY}`, {
+        // Use cross-platform npm command
+        const npmCmd = os.platform() === "win32" ? "npm.cmd" : "npm";
+        execSync(`${npmCmd} publish --registry ${SONATYPE_REGISTRY}`, {
           cwd: pkg.dir,
           stdio: "inherit",
           env: { ...process.env, npm_config_registry: SONATYPE_REGISTRY },
@@ -268,11 +279,11 @@ for (const pkg of packages) {
 
         // Restore original package.json
         writeFileSync(pkg.path, readFileSync(backupPath, "utf8"));
-        execSync(`rm ${backupPath}`);
+        unlinkSync(backupPath);
       } catch (publishError) {
         // Restore backup on error
         writeFileSync(pkg.path, readFileSync(backupPath, "utf8"));
-        execSync(`rm ${backupPath}`);
+        unlinkSync(backupPath);
         throw publishError;
       }
     }

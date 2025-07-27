@@ -51,6 +51,9 @@ const TEMPLATES = {
     dependencies: [
       "@smbc/applet-core",
       "@smbc/applet-host",
+      "@smbc/applet-meta",
+      "@smbc/ui-core",
+      "@smbc/dataview",
       "@mui/material",
       "@emotion/react",
       "@emotion/styled",
@@ -59,6 +62,7 @@ const TEMPLATES = {
       "react-dom",
     ],
     devDependencies: [
+      "@smbc/applet-cli",
       "@types/react",
       "@types/react-dom",
       "@vitejs/plugin-react",
@@ -72,9 +76,11 @@ const TEMPLATES = {
     dependencies: [
       "@smbc/applet-core",
       "@smbc/applet-host",
+      "@smbc/applet-meta",
       "@smbc/mui-applet-core",
       "@smbc/mui-applet-devtools",
       "@smbc/mui-components",
+      "@smbc/ui-core",
       "@smbc/dataview",
       "@smbc/openapi-msw",
       "@mui/material",
@@ -347,7 +353,6 @@ const PACKAGE_JSON_TEMPLATE = (name, template, overrides, versions) => ({
         : CORE_DEPS[dep] || "latest",
     ]),
   ),
-  ...(overrides ? { overrides } : {}),
   ...(template === "mui-devtools"
     ? {
         msw: {
@@ -355,6 +360,11 @@ const PACKAGE_JSON_TEMPLATE = (name, template, overrides, versions) => ({
         },
       }
     : {}),
+  // Add explicit overrides to help npm resolve peer dependencies on Windows
+  overrides: {
+    ...(overrides || {}),
+    "@tanstack/react-query": CORE_DEPS["@tanstack/react-query"] || "^5.0.0"
+  },
 });
 const VITE_CONFIG_BASIC = `import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
