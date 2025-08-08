@@ -47,7 +47,6 @@ export interface DataColumn<T> {
   filterable?: boolean;
   render?: (item: T) => React.ReactNode;
   width?: number | string;
-  sx?: any; // MUI sx prop for styling (kept generic to avoid framework coupling)
 }
 
 // Table action definition

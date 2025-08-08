@@ -131,7 +131,7 @@ function MuiDataTable<T extends Record<string, any>>({
               </TableCell>
             )}
             {columns.map((column) => (
-              <TableCell key={column.key} sx={(column as any).sx}>
+              <TableCell key={column.key}>
                 {column.label}
               </TableCell>
             ))}
@@ -267,7 +267,7 @@ function MuiDataTable<T extends Record<string, any>>({
                   </TableCell>
                 )}
                 {columns.map((column, colIndex) => (
-                  <TableCell key={column.key} sx={(column as any).sx}>
+                  <TableCell key={column.key}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {/* Show pending state chip on first column */}
                       {colIndex === 0 && pendingState && (

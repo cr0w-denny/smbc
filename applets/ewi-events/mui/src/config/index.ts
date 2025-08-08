@@ -4,7 +4,7 @@
 
 import { useMemo } from "react";
 import { type MuiDataViewAppletConfig } from "@smbc/mui-applet-core";
-import type { paths } from "@smbc/ewi-events-api/types";
+import type { components } from "@smbc/ewi-events-api/types";
 import {
   CheckCircle as ApproveIcon,
   Cancel as RejectIcon,
@@ -20,7 +20,7 @@ import { createSchemaConfig } from "./schema";
 import { createColumnsConfig } from "./columns";
 import { createFiltersConfig } from "./filters";
 
-type Event = paths["/api/events"]["get"]["responses"]["200"]["content"]["application/json"]["events"][0];
+type Event = components["schemas"]["Event"];
 
 export interface EventsConfigOptions {
   permissions: {

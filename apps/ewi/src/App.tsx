@@ -68,11 +68,41 @@ const AppContent: React.FC = () => {
       },
       components: {
         ...darkTheme.components,
+        MuiChip: {
+          styleOverrides: {
+            root: {
+              height: 24,
+              fontSize: "0.75rem",
+              borderRadius: 4,
+            },
+          },
+        },
         MuiToolbar: {
           styleOverrides: {
             root: {
               backgroundColor: bgColor,
               minHeight: 70,
+            },
+          },
+        },
+        MuiTabs: {
+          styleOverrides: {
+            root: {
+              backgroundColor: "#222",
+            },
+            indicator: {
+              backgroundColor: main,
+            },
+          },
+        },
+        MuiTab: {
+          styleOverrides: {
+            root: {
+              color: "#ccc",
+              "&.Mui-selected": {
+                color: "#fff",
+                backgroundColor: "#333",
+              },
             },
           },
         },
@@ -136,6 +166,8 @@ const AppContent: React.FC = () => {
         MuiButton: {
           styleOverrides: {
             root: {
+              textTransform: "none",
+              fontWeight: 500,
               borderRadius,
               "&.Mui-disabled": {
                 backgroundColor: "transparent !important",

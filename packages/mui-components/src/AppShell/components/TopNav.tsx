@@ -70,10 +70,9 @@ export const TopNav: React.FC<TopNavProps> = ({
 
   const renderNavItem = (item: NavigationItem, index: number) => {
     // Check if item is active or if any dropdown items are active
-    const isActive = item.href === currentPath || 
-                     (currentPath === '/' && item.href === '/ewi-events'); // Handle root path for Events Dashboard
+    const isActive = item.href === currentPath;
     const hasActiveChild = item.type === 'dropdown' && item.items?.some(subItem => 
-      subItem.href === currentPath || (currentPath === '/' && subItem.href === '/ewi-events'));
+      subItem.href === currentPath);
     const showActiveIndicator = isActive || hasActiveChild;
 
     switch (item.type) {
