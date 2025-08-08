@@ -36,6 +36,7 @@ import type {
   DataViewCreateButtonProps,
 } from "@smbc/dataview";
 import type { DataField } from "@smbc/dataview";
+import { RowActionsMenu } from "./RowActionsMenu";
 
 /**
  * Normalize options to ensure they are in { label, value } format
@@ -67,8 +68,9 @@ function MuiDataTable<T extends Record<string, any>>({
   transactionState,
   primaryKey = 'id' as keyof T,
   hover = false,
-  rendererConfig: _rendererConfig,
+  rendererConfig,
 }: DataViewTableProps<T, any>) {
+  console.log('MuiDataTable rendererConfig:', rendererConfig);
   if (error) {
     return <Alert severity="error">{error.message}</Alert>;
   }
@@ -237,7 +239,7 @@ function MuiDataTable<T extends Record<string, any>>({
               <TableRow
                 key={entityId || index}
                 hover={hover}
-                onClick={onRowClick ? () => onRowClick(item) : undefined}
+                onClick={onRowClick ? (event) => onRowClick(item, event) : undefined}
                 sx={{
                   cursor: onRowClick ? "pointer" : "default",
                   ...getPendingStyles(),
@@ -302,20 +304,24 @@ function MuiDataTable<T extends Record<string, any>>({
                   </TableCell>
                 ))}
                 {actions.length > 0 && (
-                  <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
-                    {actions
-                      .filter((action) => !action.hidden?.(item))
-                      .map((action) => (
-                        <IconButton
-                          key={action.key}
-                          onClick={() => action.onClick?.(item)}
-                          disabled={action.disabled?.(item)}
-                          color={action.color}
-                          size="small"
-                        >
-                          {action.icon && <action.icon />}
-                        </IconButton>
-                      ))}
+                  <TableCell align="right" sx={{ whiteSpace: "nowrap", width: 48, px: 1 }}>
+                    {rendererConfig?.useRowActionsMenu ? (
+                      <RowActionsMenu actions={actions} item={item} />
+                    ) : (
+                      actions
+                        .filter((action) => !action.hidden?.(item))
+                        .map((action) => (
+                          <IconButton
+                            key={action.key}
+                            onClick={() => action.onClick?.(item)}
+                            disabled={action.disabled?.(item)}
+                            color={action.color}
+                            size="small"
+                          >
+                            {action.icon && <action.icon />}
+                          </IconButton>
+                        ))
+                    )}
                   </TableCell>
                 )}
               </TableRow>

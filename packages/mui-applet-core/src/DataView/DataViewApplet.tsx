@@ -45,6 +45,16 @@ export interface MuiDataViewAppletProps<T extends Record<string, any>> {
   }) => void;
   /** Optional useDataView options */
   options?: UseDataViewOptions;
+  /** Optional custom action bar component */
+  ActionBarComponent?: React.ComponentType<{
+    globalActions: any[];
+    bulkActions: any[];
+    selectedItems: T[];
+    totalItems: number;
+    onClearSelection: () => void;
+    transactionState?: any;
+    primaryKey?: keyof T;
+  }>;
 }
 
 /**
@@ -84,6 +94,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   initialState,
   onStateChange,
   options,
+  ActionBarComponent,
 }: MuiDataViewAppletProps<T>) {
   console.log('🎯 MuiDataViewApplet render', { 
     enableUrlSync, 
@@ -239,7 +250,7 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       options={options}
       filterState={enableUrlSync ? filterState : undefined}
       paginationState={enableUrlSync ? paginationState : undefined}
-      ActionBarComponent={AppletActionBar}
+      ActionBarComponent={ActionBarComponent || AppletActionBar}
     />
   );
 }

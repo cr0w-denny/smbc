@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { AppletMount, HostRoute, MenuNavigationSection } from '@smbc/applet-core';
 
-export interface UseHostNavigationOptions {
+export interface UseAppletMenusOptions {
   applets: AppletMount[];
   hasAnyPermission: (appletId: string, permissions: string[]) => boolean;
   permissionMapping?: Record<string, string>;
@@ -11,31 +11,32 @@ export interface UseHostNavigationOptions {
 }
 
 /**
- * A headless hook that provides permission-filtered navigation routes for host applications.
- * Returns routes that the current user can access based on their permissions.
+ * A headless hook that generates permission-filtered menu structures from applet definitions.
+ * Transforms applet configurations into menu sections that can be consumed by UI components like TreeMenu.
  * 
  * @example
  * ```tsx
  * const { hasAnyPermission } = useRoleManagement();
- * const routes = useHostNavigation({
+ * const { menuSections } = useAppletMenus({
  *   applets,
  *   hasAnyPermission,
  *   includeRootRoute: true,
  *   rootRoute: { path: "/", label: "Dashboard", icon: DashboardIcon }
  * });
  * 
- * // Use routes to build any navigation UI
+ * // Use menuSections to build navigation UI
+ * <TreeMenu menuSections={menuSections} currentPath={path} onNavigate={navigate} />
  * ```
  */
-export function useHostNavigation({
+export function useAppletMenus({
   applets,
   hasAnyPermission,
   permissionMapping = {},
   includeRootRoute = false,
   rootRoute = { path: "/", label: "Dashboard" },
   includeInternalRoutes = false,
-}: UseHostNavigationOptions): { rootRoute?: HostRoute; menuSections: MenuNavigationSection[] } {
-  const navigationStructure = useMemo(() => {
+}: UseAppletMenusOptions): { rootRoute?: HostRoute; menuSections: MenuNavigationSection[] } {
+  const menuStructure = useMemo(() => {
     const menuSections: MenuNavigationSection[] = [];
 
     applets.forEach(applet => {
@@ -120,5 +121,5 @@ export function useHostNavigation({
     };
   }, [applets, hasAnyPermission, permissionMapping, includeRootRoute, rootRoute, includeInternalRoutes]);
 
-  return navigationStructure;
+  return menuStructure;
 }

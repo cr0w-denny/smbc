@@ -13,6 +13,15 @@ export { ActionBar } from "./ActionBar";
 export { ActivityNotifications } from "./ActivityNotifications";
 export { ActivitySnackbar } from "./ActivitySnackbar";
 
+// AppShell Menu Builder
+export { buildAppShellNavigation } from "./AppShellMenuBuilder";
+export type { 
+  AppletMenuItem,
+  TopLevelMenu,
+  AppShellMenuStructure,
+  BuildNavigationOptions,
+} from "./AppShellMenuBuilder";
+
 // Re-export MUI components from the separate package for convenience
 export { MuiDataView, MuiDataViewManager } from "@smbc/dataview-mui";
 export type { 

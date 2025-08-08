@@ -128,7 +128,7 @@ export interface DataViewTableProps<T, TRendererConfig = any> {
   actions?: RowAction<T>[];
   isLoading?: boolean;
   error?: Error | null;
-  onRowClick?: (item: T) => void;
+  onRowClick?: (item: T, event?: React.MouseEvent) => void;
   selection?: {
     enabled: boolean;
     selectedIds: (string | number)[];

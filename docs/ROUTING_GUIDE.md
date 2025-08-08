@@ -96,7 +96,7 @@ navigateTo(`/profile/${userId}`);
 
 ### Exposing Internal Navigation to Host
 
-Applets can expose their internal navigation structure to the host application. The host uses the `useHostNavigation` hook to collect and display this navigation in drawers, menus, or other UI components.
+Applets can expose their internal navigation structure to the host application. The host uses the `useAppletMenus` hook to collect and transform applet route definitions into menu structures for display in drawers, menus, or other UI components.
 
 #### Static Navigation
 

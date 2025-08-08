@@ -18,7 +18,7 @@ export { AppletHost } from "./AppletHost";
 // =============================================================================
 // HOST-SPECIFIC HOOKS
 // =============================================================================
-export { useHostNavigation } from "./hooks/useHostNavigation";
+export { useAppletMenus } from "./hooks/useAppletMenus";
 export { usePermissionFilteredRoutes } from "./hooks/usePermissionFilteredRoutes";
 export { useRoleManagement } from "./hooks/useRoleManagement";
 

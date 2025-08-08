@@ -1,0 +1,38 @@
+{
+  "name": "@smbc/ewi-events-api",
+  "version": "0.0.1",
+  "description": "TypeSpec API definition for EWI Events",
+  "main": "dist/@typespec/openapi3/openapi.json",
+  "type": "module",
+  "exports": {
+    ".": "./dist/@typespec/openapi3/openapi.json",
+    "./types": "./dist/types.ts"
+  },
+  "scripts": {
+    "build": "tsp compile . --output-dir dist && npm run generate",
+    "dev": "tsp compile . --watch --output-dir dist",
+    "lint": "echo 'No linting configured for TypeSpec'",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "test": "echo 'No tests for API schemas'",
+    "generate": "openapi-typescript dist/@typespec/openapi3/openapi.json -o dist/types.ts"
+  },
+  "dependencies": {
+    "@typespec/compiler": "^1.1.0",
+    "@typespec/http": "^1.1.0",
+    "@typespec/openapi3": "^1.1.0",
+    "@typespec/rest": "^0.71.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.0.0",
+    "typescript": "~5.8.3"
+  },
+  "files": [
+    "dist/@typespec/openapi3/openapi.json",
+    "dist/types.ts"
+  ],
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
+  }
+}

@@ -76,6 +76,4 @@ export interface FilterProps {
   onFiltersChange: (filters: FilterValues) => void;
   /** Current filter values (for controlled mode) */
   values?: FilterValues;
-  /** Additional styling */
-  sx?: any;
 }

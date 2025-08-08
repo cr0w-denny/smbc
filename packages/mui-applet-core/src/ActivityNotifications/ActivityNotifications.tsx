@@ -122,10 +122,13 @@ function ActivityListItem({ activity, onView }: ActivityListItemProps) {
 export interface ActivityNotificationsProps {
   /** Called when user clicks to view an item */
   onNavigate?: (url: string) => void;
+  /** Whether to show transaction-related features. Defaults to false. */
+  enableTransactions?: boolean;
 }
 
 export function ActivityNotifications({
   onNavigate,
+  enableTransactions = false,
 }: ActivityNotificationsProps) {
   const { activities, unviewedCount, markAsViewed, clearAll } = useActivity();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -133,12 +136,14 @@ export function ActivityNotifications({
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
 
   // Get transaction context (optional)
-  let transactionContext;
-  try {
-    transactionContext = useTransactionContext();
-  } catch {
-    // TransactionProvider not found, transactions disabled
-    transactionContext = null;
+  let transactionContext = null;
+  if (enableTransactions) {
+    try {
+      transactionContext = useTransactionContext();
+    } catch {
+      // TransactionProvider not found, transactions disabled
+      transactionContext = null;
+    }
   }
 
   // Get pending operations count from transaction context

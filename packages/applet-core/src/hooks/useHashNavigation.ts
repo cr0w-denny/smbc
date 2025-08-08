@@ -94,10 +94,18 @@ export function useHashNavigation(options: UseHashOptions = {}) {
       }
     }
     
-    // Add our params (only non-default values)
+    // Add our params (only non-default and non-empty values)
     Object.entries(newState.params).forEach(([key, value]) => {
       const defaultValue = defaultParams[key];
-      if (JSON.stringify(value) !== JSON.stringify(defaultValue) && value !== undefined) {
+      
+      // Check if value is empty
+      const isEmpty = value === undefined || 
+                     value === null || 
+                     value === "" || 
+                     (Array.isArray(value) && value.length === 0) ||
+                     (typeof value === "object" && value !== null && Object.keys(value).length === 0);
+      
+      if (!isEmpty && JSON.stringify(value) !== JSON.stringify(defaultValue)) {
         const paramKey = namespace ? `${namespace}_${key}` : key;
         const paramValue = typeof value === "object" ? JSON.stringify(value) : String(value);
         params.set(paramKey, paramValue);

@@ -5,15 +5,14 @@
 import React from "react";
 import {
   TextField,
-  Select,
   MenuItem,
-  FormControl,
-  InputLabel,
   Checkbox,
+  FormControl,
   FormControlLabel,
   FormHelperText,
   Box,
 } from "@mui/material";
+import { CustomSelect } from "../CustomSelect";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { SearchInput } from "../SearchInput";
@@ -23,18 +22,22 @@ import { parseDate, formatDate } from "./utils/dateUtils";
 /**
  * Normalize options to ensure they are in { label, value } format
  */
-function normalizeOptions(options?: FilterFieldConfig['options']) {
+function normalizeOptions(options?: FilterFieldConfig["options"]) {
   if (!options) return [];
-  
+
   // If it's already an array of objects, return as-is
-  if (options.length > 0 && typeof options[0] === 'object' && 'label' in options[0]) {
+  if (
+    options.length > 0 &&
+    typeof options[0] === "object" &&
+    "label" in options[0]
+  ) {
     return options as Array<{ label: string; value: any }>;
   }
-  
+
   // If it's an array of strings, convert to { label, value } objects
-  return (options as string[]).map(option => ({ 
-    label: option, 
-    value: option 
+  return (options as string[]).map((option) => ({
+    label: option,
+    value: option,
   }));
 }
 
@@ -89,42 +92,48 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "select": {
       const normalizedOptions = normalizeOptions(field.options);
-      
+
       return (
-        <FormControl {...commonProps} sx={{ minWidth: 120 }}>
-          <InputLabel shrink={true}>{field.label}</InputLabel>
-          <Select
+        <Box>
+          <CustomSelect
+            label={field.label}
             value={value === undefined ? "" : value}
             onChange={(e) => {
               const newValue = e.target.value;
               handleChange(newValue);
             }}
-            label={field.label}
+            size={field.size || "small"}
+            disabled={field.disabled}
+            error={!!error}
             displayEmpty
-            notched
             renderValue={(selected) => {
               // Handle undefined/null as the first option (usually "All")
-              if (selected === "" || selected === undefined || selected === null) {
+              if (
+                selected === "" ||
+                selected === undefined ||
+                selected === null
+              ) {
                 const firstOption = normalizedOptions[0];
                 return firstOption?.label || "All";
               }
               const option = normalizedOptions.find(
                 (opt) => opt.value === selected,
               );
-              return option?.label || selected;
+              return option?.label || String(selected);
+            }}
+            formControlProps={{
+              sx: { minWidth: 120 },
+              fullWidth: field.fullWidth,
             }}
           >
             {normalizedOptions.map((option) => (
-              <MenuItem 
-                key={option.value ?? ""} 
-                value={option.value ?? ""}
-              >
+              <MenuItem key={option.value ?? ""} value={option.value ?? ""}>
                 {option.label}
               </MenuItem>
             ))}
-          </Select>
+          </CustomSelect>
           {error && <FormHelperText error>{error}</FormHelperText>}
-        </FormControl>
+        </Box>
       );
     }
 
@@ -167,7 +176,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "date":
       return (
-        <Box>
+        <Box sx={{ width: 150 }}>
           <DatePicker
             label={field.label}
             value={parseDate(value, field.dateFormat)}
@@ -181,7 +190,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             slotProps={{
               textField: {
                 size: field.size || "small",
-                fullWidth: field.fullWidth,
+                fullWidth: false,
                 error: !!error,
                 helperText: error,
               },
@@ -192,21 +201,34 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "datetime":
       return (
-        <Box>
+        <Box sx={{ width: 180 }}>
           <DateTimePicker
             label={field.label}
-            value={parseDate(value, field.dateFormat || 'yyyy-MM-dd HH:mm:ss')}
+            value={parseDate(value, field.dateFormat || "yyyy-MM-dd HH:mm:ss")}
             onChange={(date: Date | null) => {
-              const formatted = formatDate(date, field.dateFormat || 'yyyy-MM-dd HH:mm:ss');
+              const formatted = formatDate(
+                date,
+                field.dateFormat || "yyyy-MM-dd HH:mm:ss",
+              );
               handleChange(formatted);
             }}
-            minDateTime={parseDate(field.minDate, field.dateFormat || 'yyyy-MM-dd HH:mm:ss') || undefined}
-            maxDateTime={parseDate(field.maxDate, field.dateFormat || 'yyyy-MM-dd HH:mm:ss') || undefined}
+            minDateTime={
+              parseDate(
+                field.minDate,
+                field.dateFormat || "yyyy-MM-dd HH:mm:ss",
+              ) || undefined
+            }
+            maxDateTime={
+              parseDate(
+                field.maxDate,
+                field.dateFormat || "yyyy-MM-dd HH:mm:ss",
+              ) || undefined
+            }
             disabled={field.disabled}
             slotProps={{
               textField: {
                 size: field.size || "small",
-                fullWidth: field.fullWidth,
+                fullWidth: false,
                 error: !!error,
                 helperText: error,
               },
@@ -217,19 +239,23 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "daterange":
       return (
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <DatePicker
             label={`${field.label} From`}
             value={parseDate(value?.from, field.dateFormat)}
             onChange={(date: Date | null) => {
               const from = formatDate(date, field.dateFormat);
-              handleChange({ 
-                ...value, 
-                from 
+              handleChange({
+                ...value,
+                from,
               });
             }}
             minDate={parseDate(field.minDate, field.dateFormat) || undefined}
-            maxDate={parseDate(value?.to, field.dateFormat) || parseDate(field.maxDate, field.dateFormat) || undefined}
+            maxDate={
+              parseDate(value?.to, field.dateFormat) ||
+              parseDate(field.maxDate, field.dateFormat) ||
+              undefined
+            }
             disabled={field.disabled}
             slotProps={{
               textField: {
@@ -243,12 +269,16 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             value={parseDate(value?.to, field.dateFormat)}
             onChange={(date: Date | null) => {
               const to = formatDate(date, field.dateFormat);
-              handleChange({ 
-                ...value, 
-                to 
+              handleChange({
+                ...value,
+                to,
               });
             }}
-            minDate={parseDate(value?.from, field.dateFormat) || parseDate(field.minDate, field.dateFormat) || undefined}
+            minDate={
+              parseDate(value?.from, field.dateFormat) ||
+              parseDate(field.minDate, field.dateFormat) ||
+              undefined
+            }
             maxDate={parseDate(field.maxDate, field.dateFormat) || undefined}
             disabled={field.disabled}
             slotProps={{

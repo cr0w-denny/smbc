@@ -1,0 +1,33 @@
+{
+  "name": "@smbc/ewi-events-mui",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "dependencies": {
+    "@smbc/mui-components": "*",
+    "@smbc/applet-core": "*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/ewi-events-api": "*",
+    "@mui/material": "^7.2.0",
+    "@tanstack/react-query": "^5.65.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.5",
+    "vite-plugin-dts": "^4.4.3"
+  },
+  "peerDependencies": {
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  }
+}

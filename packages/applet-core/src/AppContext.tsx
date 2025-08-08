@@ -19,6 +19,7 @@ interface AppContextValue {
   state: AppState;
   roleUtils: ReturnType<typeof createRoleUtilities>;
   applets: AppletMount[];
+  theme?: any; // Using any to avoid MUI dependency in applet-core
   actions: {
     setUser: (user: User | null) => void;
     setNavigation: (navigation: NavigationItem[]) => void;
@@ -36,6 +37,7 @@ interface AppletProviderProps {
   initialRoleConfig?: RoleConfig;
   appletRegistry?: Record<string, any>;
   applets?: AppletMount[];
+  theme?: any; // Using any to avoid MUI dependency in applet-core
 }
 
 export const AppletProvider: React.FC<AppletProviderProps> = ({
@@ -45,6 +47,7 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
   initialRoleConfig = { roles: ["Guest", "User"], permissionMappings: {} },
   appletRegistry = {},
   applets = [],
+  theme,
 }) => {
   const [state, setState] = useState<AppState>({
     user: initialUser,
@@ -98,6 +101,7 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
     state,
     roleUtils,
     applets,
+    theme,
     actions: {
       setUser,
       setNavigation,

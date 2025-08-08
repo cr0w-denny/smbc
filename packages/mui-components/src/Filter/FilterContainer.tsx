@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Paper,
   Box,
   Typography,
   IconButton,
@@ -47,22 +46,14 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   // If no title, render just the children without header
   if (!title) {
     return (
-      <Paper
-        elevation={1}
-        sx={{
-          p: 2,
-          mb: 2,
-          ...sx,
-        }}
-      >
+      <Box sx={sx}>
         {children}
-      </Paper>
+      </Box>
     );
   }
 
   return (
-    <Paper
-      elevation={1}
+    <Box
       sx={{
         p: 2,
         mb: 2,
@@ -136,6 +127,6 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
           {children}
         </Box>
       </Collapse>
-    </Paper>
+    </Box>
   );
 };

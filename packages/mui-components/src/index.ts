@@ -11,6 +11,15 @@ export type { SearchInputProps } from "./SearchInput";
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
 
+export { CustomSelect } from "./CustomSelect";
+export type { CustomSelectProps } from "./CustomSelect";
+
+export { default as RowDetailModal } from "./RowDetailModal";
+export type { 
+  RowDetailModalProps, 
+  TableColumn 
+} from "./RowDetailModal";
+
 
 export { TreeMenu } from "./TreeMenu";
 export type {
@@ -50,3 +59,12 @@ export const getTheme = (mode: "light" | "dark" = "light") => {
       return lightTheme;
   }
 };
+
+// App Shell
+export { AppShell, UserMenu } from "./AppShell";
+export type {
+  AppShellProps,
+  NavigationItem,
+  TreeNavigationItem,
+  StatusChip,
+} from "./AppShell";

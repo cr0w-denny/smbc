@@ -24,12 +24,16 @@ export interface MuiRendererConfig {
   getActiveColumns?: (columns: any[], filters: any) => any[];
   /** Enable hover effects on table rows */
   hover?: boolean;
+  /** Use a dropdown menu for row actions instead of individual buttons */
+  useRowActionsMenu?: boolean;
 }
 
 // Generic MUI DataView management configuration
 export interface MuiDataViewManagerConfig<T>
   extends Omit<DataViewConfig<T, MuiRendererConfig>, "renderer"> {
   // Renderer is always MuiDataView for this manager
+  /** Optional callback for row clicks */
+  onRowClick?: (item: T, event?: React.MouseEvent) => void;
 }
 
 export interface MuiDataViewManagerProps<T extends Record<string, any>> {
@@ -310,13 +314,16 @@ export function MuiDataViewManager<T extends Record<string, any>>({
       ? config.rendererConfig.getActiveColumns(config.columns, dataView.filters)
       : config.columns;
 
-    return () =>
-      React.createElement(MuiDataView.TableComponent, {
+    return () => {
+      console.log('TableComponentWithActions rendering with rendererConfig:', config.rendererConfig);
+      console.log('TableComponentWithActions onRowClick:', config.onRowClick);
+      return React.createElement(MuiDataView.TableComponent, {
         data: dataView.data,
         columns: activeColumns,
         actions: processedRowActions,
         isLoading: dataView.isLoading || isTransactionExecuting,
         error: dataView.error,
+        onRowClick: config.onRowClick,
         selection: {
           enabled: true,
           selectedIds: dataView.selection.selectedIds,
@@ -326,12 +333,15 @@ export function MuiDataViewManager<T extends Record<string, any>>({
         transactionState: dataView.transactionState,
         primaryKey: config.schema.primaryKey,
         hover: config.rendererConfig?.hover || false,
+        rendererConfig: config.rendererConfig,
       });
+    };
   }, [
     dataView.data,
     dataView.filters,
     config.columns,
-    config.rendererConfig?.getActiveColumns,
+    config.rendererConfig,
+    config.onRowClick,
     processedRowActions,
     dataView.isLoading,
     dataView.error,

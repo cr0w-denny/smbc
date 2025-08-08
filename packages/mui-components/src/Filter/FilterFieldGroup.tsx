@@ -40,23 +40,25 @@ export const FilterFieldGroup: React.FC<FilterFieldGroupProps> = ({
         alignItems: "flex-start",
       }}
     >
-      {fields.map((field) => (
-        <Box
-          key={field.name}
-          sx={{
-            minWidth: field.minWidth || "auto",
-            flex: field.fullWidth ? "1 1 auto" : "0 0 auto",
-          }}
-        >
-          <FilterField
-            field={field}
-            value={values[field.name]}
-            onChange={onChange}
-            error={errors[field.name]}
-            disableDebounce={disableDebounce}
-          />
-        </Box>
-      ))}
+      {fields.map((field) => {
+        return (
+          <Box
+            key={field.name}
+            sx={{
+              minWidth: field.minWidth || "auto",
+              flex: field.fullWidth ? "1 1 auto" : "0 0 auto",
+            }}
+          >
+            <FilterField
+              field={field}
+              value={values[field.name]}
+              onChange={onChange}
+              error={errors[field.name]}
+              disableDebounce={disableDebounce}
+            />
+          </Box>
+        );
+      })}
     </Box>
   );
 };

@@ -16,7 +16,7 @@ import {
   type AppletMount,
 } from "@smbc/applet-core";
 import {
-  useHostNavigation,
+  useAppletMenus,
   useRoleManagement,
 } from "@smbc/applet-host";
 import { TreeMenu, type TreeMenuSection } from "@smbc/mui-components";
@@ -43,7 +43,7 @@ export function AppletDrawer({
   const { hasAnyPermission } = useRoleManagement();
   const [searchTerm, setSearchTerm] = React.useState("");
 
-  const { rootRoute, menuSections } = useHostNavigation({
+  const { rootRoute, menuSections } = useAppletMenus({
     applets,
     hasAnyPermission,
     permissionMapping,

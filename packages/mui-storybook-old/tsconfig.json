@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["stories/**/*", ".storybook/**/*"],
+  "exclude": ["storybook-static", "node_modules"],
+  "references": [
+    { "path": "../ui-core" },
+    { "path": "../mui-components" },
+    { "path": "../applet-core" },
+    { "path": "../mui-applet-core" },
+    { "path": "../dataview" }
+  ]
+}
