@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, CssBaseline } from "@mui/material";
+import { Box } from "@mui/material";
 import TopNav from "./components/TopNav";
 import { AppShellProps } from "./types";
 
@@ -8,7 +8,6 @@ export const AppShell: React.FC<AppShellProps> = ({
   hamburgerMenu,
   navigation,
   children,
-  theme,
   onNavigate,
   currentPath,
   isDarkMode,
@@ -19,27 +18,22 @@ export const AppShell: React.FC<AppShellProps> = ({
   activeColor,
 }) => {
   return (
-    <>
-      <CssBaseline />
-      <Box
-        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-      >
-        <TopNav
-          logo={logo}
-          hamburgerMenu={hamburgerMenu}
-          navigation={navigation}
-          onNavigate={onNavigate}
-          currentPath={currentPath}
-          isDarkMode={isDarkMode}
-          onDarkModeToggle={onDarkModeToggle}
-          username={username}
-          avatarUrl={avatarUrl}
-          right={right}
-          activeColor={activeColor}
-        />
-        <Box sx={{ flexGrow: 1 }}>{children}</Box>
-      </Box>
-    </>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <TopNav
+        logo={logo}
+        hamburgerMenu={hamburgerMenu}
+        navigation={navigation}
+        onNavigate={onNavigate}
+        currentPath={currentPath}
+        isDarkMode={isDarkMode}
+        onDarkModeToggle={onDarkModeToggle}
+        username={username}
+        avatarUrl={avatarUrl}
+        right={right}
+        activeColor={activeColor}
+      />
+      <Box sx={{ flexGrow: 1 }}>{children}</Box>
+    </Box>
   );
 };
 

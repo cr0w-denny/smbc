@@ -11,6 +11,12 @@ import { createColumnsConfig } from "../config/columns";
 
 const Events: React.FC = () => {
   const { theme } = useAppletCore();
+  console.log(
+    "Events theme mode:",
+    theme.palette.mode,
+    "bg:",
+    theme.palette.background.default,
+  );
   const { params, setParams } = useHashNavigation({
     defaultParams: {
       dateFrom: "",
@@ -47,17 +53,25 @@ const Events: React.FC = () => {
     left: number;
   }>({ top: 0, left: 0 });
 
-  // Effect to restore scroll position when modal opens (prevent jank)
+  function resetScroll() {
+    if (scrollPosition.top > 0) {
+      requestAnimationFrame(() => {
+        const tableContainer = document.querySelector(
+          ".MuiTableContainer-root",
+        ) as HTMLElement;
+        if (tableContainer) {
+          // Restore immediately without delay to prevent jank
+          tableContainer.scrollTop = scrollPosition.top;
+          tableContainer.scrollLeft = scrollPosition.left;
+        }
+      });
+    }
+  }
+
+  // Effect to restore scroll position when modal opens
   React.useEffect(() => {
-    if (selectedDetailRow && scrollPosition.top > 0) {
-      const tableContainer = document.querySelector(
-        ".MuiTableContainer-root",
-      ) as HTMLElement;
-      if (tableContainer) {
-        // Restore immediately without delay to prevent jank
-        tableContainer.scrollTop = scrollPosition.top;
-        tableContainer.scrollLeft = scrollPosition.left;
-      }
+    if (selectedDetailRow) {
+      resetScroll();
     }
   }, [selectedDetailRow]); // Only trigger on modal open, not scroll position changes
 
@@ -153,7 +167,6 @@ const Events: React.FC = () => {
     [],
   );
 
-  // Update the config to use our custom ActionBar and add row click handler
   const configWithCustomActionBar = React.useMemo(() => {
     console.log("Creating config with onRowClick");
     return {
@@ -260,8 +273,8 @@ const Events: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 1 }}>
-      {/* Filter Bar - inherits dark theme from app */}
+    <Box sx={{ bgcolor: "#1a1a1a" }}>
+      {/* Filter Bar inherits app theme */}
       <FilterBar
         values={filterValues}
         onValuesChange={setFilterValues}
@@ -270,8 +283,8 @@ const Events: React.FC = () => {
       <ThemeProvider theme={theme}>
         <Box
           sx={{
-            bgcolor: "background.default",
             minHeight: "100vh",
+            bgcolor: "background.default",
           }}
         >
           {/* filter chips and content */}
@@ -337,23 +350,16 @@ const Events: React.FC = () => {
                 permissionContext="ewi-events"
                 onSuccess={handleSuccess}
                 onError={handleError}
-                options={{
-                  transaction: {
-                    enabled: false,
-                    requireConfirmation: false,
-                    allowPartialSuccess: false,
-                    emitActivities: false,
-                  },
-                }}
                 ActionBarComponent={CustomActionBar}
               />
             </Box>
           </Box>
 
-          {/* Row Detail Modal - moved inside ThemeProvider to inherit applet theme */}
+          {/* Detail overlay */}
           <RowDetailModal
             open={!!selectedDetailRow}
             onClose={() => {
+              resetScroll();
               setSelectedDetailRow(null);
               setModalRowPosition(null);
               setColumnWidths([]);
@@ -367,40 +373,37 @@ const Events: React.FC = () => {
             showCheckbox={true}
             isChecked={isRowChecked}
             onCheckboxChange={(checked) => {
-              // Find the actual checkbox in the underlying table and click it
-              const allRows = document.querySelectorAll(
-                ".MuiTableBody-root tr",
-              );
-              let found = false;
-
-              allRows.forEach((row) => {
-                if (found) return;
-                const rect = row.getBoundingClientRect();
-                // Check if this is the row at our modal position
-                if (
-                  Math.abs(
-                    rect.top +
-                      window.pageYOffset -
-                      (modalRowPosition?.top || 0),
-                  ) < 5
-                ) {
-                  const checkbox = row.querySelector(
-                    'input[type="checkbox"]',
-                  ) as HTMLInputElement;
-                  if (checkbox) {
-                    checkbox.click();
-                    found = true;
-                    // Update state and close modal
-                    setIsRowChecked(checked);
-                    // Close the modal after checkbox action
-                    setTimeout(() => {
-                      setSelectedDetailRow(null);
-                      setModalRowPosition(null);
-                      setColumnWidths([]);
-                    }, 100);
-                  }
-                }
-              });
+              resetScroll();
+              // // Find the actual checkbox in the underlying table and click it
+              // const allRows = document.querySelectorAll(
+              //   ".MuiTableBody-root tr",
+              // );
+              // let found = false;
+              // allRows.forEach((row) => {
+              //   if (found) return;
+              //   const rect = row.getBoundingClientRect();
+              //   // Check if this is the row at our modal position
+              //   if (
+              //     Math.abs(
+              //       rect.top +
+              //         window.pageYOffset -
+              //         (modalRowPosition?.top || 0),
+              //     ) < 5
+              //   ) {
+              //     const checkbox = row.querySelector(
+              //       'input[type="checkbox"]',
+              //     ) as HTMLInputElement;
+              //     if (checkbox) {
+              //       checkbox.click();
+              //       found = true;
+              //       // Update state and close modal
+              //       setIsRowChecked(checked);
+              //       setSelectedDetailRow(null);
+              //       setModalRowPosition(null);
+              //       setColumnWidths([]);
+              //     }
+              //   }
+              // });
             }}
             hasActionsColumn={true}
           >

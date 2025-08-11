@@ -228,12 +228,14 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
               minWidth: 120,
               "&.Mui-disabled": {
                 backgroundColor: "transparent !important",
-                border: theme.palette.mode === 'dark' 
-                  ? "1px solid rgba(255, 255, 255, 0.12) !important"
-                  : "1px solid rgba(0, 0, 0, 0.12) !important",
-                color: theme.palette.mode === 'dark'
-                  ? "rgba(255, 255, 255, 0.3) !important"
-                  : "rgba(0, 0, 0, 0.26) !important",
+                border:
+                  theme.palette.mode === "dark"
+                    ? "1px solid rgba(255, 255, 255, 0.12) !important"
+                    : "1px solid rgba(0, 0, 0, 0.12) !important",
+                color:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255, 255, 255, 0.3) !important"
+                    : "rgba(0, 0, 0, 0.26) !important",
               },
             })}
           >
@@ -282,6 +284,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
         hideBackdrop
         disableScrollLock
         sx={{
+          mt: 1,
           pointerEvents: "none",
           "& .MuiPopover-root": {
             pointerEvents: "none",

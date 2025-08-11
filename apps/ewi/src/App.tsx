@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { AppShell, lightTheme, darkTheme } from "@smbc/mui-components";
 import { ActivityNotifications } from "@smbc/mui-applet-core";
@@ -213,6 +213,36 @@ const AppContent: React.FC = () => {
       },
       components: {
         ...baseTheme.components,
+        // Scrollbar styling for DataView and other content areas (only in dark mode)
+        ...(isDarkMode && {
+          MuiCssBaseline: {
+            styleOverrides: {
+              "*": {
+                scrollbarColor: "#555 #2a2a2a",
+                scrollbarWidth: "thin",
+                "&::-webkit-scrollbar": {
+                  width: "10px",
+                  height: "10px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "#2a2a2a",
+                  borderRadius: "5px",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#555",
+                  borderRadius: "5px",
+                  border: "1px solid #2a2a2a",
+                  "&:hover": {
+                    backgroundColor: "#666",
+                  },
+                },
+                "&::-webkit-scrollbar-corner": {
+                  backgroundColor: "#2a2a2a",
+                },
+              },
+            },
+          },
+        }),
         MuiOutlinedInput: {
           ...baseTheme.components?.MuiOutlinedInput,
           styleOverrides: {
@@ -360,6 +390,7 @@ const AppContent: React.FC = () => {
 
   return (
     <AppletProvider applets={APPLETS} theme={appletTheme}>
+      <CssBaseline />
       <FeatureFlagProvider
         configs={[
           {
