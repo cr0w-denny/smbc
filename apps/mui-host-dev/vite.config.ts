@@ -72,11 +72,11 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: (id) => {
-            // Force swagger-ui-react and reselect into main bundle to avoid module resolution issues
+            // Put swagger-ui and reselect together in a specific chunk to avoid module resolution issues
             if (id.includes('swagger-ui-react') || id.includes('reselect')) {
-              return 'index';
+              return 'swagger-vendor';
             }
-            // Default chunking for everything else
+            // Keep other node_modules in separate vendor chunk
             if (id.includes('node_modules')) {
               return 'vendor';
             }
