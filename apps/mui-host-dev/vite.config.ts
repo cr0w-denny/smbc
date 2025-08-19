@@ -83,6 +83,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
+      // Force include these packages for proper bundling
+      include: ["reselect", "swagger-ui-react"],
       // Exclude local SMBC packages from optimization to enable HMR
       exclude: [
         // Core packages
