@@ -11,9 +11,9 @@ runs:
         cache: "npm"
 
     - name: Install Dependencies
-      run: rm -f package-lock.json && npm install --ignore-scripts
+      run: rm -f package-lock.json && npm install --ignore-scripts --legacy-peer-deps
       shell: bash
 
-    - name: Build all packages with Turbo
-      run: npm run build
+    - name: Build all packages with Turbo (excluding Storybook)
+      run: npm run build --workspace=@smbc/ui-core && turbo run build --filter="!@smbc/mui-storybook"
       shell: bash
