@@ -23,8 +23,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "swagger-ui-react": "^5.26.2",
-    "github-markdown-css": "^5.5.1"
+    "swagger-ui-react": "^5.27.1",
+    "github-markdown-css": "^5.5.1",
+    "reselect": "^5.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.23",
