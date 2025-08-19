@@ -1,4 +1,4 @@
-name: Deploy MUI Host Dev to GitHub Pages (Improved)
+name: Deploy MUI Host Dev to GitHub Pages
 
 on:
   push:

@@ -104,12 +104,17 @@ describe("MuiDataViewApplet", () => {
     // Mock usePermissions to return true for all permissions
     mockUsePermissions.mockReturnValue({
       hasPermission: vi.fn().mockReturnValue(true),
+      hasAnyPermission: vi.fn().mockReturnValue(true),
+      hasAllPermissions: vi.fn().mockReturnValue(true),
     });
 
     // Mock useHashNavigation with default behavior
     mockUseHashNavigation.mockReturnValue({
+      path: "/test",
       params: {},
+      navigate: vi.fn(),
       setParams: vi.fn(),
+      setHash: vi.fn(),
     });
 
     // Mock MuiDataViewManager to render a placeholder
@@ -191,6 +196,8 @@ describe("MuiDataViewApplet", () => {
       const mockHasPermission = vi.fn().mockReturnValue(true);
       mockUsePermissions.mockReturnValue({
         hasPermission: mockHasPermission,
+        hasAnyPermission: vi.fn().mockReturnValue(true),
+        hasAllPermissions: vi.fn().mockReturnValue(true),
       });
 
       render(
@@ -209,6 +216,8 @@ describe("MuiDataViewApplet", () => {
       const mockHasPermission = vi.fn().mockReturnValue(true);
       mockUsePermissions.mockReturnValue({
         hasPermission: mockHasPermission,
+        hasAnyPermission: vi.fn().mockReturnValue(true),
+        hasAllPermissions: vi.fn().mockReturnValue(true),
       });
 
       render(
@@ -239,6 +248,8 @@ describe("MuiDataViewApplet", () => {
       const mockHasPermission = vi.fn().mockReturnValue(false);
       mockUsePermissions.mockReturnValue({
         hasPermission: mockHasPermission,
+        hasAnyPermission: vi.fn().mockReturnValue(true),
+        hasAllPermissions: vi.fn().mockReturnValue(true),
       });
 
       render(
@@ -287,10 +298,10 @@ describe("MuiDataViewApplet", () => {
       );
 
       const call = mockMuiDataViewManager.mock.calls[0][0];
-      const globalActions = call.config.actions.global;
+      const globalActions = call.config.actions?.global;
       
       // Should only have the existing create action, not a duplicate
-      const createActions = globalActions.filter((action: any) => action.key === "create");
+      const createActions = globalActions?.filter((action: any) => action.key === "create") || [];
       expect(createActions).toHaveLength(1);
       expect(createActions[0].label).toBe("Custom Create");
     });
@@ -317,8 +328,11 @@ describe("MuiDataViewApplet", () => {
     it("should use hash navigation when enableUrlSync is true", () => {
       const mockSetParams = vi.fn();
       mockUseHashNavigation.mockReturnValue({
+        path: "/test",
         params: { status: "inactive", page: 1 },
+        navigate: vi.fn(),
         setParams: mockSetParams,
+        setHash: vi.fn(),
       });
 
       render(
@@ -376,8 +390,11 @@ describe("MuiDataViewApplet", () => {
     it("should handle URL parameter changes", async () => {
       const mockSetParams = vi.fn();
       mockUseHashNavigation.mockReturnValue({
+        path: "/test",
         params: {},
+        navigate: vi.fn(),
         setParams: mockSetParams,
+        setHash: vi.fn(),
       });
 
       render(
@@ -388,11 +405,11 @@ describe("MuiDataViewApplet", () => {
 
       // Get the filter state setter from the call to MuiDataViewManager
       const call = mockMuiDataViewManager.mock.calls[0][0];
-      const setFilters = call.filterState.setFilters;
+      const setFilters = call.filterState?.setFilters;
 
       // Simulate filter change
       act(() => {
-        setFilters({ status: "inactive", search: "test" });
+        setFilters?.({ status: "inactive", search: "test" });
       });
 
       expect(mockSetParams).toHaveBeenCalledWith(expect.any(Function));
@@ -401,8 +418,11 @@ describe("MuiDataViewApplet", () => {
     it("should handle pagination changes", async () => {
       const mockSetParams = vi.fn();
       mockUseHashNavigation.mockReturnValue({
+        path: "/test",
         params: {},
+        navigate: vi.fn(),
         setParams: mockSetParams,
+        setHash: vi.fn(),
       });
 
       render(
@@ -413,11 +433,11 @@ describe("MuiDataViewApplet", () => {
 
       // Get the pagination state setter from the call to MuiDataViewManager
       const call = mockMuiDataViewManager.mock.calls[0][0];
-      const setPagination = call.paginationState.setPagination;
+      const setPagination = call.paginationState?.setPagination;
 
       // Simulate pagination change
       act(() => {
-        setPagination({ page: 2, pageSize: 50 });
+        setPagination?.({ page: 2, pageSize: 50 });
       });
 
       expect(mockSetParams).toHaveBeenCalledWith(expect.any(Function));
@@ -477,13 +497,16 @@ describe("MuiDataViewApplet", () => {
   describe("State Management", () => {
     it("should initialize state from URL parameters", () => {
       mockUseHashNavigation.mockReturnValue({
+        path: "/test",
         params: {
           status: "inactive",
           search: "john",
           page: 2,
           pageSize: 50,
         },
+        navigate: vi.fn(),
         setParams: vi.fn(),
+        setHash: vi.fn(),
       });
 
       render(
@@ -495,12 +518,12 @@ describe("MuiDataViewApplet", () => {
       const call = mockMuiDataViewManager.mock.calls[0][0];
       
       // Should merge URL params with default filters
-      expect(call.filterState.filters).toEqual({
+      expect(call.filterState?.filters).toEqual({
         status: "inactive", // from URL (overrides default "active")
         search: "john", // from URL
       });
 
-      expect(call.paginationState.pagination).toEqual({
+      expect(call.paginationState?.pagination).toEqual({
         page: 2, // from URL
         pageSize: 50, // from URL
       });
@@ -508,8 +531,11 @@ describe("MuiDataViewApplet", () => {
 
     it("should use default values when no URL parameters", () => {
       mockUseHashNavigation.mockReturnValue({
+        path: "/test",
         params: {},
+        navigate: vi.fn(),
         setParams: vi.fn(),
+        setHash: vi.fn(),
       });
 
       render(
@@ -520,11 +546,11 @@ describe("MuiDataViewApplet", () => {
 
       const call = mockMuiDataViewManager.mock.calls[0][0];
       
-      expect(call.filterState.filters).toEqual({
+      expect(call.filterState?.filters).toEqual({
         status: "active", // from config default
       });
 
-      expect(call.paginationState.pagination).toEqual({
+      expect(call.paginationState?.pagination).toEqual({
         page: 0, // default
         pageSize: 20, // from config
       });
@@ -642,10 +668,10 @@ describe("MuiDataViewApplet", () => {
 
       const call = mockMuiDataViewManager.mock.calls[0][0];
       
-      expect(call.config.actions.global).toHaveLength(2); // export + create
-      expect(call.config.actions.global[0].key).toBe("export");
-      expect(call.config.actions.global[1].key).toBe("create");
-      expect(call.config.actions.row).toHaveLength(1);
+      expect(call.config.actions?.global).toHaveLength(2); // export + create
+      expect(call.config.actions?.global?.[0].key).toBe("export");
+      expect(call.config.actions?.global?.[1].key).toBe("create");
+      expect(call.config.actions?.row).toHaveLength(1);
     });
   });
 

@@ -330,10 +330,11 @@ describe("Applet Lifecycle Management", () => {
 
       // Should call getHostNavigation - verify it was called
       const internalNavApplet = testApplets.find(a => a.id === "internal-nav-applet");
-      expect(internalNavApplet?.getHostNavigation).toHaveBeenCalled();
+      expect(internalNavApplet).toBeDefined();
+      expect(internalNavApplet!.getHostNavigation).toHaveBeenCalled();
       
       // Check the call arguments more specifically
-      const callArgs = vi.mocked(internalNavApplet?.getHostNavigation).mock.calls[0];
+      const callArgs = vi.mocked(internalNavApplet!.getHostNavigation!).mock.calls[0];
       expect(callArgs[0]).toBe("/internal");
       expect(callArgs[2]).toBe("internal-nav-applet"); // Unmapped applet ID
     });
