@@ -70,6 +70,7 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       sourcemap: false, // Disable sourcemaps for production to avoid warnings
       rollupOptions: {
+        external: ["ag-grid-enterprise"],
         onwarn(warning, warn) {
           // Suppress all sourcemap warnings from node_modules
           if (warning.code === "SOURCEMAP_ERROR") return;
