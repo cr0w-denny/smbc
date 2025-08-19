@@ -6,6 +6,7 @@
  * Commands:
  * - sync: Synchronize dependency versions across all packages
  * - update <package@version>: Update a specific dependency across all packages
+ * - update-pattern <pattern@version>: Update all dependencies matching a pattern (supports wildcards)
  * - validate: Check for version conflicts and mismatches
  * - list: Show all dependencies and their versions across packages
  */
@@ -28,6 +29,26 @@ interface PackageJson {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "../..");
+
+/**
+ * Convert a wildcard pattern to a regular expression
+ * Supports * for any characters and exact matches
+ */
+function patternToRegex(pattern: string): RegExp {
+  // Escape special regex characters except *
+  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
+  // Replace * with .*
+  const regexPattern = escaped.replace(/\*/g, ".*");
+  // Match the entire string
+  return new RegExp(`^${regexPattern}$`);
+}
+
+/**
+ * Check if a package name matches a wildcard pattern
+ */
+function matchesPattern(packageName: string, pattern: string): boolean {
+  return patternToRegex(pattern).test(packageName);
+}
 
 /**
  * Find all package.json files in the monorepo
@@ -165,22 +186,29 @@ async function syncDependencies() {
 }
 
 /**
- * Update command - update a specific dependency
+ * Update command - update a dependency or pattern of dependencies
  */
 async function updateDependency(packageSpec: string): Promise<void> {
-  const match = packageSpec.match(/^(@?[^@]+)@(.+)$/);
+  const match = packageSpec.match(/^(.+)@(.+)$/);
   if (!match) {
     console.error(
-      chalk.red("Invalid package specification. Use format: package@version"),
+      chalk.red("Invalid package specification. Use format: package@version or pattern@version"),
     );
     process.exit(1);
   }
 
-  const [, packageName, version] = match;
-  console.log(chalk.blue(`📦 Updating ${packageName} to ${version}...\n`));
+  const [, packageOrPattern, version] = match;
+  const isPattern = packageOrPattern.includes('*');
+  
+  if (isPattern) {
+    console.log(chalk.blue(`🔍 Updating packages matching pattern "${packageOrPattern}" to ${version}...`));
+  } else {
+    console.log(chalk.blue(`📦 Updating ${packageOrPattern} to ${version}...`));
+  }
 
   const files = await findPackageJsonFiles();
   let updatedCount = 0;
+  let matchedPackages = new Set<string>();
 
   for (const filePath of files) {
     const pkg = readPackageJson(filePath);
@@ -196,16 +224,25 @@ async function updateDependency(packageSpec: string): Promise<void> {
     ]) {
       if (!pkg[depType]) continue;
 
-      if (pkg[depType][packageName]) {
-        const currentVersion = pkg[depType][packageName];
-        if (currentVersion !== version) {
-          console.log(
-            chalk.yellow(
-              `  ${info.name}: ${depType} - ${currentVersion} → ${version}`,
-            ),
-          );
-          pkg[depType][packageName] = version;
-          hasChanges = true;
+      for (const [packageName, currentVersion] of Object.entries(pkg[depType] as Record<string, string>)) {
+        const shouldUpdate = isPattern 
+          ? matchesPattern(packageName, packageOrPattern)
+          : packageName === packageOrPattern;
+
+        if (shouldUpdate) {
+          if (isPattern) {
+            matchedPackages.add(packageName);
+          }
+          
+          if (currentVersion !== version) {
+            console.log(
+              chalk.yellow(
+                `  ${info.name}: ${depType} - ${packageName} ${currentVersion} → ${version}`,
+              ),
+            );
+            pkg[depType][packageName] = version;
+            hasChanges = true;
+          }
         }
       }
     }
@@ -217,6 +254,10 @@ async function updateDependency(packageSpec: string): Promise<void> {
     }
   }
 
+  if (isPattern && matchedPackages.size > 0) {
+    console.log(chalk.blue(`\nMatched packages: ${Array.from(matchedPackages).sort().join(", ")}`));
+  }
+  
   console.log(chalk.green(`\n✅ Updated ${updatedCount} package.json files`));
 }
 
@@ -389,6 +430,7 @@ async function main() {
       await updateDependency(args[0]);
       break;
 
+
     case "validate":
       await validateDependencies();
       break;
@@ -401,14 +443,16 @@ async function main() {
       console.log(chalk.blue("SMBC Dependency Manager\n"));
       console.log("Commands:");
       console.log(
-        "  sync                    - Synchronize dependency versions",
+        "  sync                       - Synchronize dependency versions",
       );
-      console.log("  update <package@version> - Update a specific dependency");
-      console.log("  validate                - Check for version conflicts");
-      console.log("  list                    - Show all dependencies");
-      console.log("\nExample:");
+      console.log("  update <package@version>   - Update a dependency (supports wildcards)");
+      console.log("  validate                   - Check for version conflicts");
+      console.log("  list                       - Show all dependencies");
+      console.log("\nExamples:");
       console.log("  node scripts/manage-deps sync");
       console.log("  node scripts/manage-deps update react@18.3.0");
+      console.log("  node scripts/manage-deps update @storybook/*@8.7.2");
+      console.log("  node scripts/manage-deps update *storybook*@8.7.2");
       break;
   }
 }
