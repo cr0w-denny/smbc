@@ -12,6 +12,8 @@ import {
 import { Close as CloseIcon, Code as CodeIcon } from "@mui/icons-material";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
+// Force reselect import to ensure it's available in the bundle
+import * as reselect from "reselect";
 
 
 export interface ApiDocsModalProps {
@@ -248,6 +250,10 @@ export function ApiDocsModal({
   // Debug logging
   React.useEffect(() => {
     if (open && apiSpec) {
+      // Ensure reselect is available globally for swagger-ui-react
+      if (typeof window !== 'undefined' && !(window as any).reselect) {
+        (window as any).reselect = reselect;
+      }
     }
   }, [open, appletName, apiSpec]);
 
