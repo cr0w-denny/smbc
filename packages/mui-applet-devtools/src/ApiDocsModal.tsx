@@ -10,10 +10,15 @@ import {
   Paper,
 } from "@mui/material";
 import { Close as CloseIcon, Code as CodeIcon } from "@mui/icons-material";
+// Import and assign reselect globally BEFORE swagger-ui-react imports
+import * as reselect from "reselect";
+// Make reselect available globally immediately
+if (typeof window !== 'undefined') {
+  (window as any).reselect = reselect;
+}
+
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
-// Force reselect import to ensure it's available in the bundle
-import * as reselect from "reselect";
 
 
 export interface ApiDocsModalProps {
@@ -250,10 +255,8 @@ export function ApiDocsModal({
   // Debug logging
   React.useEffect(() => {
     if (open && apiSpec) {
-      // Ensure reselect is available globally for swagger-ui-react
-      if (typeof window !== 'undefined' && !(window as any).reselect) {
-        (window as any).reselect = reselect;
-      }
+      // Log for debugging
+      console.log('ApiDocsModal opened for', appletName);
     }
   }, [open, appletName, apiSpec]);
 
