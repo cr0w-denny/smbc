@@ -71,16 +71,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: false, // Disable sourcemaps for production to avoid warnings
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            // Put swagger-ui and reselect together in a specific chunk to avoid module resolution issues
-            if (id.includes('swagger-ui-react') || id.includes('reselect')) {
-              return 'swagger-vendor';
-            }
-            // Keep other node_modules in separate vendor chunk
-            if (id.includes('node_modules')) {
-              return 'vendor';
-            }
-          }
+          manualChunks: undefined // Let Vite handle chunking automatically, no manual splitting
         },
         onwarn(warning, warn) {
           // Suppress all sourcemap warnings from node_modules
