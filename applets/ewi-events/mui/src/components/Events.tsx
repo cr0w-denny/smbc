@@ -25,6 +25,8 @@ const Events: React.FC = () => {
       exRatings: "",
       workflow: "",
       priority: "",
+      sortBy: "",
+      sortDirection: "",
     },
   });
 
@@ -87,6 +89,28 @@ const Events: React.FC = () => {
   const setFilterValues = (newValues: typeof filterValues) => {
     setParams(newValues);
   };
+
+  // Sorting state management
+  const sorting = React.useMemo(() => {
+    if (params.sortBy && params.sortDirection) {
+      return {
+        column: params.sortBy,
+        direction: params.sortDirection as "asc" | "desc",
+      };
+    }
+    return null;
+  }, [params.sortBy, params.sortDirection]);
+
+  const setSorting = React.useCallback(
+    (newSorting: { column: string; direction: "asc" | "desc" } | null) => {
+      setParams({
+        ...params,
+        sortBy: newSorting?.column || "",
+        sortDirection: newSorting?.direction || "",
+      });
+    },
+    [params, setParams],
+  );
 
   const handleApplyFilters = () => {
     // DataView will handle the filtering
@@ -351,6 +375,17 @@ const Events: React.FC = () => {
                 onSuccess={handleSuccess}
                 onError={handleError}
                 ActionBarComponent={CustomActionBar}
+                enableUrlSync={false}
+                options={{
+                  filterState: {
+                    filters: filterValues,
+                    setFilters: setFilterValues,
+                  },
+                  sortingState: {
+                    sorting,
+                    setSorting,
+                  },
+                }}
               />
             </Box>
           </Box>
@@ -372,7 +407,7 @@ const Events: React.FC = () => {
             checkboxCellStyle={checkboxCellStyle}
             showCheckbox={true}
             isChecked={isRowChecked}
-            onCheckboxChange={(checked) => {
+            onCheckboxChange={(_checked) => {
               resetScroll();
               // // Find the actual checkbox in the underlying table and click it
               // const allRows = document.querySelectorAll(

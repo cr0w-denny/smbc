@@ -5,5 +5,5 @@ dist
 storybook-static
 .env*.local
 *.tsbuildinfo
-
+coverage
 *storybook.log

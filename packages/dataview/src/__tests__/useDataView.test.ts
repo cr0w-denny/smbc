@@ -39,6 +39,8 @@ describe("useDataView Hook", () => {
         setFilters: vi.fn(),
         pagination: { page: 0, pageSize: 10, total: 3 },
         setPagination: vi.fn(),
+        sorting: null,
+        setSorting: vi.fn(),
         createMutation: { mutateAsync: vi.fn() },
         updateMutation: { mutateAsync: vi.fn() },
         deleteMutation: { mutateAsync: vi.fn() },
@@ -82,9 +84,11 @@ describe("useDataView Hook", () => {
       expect(result).toEqual(mockResult);
       expect(typeof result.setFilters).toBe("function");
       expect(typeof result.setPagination).toBe("function");
+      expect(typeof result.setSorting).toBe("function");
       expect(Array.isArray(result.data)).toBe(true);
       expect(typeof result.pagination).toBe("object");
       expect(typeof result.selection).toBe("object");
+      expect(result.sorting).toBeNull();
     });
 
     it("should handle filter updates", () => {
@@ -167,6 +171,37 @@ describe("useDataView Hook", () => {
 
       result.selection.clearSelection();
       expect(clearSelectionMock).toHaveBeenCalled();
+    });
+
+    it("should handle sorting state", () => {
+      const setSortingMock = vi.fn();
+      
+      const mockResult = {
+        sorting: { column: "name", direction: "asc" as const },
+        setSorting: setSortingMock,
+        filters: {},
+        setFilters: vi.fn(),
+        data: mockUsers,
+        isLoading: false,
+        error: null,
+        total: 3,
+        pagination: { page: 0, pageSize: 10, total: 3 },
+        setPagination: vi.fn(),
+        selection: { selectedIds: [], setSelectedIds: vi.fn(), selectedItems: [], clearSelection: vi.fn() },
+        actions: { row: [], bulk: [], global: [] },
+      };
+
+      mockUseDataView.mockReturnValue(mockResult);
+
+      const result = mockUseDataView({});
+
+      expect(result.sorting).toEqual({ column: "name", direction: "asc" });
+
+      result.setSorting({ column: "email", direction: "desc" });
+      expect(setSortingMock).toHaveBeenCalledWith({ column: "email", direction: "desc" });
+
+      result.setSorting(null);
+      expect(setSortingMock).toHaveBeenCalledWith(null);
     });
 
     it("should handle loading and error states", () => {
@@ -323,7 +358,6 @@ describe("useDataView Hook", () => {
         actions: { row: [], bulk: [], global: [] },
       });
 
-      const result = mockUseDataView({});
       mockUseDataView(config, options);
 
       expect(mockUseDataView).toHaveBeenCalledWith(config, options);

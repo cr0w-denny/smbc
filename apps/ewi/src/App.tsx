@@ -298,11 +298,7 @@ const AppContent: React.FC = () => {
     {
       label: "Reporting",
       type: "dropdown" as const,
-      items: [
-        { label: "Monthly Reports", href: "/monthly-reports" },
-        { label: "Annual Reports", href: "/annual-reports" },
-        { label: "Custom Reports", href: "/custom-reports" },
-      ],
+      items: [{ label: "Usage Stats", href: "/usage-stats" }],
     },
     {
       label: "Quick Guide",

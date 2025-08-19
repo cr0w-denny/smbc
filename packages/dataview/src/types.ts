@@ -145,6 +145,10 @@ export interface DataViewTableProps<T, TRendererConfig = any> {
   primaryKey?: keyof T;
   hover?: boolean;
   rendererConfig?: TRendererConfig;
+  sorting?: {
+    currentSort: SortState | null;
+    onSortChange: (sorting: SortState | null) => void;
+  };
 }
 
 export interface DataViewFilterProps {
@@ -189,6 +193,14 @@ export interface DataView<T, TRendererConfig = any> {
   FormComponent: React.ComponentType<DataViewFormProps<T>>;
   CreateButtonComponent: React.ComponentType<DataViewCreateButtonProps>;
   PaginationComponent: React.ComponentType<DataViewPaginationProps>;
+}
+
+// Sorting configuration
+export type SortDirection = "asc" | "desc";
+
+export interface SortState {
+  column: string;
+  direction: SortDirection;
 }
 
 // Main configuration interface
@@ -253,6 +265,10 @@ export interface DataViewResult<T> {
     total: number;
   };
   setPagination: (pagination: { page?: number; pageSize?: number }) => void;
+
+  // Sorting
+  sorting: SortState | null;
+  setSorting: (sorting: SortState | null) => void;
 
   // Mutations
   createMutation: any; // Will be typed based on API client

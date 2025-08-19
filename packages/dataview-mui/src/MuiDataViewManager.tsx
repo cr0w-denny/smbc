@@ -315,8 +315,6 @@ export function MuiDataViewManager<T extends Record<string, any>>({
       : config.columns;
 
     return () => {
-      console.log('TableComponentWithActions rendering with rendererConfig:', config.rendererConfig);
-      console.log('TableComponentWithActions onRowClick:', config.onRowClick);
       return React.createElement(MuiDataView.TableComponent, {
         data: dataView.data,
         columns: activeColumns,
@@ -328,6 +326,10 @@ export function MuiDataViewManager<T extends Record<string, any>>({
           enabled: true,
           selectedIds: dataView.selection.selectedIds,
           onSelectionChange: dataView.selection.setSelectedIds,
+        },
+        sorting: {
+          currentSort: dataView.sorting,
+          onSortChange: dataView.setSorting,
         },
         // Pass transaction state separately for UI components to handle merging
         transactionState: dataView.transactionState,
@@ -346,6 +348,8 @@ export function MuiDataViewManager<T extends Record<string, any>>({
     dataView.isLoading,
     dataView.error,
     dataView.selection,
+    dataView.sorting,
+    dataView.setSorting,
     dataView.transactionState,
     isTransactionExecuting,
   ]);

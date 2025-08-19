@@ -25,6 +25,7 @@ import {
   FormControl,
   InputLabel,
   Chip,
+  TableSortLabel,
 } from "@mui/material";
 import { Filter, LoadingTable } from "@smbc/mui-components";
 import type {
@@ -69,6 +70,7 @@ function MuiDataTable<T extends Record<string, any>>({
   primaryKey = 'id' as keyof T,
   hover = false,
   rendererConfig,
+  sorting,
 }: DataViewTableProps<T, any>) {
   console.log('MuiDataTable rendererConfig:', rendererConfig);
   if (error) {
@@ -132,7 +134,35 @@ function MuiDataTable<T extends Record<string, any>>({
             )}
             {columns.map((column) => (
               <TableCell key={column.key}>
-                {column.label}
+                  {column.sortable ? (
+                  <TableSortLabel
+                    active={sorting?.currentSort?.column === column.key}
+                    direction={
+                      sorting?.currentSort?.column === column.key
+                        ? sorting.currentSort.direction
+                        : "asc"
+                    }
+                    onClick={() => {
+                      if (!sorting) return;
+                      
+                      const currentSort = sorting.currentSort;
+                      if (!currentSort || currentSort.column !== column.key) {
+                        // Start with ascending sort for new column
+                        sorting.onSortChange({ column: column.key, direction: "asc" });
+                      } else if (currentSort.direction === "asc") {
+                        // Switch to descending
+                        sorting.onSortChange({ column: column.key, direction: "desc" });
+                      } else {
+                        // Clear sorting
+                        sorting.onSortChange(null);
+                      }
+                    }}
+                  >
+                    {column.label}
+                  </TableSortLabel>
+                ) : (
+                  column.label
+                )}
               </TableCell>
             ))}
             {actions.length > 0 && <TableCell align="right">Actions</TableCell>}

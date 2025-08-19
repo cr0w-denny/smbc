@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { DataViewConfig, DataViewResult } from "./types";
+import type { DataViewConfig, DataViewResult, SortState } from "./types";
 import { useActivity } from "./activity";
 import { SimpleTransactionManager } from "./transaction/TransactionManager";
 import type {
@@ -39,6 +39,14 @@ export interface UseDataViewOptions {
   paginationState?: {
     pagination: any;
     setPagination: (updates: any) => void;
+  };
+  /**
+   * External sorting state (e.g., from useHashParams or other state management)
+   * If provided, useDataView will use this instead of internal state
+   */
+  sortingState?: {
+    sorting: SortState | null;
+    setSorting: (sorting: SortState | null) => void;
   };
 }
 
@@ -144,10 +152,12 @@ export function useDataView<T extends Record<string, any>>(
     page: 0,
     pageSize: paginationConfig.defaultPageSize || 10,
   };
+  const defaultSorting: SortState | null = null;
 
   // State management: use external state if provided, otherwise fall back to local state
   const [localFilters, setLocalFilters] = useState(defaultFilters);
   const [localPagination, setLocalPagination] = useState(defaultPagination);
+  const [localSorting, setLocalSorting] = useState<SortState | null>(defaultSorting);
 
   // Use external state if provided, otherwise use local state
   const filters = options.filterState?.filters ?? localFilters;
@@ -161,6 +171,9 @@ export function useDataView<T extends Record<string, any>>(
   const pagination = options.paginationState?.pagination ?? localPagination;
   const setPaginationState =
     options.paginationState?.setPagination ?? setLocalPagination;
+  
+  const sorting = options.sortingState?.sorting ?? localSorting;
+  const setSortingState = options.sortingState?.setSorting ?? setLocalSorting;
 
   // Selection state (optional)
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -181,6 +194,25 @@ export function useDataView<T extends Record<string, any>>(
       baseSetFilters(newFilters);
     },
     [baseSetFilters, clearSelection, selectedIds.length],
+  );
+
+  // Wrap setSorting to reset pagination and clear selection
+  const setSorting = useCallback(
+    (newSorting: SortState | null) => {
+      // Clear selection when sorting changes
+      if (selectedIds.length > 0) {
+        clearSelection();
+      }
+
+      // Reset to first page when sorting changes
+      setPaginationState({
+        page: 0,
+        pageSize: pagination.pageSize,
+      });
+
+      setSortingState(newSorting);
+    },
+    [clearSelection, selectedIds.length, setPaginationState, pagination.pageSize, setSortingState],
   );
 
   // Dialog states
@@ -225,6 +257,10 @@ export function useDataView<T extends Record<string, any>>(
           page: pagination.page + 1,
           pageSize: pagination.pageSize,
           ...transformedFilters,
+          ...(sorting && {
+            sortBy: sorting.column,
+            sortDirection: sorting.direction,
+          }),
         },
       },
     };
@@ -234,6 +270,7 @@ export function useDataView<T extends Record<string, any>>(
     pagination.page,
     pagination.pageSize,
     transformedFilters,
+    sorting,
     config.api.apiParams,
   ]);
 
@@ -1532,20 +1569,24 @@ export function useDataView<T extends Record<string, any>>(
   // Pre-configured components
   const TableComponent = useMemo(() => {
     const Component = renderer.TableComponent;
-    return () =>
-      React.createElement(Component, {
-        data,
-        columns: activeColumns,
-        actions: rowActions,
-        isLoading,
-        error,
-        selection: {
-          enabled: true,
-          selectedIds,
-          onSelectionChange: setSelectedIds,
-        },
-        ...rendererOptions,
-      });
+    const tableProps = {
+      data,
+      columns: activeColumns,
+      actions: rowActions,
+      isLoading,
+      error,
+      selection: {
+        enabled: true,
+        selectedIds,
+        onSelectionChange: setSelectedIds,
+      },
+      sorting: {
+        currentSort: sorting,
+        onSortChange: setSorting,
+      },
+      ...rendererOptions,
+    };
+    return () => React.createElement(Component, tableProps);
   }, [
     renderer,
     data,
@@ -1554,6 +1595,8 @@ export function useDataView<T extends Record<string, any>>(
     isLoading,
     error,
     selectedIds,
+    sorting,
+    setSorting,
     rendererOptions,
   ]);
 
@@ -1670,6 +1713,10 @@ export function useDataView<T extends Record<string, any>>(
       total,
     },
     setPagination,
+
+    // Sorting
+    sorting,
+    setSorting,
 
     // Mutations
     createMutation,

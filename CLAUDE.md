@@ -31,3 +31,5 @@
 
 ## Meta Notes
 - this is a real implementation. never use something and say "in a real implementation" because this IS A REAL IMPLEMENTATION
+- **NEVER use `require()` - we are using ESM modules exclusively**
+- **ALWAYS verify tests exercise actual functionality** - Before writing any test, ensure it will fail if the implementation logic is broken, not just if mocks change. Avoid tests that only verify mock data passthrough or trivial object existence.

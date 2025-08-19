@@ -6,32 +6,11 @@ import {
   createMinRole,
 } from "@smbc/applet-core";
 import { mountApplet } from "@smbc/applet-host";
-import type { AppShellMenuStructure } from "@smbc/mui-applet-core";
-import { Dashboard as DashboardIcon } from "@mui/icons-material";
+import { BarChart, Dashboard } from "@mui/icons-material";
 
 // Import applet directly from source during development
 import ewiEventsApplet from "../../../applets/ewi-events/mui/src";
-
-// =============================================================================
-// DEMO USER CONFIGURATION
-// =============================================================================
-
-export const DEMO_USER = {
-  id: "1",
-  email: "staff@ewi.com",
-  name: "EWI Staff",
-  roles: ["Staff"],
-  preferences: {
-    theme: "light" as const,
-    language: "en",
-    timezone: "UTC",
-    notifications: {
-      email: true,
-      push: true,
-      desktop: true,
-    },
-  },
-};
+import usageStatsApplet from "@smbc/usage-stats-mui";
 
 // =============================================================================
 // HOST CONSTANTS
@@ -87,36 +66,14 @@ export const APPLETS: AppletMount[] = [
     id: "ewi-events",
     label: "EWI Events",
     path: "/ewi-events",
-    icon: DashboardIcon,
+    icon: Dashboard,
     permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
-    apiBaseUrl: "/api/v1/ewi-events", // Force mock environment URL
+  }),
+  mountApplet(usageStatsApplet, {
+    id: "usage-stats",
+    label: "Usage Stats",
+    path: "/usage-stats",
+    icon: BarChart,
+    permissions: [],
   }),
 ];
-
-// =============================================================================
-// MENU STRUCTURE
-// =============================================================================
-
-export const MENUS: AppShellMenuStructure = {
-  menus: [
-    {
-      label: "Events",
-      children: [
-        { label: "Events Dashboard", applet: "ewi-events" },
-        { label: "Obligor Dashboard", applet: "obligor-management" },
-      ],
-    },
-    {
-      label: "Reports",
-      children: [
-        { label: "Monthly Reports", applet: "monthly-reports" },
-        { label: "Annual Reports", applet: "annual-reports" },
-      ],
-    },
-    {
-      label: "Management",
-      children: [{ label: "Settings", applet: "settings" }],
-    },
-  ],
-  staticItems: [{ label: "Help", type: "button", color: "primary" }],
-};
