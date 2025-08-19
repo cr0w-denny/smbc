@@ -70,6 +70,18 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       sourcemap: false, // Disable sourcemaps for production to avoid warnings
       rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            // Force swagger-ui-react and reselect into main bundle to avoid module resolution issues
+            if (id.includes('swagger-ui-react') || id.includes('reselect')) {
+              return 'index';
+            }
+            // Default chunking for everything else
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+          }
+        },
         onwarn(warning, warn) {
           // Suppress all sourcemap warnings from node_modules
           if (warning.code === "SOURCEMAP_ERROR") return;

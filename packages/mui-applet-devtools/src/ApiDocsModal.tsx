@@ -10,13 +10,6 @@ import {
   Paper,
 } from "@mui/material";
 import { Close as CloseIcon, Code as CodeIcon } from "@mui/icons-material";
-// Import and assign reselect globally BEFORE swagger-ui-react imports
-import * as reselect from "reselect";
-// Make reselect available globally immediately
-if (typeof window !== 'undefined') {
-  (window as any).reselect = reselect;
-}
-
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 
