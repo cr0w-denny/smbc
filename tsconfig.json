@@ -29,7 +29,6 @@
     { "path": "packages/applet-core" },
     { "path": "packages/applet-host" },
     { "path": "packages/applet-cli" },
-    { "path": "packages/applet-meta" },
     { "path": "packages/dataview" },
     { "path": "packages/dataview-mui" },
     { "path": "packages/dataview-ag-grid" },
