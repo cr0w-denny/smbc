@@ -23,11 +23,11 @@
   },
   "dependencies": {
     "marked": "^14.1.2",
-    "glob": "^10.3.10"
+    "glob": "^11.0.3"
   },
   "devDependencies": {
     "@types/marked": "^6.0.0",
-    "@types/node": "^20.11.17",
+    "@types/node": "^20.11.0",
     "typescript": "~5.8.3"
   },
   "publishConfig": {

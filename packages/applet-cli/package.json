@@ -21,13 +21,13 @@
   },
   "devDependencies": {
     "typescript": "~5.8.3",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.11.0",
     "@types/prompts": "^2.4.9",
     "@smbc/applet-core": "*",
     "@smbc/applet-meta": "*",
     "rimraf": "^6.0.1",
-    "tsx": "^4.0.0",
-    "glob": "^10.0.0"
+    "tsx": "^4.20.3",
+    "glob": "^11.0.3"
   },
   "peerDependencies": {
     "@smbc/applet-core": "*",
