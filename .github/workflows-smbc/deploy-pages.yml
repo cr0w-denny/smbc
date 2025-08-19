@@ -1,4 +1,4 @@
-name: Deploy MUI Host Dev to GitHub Pages (Improved)
+name: Deploy MUI Host Dev to GitHub Pages
 
 on:
   push:
@@ -24,26 +24,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "npm"
-
-      - name: Install Dependencies with legacy peer deps
-        run: |
-          rm -f package-lock.json
-          npm install --ignore-scripts --legacy-peer-deps
-
-      - name: Build UI Core package first
-        run: npm run build --workspace=@smbc/ui-core
-
-      - name: Build workspace packages (excluding problematic ones)
-        run: |
-          npx turbo run build \
-            --filter="!@smbc/mui-storybook" \
-            --filter="!@smbc/mui-storybook-old" \
-            --continue
+      - name: Build workspace packages
+        uses: ./.github/actions/build-workspace
 
       - name: Build MUI Host Dev
         run: |
