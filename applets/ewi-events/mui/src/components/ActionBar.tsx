@@ -17,17 +17,28 @@ import {
   Settings as SettingsIcon,
   AccountTree as WorkflowIcon,
   ArrowDropDown as ArrowDropDownIcon,
+  PsychologyAlt as DiscretionaryIcon,
+  Gavel as MandatoryIcon,
 } from "@mui/icons-material";
-import { BulkAction } from "@smbc/dataview";
+interface BulkAction {
+  type: "bulk";
+  key: string;
+  label: string;
+  icon?: React.ComponentType;
+  color?: "primary" | "secondary" | "success" | "error" | "warning";
+  onClick?: (selectedItems: any[]) => void;
+  disabled?: (selectedItems: any[]) => boolean;
+  appliesTo?: (item: any) => boolean;
+}
 
-interface FilterChipsProps {
-  values: {
-    dateFrom: string;
-    dateTo: string;
-    status: string;
-    exRatings: string;
-    workflow: string;
-    priority: string;
+interface ActionBarProps {
+  values: Record<string, any> & {
+    dateFrom?: string;
+    dateTo?: string;
+    status?: string;
+    exRatings?: string;
+    workflow?: string;
+    priority?: string;
   };
   onValuesChange: (values: any) => void;
   statusCounts?: {
@@ -35,14 +46,16 @@ interface FilterChipsProps {
     almostDue?: number;
     pastDue?: number;
     needsAttention?: number;
+    discretionary?: number;
+    mandatory?: number;
   };
-  /** Workflow actions from DataView bulk actions */
-  workflowActions?: BulkAction<any>[];
+  /** Workflow actions from AG Grid actions */
+  workflowActions?: BulkAction[];
   /** Selected items for workflow actions */
   selectedItems?: any[];
 }
 
-export const FilterChips: React.FC<FilterChipsProps> = ({
+export const ActionBar: React.FC<ActionBarProps> = ({
   values,
   onValuesChange,
   statusCounts = {},
@@ -92,34 +105,81 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
     }
   }, [selectedItems.length, workflowAnchor]);
 
-  // Reusable function to create status chips with consistent styling
+  // Reusable function to create filter chips with consistent styling
   const createStatusChip = (
     icon: React.ReactElement,
     label: string,
-    colorKey: string,
+    colors: { border: string; badge: string; fill: string },
     count: number,
     statusValue: string,
   ) => {
     const isActive = values.status === statusValue;
 
     return {
-      icon: React.cloneElement(icon, {
-        sx: { color: `${colorKey}.dark`, fontSize: "18px" },
-      }),
       label: (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <span>{label}</span>
+        <Box sx={{ 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "space-between",
+          width: "100%",
+          gap: 1
+        }}>
+          {/* Left: Icon in light gray circle */}
+          <Box sx={(theme: any) => ({ 
+            width: 24, 
+            height: 24, 
+            borderRadius: "50%",
+            backgroundColor: isActive 
+              ? "#FFFFFF" 
+              : theme.palette.mode === "dark" 
+                ? "rgba(255, 255, 255, 0.1)" 
+                : "#F0F0F0",
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            flexShrink: 0
+          })}>
+            {React.cloneElement(icon, {
+              sx: { 
+                fontSize: "18px", 
+                width: "18px", 
+                height: "18px",
+                color: isActive ? colors.badge : colors.badge
+              },
+            })}
+          </Box>
+          
+          {/* Center: Label */}
+          <Box sx={(theme: any) => ({ 
+            flex: 1, 
+            textAlign: "center",
+            fontSize: "14px",
+            fontWeight: 500,
+            color: isActive 
+              ? "#FFFFFF" 
+              : theme.palette.mode === "dark" 
+                ? theme.palette.text.primary 
+                : "#1A1A1A"
+          })}>
+            {label}
+          </Box>
+          
+          {/* Right: Count badge */}
           <Box
             component="span"
-            sx={(theme: any) => ({
-              bgcolor: theme.palette[colorKey].main,
-              color: "white",
-              borderRadius: "10px",
-              px: 0.75,
-              fontSize: "0.75rem",
+            sx={{
+              bgcolor: isActive ? "#FFFFFF" : colors.badge,
+              color: isActive ? colors.badge : "#FFFFFF",
+              borderRadius: "50%",
+              minWidth: "24px",
+              height: "24px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
               fontWeight: "bold",
-              ml: 0.5,
-            })}
+              flexShrink: 0
+            }}
           >
             {count}
           </Box>
@@ -127,17 +187,49 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
       ),
       variant: "outlined" as const,
       size: "medium" as const,
-      onClick: () => onValuesChange({ ...values, status: statusValue }),
+      onClick: () => {
+        // Toggle behavior: if already selected, deselect it
+        const newStatus = values.status === statusValue ? "" : statusValue;
+        onValuesChange({ ...values, status: newStatus });
+      },
       sx: (theme: any) => ({
         cursor: "pointer",
-        bgcolor: isActive ? theme.palette.action.selected : "transparent",
-        px: 1,
+        backgroundColor: isActive 
+          ? colors.badge 
+          : theme.palette.mode === "dark" 
+            ? theme.palette.background.paper 
+            : "#FFFFFF",
+        border: `1px solid ${colors.border}`,
+        borderRadius: "20px",
+        minWidth: theme.breakpoints.values.xl >= 1920 ? "187px" : "150px",
         height: "auto",
-        "& .MuiChip-label": {
-          py: 1,
+        padding: "8px 12px",
+        fontSize: "14px",
+        fontWeight: 500,
+        display: "flex",
+        alignItems: "center",
+        transition: "none !important",
+        "&:hover": {
+          backgroundColor: `${isActive 
+            ? colors.badge 
+            : theme.palette.mode === "dark" 
+              ? theme.palette.background.paper 
+              : "#FFFFFF"} !important`,
+          transform: "translateY(-1px)",
+          boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
         },
-        "& .MuiChip-icon": {
-          color: `${theme.palette[colorKey].main} !important`,
+        "&.MuiChip-clickable:hover": {
+          backgroundColor: `${isActive 
+            ? colors.badge 
+            : theme.palette.mode === "dark" 
+              ? theme.palette.background.paper 
+              : "#FFFFFF"} !important`,
+        },
+        "& .MuiChip-label": {
+          padding: 0,
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
         },
       }),
     };
@@ -168,7 +260,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
             {...createStatusChip(
               <CheckCircleIcon />,
               "On Course",
-              "success",
+              { border: "#12A187", badge: "#12A187", fill: "#FAFDFD" },
               statusCounts.onCourse ?? 0,
               "on-course",
             )}
@@ -177,7 +269,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
             {...createStatusChip(
               <WarningIcon />,
               "Almost Due",
-              "warning",
+              { border: "#FD992E", badge: "#FD992E", fill: "#FAFDFD" },
               statusCounts.almostDue ?? 0,
               "almost-due",
             )}
@@ -186,7 +278,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
             {...createStatusChip(
               <ErrorIcon />,
               "Past Due",
-              "error",
+              { border: "#CD463C", badge: "#CD463C", fill: "#FDF9F9" },
               statusCounts.pastDue ?? 0,
               "past-due",
             )}
@@ -195,9 +287,27 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
             {...createStatusChip(
               <PriorityHighIcon />,
               "Needs Attention",
-              "secondary",
+              { border: "#A32B9A", badge: "#A32B9A", fill: "#FFFFFF" },
               statusCounts.needsAttention ?? 0,
               "needs-attention",
+            )}
+          />
+          <Chip
+            {...createStatusChip(
+              <DiscretionaryIcon />,
+              "Discretionary",
+              { border: "#6B46C1", badge: "#6B46C1", fill: "#F8F6FF" },
+              statusCounts.discretionary ?? 0,
+              "discretionary",
+            )}
+          />
+          <Chip
+            {...createStatusChip(
+              <MandatoryIcon />,
+              "Mandatory",
+              { border: "#0066CC", badge: "#0066CC", fill: "#F0F8FF" },
+              statusCounts.mandatory ?? 0,
+              "mandatory",
             )}
           />
         </Box>
@@ -256,6 +366,14 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
         transformOrigin={{
           vertical: "top",
           horizontal: "right",
+        }}
+        slotProps={{
+          paper: {
+            sx: {
+              boxShadow:
+                "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
+            },
+          },
         }}
       >
         <MenuItem onClick={handleSettingsClose}>Export Data</MenuItem>

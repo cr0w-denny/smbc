@@ -1,24 +1,36 @@
 {
   "color": {
     "primary": {
-      "50": { "value": "#f2f8f2", "type": "color" },
-      "100": { "value": "#e5f1e5", "type": "color" },
-      "200": { "value": "#bde0bd", "type": "color" },
-      "300": { "value": "#94cf94", "type": "color" },
+      "50": { "value": "#e3f2fd", "type": "color" },
+      "100": { "value": "#bbdefb", "type": "color" },
+      "200": { "value": "#90caf9", "type": "color" },
+      "300": { "value": "#64b5f6", "type": "color" },
       "400": {
-        "value": "#6bbf6b",
+        "value": "#42a5f5",
         "type": "color",
-        "description": "Lighter green for dark mode"
+        "description": "Lighter blue for dark mode"
       },
       "500": {
-        "value": "#335500",
+        "value": "#74abfb",
         "type": "color",
-        "description": "Base SMBC green"
+        "description": "Base EWI blue"
       },
-      "600": { "value": "#2e4d00", "type": "color" },
-      "700": { "value": "#294400", "type": "color" },
-      "800": { "value": "#1f3300", "type": "color" },
-      "900": { "value": "#142200", "type": "color" }
+      "600": { "value": "#1e88e5", "type": "color" },
+      "700": { "value": "#1976d2", "type": "color" },
+      "800": { "value": "#1565c0", "type": "color" },
+      "900": { "value": "#0d47a1", "type": "color" }
+    },
+    "surface": {
+      "header": {
+        "value": "#141b1d",
+        "type": "color",
+        "description": "Dark header background color"
+      },
+      "body": {
+        "value": "#242b2f",
+        "type": "color",
+        "description": "Dark body background color"
+      }
     },
     "secondary": {
       "50": { "value": "#feffef", "type": "color" },

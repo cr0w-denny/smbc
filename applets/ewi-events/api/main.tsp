@@ -21,116 +21,116 @@ using TypeSpec.OpenAPI;
 @server("https://api.smbcgroup.com/api/v1/ewi-events", "prod")
 namespace EwiEventsApi;
 
-@doc("Event status enumeration")
-union EventStatus {
-  @doc("Event is on course")
-  "on-course",
-  
-  @doc("Event is almost due")
-  "almost-due",
-  
-  @doc("Event is past due")
-  "past-due",
-  
-  @doc("Event needs attention")
-  "needs-attention",
-}
 
 @doc("Dashboard event model")
 model Event {
-  @doc("Event ID")
+  @doc("Event reference ID")
   @extension("x-mock-data", #{ faker: "string.alphanumeric", options: #{ length: 8, casing: "upper", prefix: "EV" } })
-  id: string;
+  event_ref_id: string;
   
   @doc("Obligor name")
   @extension("x-mock-data", #{ faker: "company.name" })
   obligor: string;
   
-  @doc("Event status")
-  @extension("x-mock-data", #{ 
-    choices: #["on-course", "almost-due", "past-due", "needs-attention"],
-    weights: #[0.4, 0.3, 0.2, 0.1]
-  })
-  status: EventStatus;
+  @doc("SUN ID")
+  @extension("x-mock-data", #{ faker: "number.int", options: #{ min: 100000, max: 999999 } })
+  sun_id: int32;
   
-  @doc("Due date")
+  @doc("PLO")
+  @extension("x-mock-data", #{ faker: "string.alphanumeric", options: #{ length: 6, casing: "upper" } })
+  plo: string;
+  
+  @doc("Exposure amount")
+  @extension("x-mock-data", #{ faker: "number.int", options: #{ min: 10000, max: 10000000 } })
+  exposure: int32;
+  
+  @doc("Event date")
   @extension("x-mock-data", #{ relative: "-30d to +30d", format: "yyyy-MM-dd" })
-  dueDate: string;
+  event_date: string;
   
-  @doc("Assigned analyst")
-  @extension("x-mock-data", #{ faker: "person.fullName" })
-  analyst: string;
+  @doc("Event resolution date")
+  @extension("x-mock-data", #{ relative: "+1d to +60d", format: "yyyy-MM-dd" })
+  event_res_date: string;
+  
+  @doc("Event category")
+  @extension("x-mock-data", #{ 
+    faker: "helpers.arrayElement",
+    args: #[#["Mandatory", "Discretionary"]]
+  })
+  event_category: string;
+  
+  @doc("Workflow status")
+  @extension("x-mock-data", #{ 
+    faker: "helpers.arrayElement",
+    args: #[#["Subscribed", "NotSubscribed", "Review", "Approval", "Complete"]]
+  })
+  workflow_status: string;
+  
+  @doc("Lifecycle status")
+  @extension("x-mock-data", #{ 
+    faker: "helpers.arrayElement",
+    args: #[#["on-course", "almost-due", "past-due", "needs-attention"]]
+  })
+  lifecycle_status: string;
+  
+  @doc("Trigger type")
+  @extension("x-mock-data", #{ 
+    faker: "helpers.arrayElement",
+    args: #[#["ExRatings", "Stock", "CDSSpreads", "LoanPrices", "Financials"]]
+  })
+  trigger_type: string;
+  
+  @doc("Trigger shortname")
+  @extension("x-mock-data", #{ 
+    faker: "helpers.arrayElement",
+    args: #[#[
+      "RTNG_DOWN_1NOTCH", 
+      "STCK_PRC_DOWN_L1", 
+      "CDS_SPREAD_DOWN_10_PCT", 
+      "SEC_LOAN_PRICE_DWN", 
+      "NEG_CUM_EBIT",
+      "NEG_CUM_NI"
+    ]]
+  })
+  trigger_shortname: string;
+  
+  @doc("Trigger values")
+  @extension("x-mock-data", #{ 
+    faker: "helpers.arrayElement",
+    args: #[#[
+      "MoodyLTRatingCurrent-MoodyLTRating1Day1\nORS&PLTRatingCurrent-S&PLTRating1Day1",
+      "(StockPriceCurrent-StockPrice3M)/StockPriceCurrent*100≤-50",
+      "CDSSpreadCurrent ≥ 10%",
+      "(SecLoanPriceCurrent-SecLoanPrice3M)/SecLoanPriceCurrent*100≥50",
+      "CumulativeEBIT<0",
+      "CumulativeNI<0"
+    ]]
+  })
+  trigger_values: string;
 }
 
-@doc("Event list response")
-model EventList {
-  @doc("List of events")
-  events: Event[];
-  
-  @doc("Total number of events")
-  total: int32;
-  
-  @doc("Current page")
-  page: int32;
-  
-  @doc("Page size")
-  pageSize: int32;
-}
 
-@doc("Event filters")
-model EventFilters {
-  @doc("Filter by status")
-  @query 
-  @extension("x-mock-filter", #{ field: "status", strategy: "exact" })
-  status?: EventStatus;
-  
-  @doc("Filter by date from")
-  @query
-  @extension("x-mock-filter", #{ field: "dueDate", strategy: "date-range-from" })
-  dateFrom?: string;
-  
-  @doc("Filter by date to")
-  @query
-  @extension("x-mock-filter", #{ field: "dueDate", strategy: "date-range-to" })
-  dateTo?: string;
-  
-  @doc("Filter by workflow")
-  @query
-  @extension("x-mock-filter", #{ field: "workflow", strategy: "exact" })
-  workflow?: string;
-  
-  @doc("Filter by ratings")
-  @query
-  @extension("x-mock-filter", #{ field: "exRatings", strategy: "partial-match" })
-  exRatings?: string;
-  
-  @doc("Search across events")
-  @query 
-  @extension("x-mock-search", #{ fields: #["obligor", "analyst", "id"] })
-  search?: string;
-  
-  @doc("Page number")
-  @query
-  page?: int32 = 1;
-  
-  @doc("Page size")
-  @query
-  pageSize?: int32 = 20;
-}
+/**
+ * Event-specific filter parameters
+ */
+alias EventFilterParams = {
+  @query @extension("x-mock-filter", #{ field: "lifecycle_status", strategy: "exact" }) status?: "on-course" | "almost-due" | "past-due" | "needs-attention";
+  @query @extension("x-mock-filter", #{ field: "event_category", strategy: "exact" }) category?: "mandatory" | "discretionary";
+  @query types?: string;
+};
 
-@route("/api/events")
+@route("/events")
 interface Events {
-  @doc("Get events with optional filters")
+  @doc("Get the list of events for a date range")
   @get
   @operationId("getEvents")
   @extension("x-mock-response", #{
     count: 50,
-    pagination: true
+    returnArray: true
   })
-  list(...EventFilters): EventList;
-  
-  @doc("Get event by ID")
-  @get
-  @operationId("getEvent")
-  get(@path id: string): Event;
+  list(
+    @query start_date?: string,  // format: date
+    @query end_date?: string,    // format: date
+    ...EventFilterParams
+  ): Event[];
 }

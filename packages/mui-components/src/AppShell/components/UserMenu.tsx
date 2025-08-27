@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   IconButton,
   Menu,
@@ -8,14 +8,14 @@ import {
   Switch,
   Avatar,
   Divider,
-} from '@mui/material';
+} from "@mui/material";
 import {
-  AccountCircle as AccountCircleIcon,
+  AccountCircleOutlined as AccountCircleIcon,
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
   Settings as SettingsIcon,
   Logout as LogoutIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface UserMenuProps {
   /** Whether dark mode is currently enabled */
@@ -37,7 +37,7 @@ interface UserMenuProps {
 export const UserMenu: React.FC<UserMenuProps> = ({
   isDarkMode = false,
   onDarkModeToggle,
-  username = 'User',
+  username = "User",
   avatarUrl,
   additionalItems = [],
 }) => {
@@ -62,24 +62,23 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     <>
       <IconButton
         onClick={handleClick}
-        size="small"
-        sx={{ 
-          color: 'inherit',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          }
+        sx={{
+          color: "inherit",
+          "&:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+          },
         }}
-        aria-controls={open ? 'user-menu' : undefined}
+        aria-controls={open ? "user-menu" : undefined}
         aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
+        aria-expanded={open ? "true" : undefined}
       >
         {avatarUrl ? (
           <Avatar src={avatarUrl} sx={{ width: 32, height: 32 }} />
         ) : (
-          <AccountCircleIcon />
+          <AccountCircleIcon sx={{ fontSize: 32 }} />
         )}
       </IconButton>
-      
+
       <Menu
         anchorEl={anchorEl}
         id="user-menu"
@@ -89,29 +88,29 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         PaperProps={{
           elevation: 3,
           sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+            overflow: "visible",
+            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
             mt: 1.5,
             minWidth: 200,
-            '&:before': {
+            "&:before": {
               content: '""',
-              display: 'block',
-              position: 'absolute',
+              display: "block",
+              position: "absolute",
               top: 0,
               right: 14,
               width: 10,
               height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
+              bgcolor: "background.paper",
+              transform: "translateY(-50%) rotate(45deg)",
               zIndex: 0,
             },
           },
         }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         {/* User Info */}
-        <MenuItem disabled sx={{ opacity: '1 !important' }}>
+        <MenuItem disabled sx={{ opacity: "1 !important" }}>
           <ListItemIcon>
             {avatarUrl ? (
               <Avatar src={avatarUrl} sx={{ width: 24, height: 24 }} />
@@ -121,9 +120,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           </ListItemIcon>
           <ListItemText primary={username} />
         </MenuItem>
-        
+
         <Divider />
-        
+
         {/* Dark Mode Toggle */}
         <MenuItem onClick={handleDarkModeToggle}>
           <ListItemIcon>
@@ -141,7 +140,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             onClick={(e) => e.stopPropagation()}
           />
         </MenuItem>
-        
+
         {/* Additional Items */}
         {additionalItems.length > 0 && (
           <>
@@ -154,9 +153,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             ))}
           </>
         )}
-        
+
         <Divider />
-        
+
         {/* Settings */}
         <MenuItem>
           <ListItemIcon>
@@ -164,7 +163,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           </ListItemIcon>
           <ListItemText primary="Settings" />
         </MenuItem>
-        
+
         {/* Logout */}
         <MenuItem>
           <ListItemIcon>

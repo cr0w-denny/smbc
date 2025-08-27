@@ -34,9 +34,9 @@
     "breakpoint": {
       "xs": { "value": "0", "type": "breakpoint" },
       "sm": { "value": "600", "type": "breakpoint" },
-      "md": { "value": "900", "type": "breakpoint" },
-      "lg": { "value": "1200", "type": "breakpoint" },
-      "xl": { "value": "1536", "type": "breakpoint" }
+      "md": { "value": "1440", "type": "breakpoint" },
+      "lg": { "value": "1640", "type": "breakpoint" },
+      "xl": { "value": "1920", "type": "breakpoint" }
     }
   }
 }

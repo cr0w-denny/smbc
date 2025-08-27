@@ -53,4 +53,6 @@ export interface AppShellProps {
   right?: ReactNode;
   /** Color for active navigation indicators */
   activeColor?: string;
+  /** Maximum width for content area with responsive breakpoints */
+  maxWidth?: string | { xs?: string; sm?: string; md?: string; lg?: string; xl?: string };
 }

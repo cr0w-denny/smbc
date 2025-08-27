@@ -1,0 +1,16 @@
+html {
+    /* force scrollbars to always show to prevent layout shift */
+    overflow-y: scroll !important;
+    /* allow children to take full height */
+    height: 100%;
+}
+
+body {
+    /* allow children to take full height */
+    height: 100%;
+}
+
+#root {
+    /* allow children to take full height */
+    height: 100%;
+}

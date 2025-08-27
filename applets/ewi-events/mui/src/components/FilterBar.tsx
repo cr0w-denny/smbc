@@ -4,13 +4,13 @@ import { Filter } from "@smbc/mui-components";
 import type { FilterSpec } from "@smbc/mui-components";
 
 interface FilterBarProps {
-  values: {
-    dateFrom: string;
-    dateTo: string;
-    status: string;
-    exRatings: string;
-    workflow: string;
-    priority: string;
+  values: Record<string, any> & {
+    dateFrom?: string;
+    dateTo?: string;
+    status?: string;
+    exRatings?: string;
+    workflow?: string;
+    priority?: string;
   };
   onValuesChange: (values: any) => void;
   onApply: () => void;
@@ -64,11 +64,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   return (
-    <Box sx={{ px: 2, pt: 2, pb: 1, mb: "100px" }}>
+    <Box
+      sx={{
+        py: 1,
+        mb: "100px",
+        backgroundColor: "transparent", // Inherit gradient from app layout
+      }}
+    >
       {/* Max-width container for filter bar content */}
-      <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
+      <Box sx={{ maxWidth: "100%", mx: "auto" }}>
         {/* Filter component with Apply button on same line */}
-        <Box sx={{ display: "flex", gap: 2, mb: 2, alignItems: "flex-start" }}>
+        <Box sx={{ display: "flex", gap: 2, mb: 2, alignItems: "center" }}>
           <Filter
             spec={filterSpec}
             values={values}

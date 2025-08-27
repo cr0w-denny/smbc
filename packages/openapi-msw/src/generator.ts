@@ -211,13 +211,28 @@ ${mockProps},
     if (mockData.faker) {
       let fakerCall;
       
-      // Handle args if provided
-      if (mockData.args && Array.isArray(mockData.args) && mockData.args.length > 0) {
-        const argsString = mockData.args.map((arg: any) => JSON.stringify(arg)).join(', ');
-        fakerCall = `faker.${mockData.faker}(${argsString})`;
+      // Handle options (TypeSpec format) or args (legacy format)
+      const options = mockData.options || mockData.args;
+      if (options) {
+        let optionsString;
+        if (Array.isArray(options) && options.length > 0) {
+          // Legacy args format - array of values
+          optionsString = options.map((arg: any) => JSON.stringify(arg)).join(', ');
+        } else if (typeof options === 'object') {
+          // TypeSpec options format - object
+          optionsString = JSON.stringify(options);
+        }
+        
+        if (optionsString) {
+          fakerCall = `faker.${mockData.faker}(${optionsString})`;
+        } else {
+          fakerCall = `faker.${mockData.faker}()`;
+        }
       } else {
         fakerCall = `faker.${mockData.faker}()`;
       }
+
+      // Handle prefix for string generation (already handled in options, don't duplicate)
 
       // Handle unique values - use faker.helpers.unique for stable uniqueness
       if (mockData.unique) {

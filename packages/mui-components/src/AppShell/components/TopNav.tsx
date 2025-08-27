@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   AppBar,
   Box,
@@ -7,11 +7,11 @@ import {
   Menu,
   MenuItem,
   Button,
-} from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { NavigationItem } from '../types';
-import { TreeDropdownMenu } from './TreeDropdownMenu';
-import { UserMenu } from './UserMenu';
+} from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { NavigationItem } from "../types";
+import { TreeDropdownMenu } from "./TreeDropdownMenu";
+import { UserMenu } from "./UserMenu";
 
 interface TopNavProps {
   logo?: React.ReactNode;
@@ -33,12 +33,16 @@ interface TopNavProps {
   right?: React.ReactNode;
   /** Color for active navigation indicators */
   activeColor?: string;
+  /** Maximum width for toolbar content with responsive breakpoints */
+  maxWidth?:
+    | string
+    | { xs?: string; sm?: string; md?: string; lg?: string; xl?: string };
 }
 
-export const TopNav: React.FC<TopNavProps> = ({ 
-  logo, 
+export const TopNav: React.FC<TopNavProps> = ({
+  logo,
   hamburgerMenu,
-  navigation, 
+  navigation,
   onNavigate,
   currentPath,
   isDarkMode,
@@ -47,11 +51,15 @@ export const TopNav: React.FC<TopNavProps> = ({
   avatarUrl,
   right,
   activeColor,
+  maxWidth,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, label: string) => {
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    label: string,
+  ) => {
     setAnchorEl(event.currentTarget);
     setActiveMenu(label);
   };
@@ -71,14 +79,15 @@ export const TopNav: React.FC<TopNavProps> = ({
   const renderNavItem = (item: NavigationItem, index: number) => {
     // Check if item is active or if any dropdown items are active
     const isActive = item.href === currentPath;
-    const hasActiveChild = item.type === 'dropdown' && item.items?.some(subItem => 
-      subItem.href === currentPath);
+    const hasActiveChild =
+      item.type === "dropdown" &&
+      item.items?.some((subItem) => subItem.href === currentPath);
     const showActiveIndicator = isActive || hasActiveChild;
 
     switch (item.type) {
-      case 'link':
+      case "link":
         return (
-          <Box key={index} sx={{ position: 'relative', mr: 2 }}>
+          <Box key={index} sx={{ position: "relative", mr: 2 }}>
             <Button
               color="inherit"
               size="small"
@@ -86,9 +95,11 @@ export const TopNav: React.FC<TopNavProps> = ({
                 if (item.onClick) item.onClick();
                 handleNavigation(item.href);
               }}
-              sx={{ 
-                textTransform: 'none',
-                fontWeight: 'normal',
+              sx={{
+                textTransform: "none",
+                fontFamily: "Roboto",
+                fontSize: "17px",
+                fontWeight: 600, // semibold
               }}
             >
               {item.label}
@@ -96,31 +107,33 @@ export const TopNav: React.FC<TopNavProps> = ({
             {showActiveIndicator && (
               <Box
                 sx={{
-                  position: 'absolute',
-                  bottom: -12,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '80%',
-                  height: 4,
-                  bgcolor: activeColor || 'primary.main',
-                  borderRadius: '2px 2px 0 0',
+                  position: "absolute",
+                  bottom: -8,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "80%",
+                  height: 5,
+                  bgcolor: activeColor || "primary.main",
+                  borderRadius: "2px 2px 0 0",
                 }}
               />
             )}
           </Box>
         );
 
-      case 'dropdown':
+      case "dropdown":
         return (
-          <Box key={index} sx={{ position: 'relative', mr: 2 }}>
+          <Box key={index} sx={{ position: "relative", mr: 2 }}>
             <Button
               onClick={(e) => handleMenuOpen(e, item.label)}
               endIcon={<ArrowDropDownIcon />}
               color="inherit"
               size="small"
-              sx={{ 
-                textTransform: 'none',
-                fontWeight: 'normal',
+              sx={{
+                textTransform: "none",
+                fontFamily: "Roboto",
+                fontSize: "17px",
+                fontWeight: 600, // semibold
               }}
             >
               {item.label}
@@ -128,14 +141,14 @@ export const TopNav: React.FC<TopNavProps> = ({
             {showActiveIndicator && (
               <Box
                 sx={{
-                  position: 'absolute',
-                  bottom: -12,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '80%',
-                  height: 4,
-                  bgcolor: activeColor || 'primary.main',
-                  borderRadius: '2px 2px 0 0',
+                  position: "absolute",
+                  bottom: -8,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "80%",
+                  height: 5,
+                  bgcolor: activeColor || "primary.main",
+                  borderRadius: "2px 2px 0 0",
                 }}
               />
             )}
@@ -145,8 +158,8 @@ export const TopNav: React.FC<TopNavProps> = ({
               onClose={handleMenuClose}
               slotProps={{
                 paper: {
-                  sx: { '& .MuiMenuItem-root': { minHeight: 'auto' } }
-                }
+                  sx: { "& .MuiMenuItem-root": { minHeight: "auto" } },
+                },
               }}
             >
               {item.items?.map((subItem, subIndex) => (
@@ -164,7 +177,7 @@ export const TopNav: React.FC<TopNavProps> = ({
           </Box>
         );
 
-      case 'tree-dropdown':
+      case "tree-dropdown":
         return (
           <Box key={index} sx={{ mr: 2 }}>
             <Button
@@ -185,12 +198,12 @@ export const TopNav: React.FC<TopNavProps> = ({
           </Box>
         );
 
-      case 'button':
+      case "button":
         return (
           <Button
             key={index}
-            variant={item.variant || 'contained'}
-            color={item.color || 'primary'}
+            variant={item.variant || "contained"}
+            color={item.color || "primary"}
             size="small"
             onClick={() => {
               if (item.onClick) item.onClick();
@@ -210,48 +223,56 @@ export const TopNav: React.FC<TopNavProps> = ({
   const rightNavItems: any[] = [];
 
   return (
-    <AppBar position="static">
-      <Toolbar variant="dense">
+    <AppBar position="fixed" sx={{ height: "104px", zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <Toolbar variant="dense" sx={{ height: "100%", p: "0 !important" }}>
         {/* Max-width container for header content */}
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          width: '100%', 
-          maxWidth: '1200px', 
-          mx: 'auto' 
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+            maxWidth: maxWidth || "1200px",
+            mx: "auto",
+          }}
+        >
           {/* Left Section - Logo and potential hamburger menu */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}
+          >
             {hamburgerMenu}
             {logo ? (
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>{logo}</Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>{logo}</Box>
             ) : (
-              <Typography variant="h6" sx={{ whiteSpace: 'nowrap' }}>
+              <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
                 Dashboard
               </Typography>
             )}
           </Box>
 
           {/* Center Section - Main Navigation */}
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center',
-            flex: 1,
-            minWidth: 0 
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               {centerNavItems.map(renderNavItem)}
             </Box>
           </Box>
 
           {/* Right Section - Button items, additional components, and user menu */}
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1,
-            minWidth: 0 
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              minWidth: 0,
+            }}
+          >
             {rightNavItems.map(renderNavItem)}
             {right}
             <UserMenu

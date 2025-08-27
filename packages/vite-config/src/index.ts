@@ -8,6 +8,7 @@
 // Main configuration functions
 export { createAppletConfig, type AppletConfigOptions } from './presets/applet.js';
 export { createBaseConfig } from './presets/base.js';
+export { createAppConfig } from './presets/app.js';
 
 // Plugins
 export { suppressUseClientWarnings } from './plugins/suppress-warnings.js';

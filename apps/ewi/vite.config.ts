@@ -1,8 +1,7 @@
 import { defineConfig, mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { suppressUseClientWarnings, injectAppletVersions } from "@smbc/vite-config";
-import { sharedViteConfig } from "../../vite.shared.config.ts";
+import { suppressUseClientWarnings, injectAppletVersions, createAppConfig } from "@smbc/vite-config";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -101,7 +100,7 @@ export default defineConfig(({ mode }) => {
     },
   });
 
-  const finalConfig = mergeConfig(sharedViteConfig, appSpecificConfig);
+  const finalConfig = mergeConfig(createAppConfig(), appSpecificConfig);
   
   // Ensure esbuild configuration is properly applied
   if (isProduction) {

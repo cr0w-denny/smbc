@@ -9,10 +9,7 @@ import {
   type MuiDataViewAppletConfig,
 } from "@smbc/mui-applet-core";
 // Dynamic faker import to prevent including it in main bundle
-import {
-  createBulkUpdateAction,
-  createBulkDeleteAction,
-} from "@smbc/dataview";
+import { createBulkUpdateAction, createBulkDeleteAction } from "@smbc/dataview";
 
 // =============================================================================
 // DATAVIEW REFERENCE IMPLEMENTATION
@@ -430,7 +427,6 @@ const createTaskConfig = (
       key: "status",
       label: "Status",
       sortable: true,
-      sx: { whiteSpace: "nowrap" }, // Prevent text wrapping for clean display
     },
 
     // Priority column for quick scanning
@@ -444,7 +440,6 @@ const createTaskConfig = (
       key: "dueDate",
       label: "Due Date",
       sortable: true,
-      sx: { whiteSpace: "nowrap" }, // Keep dates consistent
     },
 
     // Description column - typically not sortable due to length
@@ -678,7 +673,6 @@ const createTaskConfig = (
     defaultPageSize: 10, // Items per page on initial load
     pageSizeOptions: [5, 10, 20], // Available page size options
   },
-
 
   // =============================================================================
   // ACTIVITY TRACKING CONFIGURATION

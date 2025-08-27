@@ -59,6 +59,14 @@
         "overlay": {
           "light": { "value": "rgba(0, 0, 0, 0.5)", "type": "color" },
           "dark": { "value": "rgba(0, 0, 0, 0.7)", "type": "color" }
+        },
+        "header": {
+          "light": { "value": "{color.primary.500}", "type": "color" },
+          "dark": { "value": "{color.surface.header}", "type": "color" }
+        },
+        "body": {
+          "light": { "value": "{color.gray.50}", "type": "color" },
+          "dark": { "value": "{color.surface.body}", "type": "color" }
         }
       },
       "action": {

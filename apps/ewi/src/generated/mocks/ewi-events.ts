@@ -2,6 +2,9 @@ import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
 import { format } from 'date-fns';
 
+// Set a consistent seed for reproducible mock data
+faker.seed(12345);
+
 const mockConfig = {
   baseUrl: '/api/v1/ewi-events',
   delay: { min: 0, max: 200 },
@@ -16,11 +19,19 @@ async function delay() {
 
 function generateEvent(overrides = {}) {
   return {
-    id: faker.string.alphanumeric({ length: 8, casing: 'upper' }),
+    event_ref_id: faker.string.alphanumeric({"length":8,"casing":"upper","prefix":"EV"}),
     obligor: faker.company.name(),
-    status: faker.helpers.arrayElement(['on-course', 'almost-due', 'past-due', 'needs-attention']),
-    dueDate: format(faker.date.between({ from: '-30d', to: '+30d' }), 'yyyy-MM-dd'),
-    analyst: faker.person.fullName(),
+    sun_id: faker.number.int({"min":100000,"max":999999}),
+    plo: faker.string.alphanumeric({"length":6,"casing":"upper"}),
+    exposure: faker.number.int({"min":10000,"max":10000000}),
+    event_date: format(faker.date.between({ from: '-30d', to: '+30d' }), 'yyyy-MM-dd'),
+    event_res_date: format(faker.date.between({ from: '+1d', to: '+60d' }), 'yyyy-MM-dd'),
+    event_category: faker.helpers.arrayElement(["Mandatory","Discretionary"]),
+    workflow_status: faker.helpers.arrayElement(["Subscribed","NotSubscribed","Review","Approval","Complete"]),
+    lifecycle_status: faker.helpers.arrayElement(["on-course","almost-due","past-due","needs-attention"]),
+    trigger_type: faker.helpers.arrayElement(["ExRatings","Stock","CDSSpreads","LoanPrices","Financials"]),
+    trigger_shortname: faker.helpers.arrayElement(["RTNG_DOWN_1NOTCH","STCK_PRC_DOWN_L1","CDS_SPREAD_DOWN_10_PCT","SEC_LOAN_PRICE_DWN","NEG_CUM_EBIT","NEG_CUM_NI"]),
+    trigger_values: faker.helpers.arrayElement(["MoodyLTRatingCurrent-MoodyLTRating1Day1\nORS&PLTRatingCurrent-S&PLTRating1Day1","(StockPriceCurrent-StockPrice3M)/StockPriceCurrent*100≤-50","CDSSpreadCurrent ≥ 10%","(SecLoanPriceCurrent-SecLoanPrice3M)/SecLoanPriceCurrent*100≥50","CumulativeEBIT<0","CumulativeNI<0"]),
     ...overrides
   };
 }
@@ -51,84 +62,33 @@ function getAllEvents(): any[] {
 
 
 export const handlers = [
-  http.get(`${mockConfig.baseUrl}/api/events`, async ({ request }) => {
+  http.get(`${mockConfig.baseUrl}/events`, async ({ request }) => {
     await delay();
     
     const url = new URL(request.url);
     
     const status = url.searchParams.get('status');
-    // Date filtering parameters (not implemented yet)
-    // const dateFrom = url.searchParams.get('dateFrom');
-    // const dateTo = url.searchParams.get('dateTo');
-    const workflow = url.searchParams.get('workflow');
-    const exRatings = url.searchParams.get('exRatings');
-    const search = url.searchParams.get('search');
-    const page = url.searchParams.get('page');
-    const pageSize = url.searchParams.get('pageSize');
+    const category = url.searchParams.get('category');
     
     const allItems = getAllEvents();
     let filteredItems = allItems;
     
     if (status !== null && status !== '') {
       filteredItems = filteredItems.filter((item: any) => 
-        item.status?.toString().toLowerCase() === status.toLowerCase()
+        item.lifecycle_status?.toString().toLowerCase() === status.toLowerCase()
       );
     }
-    if (workflow !== null && workflow !== '') {
+    if (category !== null && category !== '') {
       filteredItems = filteredItems.filter((item: any) => 
-        item.workflow?.toString().toLowerCase() === workflow.toLowerCase()
+        item.event_category?.toString().toLowerCase() === category.toLowerCase()
       );
     }
-    if (exRatings !== null && exRatings !== '') {
-      filteredItems = filteredItems.filter((item: any) => 
-        item.exRatings?.toString().toLowerCase().includes(exRatings.toLowerCase())
-      );
-    }
-    if (search !== null && search !== '') {
-      filteredItems = filteredItems.filter((item: any) => item.obligor?.toString().toLowerCase().includes(search.toLowerCase()) || item.analyst?.toString().toLowerCase().includes(search.toLowerCase()) || item.id?.toString().toLowerCase().includes(search.toLowerCase()));
-    }
-
-    // Pagination
-    const pageNum = parseInt(page || '1');
-    const pageSizeNum = parseInt(pageSize || '20');
-    const startIndex = (pageNum - 1) * pageSizeNum;
-    const endIndex = startIndex + pageSizeNum;
-    const paginatedItems = filteredItems.slice(startIndex, endIndex);
-
-    
-    return HttpResponse.json({
-      "events": paginatedItems,
-      "total": filteredItems.length,
-      "page": pageNum,
-      "pageSize": pageSizeNum
-    });
-  }),
-  http.get(`${mockConfig.baseUrl}/api/events/:id`, async ({ request: _request, params }) => {
-    await delay();
-    
-    
-
-    
-    // Handle single resource lookup by ID
-    const entityId = params.id as string;
-    if (entityId) {
-      const item = eventDataStore.get(entityId);
-      if (!item) {
-        return HttpResponse.json({ error: 'Event not found' }, { status: 404 });
-      }
-      return HttpResponse.json(item);
-    }
-    
-    const allItems = getAllEvents();
-    let filteredItems = allItems;
-    
-
 
 
     const paginatedItems = filteredItems;
 
     
-    return HttpResponse.json(paginatedItems[0] || {});
+    return HttpResponse.json(paginatedItems);
   })
 ];
 

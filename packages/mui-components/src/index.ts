@@ -48,6 +48,7 @@ export type {
 
 export { lightTheme } from "./theme/light";
 export { darkTheme } from "./theme/dark";
+export { createTheme } from "./theme/base";
 import { lightTheme } from "./theme/light";
 import { darkTheme } from "./theme/dark";
 export const getTheme = (mode: "light" | "dark" = "light") => {
@@ -68,3 +69,6 @@ export type {
   TreeNavigationItem,
   StatusChip,
 } from "./AppShell";
+
+// AG Grid Theme
+export { AgGridTheme } from "./AgGridTheme";

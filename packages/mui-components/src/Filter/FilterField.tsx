@@ -176,7 +176,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "date":
       return (
-        <Box sx={{ width: 150 }}>
+        <Box sx={{ width: 170 }}>
           <DatePicker
             label={field.label}
             value={parseDate(value, field.dateFormat)}
@@ -201,7 +201,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "datetime":
       return (
-        <Box sx={{ width: 180 }}>
+        <Box sx={{ width: 170 }}>
           <DateTimePicker
             label={field.label}
             value={parseDate(value, field.dateFormat || "yyyy-MM-dd HH:mm:ss")}

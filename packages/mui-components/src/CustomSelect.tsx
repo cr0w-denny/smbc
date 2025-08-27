@@ -8,7 +8,7 @@ import {
   InputLabelProps,
   Box,
 } from "@mui/material";
-import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { ExpandMore, ExpandLess } from "@mui/icons-material";
 
 // Custom dropdown icon component
 const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
@@ -16,13 +16,14 @@ const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
     <Box
       sx={{
         position: "absolute",
-        right: 8,
+        right: 15,
         top: "50%",
         transform: "translateY(-50%)",
         width: 24,
         height: 24,
         borderRadius: 12,
-        backgroundColor: "primary.main",
+        border: "2px solid",
+        borderColor: "primary.main",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -30,9 +31,9 @@ const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
       }}
     >
       {open ? (
-        <KeyboardArrowUpOutlined sx={{ color: "white", fontSize: 20 }} />
+        <ExpandLess sx={{ color: "primary.main", fontSize: 20 }} />
       ) : (
-        <KeyboardArrowDownOutlined sx={{ color: "white", fontSize: 20 }} />
+        <ExpandMore sx={{ color: "primary.main", fontSize: 20 }} />
       )}
     </Box>
   );
@@ -77,7 +78,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         sx={{
           ...selectProps.sx,
           "& .MuiSelect-select": {
-            paddingRight: "60px !important",
+            padding: "7px 12px",
+            paddingRight: "50px !important",
           },
         }}
         label={label}

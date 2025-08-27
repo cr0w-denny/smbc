@@ -43,7 +43,7 @@ export const darkPalette: PaletteOptions = {
   },
   background: {
     default: getSemanticColor("background.primary", "dark") || "#121212",
-    paper: getSemanticColor("background.secondary", "dark") || "#1e1e1e",
+    paper: getSemanticColor("background.secondary", "dark") || "#141b1d",
   },
   text: {
     primary:

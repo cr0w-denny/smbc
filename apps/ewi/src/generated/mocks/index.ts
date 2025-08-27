@@ -4,12 +4,14 @@
 
 import React from 'react';
 import { handlers as ewiEventsHandlers } from './ewi-events';
+import { handlers as usageStatsHandlers } from './usage-stats';
 
 /**
  * All MSW handlers for configured applets
  */
 export const allHandlers = [
   ...ewiEventsHandlers,
+  ...usageStatsHandlers,
 ];
 
 // Also export as 'handlers' for compatibility
@@ -75,18 +77,24 @@ export function useMockSetup(enabled: boolean = true) {
 // Export individual handler sets for advanced usage
 export {
   ewiEventsHandlers,
+  usageStatsHandlers,
 };
 
 /**
  * Metadata about generated mocks
  */
 export const mockMetadata = {
-  generatedAt: '2025-08-06T05:11:16.029Z',
+  generatedAt: '2025-08-27T02:55:22.863Z',
   applets: [
     {
       id: 'ewi-events',
       packageName: '@smbc/ewi-events-api',
       handlersCount: ewiEventsHandlers.length,
+    },
+    {
+      id: 'usage-stats',
+      packageName: '@smbc/usage-stats-api',
+      handlersCount: usageStatsHandlers.length,
     },
   ],
 };

@@ -46,7 +46,34 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   // If no title, render just the children without header
   if (!title) {
     return (
-      <Box sx={sx}>
+      <Box
+        sx={{
+          "& .MuiInputBase-root": {
+            fontSize: "16px",
+            padding: "4px 8px",
+          },
+          // Date picker specific root
+          "& .MuiPickersInputBase-root": {
+            "& .MuiPickersSectionList-root": {
+              padding: "13px 8px",
+            },
+            "& .MuiInputAdornment-root": {
+              padding: "8px",
+            },
+          },
+          "& .MuiInputLabel-root": {
+            fontSize: "16px",
+            color: "#fff",
+            "&:not(.MuiInputLabel-shrink)": {
+              transform: "translate(20px, 12px) scale(1)",
+            },
+          },
+          "& .MuiMenuItem-root": {
+            fontSize: "16px",
+          },
+          ...sx,
+        }}
+      >
         {children}
       </Box>
     );
@@ -57,6 +84,24 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       sx={{
         p: 2,
         mb: 2,
+        "& .MuiInputBase-root": {
+          fontSize: "16px",
+          padding: "4px 8px",
+        },
+        "& .MuiPickersInputBase-root": {
+          "& .MuiPickersSectionList-root": {
+            padding: "8px 12px",
+          },
+        },
+        "& .MuiInputLabel-root": {
+          fontSize: "16px",
+          "&:not(.MuiInputLabel-shrink)": {
+            transform: "translate(14px, 12px) scale(1)",
+          },
+        },
+        "& .MuiMenuItem-root": {
+          fontSize: "16px",
+        },
         ...sx,
       }}
     >
