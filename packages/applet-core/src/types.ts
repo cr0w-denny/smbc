@@ -4,7 +4,7 @@ import { PermissionDefinition } from "./permissions";
 /**
  * Supported deployment environments
  */
-export type Environment = "mock" | "development" | "qa" | "production";
+export type Environment = "mock" | "local" | "development" | "qa" | "production";
 
 // Role configuration types
 export interface RoleConfig {

@@ -47,8 +47,8 @@ export function ServerSelector({
     const servers = getAvailableServers(currentAppletInfo.apiSpec);
     console.log(`🔍 Available servers for ${currentAppletInfo.id}:`, servers);
     
-    // Sort servers in standard order: mock, dev, qa, prod
-    const order = ["mock", "dev", "qa", "prod"];
+    // Sort servers in standard order: mock, local, dev, qa, prod
+    const order = ["mock", "local", "dev", "qa", "prod"];
     return order
       .map(type => servers.find(s => s.description === type))
       .filter((server): server is NonNullable<typeof server> => server != null);
@@ -58,16 +58,62 @@ export function ServerSelector({
   React.useEffect(() => {
     if (!showStatus || !currentAppletInfo) return;
 
-    // For mock environment, use MSW status
+    // For mock environment, use MSW status with additional verification
     if (environment === 'mock') {
       if (isMswInitializing) {
         setServerStatus('mock-initializing');
-      } else if (state.mswStatus?.isReady) {
-        setServerStatus('mock-ready');
-      } else {
-        setServerStatus('offline');
+        return;
       }
-      return;
+      
+      // Stable MSW status checking with retry logic
+      let consecutiveFailures = 0;
+      const maxFailures = 2; // Allow 2 failures before marking as offline
+      
+      const checkMswStatus = async () => {
+        try {
+          // First check the state
+          if (state.mswStatus?.isReady) {
+            consecutiveFailures = 0;
+            setServerStatus('mock-ready');
+            return;
+          }
+          
+          // Fallback: Try a mock health check
+          const response = await fetch('/api/health', {
+            method: 'GET',
+            signal: AbortSignal.timeout(1500)
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.service === 'msw') {
+              consecutiveFailures = 0;
+              setServerStatus('mock-ready');
+              return;
+            }
+          }
+          
+          // If we get here, the check failed
+          consecutiveFailures++;
+          
+        } catch (error) {
+          consecutiveFailures++;
+        }
+        
+        // Only mark as offline after consecutive failures
+        if (consecutiveFailures >= maxFailures) {
+          setServerStatus('offline');
+        }
+        // Otherwise keep current status to avoid flickering
+      };
+      
+      // Initial check
+      checkMswStatus();
+      
+      // Set up less frequent periodic check to reduce flickering
+      const mockCheckInterval = setInterval(checkMswStatus, 5000);
+      
+      return () => clearInterval(mockCheckInterval);
     }
 
     // For non-mock environments, try a simple health check
@@ -110,9 +156,17 @@ export function ServerSelector({
     
     setFlag("environment", selectedDescription as Environment);
     
-    // Reset status when changing servers
+    // Reset status when changing servers and trigger immediate recheck
     if (showStatus) {
-      setServerStatus('unknown');
+      if (selectedDescription === 'mock') {
+        setServerStatus('mock-initializing');
+        // Trigger a delayed recheck for mock status
+        setTimeout(() => {
+          setServerStatus('unknown');
+        }, 100);
+      } else {
+        setServerStatus('unknown');
+      }
     }
   };
 

@@ -16,6 +16,7 @@ using TypeSpec.OpenAPI;
   title: "User Management API",
 })
 @server("/api/v1/user-management", "mock")
+@server("http://localhost:8000/api/v1/user-management", "local")
 @server("http://localhost:3001/api/v1/user-management", "dev")
 @server("https://api-qa.smbcgroup.com/api/v1/user-management", "qa")
 @server("https://api.smbcgroup.com/api/v1/user-management", "prod")

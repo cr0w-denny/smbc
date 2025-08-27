@@ -105,10 +105,22 @@ export function getServerUrlFromSpec(
   
   console.log(`🔍 getServerUrlFromSpec: Looking for environment '${environment}' in servers:`, servers);
   
-  // First try exact match with description
-  for (const server of servers) {
-    if (server.description === environment) {
-      return server.url;
+  // Map environment names to server description aliases
+  const environmentAliases: Record<Environment, string[]> = {
+    'mock': ['mock'],
+    'local': ['local'],
+    'development': ['development', 'dev'],
+    'qa': ['qa', 'staging'],
+    'production': ['production', 'prod']
+  };
+  
+  // First try exact match with description or aliases
+  const aliases = environmentAliases[environment] || [environment];
+  for (const alias of aliases) {
+    for (const server of servers) {
+      if (server.description === alias) {
+        return server.url;
+      }
     }
   }
   
@@ -131,8 +143,8 @@ export function getServerUrlFromSpec(
   }
   
   // Fallback logic based on environment
-  if (environment === 'development' || environment === 'mock') {
-    // For dev/mock, prefer first server (usually local/dev)
+  if (environment === 'development' || environment === 'mock' || environment === 'local') {
+    // For dev/mock/local, prefer first server (usually local/dev)
     return servers[0].url;
   } else if (environment === 'production') {
     // For prod, prefer last server (usually production)

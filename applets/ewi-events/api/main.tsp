@@ -16,6 +16,7 @@ using TypeSpec.OpenAPI;
   title: "EWI Events API",
 })
 @server("/api/v1/ewi-events", "mock")
+@server("http://localhost:8000/api/v1/ewi-events", "local")
 @server("http://localhost:3001/api/v1/ewi-events", "dev")
 @server("https://api-qa.smbcgroup.com/api/v1/ewi-events", "qa")
 @server("https://api.smbcgroup.com/api/v1/ewi-events", "prod")

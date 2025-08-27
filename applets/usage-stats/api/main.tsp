@@ -15,6 +15,7 @@ using TypeSpec.OpenAPI;
   title: "Usage Stats API",
 })
 @server("/api/v1", "mock")
+@server("http://localhost:8000/api/v1", "local")
 @server("https://ewi-dev.smbcgroup.com/api/v1", "dev")
 @server("https://api-qa.smbcgroup.com/api/v1", "qa")
 @server("https://api.smbcgroup.com/api/v1", "prod")

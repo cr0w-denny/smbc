@@ -14,6 +14,7 @@ using TypeSpec.OpenAPI;
   title: "Product Catalog API",
 })
 @server("/api/v1/product-catalog", "mock")
+@server("http://localhost:8000/api/v1/product-catalog", "local")
 @server("http://localhost:3001/api/v1/product-catalog", "dev")
 @server("https://api-qa.smbcgroup.com/api/v1/product-catalog", "qa")
 @server("https://api.smbcgroup.com/api/v1/product-catalog", "prod")

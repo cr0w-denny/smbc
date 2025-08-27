@@ -17,6 +17,7 @@ using TypeSpec.OpenAPI;
   title: "Employee Directory API",
 })
 @server("/api/v1/employee-directory", "mock")
+@server("http://localhost:8000/api/v1/employee-directory", "local")
 @server("http://localhost:3001/api/v1/employee-directory", "dev")
 @server("https://api-qa.smbcgroup.com/api/v1/employee-directory", "qa")
 @server("https://api.smbcgroup.com/api/v1/employee-directory", "prod")
