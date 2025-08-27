@@ -145,7 +145,7 @@ const AppContent: React.FC = () => {
           <ThemeProvider theme={appTheme}>
             <AppShell
               logo={
-                <img src="/logo.svg" alt="EWI Logo" style={{ height: 60 }} />
+                <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="EWI Logo" style={{ height: 60 }} />
               }
               navigation={navigation}
               onNavigate={navigate}
