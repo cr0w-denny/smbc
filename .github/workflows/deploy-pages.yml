@@ -1,4 +1,4 @@
-name: Deploy MUI Host Dev to GitHub Pages
+name: Deploy Apps to GitHub Pages
 
 on:
   push:
@@ -54,6 +54,21 @@ jobs:
           NODE_ENV: production
           # Set base path for GitHub Pages (auto-detects repository name)
           VITE_BASE_PATH: "/${{ github.event.repository.name }}/"
+
+      - name: Build EWI App
+        run: |
+          cd apps/ewi
+          npm run build
+        env:
+          # Enable production optimizations
+          NODE_ENV: production
+          # Set base path for EWI app under /ewi subdirectory
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/ewi/"
+
+      - name: Copy EWI build to MUI Host Dev dist
+        run: |
+          mkdir -p ./apps/mui-host-dev/dist/ewi
+          cp -r ./apps/ewi/dist/* ./apps/mui-host-dev/dist/ewi/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

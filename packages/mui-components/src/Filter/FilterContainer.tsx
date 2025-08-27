@@ -63,7 +63,6 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
           },
           "& .MuiInputLabel-root": {
             fontSize: "16px",
-            color: "#fff",
             "&:not(.MuiInputLabel-shrink)": {
               transform: "translate(20px, 12px) scale(1)",
             },

@@ -22,7 +22,7 @@ export const createGlobalActionsConfig = (permissions: {
       key: "create",
       label: "Create User",
       icon: AddIcon,
-      color: "secondary" as const,
+      color: "primary" as const,
       onClick: () => {
         // This will be handled by the MuiDataViewApplet automatically
       },
@@ -35,7 +35,7 @@ export const createGlobalActionsConfig = (permissions: {
     key: "export",
     label: "Export",
     icon: ExportIcon,
-    color: "secondary" as const,
+    color: "primary" as const,
     onClick: () => {
       // TODO: Implement export functionality
     },
@@ -47,7 +47,7 @@ export const createGlobalActionsConfig = (permissions: {
     key: "refresh",
     label: "Refresh",
     icon: RefreshIcon,
-    color: "secondary" as const,
+    color: "primary" as const,
     onClick: () => {
       // TODO: Implement refresh functionality
     },

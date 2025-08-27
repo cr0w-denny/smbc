@@ -177,7 +177,7 @@ export function ActionBar<T>({
           <Button
             key={action.key}
             variant="contained"
-            color={action.color}
+            color={action.color || "primary"}
             startIcon={action.icon ? <action.icon /> : undefined}
             onClick={() => action.onClick?.()}
             disabled={action.disabled?.()}

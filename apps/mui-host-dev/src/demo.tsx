@@ -578,7 +578,7 @@ const createTaskConfig = (
         type: "global",
         key: "create", // Must match the key expected by the framework
         label: "Create Task",
-        color: "secondary",
+        color: "primary",
         icon: TaskIcon,
       },
     ],
