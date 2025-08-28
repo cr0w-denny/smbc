@@ -58,7 +58,7 @@ jobs:
       - name: Build EWI App
         run: |
           cd apps/ewi
-          npm run build
+          npm run build -- --mode development
         env:
           # Use development mode to keep console logs for debugging
           NODE_ENV: development
