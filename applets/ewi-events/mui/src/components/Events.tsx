@@ -398,8 +398,6 @@ const ActionsCellRenderer = (params: any) => {
 };
 
 const EventsAgGrid: React.FC = () => {
-  console.log("🌟 EventsAgGrid component is rendering!");
-  
   const { theme } = useAppletCore();
   const gridRef = React.useRef<AgGridReact>(null);
 
@@ -419,23 +417,11 @@ const EventsAgGrid: React.FC = () => {
   // State
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);
   const [pageSize, setPageSize] = useState(25);
-  const [gridReady, setGridReady] = useState(false);
 
   // Fetch data using the API client with keepPreviousData to avoid blanking
   // Only include filters in the query, let AG Grid handle sorting client-side
-  const { data, isLoading, error, isFetching } = useEvents(params);
+  const { data, isLoading, error } = useEvents(params);
 
-  // Debug logging for data state
-  React.useEffect(() => {
-    console.log("EventsAgGrid: Data state changed:", {
-      hasData: !!data?.events?.length,
-      dataLength: data?.events?.length,
-      isLoading,
-      isFetching,
-      error: !!error,
-      actualData: data?.events?.slice(0, 2), // Log first 2 items
-    });
-  }, [data, isLoading, isFetching, error]);
 
   const columnDefs: ColDef[] = useMemo(() => {
     return [
@@ -541,15 +527,6 @@ const EventsAgGrid: React.FC = () => {
     ];
   }, []);
 
-  // Debug log AG Grid rendering
-  React.useEffect(() => {
-    console.log("EventsAgGrid: AG Grid render check:", {
-      hasColumnDefs: !!columnDefs?.length,
-      columnDefCount: columnDefs?.length,
-      hasRowData: !!data?.events?.length,
-      rowDataCount: data?.events?.length,
-    });
-  }, [columnDefs, data?.events]);
 
   // Check if grid ref is set
   React.useEffect(() => {
@@ -561,8 +538,6 @@ const EventsAgGrid: React.FC = () => {
 
   // Event handlers
   const onGridReady = useCallback(({ api }: GridReadyEvent) => {
-    console.log("🔥 AG Grid onGridReady called! Grid is mounting successfully");
-    setGridReady(true);
     api.sizeColumnsToFit();
   }, []);
 
@@ -673,15 +648,6 @@ const EventsAgGrid: React.FC = () => {
       />
 
       <AgGridTheme wrapHeaders={true}>
-        <div style={{ border: '2px solid red', padding: '10px', margin: '10px' }}>
-          Debug: AG Grid Container - Data length: {data?.events?.length || 0}
-          <br />Column defs count: {columnDefs?.length || 0}
-          <br />Is loading: {isLoading ? 'true' : 'false'}
-          <br />Has error: {error ? 'true' : 'false'}
-          <br />Grid ref exists: {gridRef.current ? 'true' : 'false'}
-          <br />Grid ready (onGridReady called): {gridReady ? 'true' : 'false'}
-          <br />AgGridReact component should render below this line:
-        </div>
         <AgGridReact
           ref={gridRef}
           headerHeight={70}
