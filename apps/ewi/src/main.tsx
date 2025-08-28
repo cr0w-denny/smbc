@@ -5,10 +5,6 @@ import { serviceWorkerManager } from "./serviceWorkerManager";
 
 import "./global.css";
 
-// Import AG Grid styles for production builds
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
-
 // Start MSW worker with auto-recovery when mocks are enabled
 // Use VITE_USE_MOCKS=true to enable mocks in any environment
 const useMocks = import.meta.env.VITE_USE_MOCKS === 'true' || 

@@ -429,6 +429,7 @@ const EventsAgGrid: React.FC = () => {
       isLoading,
       isFetching,
       error: !!error,
+      actualData: data?.events?.slice(0, 2), // Log first 2 items
     });
   }, [data, isLoading, isFetching, error]);
 
@@ -535,6 +536,16 @@ const EventsAgGrid: React.FC = () => {
       },
     ];
   }, []);
+
+  // Debug log AG Grid rendering
+  React.useEffect(() => {
+    console.log("EventsAgGrid: AG Grid render check:", {
+      hasColumnDefs: !!columnDefs?.length,
+      columnDefCount: columnDefs?.length,
+      hasRowData: !!data?.events?.length,
+      rowDataCount: data?.events?.length,
+    });
+  }, [columnDefs, data?.events]);
 
   // Event handlers
   const onGridReady = useCallback(({ api }: GridReadyEvent) => {
@@ -649,6 +660,9 @@ const EventsAgGrid: React.FC = () => {
       />
 
       <AgGridTheme wrapHeaders={true}>
+        <div style={{ border: '2px solid red', padding: '10px', margin: '10px' }}>
+          Debug: AG Grid Container - Data length: {data?.events?.length || 0}
+        </div>
         <AgGridReact
           headerHeight={70}
           rowData={data?.events || []}
