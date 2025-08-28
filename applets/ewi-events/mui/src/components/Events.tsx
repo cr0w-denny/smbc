@@ -440,14 +440,6 @@ const EventsAgGrid: React.FC = () => {
         cellClass: "expand-cell",
       },
       {
-        minWidth: 180,
-        headerName: "Lifecycle Status",
-        field: "lifecycle_status",
-        pinned: "left",
-        cellRenderer: StatusCellRenderer,
-        suppressMenu: true,
-      },
-      {
         headerName: "Event Workflow Status",
         field: "workflow_status",
         suppressMenu: true,
@@ -497,6 +489,13 @@ const EventsAgGrid: React.FC = () => {
       {
         headerName: "Event Trigger Values",
         field: "trigger_values",
+        suppressMenu: true,
+      },
+      {
+        minWidth: 180,
+        headerName: "Lifecycle Status",
+        field: "lifecycle_status",
+        cellRenderer: StatusCellRenderer,
         suppressMenu: true,
       },
       {
