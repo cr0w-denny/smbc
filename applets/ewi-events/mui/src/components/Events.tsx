@@ -38,7 +38,7 @@ import {
 function useEvents(params: Record<string, any>) {
   const client = useApiClient<paths>("ewi-events");
 
-  // Server-side filters: dates, status (lifecycle_status), types (trigger_type)
+  // Server-side filters: dates, types (trigger_type)
   const serverParams = React.useMemo(() => {
     const queryParams: Record<string, any> = {};
     if (params.dateFrom) {
@@ -47,14 +47,11 @@ function useEvents(params: Record<string, any>) {
     if (params.dateTo) {
       queryParams.end_date = params.dateTo;
     }
-    if (params.status) {
-      queryParams.status = params.status;
-    }
     if (params.types) {
       queryParams.types = params.types;
     }
     return queryParams;
-  }, [params.dateFrom, params.dateTo, params.status, params.types]);
+  }, [params.dateFrom, params.dateTo, params.types]);
 
   // Fetch events with server-side filtering
   const query = useQuery({
@@ -69,7 +66,7 @@ function useEvents(params: Record<string, any>) {
     },
   });
 
-  // Apply client-side filters: workflow (workflow_status), category (event_category)
+  // Apply client-side filters: workflow (workflow_status)
   const data = React.useMemo(() => {
     const allEvents = query.data || [];
     let filteredEvents = allEvents;
@@ -81,18 +78,11 @@ function useEvents(params: Record<string, any>) {
       );
     }
 
-    // Category filtering (client-side)
-    if (params.category) {
-      filteredEvents = filteredEvents.filter((event: Event) =>
-        event.event_category === params.category,
-      );
-    }
-
     return {
       events: filteredEvents,
       allEvents: allEvents,
     };
-  }, [query.data, params.workflow, params.category]);
+  }, [query.data, params.workflow]);
 
   // Return query state with server-filtered data
   return {
@@ -398,10 +388,8 @@ const EventsAgGrid: React.FC = () => {
     defaultParams: {
       dateFrom: "",
       dateTo: "",
-      status: "",
       workflow: "",
       types: "",
-      category: "",
       sortBy: "",
       sortDirection: "",
     },
