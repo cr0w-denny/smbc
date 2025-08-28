@@ -38,7 +38,7 @@ import {
 function useEvents(params: Record<string, any>) {
   const client = useApiClient<paths>("ewi-events");
 
-  // Send all filters to server
+  // Server-side filters: dates, status (lifecycle_status), types (trigger_type)
   const serverParams = React.useMemo(() => {
     const queryParams: Record<string, any> = {};
     if (params.dateFrom) {
@@ -56,7 +56,7 @@ function useEvents(params: Record<string, any>) {
     return queryParams;
   }, [params.dateFrom, params.dateTo, params.status, params.types]);
 
-  // Fetch events with all filtering on server
+  // Fetch events with server-side filtering
   const query = useQuery({
     queryKey: ["events", serverParams],
     queryFn: async () => {
@@ -69,14 +69,30 @@ function useEvents(params: Record<string, any>) {
     },
   });
 
-  // Return server-filtered data directly (no client-side filtering needed)
+  // Apply client-side filters: workflow (workflow_status), category (event_category)
   const data = React.useMemo(() => {
-    const events = query.data || [];
+    const allEvents = query.data || [];
+    let filteredEvents = allEvents;
+
+    // Workflow filtering (client-side)
+    if (params.workflow) {
+      filteredEvents = filteredEvents.filter((event: Event) =>
+        event.workflow_status === params.workflow,
+      );
+    }
+
+    // Category filtering (client-side)
+    if (params.category) {
+      filteredEvents = filteredEvents.filter((event: Event) =>
+        event.event_category === params.category,
+      );
+    }
+
     return {
-      events: events,
-      allEvents: events,
+      events: filteredEvents,
+      allEvents: allEvents,
     };
-  }, [query.data]);
+  }, [query.data, params.workflow, params.category]);
 
   // Return query state with server-filtered data
   return {
@@ -383,7 +399,9 @@ const EventsAgGrid: React.FC = () => {
       dateFrom: "",
       dateTo: "",
       status: "",
+      workflow: "",
       types: "",
+      category: "",
       sortBy: "",
       sortDirection: "",
     },

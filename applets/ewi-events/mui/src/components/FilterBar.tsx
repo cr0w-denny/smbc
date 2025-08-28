@@ -8,7 +8,9 @@ interface FilterBarProps {
     dateFrom?: string;
     dateTo?: string;
     status?: string;
+    workflow?: string;
     types?: string;
+    category?: string;
   };
   onValuesChange: (values: any) => void;
   onApply: () => void;
@@ -44,6 +46,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         ],
       },
       {
+        name: "workflow",
+        type: "select",
+        label: "Workflow",
+        options: [
+          { label: "All Workflows", value: "" },
+          { label: "Subscribed", value: "Subscribed" },
+          { label: "Not Subscribed", value: "NotSubscribed" },
+          { label: "Review", value: "Review" },
+          { label: "Approval", value: "Approval" },
+          { label: "Complete", value: "Complete" },
+        ],
+      },
+      {
         name: "types",
         type: "select",
         label: "Types",
@@ -54,6 +69,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           { label: "CDS Spreads", value: "CDSSpreads" },
           { label: "Loan Prices", value: "LoanPrices" },
           { label: "Financials", value: "Financials" },
+        ],
+      },
+      {
+        name: "category",
+        type: "select",
+        label: "Category",
+        options: [
+          { label: "All Categories", value: "" },
+          { label: "Mandatory", value: "Mandatory" },
+          { label: "Discretionary", value: "Discretionary" },
         ],
       },
     ],
