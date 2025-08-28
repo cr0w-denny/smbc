@@ -25,14 +25,15 @@ import { useApiClient } from "@smbc/applet-core";
 import { useQuery } from "@tanstack/react-query";
 
 import {
-  CheckCircle as ApproveIcon,
-  Cancel as RejectIcon,
-  Person as AssignIcon,
-  PriorityHigh as PriorityIcon,
   Edit as EditIcon,
   Visibility as ViewIcon,
   Delete as DeleteIcon,
   MoreVert as MoreIcon,
+  Send as SendIcon,
+  CancelScheduledSend as CancelScheduledSendIcon,
+  AssignmentAdd as AssignmentAddIcon,
+  AssignmentTurnedIn as AssignmentTurnedInIcon,
+  AddCircle as AddCircleIcon,
 } from "@mui/icons-material";
 
 function useEvents(params: Record<string, any>) {
@@ -574,49 +575,57 @@ const EventsAgGrid: React.FC = () => {
     setSelectedRows(selectedData);
   }, []);
 
-  // Mock workflow actions
+  // Workflow actions
   const workflowActions = useMemo(
     () => [
       {
         type: "bulk" as const,
-        key: "bulk-approve",
-        label: "Bulk Approve",
-        icon: ApproveIcon,
-        color: "success" as const,
-        onClick: (selectedItems: any[]) => {
-          console.log("Bulk approve:", selectedItems);
-        },
-        appliesTo: (event: any) => event.status !== "on-course",
-      },
-      {
-        type: "bulk" as const,
-        key: "bulk-reject",
-        label: "Bulk Reject",
-        icon: RejectIcon,
-        color: "error" as const,
-        onClick: (selectedItems: any[]) => {
-          console.log("Bulk reject:", selectedItems);
-        },
-        appliesTo: (event: any) => event.status !== "past-due",
-      },
-      {
-        type: "bulk" as const,
-        key: "assign-user",
-        label: "Assign to User",
-        icon: AssignIcon,
+        key: "submit-for-review",
+        label: "Submit for Review",
+        icon: SendIcon,
         color: "primary" as const,
         onClick: (selectedItems: any[]) => {
-          console.log("Assign to user:", selectedItems);
+          console.log("Submit for Review:", selectedItems);
         },
       },
       {
         type: "bulk" as const,
-        key: "change-priority",
-        label: "Change Priority",
-        icon: PriorityIcon,
+        key: "revoke-review-request",
+        label: "Revoke Review Request",
+        icon: CancelScheduledSendIcon,
         color: "warning" as const,
         onClick: (selectedItems: any[]) => {
-          console.log("Change priority:", selectedItems);
+          console.log("Revoke Review Request:", selectedItems);
+        },
+      },
+      {
+        type: "bulk" as const,
+        key: "reassign-event-owner",
+        label: "Reassign Event Owner",
+        icon: AssignmentAddIcon,
+        color: "primary" as const,
+        onClick: (selectedItems: any[]) => {
+          console.log("Reassign Event Owner:", selectedItems);
+        },
+      },
+      {
+        type: "bulk" as const,
+        key: "reassign-event-approvers",
+        label: "Reassign Event Approvers",
+        icon: AssignmentTurnedInIcon,
+        color: "primary" as const,
+        onClick: (selectedItems: any[]) => {
+          console.log("Reassign Event Approvers:", selectedItems);
+        },
+      },
+      {
+        type: "bulk" as const,
+        key: "add-gbr-ref",
+        label: "Add GBR Ref #",
+        icon: AddCircleIcon,
+        color: "success" as const,
+        onClick: (selectedItems: any[]) => {
+          console.log("Add GBR Ref #:", selectedItems);
         },
       },
     ],
