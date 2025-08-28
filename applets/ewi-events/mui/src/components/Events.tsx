@@ -70,7 +70,7 @@ function useEvents(params: Record<string, any>) {
     },
   });
 
-  // Apply client-side filters: workflow (workflow_status)
+  // Apply client-side filters: workflow (workflow_status), category (event_category)
   const data = React.useMemo(() => {
     const allEvents = query.data || [];
     let filteredEvents = allEvents;
@@ -82,11 +82,18 @@ function useEvents(params: Record<string, any>) {
       );
     }
 
+    // Category filtering (client-side) - for discretionary/mandatory filter chips
+    if (params.category) {
+      filteredEvents = filteredEvents.filter(
+        (event: Event) => event.event_category === params.category,
+      );
+    }
+
     return {
       events: filteredEvents,
       allEvents: allEvents,
     };
-  }, [query.data, params.workflow]);
+  }, [query.data, params.workflow, params.category]);
 
   // Return query state with server-filtered data
   return {
@@ -395,6 +402,7 @@ const EventsAgGrid: React.FC = () => {
       dateTo: "",
       workflow: "",
       types: "",
+      category: "",
       sortBy: "",
       sortDirection: "",
     },
