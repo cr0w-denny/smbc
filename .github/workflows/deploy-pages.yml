@@ -50,8 +50,8 @@ jobs:
           cd apps/mui-host-dev
           npm run build
         env:
-          # Enable production optimizations
-          NODE_ENV: production
+          # Use development mode to keep console logs for debugging
+          NODE_ENV: development
           # Set base path for GitHub Pages (auto-detects repository name)
           VITE_BASE_PATH: "/${{ github.event.repository.name }}/"
 
@@ -60,8 +60,8 @@ jobs:
           cd apps/ewi
           npm run build
         env:
-          # Enable production optimizations
-          NODE_ENV: production
+          # Use development mode to keep console logs for debugging
+          NODE_ENV: development
           # Set base path for EWI app under /ewi subdirectory
           VITE_BASE_PATH: "/${{ github.event.repository.name }}/ewi/"
           # Enable mocks for the demo deployment
