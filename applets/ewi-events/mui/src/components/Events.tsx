@@ -73,8 +73,8 @@ function useEvents(params: Record<string, any>) {
 
     // Workflow filtering (client-side)
     if (params.workflow) {
-      filteredEvents = filteredEvents.filter((event: Event) =>
-        event.workflow_status === params.workflow,
+      filteredEvents = filteredEvents.filter(
+        (event: Event) => event.workflow_status === params.workflow,
       );
     }
 
@@ -309,10 +309,7 @@ const StatusCellRenderer = (params: any) => {
 
 // Actions cell renderer - just the menu button
 const ActionsCellRenderer = (params: any) => {
-  console.log(
-    "ActionsCellRenderer: Rendering UPDATED version with menu-only design for row:",
-    params.data?.id,
-  );
+  console.log("ActionsCellRenderer row:", params.data?.id);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -408,7 +405,6 @@ const EventsAgGrid: React.FC = () => {
   // Fetch data using the API client with keepPreviousData to avoid blanking
   // Only include filters in the query, let AG Grid handle sorting client-side
   const { data, isLoading, error } = useEvents(params);
-
 
   const columnDefs: ColDef[] = useMemo(() => {
     return [
@@ -513,12 +509,11 @@ const EventsAgGrid: React.FC = () => {
     ];
   }, []);
 
-
   // Check if grid ref is set
   React.useEffect(() => {
     console.log("🔍 Grid ref check:", {
       gridRef: !!gridRef.current,
-      gridRefCurrent: gridRef.current
+      gridRefCurrent: gridRef.current,
     });
   }, []);
 
