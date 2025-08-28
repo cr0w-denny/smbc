@@ -36,6 +36,7 @@ interface ActionBarProps {
     dateFrom?: string;
     dateTo?: string;
     status?: string;
+    category?: string;
     exRatings?: string;
     workflow?: string;
     priority?: string;
@@ -112,8 +113,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     colors: { border: string; badge: string; fill: string },
     count: number,
     statusValue: string,
+    paramType: 'status' | 'category' = 'status',
   ) => {
-    const isActive = values.status === statusValue;
+    const isActive = paramType === 'category' ? values.category === statusValue : values.status === statusValue;
 
     return {
       label: (
@@ -189,8 +191,13 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       size: "medium" as const,
       onClick: () => {
         // Toggle behavior: if already selected, deselect it
-        const newStatus = values.status === statusValue ? "" : statusValue;
-        onValuesChange({ ...values, status: newStatus });
+        if (paramType === 'category') {
+          const newCategory = values.category === statusValue ? "" : statusValue;
+          onValuesChange({ ...values, category: newCategory });
+        } else {
+          const newStatus = values.status === statusValue ? "" : statusValue;
+          onValuesChange({ ...values, status: newStatus });
+        }
       },
       sx: (theme: any) => ({
         cursor: "pointer",
@@ -298,7 +305,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               "Discretionary",
               { border: "#6B46C1", badge: "#6B46C1", fill: "#F8F6FF" },
               statusCounts.discretionary ?? 0,
-              "discretionary",
+              "Discretionary",
+              "category",
             )}
           />
           <Chip
@@ -307,7 +315,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               "Mandatory",
               { border: "#0066CC", badge: "#0066CC", fill: "#F0F8FF" },
               statusCounts.mandatory ?? 0,
-              "mandatory",
+              "Mandatory",
+              "category",
             )}
           />
         </Box>
