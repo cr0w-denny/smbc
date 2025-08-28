@@ -47,7 +47,7 @@ function useEvents(params: Record<string, any>) {
     if (params.dateTo) {
       queryParams.end_date = params.dateTo;
     }
-    if (params.types && params.types.length > 0) {
+    if (params.types && Array.isArray(params.types) && params.types.length > 0) {
       queryParams.types = params.types.join(',');
     }
     return queryParams;

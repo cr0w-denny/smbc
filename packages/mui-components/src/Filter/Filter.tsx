@@ -124,12 +124,17 @@ export function Filter({
       } else if (isTextualField) {
         acc[field.name] = ""; // Default to empty string for text fields
       } else if (isSelectField) {
-        // For select fields, use the first option's value (usually empty string for "All")
-        const firstOption = field.options?.[0];
-        if (typeof firstOption === 'string') {
-          acc[field.name] = firstOption;
+        // For multiple select fields, use empty array
+        if (field.multiple) {
+          acc[field.name] = [];
         } else {
-          acc[field.name] = firstOption?.value ?? "";
+          // For single select fields, use the first option's value (usually empty string for "All")
+          const firstOption = field.options?.[0];
+          if (typeof firstOption === 'string') {
+            acc[field.name] = firstOption;
+          } else {
+            acc[field.name] = firstOption?.value ?? "";
+          }
         }
       } else if (isDateField) {
         // For date fields, use null as default
