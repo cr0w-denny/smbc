@@ -25,15 +25,14 @@ import { useApiClient } from "@smbc/applet-core";
 import { useQuery } from "@tanstack/react-query";
 
 import {
-  Edit as EditIcon,
-  Visibility as ViewIcon,
-  Delete as DeleteIcon,
   MoreVert as MoreIcon,
   Send as SendIcon,
-  CancelScheduledSend as CancelScheduledSendIcon,
+  CancelScheduleSend as CancelScheduledSendIcon,
   AssignmentAdd as AssignmentAddIcon,
   AssignmentTurnedIn as AssignmentTurnedInIcon,
   AddCircle as AddCircleIcon,
+  List as ListIcon,
+  Newspaper as NewspaperIcon,
 } from "@mui/icons-material";
 
 function useEvents(params: Record<string, any>) {
@@ -377,19 +376,28 @@ const ActionsCellRenderer = (params: any) => {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={(e) => handleAction("view", e)}>
-          <ViewIcon fontSize="small" sx={{ mr: 1 }} />
-          View Details
+          <ListIcon fontSize="small" sx={{ mr: 1 }} />
+          Show Details
         </MenuItem>
-        <MenuItem onClick={(e) => handleAction("edit", e)}>
-          <EditIcon fontSize="small" sx={{ mr: 1 }} />
-          Edit Event
+        <MenuItem onClick={(e) => handleAction("news", e)}>
+          <NewspaperIcon fontSize="small" sx={{ mr: 1 }} />
+          Related News
         </MenuItem>
-        <MenuItem
-          onClick={(e) => handleAction("delete", e)}
-          sx={{ color: "error.main" }}
-        >
-          <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-          Delete Event
+        <MenuItem onClick={(e) => handleAction("submit-review", e)}>
+          <SendIcon fontSize="small" sx={{ mr: 1 }} />
+          Submit for Review
+        </MenuItem>
+        <MenuItem onClick={(e) => handleAction("revoke-review", e)}>
+          <CancelScheduledSendIcon fontSize="small" sx={{ mr: 1 }} />
+          Revoke Review Request
+        </MenuItem>
+        <MenuItem onClick={(e) => handleAction("reassign-owner", e)}>
+          <AssignmentAddIcon fontSize="small" sx={{ mr: 1 }} />
+          Reassign Event Owner
+        </MenuItem>
+        <MenuItem onClick={(e) => handleAction("reassign-approvers", e)}>
+          <AssignmentTurnedInIcon fontSize="small" sx={{ mr: 1 }} />
+          Reassign Event Approvers
         </MenuItem>
       </Menu>
     </Box>

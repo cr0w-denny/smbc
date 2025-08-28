@@ -19,6 +19,10 @@ import {
   ArrowDropDown as ArrowDropDownIcon,
   PsychologyAlt as DiscretionaryIcon,
   Gavel as MandatoryIcon,
+  FileDownload as ExportIcon,
+  Print as PrintIcon,
+  ViewColumn as ColumnIcon,
+  FilterListOff as ResetFiltersIcon,
 } from "@mui/icons-material";
 interface BulkAction {
   type: "bulk";
@@ -385,10 +389,22 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           },
         }}
       >
-        <MenuItem onClick={handleSettingsClose}>Export Data</MenuItem>
-        <MenuItem onClick={handleSettingsClose}>Print Report</MenuItem>
-        <MenuItem onClick={handleSettingsClose}>Column Settings</MenuItem>
-        <MenuItem onClick={handleSettingsClose}>Reset Filters</MenuItem>
+        <MenuItem onClick={handleSettingsClose}>
+          <ExportIcon fontSize="small" sx={{ mr: 1 }} />
+          Export Data
+        </MenuItem>
+        <MenuItem onClick={handleSettingsClose}>
+          <PrintIcon fontSize="small" sx={{ mr: 1 }} />
+          Print Report
+        </MenuItem>
+        <MenuItem onClick={handleSettingsClose}>
+          <ColumnIcon fontSize="small" sx={{ mr: 1 }} />
+          Column Settings
+        </MenuItem>
+        <MenuItem onClick={handleSettingsClose}>
+          <ResetFiltersIcon fontSize="small" sx={{ mr: 1 }} />
+          Reset Filters
+        </MenuItem>
       </Menu>
 
       {/* Workflow Menu */}
@@ -434,7 +450,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                 }}
                 disabled={action.disabled?.(selectedItems)}
               >
-                {action.icon && React.createElement(action.icon)}
+                {action.icon && (
+                  <Box component={action.icon} fontSize="small" sx={{ mr: 1 }} />
+                )}
                 {action.label}
               </MenuItem>
             ))
