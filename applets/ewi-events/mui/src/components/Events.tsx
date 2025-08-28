@@ -38,7 +38,7 @@ import {
 function useEvents(params: Record<string, any>) {
   const client = useApiClient<paths>("ewi-events");
 
-  // Server-side filters: dates, types (trigger_type)
+  // Server-side filters: dates, status (lifecycle_status), types (trigger_type)
   const serverParams = React.useMemo(() => {
     const queryParams: Record<string, any> = {};
     if (params.dateFrom) {
@@ -46,6 +46,9 @@ function useEvents(params: Record<string, any>) {
     }
     if (params.dateTo) {
       queryParams.end_date = params.dateTo;
+    }
+    if (params.status) {
+      queryParams.status = params.status;
     }
     if (
       params.types &&
@@ -55,7 +58,7 @@ function useEvents(params: Record<string, any>) {
       queryParams.types = params.types.join(",");
     }
     return queryParams;
-  }, [params.dateFrom, params.dateTo, params.types]);
+  }, [params.dateFrom, params.dateTo, params.status, params.types]);
 
   // Fetch events with server-side filtering
   const query = useQuery({
@@ -400,6 +403,7 @@ const EventsAgGrid: React.FC = () => {
     defaultParams: {
       dateFrom: "",
       dateTo: "",
+      status: "",
       workflow: "",
       types: "",
       category: "",
