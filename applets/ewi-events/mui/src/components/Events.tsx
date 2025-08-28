@@ -47,8 +47,12 @@ function useEvents(params: Record<string, any>) {
     if (params.dateTo) {
       queryParams.end_date = params.dateTo;
     }
-    if (params.types && Array.isArray(params.types) && params.types.length > 0) {
-      queryParams.types = params.types.join(',');
+    if (
+      params.types &&
+      Array.isArray(params.types) &&
+      params.types.length > 0
+    ) {
+      queryParams.types = params.types.join(",");
     }
     return queryParams;
   }, [params.dateFrom, params.dateTo, params.types]);
@@ -309,8 +313,6 @@ const StatusCellRenderer = (params: any) => {
 
 // Actions cell renderer - just the menu button
 const ActionsCellRenderer = (params: any) => {
-  console.log("ActionsCellRenderer row:", params.data?.id);
-
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -402,8 +404,8 @@ const EventsAgGrid: React.FC = () => {
   const params = React.useMemo(() => {
     const transformed = { ...rawParams };
     // Convert CSV string to array for internal use
-    if (typeof transformed.types === 'string' && transformed.types) {
-      transformed.types = transformed.types.split(',');
+    if (typeof transformed.types === "string" && transformed.types) {
+      transformed.types = transformed.types.split(",");
     } else if (!transformed.types) {
       transformed.types = [];
     }
@@ -411,14 +413,18 @@ const EventsAgGrid: React.FC = () => {
   }, [rawParams]);
 
   // Transform setParams to handle types as CSV
-  const setParams = React.useCallback((newParams: any) => {
-    const transformed = { ...newParams };
-    // Convert array to CSV string for URL
-    if (Array.isArray(transformed.types)) {
-      transformed.types = transformed.types.length > 0 ? transformed.types.join(',') : '';
-    }
-    setRawParams(transformed);
-  }, [setRawParams]);
+  const setParams = React.useCallback(
+    (newParams: any) => {
+      const transformed = { ...newParams };
+      // Convert array to CSV string for URL
+      if (Array.isArray(transformed.types)) {
+        transformed.types =
+          transformed.types.length > 0 ? transformed.types.join(",") : "";
+      }
+      setRawParams(transformed);
+    },
+    [setRawParams],
+  );
 
   // State
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);

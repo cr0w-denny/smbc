@@ -36,7 +36,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         type: "select",
         label: "Status",
         options: [
-          { label: "All Workflows", value: "" },
+          { label: "Any Status", value: "" },
           { label: "Subscribed", value: "Subscribed" },
           { label: "Not Subscribed", value: "NotSubscribed" },
           { label: "Review", value: "Review" },
