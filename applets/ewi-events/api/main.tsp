@@ -116,8 +116,7 @@ model Event {
  */
 alias EventFilterParams = {
   @query @extension("x-mock-filter", #{ field: "lifecycle_status", strategy: "exact" }) status?: "on-course" | "almost-due" | "past-due" | "needs-attention";
-  @query @extension("x-mock-filter", #{ field: "event_category", strategy: "exact" }) category?: "mandatory" | "discretionary";
-  @query types?: string;
+  @query @extension("x-mock-filter", #{ field: "trigger_type", strategy: "exact" }) types?: "ExRatings" | "Stock" | "CDSSpreads" | "LoanPrices" | "Financials";
 };
 
 @route("/events")

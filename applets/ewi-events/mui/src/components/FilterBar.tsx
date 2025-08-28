@@ -8,9 +8,7 @@ interface FilterBarProps {
     dateFrom?: string;
     dateTo?: string;
     status?: string;
-    exRatings?: string;
-    workflow?: string;
-    priority?: string;
+    types?: string;
   };
   onValuesChange: (values: any) => void;
   onApply: () => void;
@@ -34,30 +32,28 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         label: "To",
       },
       {
-        name: "exRatings",
-        type: "text",
-        label: "ExRatings",
-      },
-      {
-        name: "workflow",
+        name: "status",
         type: "select",
-        label: "Workflow",
+        label: "Status",
         options: [
-          { label: "All", value: "" },
-          { label: "1 LOD Review", value: "1LOD" },
-          { label: "2 LOD Review", value: "2LOD" },
-          { label: "1 LOD Analyst", value: "Analyst" },
+          { label: "All Statuses", value: "" },
+          { label: "On Course", value: "on-course" },
+          { label: "Almost Due", value: "almost-due" },
+          { label: "Past Due", value: "past-due" },
+          { label: "Needs Attention", value: "needs-attention" },
         ],
       },
       {
-        name: "priority",
+        name: "types",
         type: "select",
-        label: "Priority Level",
+        label: "Types",
         options: [
-          { label: "All Priorities", value: "" },
-          { label: "High", value: "high" },
-          { label: "Medium", value: "medium" },
-          { label: "Low", value: "low" },
+          { label: "All Types", value: "" },
+          { label: "ExRatings", value: "ExRatings" },
+          { label: "Stock", value: "Stock" },
+          { label: "CDS Spreads", value: "CDSSpreads" },
+          { label: "Loan Prices", value: "LoanPrices" },
+          { label: "Financials", value: "Financials" },
         ],
       },
     ],

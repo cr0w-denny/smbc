@@ -38,7 +38,7 @@ import {
 function useEvents(params: Record<string, any>) {
   const client = useApiClient<paths>("ewi-events");
 
-  // Extract date filters for server-side filtering
+  // Send all filters to server
   const serverParams = React.useMemo(() => {
     const queryParams: Record<string, any> = {};
     if (params.dateFrom) {
@@ -47,10 +47,16 @@ function useEvents(params: Record<string, any>) {
     if (params.dateTo) {
       queryParams.end_date = params.dateTo;
     }
+    if (params.status) {
+      queryParams.status = params.status;
+    }
+    if (params.types) {
+      queryParams.types = params.types;
+    }
     return queryParams;
-  }, [params.dateFrom, params.dateTo]);
+  }, [params.dateFrom, params.dateTo, params.status, params.types]);
 
-  // Fetch events with date filtering on server
+  // Fetch events with all filtering on server
   const query = useQuery({
     queryKey: ["events", serverParams],
     queryFn: async () => {
@@ -63,74 +69,19 @@ function useEvents(params: Record<string, any>) {
     },
   });
 
-  // Apply remaining client-side filters (non-date filters)
-  const filteredData = React.useMemo(() => {
-    const allEvents = query.data || [];
-    let filteredEvents = allEvents;
-
-    // Status filtering (lifecycle status)
-    if (
-      params.status &&
-      ["on-course", "almost-due", "past-due", "needs-attention"].includes(
-        params.status,
-      )
-    ) {
-      filteredEvents = filteredEvents.filter(
-        (event: Event) => event.lifecycle_status === params.status,
-      );
-    }
-
-    // Category filtering
-    if (
-      params.status &&
-      ["mandatory", "discretionary"].includes(params.status)
-    ) {
-      filteredEvents = filteredEvents.filter(
-        (event: Event) =>
-          event.event_category?.toLowerCase() === params.status.toLowerCase(),
-      );
-    }
-
-    // Types filtering  
-    if (params.types) {
-      filteredEvents = filteredEvents.filter((event: Event) =>
-        event.trigger_type?.includes(params.types),
-      );
-    }
-
-    // ExRatings filtering (trigger_type)
-    if (params.exRatings) {
-      filteredEvents = filteredEvents.filter((event: Event) =>
-        event.trigger_type?.toLowerCase().includes(params.exRatings.toLowerCase()),
-      );
-    }
-
-    // Workflow filtering (workflow_status)
-    if (params.workflow) {
-      filteredEvents = filteredEvents.filter((event: Event) =>
-        event.workflow_status?.toLowerCase() === params.workflow.toLowerCase(),
-      );
-    }
-
-    // Priority filtering - assuming this maps to lifecycle_status or we need to add logic
-    if (params.priority) {
-      // This would need to be mapped to an appropriate field based on business logic
-      // For now, filtering by lifecycle_status as a proxy
-      filteredEvents = filteredEvents.filter((event: Event) =>
-        event.lifecycle_status?.toLowerCase().includes(params.priority.toLowerCase()),
-      );
-    }
-
+  // Return server-filtered data directly (no client-side filtering needed)
+  const data = React.useMemo(() => {
+    const events = query.data || [];
     return {
-      events: filteredEvents,
-      allEvents: allEvents,
+      events: events,
+      allEvents: events,
     };
-  }, [query.data, params]);
+  }, [query.data]);
 
-  // Return query state with filtered data
+  // Return query state with server-filtered data
   return {
     ...query,
-    data: filteredData,
+    data: data,
   };
 }
 
@@ -432,9 +383,7 @@ const EventsAgGrid: React.FC = () => {
       dateFrom: "",
       dateTo: "",
       status: "",
-      exRatings: "",
-      workflow: "",
-      priority: "",
+      types: "",
       sortBy: "",
       sortDirection: "",
     },
