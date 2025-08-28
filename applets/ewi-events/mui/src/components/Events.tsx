@@ -264,10 +264,13 @@ const StatusCellRenderer = (params: any) => {
           fontSize: "12px",
           fontWeight: 500,
           height: "24px",
+          width: "140px",
           transition: "none !important",
           "& .MuiChip-label": {
             px: 1.5,
             py: 0.5,
+            textAlign: "center",
+            width: "100%",
           },
         }}
         size="small"
@@ -289,10 +292,13 @@ const StatusCellRenderer = (params: any) => {
           fontSize: "12px",
           fontWeight: 500,
           height: "24px",
+          width: "140px",
           transition: "none !important",
           "& .MuiChip-label": {
             px: 1.5,
             py: 0.5,
+            textAlign: "center",
+            width: "100%",
           },
         };
       }}
