@@ -112,7 +112,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               if (isMultiple) {
                 const selectedArray = Array.isArray(selected) ? selected : [];
                 if (selectedArray.length === 0) {
-                  return "Any Trigger";
+                  return field.placeholder || "None selected";
                 }
                 if (selectedArray.length === 1) {
                   const option = normalizedOptions.find(opt => opt.value === selectedArray[0]);
