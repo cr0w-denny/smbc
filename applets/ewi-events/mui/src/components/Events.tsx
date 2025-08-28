@@ -264,7 +264,7 @@ const StatusCellRenderer = (params: any) => {
           fontSize: "12px",
           fontWeight: 500,
           height: "24px",
-          width: "140px",
+          width: "160px",
           transition: "none !important",
           "& .MuiChip-label": {
             px: 1.5,
@@ -292,7 +292,7 @@ const StatusCellRenderer = (params: any) => {
           fontSize: "12px",
           fontWeight: 500,
           height: "24px",
-          width: "140px",
+          width: "160px",
           transition: "none !important",
           "& .MuiChip-label": {
             px: 1.5,
