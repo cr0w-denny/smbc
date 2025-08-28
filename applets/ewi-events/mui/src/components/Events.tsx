@@ -399,6 +399,7 @@ const ActionsCellRenderer = (params: any) => {
 
 const EventsAgGrid: React.FC = () => {
   const { theme } = useAppletCore();
+  const gridRef = React.useRef<AgGridReact>(null);
 
   const { params, setParams } = useHashNavigation({
     defaultParams: {
@@ -547,9 +548,17 @@ const EventsAgGrid: React.FC = () => {
     });
   }, [columnDefs, data?.events]);
 
+  // Check if grid ref is set
+  React.useEffect(() => {
+    console.log("🔍 Grid ref check:", {
+      gridRef: !!gridRef.current,
+      gridRefCurrent: gridRef.current
+    });
+  }, []);
+
   // Event handlers
   const onGridReady = useCallback(({ api }: GridReadyEvent) => {
-    console.log("Grid ready");
+    console.log("🔥 AG Grid onGridReady called! Grid is mounting successfully");
     api.sizeColumnsToFit();
   }, []);
 
@@ -662,8 +671,11 @@ const EventsAgGrid: React.FC = () => {
       <AgGridTheme wrapHeaders={true}>
         <div style={{ border: '2px solid red', padding: '10px', margin: '10px' }}>
           Debug: AG Grid Container - Data length: {data?.events?.length || 0}
+          <br />AgGridReact component should render below this line:
         </div>
+        {(() => { console.log("🚨 About to render AgGridReact component"); return null; })()}
         <AgGridReact
+          ref={gridRef}
           headerHeight={70}
           rowData={data?.events || []}
           columnDefs={columnDefs}
