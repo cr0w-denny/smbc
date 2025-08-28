@@ -8,7 +8,7 @@ interface FilterBarProps {
     dateFrom?: string;
     dateTo?: string;
     workflow?: string;
-    types?: string;
+    types?: string[];
   };
   onValuesChange: (values: any) => void;
   onApply: () => void;
@@ -48,8 +48,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         name: "types",
         type: "select",
         label: "Types",
+        multiple: true,
         options: [
-          { label: "All Types", value: "" },
           { label: "ExRatings", value: "ExRatings" },
           { label: "Stock", value: "Stock" },
           { label: "CDS Spreads", value: "CDSSpreads" },

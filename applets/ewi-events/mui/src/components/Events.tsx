@@ -47,8 +47,8 @@ function useEvents(params: Record<string, any>) {
     if (params.dateTo) {
       queryParams.end_date = params.dateTo;
     }
-    if (params.types) {
-      queryParams.types = params.types;
+    if (params.types && params.types.length > 0) {
+      queryParams.types = params.types.join(',');
     }
     return queryParams;
   }, [params.dateFrom, params.dateTo, params.types]);
@@ -392,7 +392,7 @@ const EventsAgGrid: React.FC = () => {
       dateFrom: "",
       dateTo: "",
       workflow: "",
-      types: "",
+      types: [],
       sortBy: "",
       sortDirection: "",
     },

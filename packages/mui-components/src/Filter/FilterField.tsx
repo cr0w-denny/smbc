@@ -92,12 +92,13 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "select": {
       const normalizedOptions = normalizeOptions(field.options);
+      const isMultiple = field.multiple;
 
       return (
         <Box>
           <CustomSelect
             label={field.label}
-            value={value === undefined ? "" : value}
+            value={isMultiple ? (value || []) : (value === undefined ? "" : value)}
             onChange={(e) => {
               const newValue = e.target.value;
               handleChange(newValue);
@@ -105,21 +106,34 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             size={field.size || "small"}
             disabled={field.disabled}
             error={!!error}
+            multiple={isMultiple}
             displayEmpty
             renderValue={(selected) => {
-              // Handle undefined/null as the first option (usually "All")
-              if (
-                selected === "" ||
-                selected === undefined ||
-                selected === null
-              ) {
-                const firstOption = normalizedOptions[0];
-                return firstOption?.label || "All";
+              if (isMultiple) {
+                const selectedArray = Array.isArray(selected) ? selected : [];
+                if (selectedArray.length === 0) {
+                  return "None selected";
+                }
+                const selectedLabels = selectedArray.map(val => {
+                  const option = normalizedOptions.find(opt => opt.value === val);
+                  return option?.label || String(val);
+                });
+                return selectedLabels.join(", ");
+              } else {
+                // Handle undefined/null as the first option (usually "All")
+                if (
+                  selected === "" ||
+                  selected === undefined ||
+                  selected === null
+                ) {
+                  const firstOption = normalizedOptions[0];
+                  return firstOption?.label || "All";
+                }
+                const option = normalizedOptions.find(
+                  (opt) => opt.value === selected,
+                );
+                return option?.label || String(selected);
               }
-              const option = normalizedOptions.find(
-                (opt) => opt.value === selected,
-              );
-              return option?.label || String(selected);
             }}
             formControlProps={{
               sx: { minWidth: 120 },

@@ -22,6 +22,7 @@ export interface FilterFieldConfig {
   required?: boolean;
   disabled?: boolean;
   hidden?: boolean;
+  multiple?: boolean;
   fullWidth?: boolean;
   size?: "small" | "medium";
   minWidth?: number | string;
