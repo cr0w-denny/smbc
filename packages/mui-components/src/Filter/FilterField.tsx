@@ -114,11 +114,11 @@ export const FilterField: React.FC<FilterFieldProps> = ({
                 if (selectedArray.length === 0) {
                   return "None selected";
                 }
-                const selectedLabels = selectedArray.map(val => {
-                  const option = normalizedOptions.find(opt => opt.value === val);
-                  return option?.label || String(val);
-                });
-                return selectedLabels.join(", ");
+                if (selectedArray.length === 1) {
+                  const option = normalizedOptions.find(opt => opt.value === selectedArray[0]);
+                  return option?.label || String(selectedArray[0]);
+                }
+                return `${selectedArray.length} selected...`;
               } else {
                 // Handle undefined/null as the first option (usually "All")
                 if (
