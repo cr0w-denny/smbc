@@ -38,32 +38,35 @@ import {
 function useEvents(params: Record<string, any>) {
   const client = useApiClient<paths>("ewi-events");
 
-  // Fetch all events once
+  // Extract date filters for server-side filtering
+  const serverParams = React.useMemo(() => {
+    const queryParams: Record<string, any> = {};
+    if (params.dateFrom) {
+      queryParams.start_date = params.dateFrom;
+    }
+    if (params.dateTo) {
+      queryParams.end_date = params.dateTo;
+    }
+    return queryParams;
+  }, [params.dateFrom, params.dateTo]);
+
+  // Fetch events with date filtering on server
   const query = useQuery({
-    queryKey: ["events"],
+    queryKey: ["events", serverParams],
     queryFn: async () => {
-      const response = await client.GET("/events");
+      const response = await client.GET("/events", {
+        params: {
+          query: serverParams,
+        },
+      });
       return response.data || [];
     },
   });
 
-  // Apply client-side filters
+  // Apply remaining client-side filters (non-date filters)
   const filteredData = React.useMemo(() => {
     const allEvents = query.data || [];
     let filteredEvents = allEvents;
-
-    // Date filtering
-    if (params.dateFrom) {
-      filteredEvents = filteredEvents.filter(
-        (event: Event) =>
-          event.event_date && event.event_date >= params.dateFrom,
-      );
-    }
-    if (params.dateTo) {
-      filteredEvents = filteredEvents.filter(
-        (event: Event) => event.event_date && event.event_date <= params.dateTo,
-      );
-    }
 
     // Status filtering (lifecycle status)
     if (
@@ -88,10 +91,33 @@ function useEvents(params: Record<string, any>) {
       );
     }
 
-    // Types filtering
+    // Types filtering  
     if (params.types) {
       filteredEvents = filteredEvents.filter((event: Event) =>
         event.trigger_type?.includes(params.types),
+      );
+    }
+
+    // ExRatings filtering (trigger_type)
+    if (params.exRatings) {
+      filteredEvents = filteredEvents.filter((event: Event) =>
+        event.trigger_type?.toLowerCase().includes(params.exRatings.toLowerCase()),
+      );
+    }
+
+    // Workflow filtering (workflow_status)
+    if (params.workflow) {
+      filteredEvents = filteredEvents.filter((event: Event) =>
+        event.workflow_status?.toLowerCase() === params.workflow.toLowerCase(),
+      );
+    }
+
+    // Priority filtering - assuming this maps to lifecycle_status or we need to add logic
+    if (params.priority) {
+      // This would need to be mapped to an appropriate field based on business logic
+      // For now, filtering by lifecycle_status as a proxy
+      filteredEvents = filteredEvents.filter((event: Event) =>
+        event.lifecycle_status?.toLowerCase().includes(params.priority.toLowerCase()),
       );
     }
 
