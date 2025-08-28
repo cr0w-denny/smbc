@@ -387,16 +387,38 @@ const EventsAgGrid: React.FC = () => {
   const { theme } = useAppletCore();
   const gridRef = React.useRef<AgGridReact>(null);
 
-  const { params, setParams } = useHashNavigation({
+  const { params: rawParams, setParams: setRawParams } = useHashNavigation({
     defaultParams: {
       dateFrom: "",
       dateTo: "",
       workflow: "",
-      types: [],
+      types: "",
       sortBy: "",
       sortDirection: "",
     },
   });
+
+  // Transform params to handle types as CSV
+  const params = React.useMemo(() => {
+    const transformed = { ...rawParams };
+    // Convert CSV string to array for internal use
+    if (typeof transformed.types === 'string' && transformed.types) {
+      transformed.types = transformed.types.split(',');
+    } else if (!transformed.types) {
+      transformed.types = [];
+    }
+    return transformed;
+  }, [rawParams]);
+
+  // Transform setParams to handle types as CSV
+  const setParams = React.useCallback((newParams: any) => {
+    const transformed = { ...newParams };
+    // Convert array to CSV string for URL
+    if (Array.isArray(transformed.types)) {
+      transformed.types = transformed.types.length > 0 ? transformed.types.join(',') : '';
+    }
+    setRawParams(transformed);
+  }, [setRawParams]);
 
   // State
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);
