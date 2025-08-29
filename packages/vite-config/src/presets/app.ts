@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
  * Shared configuration for production apps (mui-host-dev, ewi)
  * Includes performance optimizations and chunking strategy
  */
-export function createAppConfig() {
+export function createAppConfig({ includeDevtools = false } = {}) {
   return defineConfig({
     // Remove console logs in production builds
     esbuild: {
@@ -22,8 +22,9 @@ export function createAppConfig() {
             'react-vendor': ['react', 'react-dom'],
             'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
             'query-vendor': ['@tanstack/react-query'],
-            'devtools': ['@smbc/mui-applet-devtools'],
             'msw': ['msw'],
+            // Only include devtools chunk if explicitly requested
+            ...(includeDevtools ? { 'devtools': ['@smbc/mui-applet-devtools'] } : {}),
           },
         },
       },

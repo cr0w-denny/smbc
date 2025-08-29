@@ -120,7 +120,7 @@ export default defineConfig(({ mode }) => {
     },
   });
 
-  const finalConfig = mergeConfig(createAppConfig(), appSpecificConfig);
+  const finalConfig = mergeConfig(createAppConfig({ includeDevtools: true }), appSpecificConfig);
   
   // Ensure esbuild configuration is properly applied
   if (isProduction) {
