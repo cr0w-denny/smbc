@@ -81,26 +81,6 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       sourcemap: false, // Disable sourcemaps for production to avoid warnings
       rollupOptions: {
-        output: {
-          // Optimized chunking strategy for EWI app
-          manualChunks: {
-            // Vendor bundle - stable dependencies used everywhere
-            'vendor': [
-              'react', 
-              'react-dom',
-              '@mui/material', 
-              '@emotion/react', 
-              '@emotion/styled',
-              '@tanstack/react-query',
-              'ag-grid-community', 
-              'ag-grid-react', 
-              'ag-grid-enterprise'
-            ],
-            
-            // Dev/Mock bundle - only loaded when mocks enabled
-            'dev': ['msw', '@faker-js/faker'],
-          }
-        },
         onwarn(warning, warn) {
           // Suppress all sourcemap warnings from node_modules
           if (warning.code === "SOURCEMAP_ERROR") return;
@@ -134,8 +114,8 @@ export default defineConfig(({ mode }) => {
     },
   });
 
-  // Don't use shared config chunking for EWI - we have custom chunking
-  const finalConfig = mergeConfig(createAppConfig({ disableChunking: true }), appSpecificConfig);
+  // Use optimized chunking strategy from shared config
+  const finalConfig = mergeConfig(createAppConfig({ chunkingStrategy: 'optimized' }), appSpecificConfig);
   
   // Ensure esbuild configuration is properly applied
   if (isProduction) {
