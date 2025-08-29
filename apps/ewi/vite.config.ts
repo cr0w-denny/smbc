@@ -82,28 +82,23 @@ export default defineConfig(({ mode }) => {
       sourcemap: false, // Disable sourcemaps for production to avoid warnings
       rollupOptions: {
         output: {
-          // Override shared config chunking completely
+          // Optimized chunking strategy for EWI app
           manualChunks: {
-            // Keep React separate
-            'react': ['react', 'react-dom'],
+            // Vendor bundle - stable dependencies used everywhere
+            'vendor': [
+              'react', 
+              'react-dom',
+              '@mui/material', 
+              '@emotion/react', 
+              '@emotion/styled',
+              '@tanstack/react-query',
+              'ag-grid-community', 
+              'ag-grid-react', 
+              'ag-grid-enterprise'
+            ],
             
-            // AG Grid - the biggest library
-            'ag-grid': ['ag-grid-community', 'ag-grid-react', 'ag-grid-enterprise'],
-            
-            // MUI core (no icons)
-            'mui': ['@mui/material', '@emotion/react', '@emotion/styled'],
-            
-            // Only icons actually used (via our barrel export)
-            'icons': ['@mui/icons-material'],
-            
-            // React Query
-            'query': ['@tanstack/react-query'],
-            
-            // MSW mocks (loaded dynamically but still chunked)
-            'msw': ['msw'],
-            
-            // Faker.js - huge mock data generator
-            'faker': ['@faker-js/faker'],
+            // Dev/Mock bundle - only loaded when mocks enabled
+            'dev': ['msw', '@faker-js/faker'],
           }
         },
         onwarn(warning, warn) {
