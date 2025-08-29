@@ -6,7 +6,7 @@ import {
   createMinRole,
 } from "@smbc/applet-core";
 import { mountApplet } from "@smbc/applet-host";
-import { BarChart, Dashboard } from "@mui/icons-material";
+import { BarChart, Dashboard } from "@smbc/mui-components";
 
 // Import applet directly from source during development
 import ewiEventsApplet from "../../../applets/ewi-events/mui/src";
