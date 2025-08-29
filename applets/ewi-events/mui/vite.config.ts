@@ -20,15 +20,34 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        // React core
         'react', 
-        'react-dom', 
-        '@mui/material', 
-        '@emotion/react', 
-        '@emotion/styled',
-        '@smbc/ewi-events-api',
-        '@smbc/applet-core',
-        '@smbc/mui-applet-core',
-        '@tanstack/react-query'
+        'react-dom',
+        'react/jsx-runtime',
+        
+        // MUI - externalize everything
+        /^@mui\/.*/,
+        
+        // Emotion (MUI dependency)
+        /^@emotion\/.*/,
+        
+        // AG Grid - HUGE, must externalize
+        /^ag-grid-.*/,
+        
+        // Date libraries
+        /^date-fns.*/,
+        '@date-io/date-fns',
+        
+        // Internal packages
+        /^@smbc\/.*/,
+        
+        // React Query
+        '@tanstack/react-query',
+        
+        // Any other large libraries
+        'axios',
+        'lodash',
+        /^lodash\/.*/,
       ],
     },
   },
