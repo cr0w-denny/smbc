@@ -2,6 +2,7 @@ import { defineConfig, mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { suppressUseClientWarnings, injectAppletVersions, createAppConfig } from "@smbc/vite-config";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -43,15 +44,28 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        // Point to source files for HMR during development
-        "@smbc/mui-components": path.resolve(__dirname, "../../packages/mui-components/src"),
-        "@smbc/applet-core": path.resolve(__dirname, "../../packages/applet-core/src"),
-        "@smbc/applet-host": path.resolve(__dirname, "../../packages/applet-host/src"),
-        "@smbc/mui-applet-core": path.resolve(__dirname, "../../packages/mui-applet-core/src"),
-        "@smbc/applet-meta": path.resolve(__dirname, "../../packages/applet-meta"),
+        // Only use source aliases in development for HMR
+        // In production, use built packages to avoid bundling all source code
+        ...(isProduction ? {} : {
+          "@smbc/mui-components": path.resolve(__dirname, "../../packages/mui-components/src"),
+          "@smbc/applet-core": path.resolve(__dirname, "../../packages/applet-core/src"),
+          "@smbc/applet-host": path.resolve(__dirname, "../../packages/applet-host/src"),
+          "@smbc/mui-applet-core": path.resolve(__dirname, "../../packages/mui-applet-core/src"),
+          "@smbc/applet-meta": path.resolve(__dirname, "../../packages/applet-meta"),
+        }),
       },
     },
-    plugins: [react(), suppressUseClientWarnings()],
+    plugins: [
+      react(), 
+      suppressUseClientWarnings(),
+      // Add bundle analyzer
+      ...(isProduction ? [visualizer({
+        filename: 'dist/bundle-analysis.html',
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      })] : [])
+    ],
     server: {
       port: 3001,
       open: true,
@@ -67,6 +81,31 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       sourcemap: false, // Disable sourcemaps for production to avoid warnings
       rollupOptions: {
+        output: {
+          // Override shared config chunking completely
+          manualChunks: {
+            // Keep React separate
+            'react': ['react', 'react-dom'],
+            
+            // AG Grid - the biggest library
+            'ag-grid': ['ag-grid-community', 'ag-grid-react', 'ag-grid-enterprise'],
+            
+            // MUI core (no icons)
+            'mui': ['@mui/material', '@emotion/react', '@emotion/styled'],
+            
+            // Only icons actually used (via our barrel export)
+            'icons': ['@mui/icons-material'],
+            
+            // React Query
+            'query': ['@tanstack/react-query'],
+            
+            // MSW mocks (loaded dynamically but still chunked)
+            'msw': ['msw'],
+            
+            // Faker.js - huge mock data generator
+            'faker': ['@faker-js/faker'],
+          }
+        },
         onwarn(warning, warn) {
           // Suppress all sourcemap warnings from node_modules
           if (warning.code === "SOURCEMAP_ERROR") return;
@@ -100,7 +139,8 @@ export default defineConfig(({ mode }) => {
     },
   });
 
-  const finalConfig = mergeConfig(createAppConfig(), appSpecificConfig);
+  // Don't use shared config chunking for EWI - we have custom chunking
+  const finalConfig = mergeConfig(createAppConfig({ disableChunking: true }), appSpecificConfig);
   
   // Ensure esbuild configuration is properly applied
   if (isProduction) {

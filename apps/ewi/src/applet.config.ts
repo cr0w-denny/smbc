@@ -8,8 +8,8 @@ import {
 import { mountApplet } from "@smbc/applet-host";
 import { BarChart, Dashboard } from "@smbc/mui-components";
 
-// Import applet directly from source during development
-import ewiEventsApplet from "../../../applets/ewi-events/mui/src";
+// Import applets from built packages for consistent production builds
+import ewiEventsApplet from "@smbc/ewi-events-mui";
 import usageStatsApplet from "@smbc/usage-stats-mui";
 
 // =============================================================================

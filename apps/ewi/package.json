@@ -9,27 +9,28 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@smbc/ewi-events-mui": "*",
-    "@smbc/mui-components": "*",
-    "@smbc/applet-core": "*",
-    "@smbc/applet-host": "*",
-    "@smbc/mui-applet-core": "*",
-    "@mui/material": "^7.2.0",
-    "@mui/icons-material": "^7.2.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.2.0",
+    "@mui/material": "^7.2.0",
+    "@smbc/applet-core": "*",
+    "@smbc/applet-host": "*",
+    "@smbc/ewi-events-mui": "*",
+    "@smbc/mui-applet-core": "*",
+    "@smbc/mui-components": "*",
     "@tanstack/react-query": "^5.0.0",
     "ag-grid-community": "^32.0.0",
     "ag-grid-enterprise": "^32.0.0",
     "ag-grid-react": "^32.0.0",
+    "msw": "^2.2.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "msw": "^2.2.0"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.6.0",
+    "rollup-plugin-visualizer": "^6.0.3",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
   },
