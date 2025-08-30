@@ -23,7 +23,7 @@ import {
   Print as PrintIcon,
   ViewColumn as ColumnIcon,
   FilterListOff as ResetFiltersIcon,
-} from "@mui/icons-material";
+} from "@smbc/mui-components";
 interface BulkAction {
   type: "bulk";
   key: string;
@@ -58,6 +58,8 @@ interface ActionBarProps {
   workflowActions?: BulkAction[];
   /** Selected items for workflow actions */
   selectedItems?: any[];
+  /** Reference to AG Grid instance */
+  gridRef?: React.RefObject<any>;
 }
 
 export const ActionBar: React.FC<ActionBarProps> = ({
@@ -66,6 +68,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   statusCounts = {},
   workflowActions = [],
   selectedItems = [],
+  gridRef,
 }) => {
   const [settingsAnchor, setSettingsAnchor] =
     React.useState<null | HTMLElement>(null);
@@ -117,59 +120,69 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     colors: { border: string; badge: string; fill: string },
     count: number,
     statusValue: string,
-    paramType: 'status' | 'category' = 'status',
+    paramType: "status" | "category" = "status",
   ) => {
-    const isActive = paramType === 'category' ? values.category === statusValue : values.status === statusValue;
+    const isActive =
+      paramType === "category"
+        ? values.category === statusValue
+        : values.status === statusValue;
 
     return {
       label: (
-        <Box sx={{ 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "space-between",
-          width: "100%",
-          gap: 1
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            gap: 1,
+          }}
+        >
           {/* Left: Icon in light gray circle */}
-          <Box sx={(theme: any) => ({ 
-            width: 24, 
-            height: 24, 
-            borderRadius: "50%",
-            backgroundColor: isActive 
-              ? "#FFFFFF" 
-              : theme.palette.mode === "dark" 
-                ? "rgba(255, 255, 255, 0.1)" 
+          <Box
+            sx={(theme: any) => ({
+              width: 24,
+              height: 24,
+              borderRadius: "50%",
+              backgroundColor: isActive
+                ? "#FFFFFF"
+                : theme.palette.mode === "dark"
+                ? "rgba(255, 255, 255, 0.1)"
                 : "#F0F0F0",
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "center",
-            flexShrink: 0
-          })}>
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            })}
+          >
             {React.cloneElement(icon, {
-              sx: { 
-                fontSize: "18px", 
-                width: "18px", 
+              sx: {
+                fontSize: "18px",
+                width: "18px",
                 height: "18px",
-                color: isActive ? colors.badge : colors.badge
+                color: isActive ? colors.badge : colors.badge,
               },
             })}
           </Box>
-          
+
           {/* Center: Label */}
-          <Box sx={(theme: any) => ({ 
-            flex: 1, 
-            textAlign: "center",
-            fontSize: "14px",
-            fontWeight: 500,
-            color: isActive 
-              ? "#FFFFFF" 
-              : theme.palette.mode === "dark" 
-                ? theme.palette.text.primary 
-                : "#1A1A1A"
-          })}>
+          <Box
+            sx={(theme: any) => ({
+              flex: 1,
+              textAlign: "center",
+              fontSize: "12px",
+              fontWeight: 500,
+              color: isActive
+                ? "#FFFFFF"
+                : theme.palette.mode === "dark"
+                ? theme.palette.text.primary
+                : "#1A1A1A",
+              [theme.breakpoints.up("lg")]: { fontSize: "14px" },
+            })}
+          >
             {label}
           </Box>
-          
+
           {/* Right: Count badge */}
           <Box
             component="span"
@@ -184,7 +197,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               justifyContent: "center",
               fontSize: "12px",
               fontWeight: "bold",
-              flexShrink: 0
+              flexShrink: 0,
             }}
           >
             {count}
@@ -195,8 +208,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       size: "medium" as const,
       onClick: () => {
         // Toggle behavior: if already selected, deselect it
-        if (paramType === 'category') {
-          const newCategory = values.category === statusValue ? "" : statusValue;
+        if (paramType === "category") {
+          const newCategory =
+            values.category === statusValue ? "" : statusValue;
           onValuesChange({ ...values, category: newCategory });
         } else {
           const newStatus = values.status === statusValue ? "" : statusValue;
@@ -205,14 +219,16 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       },
       sx: (theme: any) => ({
         cursor: "pointer",
-        backgroundColor: isActive 
-          ? colors.badge 
-          : theme.palette.mode === "dark" 
-            ? theme.palette.background.paper 
-            : "#FFFFFF",
+        backgroundColor: isActive
+          ? colors.badge
+          : theme.palette.mode === "dark"
+          ? theme.palette.background.paper
+          : "#FFFFFF",
         border: `1px solid ${colors.border}`,
         borderRadius: "20px",
-        minWidth: theme.breakpoints.values.xl >= 1920 ? "187px" : "150px",
+        [theme.breakpoints.up("lg")]: {
+          minWidth: "187px",
+        },
         height: "auto",
         padding: "8px 12px",
         fontSize: "14px",
@@ -221,20 +237,24 @@ export const ActionBar: React.FC<ActionBarProps> = ({
         alignItems: "center",
         transition: "none !important",
         "&:hover": {
-          backgroundColor: `${isActive 
-            ? colors.badge 
-            : theme.palette.mode === "dark" 
-              ? theme.palette.background.paper 
-              : "#FFFFFF"} !important`,
+          backgroundColor: `${
+            isActive
+              ? colors.badge
+              : theme.palette.mode === "dark"
+              ? theme.palette.background.paper
+              : "#FFFFFF"
+          } !important`,
           transform: "translateY(-1px)",
           boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
         },
         "&.MuiChip-clickable:hover": {
-          backgroundColor: `${isActive 
-            ? colors.badge 
-            : theme.palette.mode === "dark" 
-              ? theme.palette.background.paper 
-              : "#FFFFFF"} !important`,
+          backgroundColor: `${
+            isActive
+              ? colors.badge
+              : theme.palette.mode === "dark"
+              ? theme.palette.background.paper
+              : "#FFFFFF"
+          } !important`,
         },
         "& .MuiChip-label": {
           padding: 0,
@@ -254,7 +274,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           display: "flex",
           gap: 1,
           mb: 2,
-          flexWrap: "wrap",
+          flexWrap: "nowrap",
           alignItems: "center",
           justifyContent: "space-between",
         }}
@@ -397,7 +417,13 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           <PrintIcon fontSize="small" sx={{ mr: 1 }} />
           Print Report
         </MenuItem>
-        <MenuItem onClick={handleSettingsClose}>
+        <MenuItem onClick={() => {
+          handleSettingsClose();
+          // Show AG Grid's column chooser
+          if (gridRef?.current?.api) {
+            gridRef.current.api.showColumnChooser();
+          }
+        }}>
           <ColumnIcon fontSize="small" sx={{ mr: 1 }} />
           Column Settings
         </MenuItem>
@@ -451,7 +477,11 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                 disabled={action.disabled?.(selectedItems)}
               >
                 {action.icon && (
-                  <Box component={action.icon} fontSize="small" sx={{ mr: 1 }} />
+                  <Box
+                    component={action.icon}
+                    fontSize="small"
+                    sx={{ mr: 1 }}
+                  />
                 )}
                 {action.label}
               </MenuItem>

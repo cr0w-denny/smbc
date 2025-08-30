@@ -33,7 +33,7 @@ import {
   AddCircle as AddCircleIcon,
   List as ListIcon,
   Newspaper as NewspaperIcon,
-} from "@mui/icons-material";
+} from "@smbc/mui-components";
 
 function useEvents(params: Record<string, any>) {
   const client = useApiClient<paths>("ewi-events");
@@ -407,6 +407,16 @@ const ActionsCellRenderer = (params: any) => {
 const EventsAgGrid: React.FC = () => {
   const { theme } = useAppletCore();
   const gridRef = React.useRef<AgGridReact>(null);
+  const popupParentRef = React.useRef<HTMLDivElement>(null);
+
+  const [popupParent, setPopupParent] = useState<HTMLElement | null>(null);
+  
+  // Set popup parent after component mounts
+  React.useEffect(() => {
+    if (popupParentRef.current) {
+      setPopupParent(popupParentRef.current);
+    }
+  }, []);
 
   const { params: rawParams, setParams: setRawParams } = useHashNavigation({
     defaultParams: {
@@ -468,6 +478,7 @@ const EventsAgGrid: React.FC = () => {
         pinned: "left",
         resizable: false,
         lockPosition: true,
+        suppressColumnsToolPanel: true,
       },
       {
         // Master detail column for expand/collapse
@@ -483,15 +494,22 @@ const EventsAgGrid: React.FC = () => {
         filter: false,
         suppressMenu: true,
         cellClass: "expand-cell",
+        suppressColumnsToolPanel: true,
       },
       {
-        headerName: "Event Workflow Status",
-        field: "workflow_status",
+        headerName: "Event Date",
+        field: "event_date",
+        valueFormatter: ({ value }) => (value ? value.split("T")[0] : "---"),
         suppressMenu: true,
       },
       {
-        headerName: "Event Category",
+        headerName: "Category",
         field: "event_category",
+        suppressMenu: true,
+      },
+      {
+        headerName: "Workflow Status",
+        field: "workflow_status",
         suppressMenu: true,
       },
       {
@@ -515,24 +533,18 @@ const EventsAgGrid: React.FC = () => {
         suppressMenu: true,
       },
       {
-        headerName: "Event Date",
-        field: "event_date",
-        valueFormatter: ({ value }) => (value ? value.split("T")[0] : "---"),
-        suppressMenu: true,
-      },
-      {
-        headerName: "Event Trigger Type",
-        field: "trigger_type",
-        suppressMenu: true,
-      },
-      {
-        headerName: "Event Trigger Shortname",
+        headerName: "Trigger",
         field: "trigger_shortname",
         minWidth: 120,
         suppressMenu: true,
       },
       {
-        headerName: "Event Trigger Values",
+        headerName: "Trigger Type",
+        field: "trigger_type",
+        suppressMenu: true,
+      },
+      {
+        headerName: "Trigger Values",
         field: "trigger_values",
         suppressMenu: true,
       },
@@ -554,6 +566,7 @@ const EventsAgGrid: React.FC = () => {
         suppressMenu: true,
         resizable: false,
         cellClass: "actions-cell",
+        suppressColumnsToolPanel: true,
       },
     ];
   }, []);
@@ -566,9 +579,37 @@ const EventsAgGrid: React.FC = () => {
     });
   }, []);
 
+  // Cleanup resize listener on unmount
+  React.useEffect(() => {
+    return () => {
+      if (gridRef.current?.api && (gridRef.current.api as any).resizeCleanup) {
+        (gridRef.current.api as any).resizeCleanup();
+      }
+    };
+  }, []);
+
   // Event handlers
   const onGridReady = useCallback(({ api }: GridReadyEvent) => {
     api.sizeColumnsToFit();
+
+    // Add window resize listener
+    const handleResize = () => {
+      api.sizeColumnsToFit();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Store cleanup function on the api object
+    (api as any).resizeCleanup = () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Recalculate column widths when columns are shown/hidden
+  const onColumnVisible = useCallback(() => {
+    if (gridRef.current?.api) {
+      gridRef.current.api.sizeColumnsToFit();
+    }
   }, []);
 
   const onRowGroupOpened = useCallback((event: any) => {
@@ -683,12 +724,14 @@ const EventsAgGrid: React.FC = () => {
         statusCounts={statusCounts}
         workflowActions={workflowActions}
         selectedItems={selectedRows}
+        gridRef={gridRef}
       />
 
-      <AgGridTheme wrapHeaders={true}>
+      <AgGridTheme wrapHeaders={true} popupParentRef={popupParentRef}>
         <AgGridReact
           ref={gridRef}
-          headerHeight={70}
+          popupParent={popupParent}
+          headerHeight={50}
           rowData={data?.events || []}
           columnDefs={columnDefs}
           rowSelection="multiple"
@@ -696,6 +739,7 @@ const EventsAgGrid: React.FC = () => {
           onGridReady={onGridReady}
           onSelectionChanged={onSelectionChanged}
           onRowGroupOpened={onRowGroupOpened}
+          onColumnVisible={onColumnVisible}
           loading={isLoading}
           animateRows={true}
           cellSelection={true}
