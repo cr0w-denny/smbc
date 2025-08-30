@@ -12,6 +12,7 @@ interface AgGridThemeProps {
   mx?: number;
   wrapHeaders?: boolean;
   children: React.ReactNode;
+  popupParentRef?: React.MutableRefObject<HTMLDivElement | null>;
 }
 
 export const AgGridTheme: React.FC<AgGridThemeProps> = ({
@@ -19,6 +20,7 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
   mx = 2,
   wrapHeaders = false,
   children,
+  popupParentRef,
 }) => {
   const theme = useTheme();
 
@@ -32,17 +34,19 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
     backgroundColor: "transparent !important",
   };
 
-  const headerWrapStyles = wrapHeaders ? {
-    "& .ag-header-cell-label": {
-      whiteSpace: "normal !important",
-      wordBreak: "keep-all !important",
-      overflowWrap: "normal !important",
-      hyphens: "manual !important",
-      lineHeight: 1.2,
-      textAlign: "center",
-      padding: "4px",
-    },
-  } : {};
+  const headerWrapStyles = wrapHeaders
+    ? {
+        "& .ag-header-cell-label": {
+          whiteSpace: "normal !important",
+          wordBreak: "keep-all !important",
+          overflowWrap: "normal !important",
+          hyphens: "manual !important",
+          lineHeight: 1.2,
+          textAlign: "center",
+          padding: "4px",
+        },
+      }
+    : {};
 
   return (
     <Box
@@ -57,6 +61,7 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
           },
           // Theme colors
           "--ag-background-color": theme.palette.background.paper,
+          "--ag-odd-row-background-color": theme.palette.background.default,
           "--ag-foreground-color": theme.palette.text.primary,
           "--ag-header-background-color": theme.palette.background.default,
           "--ag-header-foreground-color": theme.palette.text.primary,
@@ -101,9 +106,30 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
     >
       <div
         className="ag-theme-quartz"
-        style={{ height: "100%", width: "100%" }}
+        style={{ height: "100%", width: "100%", position: "relative" }}
       >
         {children}
+        {/* Popup container that inherits the theme */}
+        <div
+          ref={popupParentRef}
+          className="ag-popup-parent"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+          }}
+        >
+          <style>
+            {`
+              .ag-popup-parent > * {
+                pointer-events: auto;
+              }
+            `}
+          </style>
+        </div>
       </div>
     </Box>
   );

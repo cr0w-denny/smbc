@@ -145,7 +145,11 @@ const AppContent: React.FC = () => {
           <ThemeProvider theme={appTheme}>
             <AppShell
               logo={
-                <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="EWI Logo" style={{ height: 60 }} />
+                <img
+                  src={`${import.meta.env.BASE_URL}logo.svg`}
+                  alt="EWI Logo"
+                  style={{ height: 60 }}
+                />
               }
               navigation={navigation}
               onNavigate={navigate}
@@ -160,8 +164,8 @@ const AppContent: React.FC = () => {
                 </Box>
               }
               maxWidth={{
-                xs: "100%",
-                sm: "100%",
+                xs: "96%",
+                sm: "96%",
                 md: "88%", // 6% margin on each side
                 lg: "88%", // 6% margin on each side
                 xl: "92%", // 4% margin on each side
