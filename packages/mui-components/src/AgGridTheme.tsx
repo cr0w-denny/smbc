@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Theme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 
 // Import AG Grid styles
 import "ag-grid-community/styles/ag-grid.css";
@@ -7,7 +7,6 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import "ag-grid-enterprise";
 
 interface AgGridThemeProps {
-  theme: Theme;
   height?: string | number;
   mx?: number;
   wrapHeaders?: boolean;
@@ -16,13 +15,13 @@ interface AgGridThemeProps {
 }
 
 export const AgGridTheme: React.FC<AgGridThemeProps> = ({
-  theme,
   height = "70vh",
   mx = 2,
   wrapHeaders = false,
   children,
   popupParentRef,
 }) => {
+  const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
   const agGridThemeClass = isDarkMode
     ? "ag-theme-quartz-dark"

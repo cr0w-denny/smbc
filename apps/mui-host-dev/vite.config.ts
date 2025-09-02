@@ -31,6 +31,7 @@ export default defineConfig(() => {
   const finalConfig = mergeConfig(createAppConfig({ 
     includeDevtools: true,
     disableChunking: true, // Let app-specific config handle chunking
+    enableCoreAliases: true, // Enable HMR for SMBC core packages
     monorepoPackages: [
       // Devtools and dataview
       "@smbc/mui-applet-devtools",

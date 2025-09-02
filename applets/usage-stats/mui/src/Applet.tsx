@@ -36,7 +36,6 @@ export interface AppletProps {
 }
 
 export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
-  const { theme } = useAppletCore();
   const hashState = useHashNavigation({
     defaultParams: {
       start_date: "2025-01-01",
@@ -341,7 +340,6 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
         {/* Main Table */}
         <Box sx={{ flex: 1, minHeight: 0 }}>
           <AgGridTheme
-            theme={theme}
             height="100%"
             popupParentRef={popupParentRef}
           >

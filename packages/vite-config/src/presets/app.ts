@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
+import { fileURLToPath } from "url";
 import { injectAppletVersions } from "../index.js";
 
 /**
@@ -42,6 +43,7 @@ export function createAppConfig({
   additionalVendorPackages = [] as string[],
   enableBundleAnalyzer = true,
   monorepoPackages = [] as string[],
+  enableCoreAliases = false,
 } = {}) {
   const isProduction = process.env.NODE_ENV === "production";
 
@@ -68,18 +70,43 @@ export function createAppConfig({
 
     // Development aliases for monorepo HMR
     resolve: {
-      alias: isProduction ? {} : {
-        // Core packages
-        "@smbc/mui-components": path.resolve(process.cwd(), "../../packages/mui-components/src"),
-        "@smbc/applet-core": path.resolve(process.cwd(), "../../packages/applet-core/src"),
-        "@smbc/applet-host": path.resolve(process.cwd(), "../../packages/applet-host/src"),
-        "@smbc/mui-applet-core": path.resolve(process.cwd(), "../../packages/mui-applet-core/src"),
-        "@smbc/applet-meta": path.resolve(process.cwd(), "../../packages/applet-meta"),
-        // Additional monorepo packages
-        ...Object.fromEntries(
-          monorepoPackages.map(pkg => [pkg, path.resolve(process.cwd(), `../../packages/${pkg.replace('@smbc/', '')}/src`)])
-        ),
-      },
+      alias: isProduction ? {} : (() => {
+        const __dirname = path.dirname(fileURLToPath(import.meta.url));
+        
+        return {
+          // Core packages - only if enableCoreAliases is true
+          ...(enableCoreAliases ? {
+            "@smbc/mui-components": path.resolve(__dirname, "../../../mui-components/src"),
+            "@smbc/applet-core": path.resolve(__dirname, "../../../applet-core/src"),
+            "@smbc/applet-host": path.resolve(__dirname, "../../../applet-host/src"),
+            "@smbc/mui-applet-core": path.resolve(__dirname, "../../../mui-applet-core/src"),
+            "@smbc/applet-meta": path.resolve(__dirname, "../../../applet-meta"),
+            "@smbc/mui-applet-devtools": path.resolve(__dirname, "../../../mui-applet-devtools/src"),
+            "@smbc/applet-devtools": path.resolve(__dirname, "../../../applet-devtools/src"),
+            "@smbc/dataview": path.resolve(__dirname, "../../../dataview/src"),
+          } : {}),
+          
+          // Handle monorepo packages dynamically
+          ...Object.fromEntries(
+            monorepoPackages.map(pkg => {
+              const pkgName = pkg.replace('@smbc/', '');
+              
+              // API packages point to their OpenAPI spec
+              if (pkgName.endsWith('-api')) {
+                const appletName = pkgName.replace('-api', '');
+                return [pkg, path.resolve(__dirname, `../../../../applets/${appletName}/api/dist/@typespec/openapi3/openapi.json`)];
+              }
+              // MUI packages point to their src directory
+              else if (pkgName.endsWith('-mui')) {
+                const appletName = pkgName.replace('-mui', '');
+                return [pkg, path.resolve(__dirname, `../../../../applets/${appletName}/mui/src`)];
+              }
+              // Default to packages/{name}/src
+              return [pkg, path.resolve(__dirname, `../../../${pkgName}/src`)];
+            })
+          ),
+        };
+      })(),
     },
 
     // Remove console logs in production builds

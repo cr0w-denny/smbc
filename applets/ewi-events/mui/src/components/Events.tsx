@@ -660,11 +660,7 @@ const EventsAgGrid: React.FC = () => {
         gridRef={gridRef}
       />
 
-      <AgGridTheme
-        theme={theme}
-        wrapHeaders={true}
-        popupParentRef={popupParentRef}
-      >
+      <AgGridTheme wrapHeaders={true} popupParentRef={popupParentRef}>
         <AgGridReact
           ref={gridRef}
           popupParent={popupParent}

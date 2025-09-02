@@ -60,26 +60,32 @@ const PageLayout: React.FC<{
           <Box sx={{ maxWidth: "100%", mx: "auto", py: 2 }}>{filter}</Box>
         </Box>
       )}
-      <ThemeProvider theme={theme}>
-        <Box
-          sx={{
-            width: "100%",
-            border: "1px solid",
-            borderColor: "divider",
-            borderRadius: 0.5,
-            position: "relative",
-            top: "-100px",
-            bgcolor: "background.paper",
-            py: 2,
-            minHeight: "calc(100vh - 250px)",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-          }}
-        >
-          {children}
-        </Box>
-      </ThemeProvider>
+{(() => {
+        const content = (
+          <Box
+            sx={{
+              width: "100%",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 0.5,
+              position: "relative",
+              top: "-100px",
+              bgcolor: "background.paper",
+              py: 2,
+              minHeight: "calc(100vh - 250px)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+            }}
+          >
+            {children}
+          </Box>
+        );
+        
+        return theme ? (
+          <ThemeProvider theme={theme}>{content}</ThemeProvider>
+        ) : content;
+      })()}
     </Box>
   );
 };
