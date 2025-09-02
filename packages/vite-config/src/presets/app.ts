@@ -68,9 +68,9 @@ export function createAppConfig({
         : '"false"',
     },
 
-    // Development aliases for monorepo HMR
+    // Development aliases for monorepo HMR  
     resolve: {
-      alias: isProduction ? {} : (() => {
+      alias: (() => {
         const __dirname = path.dirname(fileURLToPath(import.meta.url));
         
         return {

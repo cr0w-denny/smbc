@@ -54,6 +54,7 @@ export default defineConfig(({ mode }) => {
 
   // Use shared config with EWI-specific packages
   const finalConfig = mergeConfig(createAppConfig({
+    enableCoreAliases: true, // Enable HMR for SMBC core packages
     monorepoPackages: [
       "@smbc/ewi-events-mui",
       "@smbc/ewi-events-api",
