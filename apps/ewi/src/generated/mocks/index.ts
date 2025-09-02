@@ -84,7 +84,7 @@ export {
  * Metadata about generated mocks
  */
 export const mockMetadata = {
-  generatedAt: '2025-08-27T02:55:22.863Z',
+  generatedAt: '2025-09-01T21:15:37.739Z',
   applets: [
     {
       id: 'ewi-events',

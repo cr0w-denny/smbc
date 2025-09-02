@@ -1,11 +1,11 @@
 import React from "react";
-import { Box, ThemeProvider, Typography, Theme } from "@mui/material";
+import { Box, ThemeProvider, Typography } from "@mui/material";
+import { useAppletCore } from "@smbc/applet-core";
 
-interface PageProps {
-  header?: React.ReactNode;
+interface AppletPageProps {
+  filter?: React.ReactNode;
   children: React.ReactNode;
   error?: Error | null;
-  theme: Theme;
 }
 
 interface ErrorBoundaryState {
@@ -13,7 +13,7 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Error
+// Error Display Component
 const ErrorDisplay: React.FC<{ error: Error }> = ({ error }) => (
   <Box sx={{ p: 3 }}>
     <Typography variant="h6" color="error" sx={{ mb: 2 }}>
@@ -40,33 +40,51 @@ const ErrorDisplay: React.FC<{ error: Error }> = ({ error }) => (
   </Box>
 );
 
-// Content
-const contentBoxStyles = {
-  width: "100%",
-  border: "1px solid",
-  borderColor: "divider",
-  borderRadius: 0.5,
-  position: "relative",
-  top: "-100px",
-  bgcolor: "background.paper",
-  pt: 2,
+// Page Layout Component
+const PageLayout: React.FC<{
+  filter?: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ filter, children }) => {
+  const { theme } = useAppletCore();
+
+  return (
+    <Box sx={{ height: "100%" }}>
+      {filter && (
+        <Box
+          sx={{
+            py: 1,
+            mb: "100px",
+            backgroundColor: "transparent", // Inherit gradient from app layout
+          }}
+        >
+          <Box sx={{ maxWidth: "100%", mx: "auto", py: 2 }}>{filter}</Box>
+        </Box>
+      )}
+      <ThemeProvider theme={theme}>
+        <Box
+          sx={{
+            width: "100%",
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 0.5,
+            position: "relative",
+            top: "-100px",
+            bgcolor: "background.paper",
+            py: 2,
+            minHeight: "calc(100vh - 250px)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+          }}
+        >
+          {children}
+        </Box>
+      </ThemeProvider>
+    </Box>
+  );
 };
 
-// Layout
-const PageLayout: React.FC<{
-  header?: React.ReactNode;
-  children: React.ReactNode;
-  theme: Theme;
-}> = ({ header, children, theme }) => (
-  <Box sx={{ height: "100%" }}>
-    {header}
-    <ThemeProvider theme={theme}>
-      <Box sx={contentBoxStyles}>{children}</Box>
-    </ThemeProvider>
-  </Box>
-);
-
-// Error boundary
+// Error Boundary Component
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode; fallback: (error: Error) => React.ReactNode },
   ErrorBoundaryState
@@ -84,7 +102,11 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Page Error Boundary caught an error:", error, errorInfo);
+    console.error(
+      "AppletPage Error Boundary caught an error:",
+      error,
+      errorInfo,
+    );
   }
 
   render() {
@@ -95,32 +117,29 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// Main
-export const Page: React.FC<PageProps> = ({
-  header,
+// Main AppletPage Component
+export const AppletPage: React.FC<AppletPageProps> = ({
+  filter,
   children,
   error,
-  theme,
 }) => {
   const content = error ? (
-    <PageLayout header={header} theme={theme}>
+    <PageLayout filter={filter}>
       <ErrorDisplay error={error} />
     </PageLayout>
   ) : (
     <ErrorBoundary
       fallback={(err) => (
-        <PageLayout header={header} theme={theme}>
+        <PageLayout filter={filter}>
           <ErrorDisplay error={err} />
         </PageLayout>
       )}
     >
-      <PageLayout header={header} theme={theme}>
-        {children}
-      </PageLayout>
+      <PageLayout filter={filter}>{children}</PageLayout>
     </ErrorBoundary>
   );
 
   return content;
 };
 
-export default Page;
+export default AppletPage;

@@ -427,7 +427,26 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           <ColumnIcon fontSize="small" sx={{ mr: 1 }} />
           Column Settings
         </MenuItem>
-        <MenuItem onClick={handleSettingsClose}>
+        <MenuItem onClick={() => {
+          handleSettingsClose();
+          // Reset all filter values
+          onValuesChange({
+            dateFrom: "",
+            dateTo: "",
+            status: "",
+            category: "",
+            exRatings: "",
+            workflow: "",
+            priority: "",
+            types: "",
+            sortBy: "",
+            sortDirection: "",
+          });
+          // Clear AG Grid filters if available
+          if (gridRef?.current?.api) {
+            gridRef.current.api.setFilterModel(null);
+          }
+        }}>
           <ResetFiltersIcon fontSize="small" sx={{ mr: 1 }} />
           Reset Filters
         </MenuItem>

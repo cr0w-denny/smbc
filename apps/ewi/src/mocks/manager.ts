@@ -13,7 +13,8 @@ export class ServiceWorkerManager {
   private static instance: ServiceWorkerManager;
   private retryCount = 0;
   private readonly maxRetries = 3;
-  private healthCheckInterval: NodeJS.Timeout | null = null;
+  private healthCheckInterval: number | null = null;
+  private isRecovering = false;
   
   private constructor() {
     this.setupVisibilityHandler();
@@ -68,9 +69,7 @@ export class ServiceWorkerManager {
             // Force update on every page load
             updateViaCache: "none"
           }
-        },
-        // Reduce delay for faster startup
-        waitUntilReady: true
+        }
       });
 
       console.log("🎭 MSW started successfully with", handlers.length, "handlers");
@@ -122,11 +121,11 @@ export class ServiceWorkerManager {
   private setupHealthCheck() {
     // Clear any existing interval
     if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval);
+      window.clearInterval(this.healthCheckInterval);
     }
 
     // Check every 30 seconds when page is visible
-    this.healthCheckInterval = setInterval(async () => {
+    this.healthCheckInterval = window.setInterval(async () => {
       if (document.visibilityState === "visible" && worker) {
         await this.checkAndRecover();
       }
@@ -140,6 +139,11 @@ export class ServiceWorkerManager {
     // Intercept fetch failures that might indicate service worker issues
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
+      // Skip interception during recovery to prevent loops
+      if (this.isRecovering) {
+        return originalFetch(...args);
+      }
+      
       try {
         const response = await originalFetch(...args);
         
@@ -193,26 +197,30 @@ export class ServiceWorkerManager {
    * Recover the service worker
    */
   private async recover() {
-    if (isStarting) {
+    if (isStarting || this.isRecovering) {
       console.log("🎭 Recovery already in progress");
       return startPromise;
     }
 
+    this.isRecovering = true;
     console.log("🎭 Recovering MSW...");
     
     try {
       // Get current handlers before cleanup
-      const { handlers } = await import("./generated/mocks");
+      const { handlers } = await import("../generated/mocks");
+      const { handlers: appHandlers } = await import("./handlers");
       
       // Clean up existing worker
       await this.cleanup();
       
-      // Reinitialize
-      await this.initialize(handlers);
+      // Reinitialize with all handlers
+      await this.initialize([...handlers, ...appHandlers]);
       
       console.log("🎭 MSW recovered successfully");
     } catch (error) {
       console.error("🎭 MSW recovery failed:", error);
+    } finally {
+      this.isRecovering = false;
     }
   }
 

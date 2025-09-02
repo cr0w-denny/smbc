@@ -4,6 +4,7 @@ import { Box, Typography, CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { AppShell } from "@smbc/mui-components";
 import { ActivityNotifications } from "@smbc/mui-applet-core";
+import { AuthGate } from "./components/AuthGate";
 import {
   useHashNavigation,
   AppletProvider,
@@ -132,7 +133,6 @@ const AppContent: React.FC = () => {
 
   return (
     <AppletProvider applets={APPLETS} theme={appletTheme}>
-      <CssBaseline />
       <FeatureFlagProvider
         configs={[
           {
@@ -143,6 +143,7 @@ const AppContent: React.FC = () => {
       >
         <DataViewProvider>
           <ThemeProvider theme={appTheme}>
+            <CssBaseline />
             <AppShell
               logo={
                 <img
@@ -171,9 +172,7 @@ const AppContent: React.FC = () => {
                 xl: "92%", // 4% margin on each side
               }}
             >
-              <Box sx={{ pt: 2 }}>
-                <AppletRouter defaultComponent={AppRoutes} />
-              </Box>
+              <AppletRouter defaultComponent={AppRoutes} />
             </AppShell>
           </ThemeProvider>
         </DataViewProvider>
@@ -184,9 +183,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppContent />
-    </QueryClientProvider>
+    <AuthGate>
+      <QueryClientProvider client={queryClient}>
+        <AppContent />
+      </QueryClientProvider>
+    </AuthGate>
   );
 };
 

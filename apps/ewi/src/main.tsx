@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { serviceWorkerManager } from "./serviceWorkerManager";
+import { serviceWorkerManager } from "./mocks/manager";
 
 import "./global.css";
 
@@ -12,10 +12,10 @@ const useMocks = import.meta.env.VITE_USE_MOCKS === 'true' ||
 
 if (useMocks) {
   const { handlers } = await import("./generated/mocks");
-  const { healthHandler } = await import("./mocks/health");
+  const { handlers: appHandlers } = await import("./mocks/handlers");
   
   try {
-    await serviceWorkerManager.initialize([...handlers, healthHandler]);
+    await serviceWorkerManager.initialize([...handlers, ...appHandlers]);
     console.log("🎭 MSW mocks enabled");
   } catch (error) {
     console.error("🎭 Failed to initialize MSW after retries:", error);

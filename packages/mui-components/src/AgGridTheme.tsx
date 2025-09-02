@@ -1,6 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { Box, Theme } from "@mui/material";
 
 // Import AG Grid styles
 import "ag-grid-community/styles/ag-grid.css";
@@ -8,6 +7,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import "ag-grid-enterprise";
 
 interface AgGridThemeProps {
+  theme: Theme;
   height?: string | number;
   mx?: number;
   wrapHeaders?: boolean;
@@ -16,13 +16,17 @@ interface AgGridThemeProps {
 }
 
 export const AgGridTheme: React.FC<AgGridThemeProps> = ({
+  theme,
   height = "70vh",
   mx = 2,
   wrapHeaders = false,
   children,
   popupParentRef,
 }) => {
-  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+  const agGridThemeClass = isDarkMode
+    ? "ag-theme-quartz-dark"
+    : "ag-theme-quartz";
 
   const noBorderOutline = {
     border: "none !important",
@@ -53,7 +57,8 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
       sx={{
         height,
         mx,
-        "& .ag-theme-quartz": {
+        position: "relative",
+        "& .ag-theme-quartz, & .ag-theme-quartz-dark": {
           height: "100%",
           "& .ag-root-wrapper": {
             borderRadius: "0 !important",
@@ -105,7 +110,7 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
       }}
     >
       <div
-        className="ag-theme-quartz"
+        className={agGridThemeClass}
         style={{ height: "100%", width: "100%", position: "relative" }}
       >
         {children}
@@ -124,7 +129,10 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
         >
           <style>
             {`
-              .ag-popup-parent > * {
+              .ag-popup-parent > .ag-popup,
+              .ag-popup-parent > .ag-menu,
+              .ag-popup-parent > .ag-dialog,
+              .ag-popup-parent > .ag-tooltip {
                 pointer-events: auto;
               }
             `}

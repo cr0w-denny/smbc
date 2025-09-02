@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import { AgGridTheme } from "@smbc/mui-components";
-import Page from "./Page";
+import { AppletPage } from "@smbc/mui-applet-core";
 import type {
   ColDef,
   GridReadyEvent,
@@ -115,7 +115,9 @@ const DetailCellRenderer = (params: any) => {
   const event = params.node.parent.data; // Get parent row data for master-detail
 
   return (
-    <Box sx={{ p: 2, bgcolor: "action.selected", width: "100%" }}>
+    <Box
+      sx={{ p: 2, bgcolor: "action.selected", width: "100%", height: "100%" }}
+    >
       <Typography variant="h6" sx={{ mb: 2 }}>
         Event Details: {event.id}
       </Typography>
@@ -129,46 +131,10 @@ const DetailCellRenderer = (params: any) => {
             color="text.secondary"
             sx={{ mb: 0.5 }}
           >
-            Description
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            {event.description || "No description available"}
-          </Typography>
-        </Box>
-
-        <Box>
-          <Typography
-            variant="subtitle2"
-            color="text.secondary"
-            sx={{ mb: 0.5 }}
-          >
-            Priority
-          </Typography>
-          <Box sx={{ mb: 1 }}>
-            <Chip
-              label={event.priority?.toUpperCase() || "Not Set"}
-              size="small"
-              color={
-                event.priority === "high"
-                  ? "error"
-                  : event.priority === "medium"
-                  ? "warning"
-                  : "default"
-              }
-            />
-          </Box>
-        </Box>
-
-        <Box>
-          <Typography
-            variant="subtitle2"
-            color="text.secondary"
-            sx={{ mb: 0.5 }}
-          >
             Workflow Status
           </Typography>
           <Typography variant="body2" sx={{ mb: 1 }}>
-            {event.workflow || "Not Set"}
+            {event.workflow_status || "Not Set"}
           </Typography>
         </Box>
 
@@ -178,40 +144,10 @@ const DetailCellRenderer = (params: any) => {
             color="text.secondary"
             sx={{ mb: 0.5 }}
           >
-            External Rating
+            Trigger Values
           </Typography>
           <Typography variant="body2" sx={{ mb: 1 }}>
-            {event.exRating || "Not Set"}
-          </Typography>
-        </Box>
-
-        <Box>
-          <Typography
-            variant="subtitle2"
-            color="text.secondary"
-            sx={{ mb: 0.5 }}
-          >
-            Created
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            {event.createdAt
-              ? new Date(event.createdAt).toLocaleDateString()
-              : "Unknown"}
-          </Typography>
-        </Box>
-
-        <Box>
-          <Typography
-            variant="subtitle2"
-            color="text.secondary"
-            sx={{ mb: 0.5 }}
-          >
-            Last Updated
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            {event.updatedAt
-              ? new Date(event.updatedAt).toLocaleDateString()
-              : "Unknown"}
+            {event.trigger_values || "Not Set"}
           </Typography>
         </Box>
       </Box>
@@ -410,7 +346,7 @@ const EventsAgGrid: React.FC = () => {
   const popupParentRef = React.useRef<HTMLDivElement>(null);
 
   const [popupParent, setPopupParent] = useState<HTMLElement | null>(null);
-  
+
   // Set popup parent after component mounts
   React.useEffect(() => {
     if (popupParentRef.current) {
@@ -457,12 +393,9 @@ const EventsAgGrid: React.FC = () => {
     [setRawParams],
   );
 
-  // State
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);
   const [pageSize, setPageSize] = useState(25);
 
-  // Fetch data using the API client with keepPreviousData to avoid blanking
-  // Only include filters in the query, let AG Grid handle sorting client-side
   const { data, isLoading, error } = useEvents(params);
 
   const columnDefs: ColDef[] = useMemo(() => {
@@ -553,6 +486,7 @@ const EventsAgGrid: React.FC = () => {
         headerName: "Lifecycle Status",
         field: "lifecycle_status",
         cellRenderer: StatusCellRenderer,
+        pinned: "right",
         suppressMenu: true,
       },
       {
@@ -681,36 +615,35 @@ const EventsAgGrid: React.FC = () => {
     [],
   );
 
-  // Calculate status counts from complete unfiltered dataset
+  // Calculate status counts from filtered dataset
   const statusCounts = React.useMemo(() => {
-    const allEvents = data?.allEvents || [];
+    const filteredEvents = data?.events || [];
     return {
-      onCourse: allEvents.filter(
+      onCourse: filteredEvents.filter(
         (event: Event) => event.lifecycle_status === "on-course",
       ).length,
-      almostDue: allEvents.filter(
+      almostDue: filteredEvents.filter(
         (event: Event) => event.lifecycle_status === "almost-due",
       ).length,
-      pastDue: allEvents.filter(
+      pastDue: filteredEvents.filter(
         (event: Event) => event.lifecycle_status === "past-due",
       ).length,
-      needsAttention: allEvents.filter(
+      needsAttention: filteredEvents.filter(
         (event: Event) => event.lifecycle_status === "needs-attention",
       ).length,
-      discretionary: allEvents.filter(
+      discretionary: filteredEvents.filter(
         (event: Event) => event.event_category === "Discretionary",
       ).length,
-      mandatory: allEvents.filter(
+      mandatory: filteredEvents.filter(
         (event: Event) => event.event_category === "Mandatory",
       ).length,
     };
   }, [data]);
 
   return (
-    <Page
-      theme={theme}
+    <AppletPage
       error={error ? new Error(`Error loading events: ${error.message}`) : null}
-      header={
+      filter={
         <FilterBar
           values={params}
           onValuesChange={setParams}
@@ -727,7 +660,11 @@ const EventsAgGrid: React.FC = () => {
         gridRef={gridRef}
       />
 
-      <AgGridTheme wrapHeaders={true} popupParentRef={popupParentRef}>
+      <AgGridTheme
+        theme={theme}
+        wrapHeaders={true}
+        popupParentRef={popupParentRef}
+      >
         <AgGridReact
           ref={gridRef}
           popupParent={popupParent}
@@ -779,7 +716,7 @@ const EventsAgGrid: React.FC = () => {
           }}
         />
       </AgGridTheme>
-    </Page>
+    </AppletPage>
   );
 };
 

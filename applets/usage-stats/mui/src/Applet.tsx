@@ -1,15 +1,17 @@
-import React, { useMemo, useEffect, useRef } from "react";
-import { Box } from "@mui/material";
+import React, { useMemo, useRef } from "react";
+import { Box, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef, GridOptions } from "ag-grid-community";
 import "ag-grid-enterprise";
-import { Filter } from "@smbc/mui-components";
+import { Filter, AgGridTheme } from "@smbc/mui-components";
+import { AppletPage } from "@smbc/mui-applet-core";
 import type { FilterSpec } from "@smbc/mui-components";
 import {
   useHashNavigation,
   useApiClient,
   useFeatureFlag,
+  useAppletCore,
   type Environment,
 } from "@smbc/applet-core";
 import type { paths } from "@smbc/usage-stats-api";
@@ -34,18 +36,21 @@ export interface AppletProps {
 }
 
 export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
+  const { theme } = useAppletCore();
   const hashState = useHashNavigation({
     defaultParams: {
       start_date: "2025-01-01",
       end_date: "2025-01-01",
       group: "UI" as "UI" | "USER" | "EXCEPTION",
       show_sub: false,
-    }
+    },
   });
-  
+
   const filters = hashState.params as UsageFilters;
-  const setFilters = (updates: Partial<UsageFilters> | ((prev: UsageFilters) => UsageFilters)) => {
-    if (typeof updates === 'function') {
+  const setFilters = (
+    updates: Partial<UsageFilters> | ((prev: UsageFilters) => UsageFilters),
+  ) => {
+    if (typeof updates === "function") {
       hashState.setParams((prev) => updates(prev as UsageFilters));
     } else {
       hashState.setParams(updates);
@@ -56,12 +61,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
   const environment = useFeatureFlag<Environment>("environment") || "mock";
   const gridRef = useRef<AgGridReact>(null);
   const gridApiRef = useRef<any>(null);
-
-  // Get dark mode state from feature flag
-  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
-  const agGridThemeClass = isDarkMode
-    ? "ag-theme-quartz-dark"
-    : "ag-theme-quartz";
+  const popupParentRef = useRef<HTMLDivElement>(null);
 
   const filterSpec: FilterSpec = {
     fields: [
@@ -105,12 +105,15 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
             field: "component",
             headerName: "Component",
             cellRenderer: "agGroupCellRenderer",
+            suppressHeaderMenuButton: true,
           },
           {
             field: "count",
             headerName: "Count",
             sort: "desc",
             type: "numericColumn",
+            suppressHeaderMenuButton: true,
+            maxWidth: 150,
           },
         ];
       case "USER":
@@ -191,11 +194,18 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
   } = useQuery({
     queryKey: ["usage-stats", endpoint, queryParams, environment],
     queryFn: async () => {
-      console.log("🔍 React Query fetching:", { environment, endpoint, queryParams });
+      console.log("🔍 React Query fetching:", {
+        environment,
+        endpoint,
+        queryParams,
+      });
       const result = await apiClient.GET(endpoint as any, {
         params: { query: queryParams },
       });
-      console.log("✅ React Query success:", { environment, recordCount: result.data?.records?.length || 0 });
+      console.log("✅ React Query success:", {
+        environment,
+        recordCount: result.data?.records?.length || 0,
+      });
       return result.data as UsageStatsResponse;
     },
     enabled: !!endpoint,
@@ -206,40 +216,16 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     console.log("🔍 Data computation:", {
       environment,
       hasResponse: !!response,
-      recordCount: (response as UsageStatsResponse | undefined)?.records?.length || 0,
-      queryKey: ["usage-stats", endpoint, queryParams]
+      recordCount:
+        (response as UsageStatsResponse | undefined)?.records?.length || 0,
+      queryKey: ["usage-stats", endpoint, queryParams],
     });
     return (response as UsageStatsResponse | undefined)?.records || [];
   }, [response, environment]);
 
-  // Update detail grid themes when dark mode changes
-  useEffect(() => {
-    const updateDetailGridThemes = () => {
-      // Only query within the current grid container to avoid scanning entire DOM
-      const mainGrid = document.querySelector(
-        ".ag-theme-quartz, .ag-theme-quartz-dark",
-      );
-      if (!mainGrid) return;
-
-      const detailGrids = mainGrid.querySelectorAll(
-        ".ag-details-row .ag-root-wrapper",
-      );
-      detailGrids.forEach((grid) => {
-        const parent = grid.parentElement;
-        if (parent) {
-          parent.className = agGridThemeClass;
-        }
-      });
-    };
-
-    // Use requestAnimationFrame for better performance
-    const rafId = requestAnimationFrame(updateDetailGridThemes);
-    return () => cancelAnimationFrame(rafId);
-  }, [agGridThemeClass]);
-
   // Handle grid ready
   const handleGridReady = (params: any) => {
-    console.log("🔧 AG Grid ready");
+    console.log("AG Grid ready");
     gridApiRef.current = params.api;
   };
 
@@ -316,13 +302,6 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
                     ui_name: masterRowData?.component || event.data?.component,
                   }));
                 },
-                onGridReady: (params: any) => {
-                  // Apply theme class to detail grid container
-                  const detailContainer = params.eGridDiv;
-                  if (detailContainer) {
-                    detailContainer.className = agGridThemeClass;
-                  }
-                },
               },
             }
           : undefined,
@@ -347,59 +326,55 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
   );
 
   return (
-    <Box sx={{ height: "100vh" }}>
-      <Filter
-        spec={filterSpec}
-        values={filters}
-        onFiltersChange={setFilters}
-        sx={{
-          mb: 2,
-          // mb: '-4px',
-          // borderBottomLeftRadius: 0,
-          // borderBottomRightRadius: 0,
-        }}
-      />
+    <AppletPage
+      error={error as Error | null}
+      filter={
+        <Filter
+          spec={filterSpec}
+          values={filters}
+          onFiltersChange={setFilters}
+        />
+      }
+    >
       {/* Main Grid */}
-      <Box sx={{ flex: 1, height: "100%", display: "flex" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "row" }}>
         {/* Main Table */}
-        <Box sx={{ flex: 1, height: "100%" }}>
-          {error ? (
-            <Box sx={{ p: 2, color: "error.main" }}>
-              Error loading data: {error.message}
-            </Box>
-          ) : (
-            <div
-              className={agGridThemeClass}
-              style={{ height: "100%", width: "100%" }}
-            >
-              <AgGridReact
-                ref={gridRef}
-                key={`usage-stats-${environment}`}
-                {...gridOptions}
-                loading={isLoading}
-              />
-            </div>
-          )}
+        <Box sx={{ flex: 1, minHeight: 0 }}>
+          <AgGridTheme
+            theme={theme}
+            height="100%"
+            popupParentRef={popupParentRef}
+          >
+            <AgGridReact
+              ref={gridRef}
+              key={`usage-stats-${environment}`}
+              {...gridOptions}
+              loading={isLoading}
+              popupParent={popupParentRef.current || undefined}
+            />
+          </AgGridTheme>
         </Box>
 
         {/* Side Panel for Additional Info */}
         {filters.group !== "EXCEPTION" && (
           <Box
             sx={{
-              width: "60%",
+              width: "75%",
               borderLeft: 1,
               borderColor: "divider",
               bgcolor: "background.paper",
               p: 2,
             }}
           >
-            <Box sx={{ typography: "h6", mb: 2 }}>Usage Details</Box>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Usage Details
+            </Typography>
             <Box sx={{ color: "text.secondary" }}>
               Select a row to view detailed usage information
             </Box>
           </Box>
         )}
       </Box>
-    </Box>
+    </AppletPage>
   );
 };

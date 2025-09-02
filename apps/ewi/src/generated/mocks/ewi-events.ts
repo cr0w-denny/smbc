@@ -2,9 +2,6 @@ import { http, HttpResponse } from 'msw';
 import { faker } from '@faker-js/faker';
 import { format } from 'date-fns';
 
-// Set a consistent seed for reproducible mock data
-faker.seed(12345);
-
 const mockConfig = {
   baseUrl: '/api/v1/ewi-events',
   delay: { min: 0, max: 200 },
@@ -68,7 +65,7 @@ export const handlers = [
     const url = new URL(request.url);
     
     const status = url.searchParams.get('status');
-    const category = url.searchParams.get('category');
+    const types = url.searchParams.get('types');
     
     const allItems = getAllEvents();
     let filteredItems = allItems;
@@ -78,9 +75,9 @@ export const handlers = [
         item.lifecycle_status?.toString().toLowerCase() === status.toLowerCase()
       );
     }
-    if (category !== null && category !== '') {
+    if (types !== null && types !== '') {
       filteredItems = filteredItems.filter((item: any) => 
-        item.event_category?.toString().toLowerCase() === category.toLowerCase()
+        item.trigger_type?.toString().toLowerCase() === types.toLowerCase()
       );
     }
 

@@ -12,6 +12,7 @@ export type {
 export { ActionBar } from "./ActionBar";
 export { ActivityNotifications } from "./ActivityNotifications";
 export { ActivitySnackbar } from "./ActivitySnackbar";
+export { AppletPage } from "./AppletPage";
 
 // AppShell Menu Builder
 export { buildAppShellNavigation } from "./AppShellMenuBuilder";

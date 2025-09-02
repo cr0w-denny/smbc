@@ -46,6 +46,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         sx={{
           flexGrow: 1,
           marginTop: "104px", // Account for fixed header height
+          height: "100%",
           background: (() => {
             const color = getSemanticColor(
               "surface.body",
@@ -70,6 +71,7 @@ export const AppShell: React.FC<AppShellProps> = ({
               maxWidth,
               margin: "0 auto",
               width: "100%",
+              height: "100%",
             }}
           >
             {children}

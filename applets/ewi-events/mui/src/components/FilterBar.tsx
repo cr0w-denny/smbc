@@ -61,38 +61,26 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   return (
-    <Box
-      sx={{
-        py: 1,
-        mb: "100px",
-        backgroundColor: "transparent", // Inherit gradient from app layout
-      }}
-    >
-      {/* Max-width container for filter bar content */}
-      <Box sx={{ maxWidth: "100%", mx: "auto" }}>
-        {/* Filter component with Apply button on same line */}
-        <Box sx={{ display: "flex", gap: 2, mb: 2, alignItems: "center" }}>
-          <Filter
-            spec={filterSpec}
-            values={values}
-            onFiltersChange={onValuesChange}
-            sx={{ mb: 0, flex: 1 }}
-          />
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={onApply}
-              sx={{ minWidth: 100 }}
-            >
-              Apply Filters
-            </Button>
-            <Typography variant="caption" color="text.secondary">
-              Updated on {new Date().toLocaleDateString()}
-            </Typography>
-          </Box>
-        </Box>
+    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+      <Filter
+        spec={filterSpec}
+        values={values}
+        onFiltersChange={onValuesChange}
+        sx={{ mb: 0, flex: 1 }}
+      />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={onApply}
+          sx={{ minWidth: 100 }}
+        >
+          Apply Filters
+        </Button>
+        <Typography variant="caption" color="text.secondary">
+          Updated on {new Date().toLocaleDateString()}
+        </Typography>
       </Box>
     </Box>
   );

@@ -26,7 +26,7 @@ namespace EwiEventsApi;
 @doc("Dashboard event model")
 model Event {
   @doc("Event reference ID")
-  @extension("x-mock-data", #{ faker: "string.alphanumeric", options: #{ length: 8, casing: "upper", prefix: "EV" } })
+  @extension("x-mock-data", #{ faker: "string.alphanumeric", options: #{ length: 8, casing: "upper" } })
   event_ref_id: string;
   
   @doc("Obligor name")

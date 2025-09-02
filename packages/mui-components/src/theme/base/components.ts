@@ -242,6 +242,13 @@ export const createBaseComponents = (
           // Override CSS custom properties that add overlays
           "--Paper-overlay": "none !important",
           "--Paper-elevation": "none !important",
+          // Navigation dropdown underline styles
+          "& [role='button'][aria-haspopup='true']": {
+            "& .nav-underline, & .active-indicator, &::after": {
+              right: "20px !important", // Shift underline left to exclude arrow
+              width: "calc(100% - 24px) !important",
+            },
+          },
         },
       },
     },
@@ -376,6 +383,14 @@ export const createBaseComponents = (
         },
       },
     },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          color: getSemanticColor("text.primary", mode) ||
+            (mode === "dark" ? "rgba(255, 255, 255, 0.87)" : "#212121"),
+        },
+      },
+    },
     // EWI-specific input styling for dark themes
     MuiInputBase: {
       styleOverrides: {
@@ -429,6 +444,8 @@ export const createBaseComponents = (
           backgroundColor:
             getSemanticColor("surface.body", mode) ||
             (mode === "dark" ? "#242b2f" : "#fafafa"),
+          color: getSemanticColor("text.primary", mode) ||
+            (mode === "dark" ? "rgba(255, 255, 255, 0.87)" : "#212121"),
         },
         ...(mode === "dark" && {
           // Scrollbar styling for dark mode
@@ -456,13 +473,6 @@ export const createBaseComponents = (
             },
           },
         }),
-        // Custom styles for navigation dropdown underlines
-        ".MuiAppBar-root [role='button'][aria-haspopup='true']": {
-          "& .nav-underline, & .active-indicator, &::after": {
-            right: "20px !important", // Shift underline left to exclude arrow
-            width: "calc(100% - 24px) !important",
-          },
-        },
       },
     },
   };

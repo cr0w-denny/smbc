@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => {
           "@smbc/applet-meta": path.resolve(__dirname, "../../packages/applet-meta"),
           "@smbc/ewi-events-mui": path.resolve(__dirname, "../../applets/ewi-events/mui/src"),
           "@smbc/ewi-events-api": path.resolve(__dirname, "../../applets/ewi-events/api/dist/@typespec/openapi3/openapi.json"),
+          "@smbc/usage-stats-mui": path.resolve(__dirname, "../../applets/usage-stats/mui/src"),
+          "@smbc/usage-stats-api": path.resolve(__dirname, "../../applets/usage-stats/api/dist/@typespec/openapi3/openapi.json"),
         }),
       },
     },
@@ -44,6 +46,8 @@ export default defineConfig(({ mode }) => {
         "@smbc/applet-meta",
         "@smbc/ewi-events-mui",
         "@smbc/ewi-events-api",
+        "@smbc/usage-stats-mui",
+        "@smbc/usage-stats-api",
       ],
     },
   });
@@ -53,6 +57,8 @@ export default defineConfig(({ mode }) => {
     monorepoPackages: [
       "@smbc/ewi-events-mui",
       "@smbc/ewi-events-api",
+      "@smbc/usage-stats-mui",
+      "@smbc/usage-stats-api",
     ],
   }), appSpecificConfig);
   
