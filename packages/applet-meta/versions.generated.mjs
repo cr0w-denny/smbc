@@ -1,5 +1,5 @@
 // Auto-generated at build time - do not edit manually
-// Generated on: 2025-09-02T17:56:42.521Z
+// Generated on: 2025-09-09T22:43:03.180Z
 
 export const SMBC_PACKAGE_VERSIONS = {
   "@smbc/vite-config": "^0.0.1",
@@ -23,10 +23,13 @@ export const SMBC_PACKAGE_VERSIONS = {
   "@smbc/applet-cli": "^0.0.1",
   "@smbc/user-management-mui": "^0.0.1",
   "@smbc/usage-stats-mui": "^0.0.1",
+  "@smbc/reports-mui": "^0.0.1",
   "@smbc/product-catalog-mui": "^0.0.1",
   "@smbc/hello-mui": "^0.0.1",
   "@smbc/filter-demo-mui": "^0.0.1",
+  "@smbc/ewi-obligor-mui": "^0.0.1",
   "@smbc/ewi-events-mui": "^0.0.1",
+  "@smbc/ewi-event-details-mui": "^0.0.1",
   "@smbc/employee-directory-mui": "^0.0.1",
   "@smbc/user-management-api": "^0.0.1",
   "@smbc/usage-stats-api": "^0.0.1",

@@ -367,7 +367,7 @@ export function MuiDataViewManager<T extends Record<string, any>>({
       <Filter
         spec={config.filters}
         values={currentFilterState.filters}
-        onFiltersChange={(newFilters) => {
+        onFiltersChange={(newFilters: any) => {
           console.log('🎯 Filter onChange triggered:', { 
             oldFilters: currentFilterState.filters,
             newFilters 

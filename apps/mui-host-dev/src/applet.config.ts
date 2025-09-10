@@ -14,6 +14,7 @@ import {
   Analytics as AnalyticsIcon,
   Task as TaskIcon,
   FilterAlt as FilterAltIcon,
+  Assessment as ReportsIcon,
 } from "@mui/icons-material";
 
 // Import applets directly from source during development
@@ -23,6 +24,7 @@ import helloApplet from "../../../applets/hello/mui/src";
 import employeeDirectoryApplet from "../../../applets/employee-directory/mui/src";
 import usageStatsApplet from "../../../applets/usage-stats/mui/src";
 import filterDemoApplet from "../../../applets/filter-demo/mui/src";
+import reportsApplet from "../../../applets/reports/mui/src";
 import demoTasksApplet from "./demo";
 
 // =============================================================================
@@ -222,6 +224,14 @@ export const APPLETS: AppletMount[] = [
     },
     [{ url: "http://localhost:8003/api/v1", description: "dev" }],
   ),
+  mountApplet(reportsApplet, {
+    id: "reports",
+    label: "Reports Dashboard",
+    path: "/reports",
+    icon: ReportsIcon,
+    permissions: [],
+    packageName: false,
+  }),
   mountApplet(demoTasksApplet, {
     id: "demo-tasks",
     label: "Demo Tasks",

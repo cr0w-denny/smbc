@@ -1,5 +1,5 @@
 export const navigation = [
-  { label: "Events Dashboard", type: "link" as const, href: "/ewi-events" },
+  { label: "Events Dashboard", type: "link" as const, href: "/events" },
   {
     label: "Obligor Dashboard",
     type: "link" as const,

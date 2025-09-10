@@ -15,8 +15,8 @@ interface AgGridThemeProps {
 }
 
 export const AgGridTheme: React.FC<AgGridThemeProps> = ({
-  height = "70vh",
-  mx = 2,
+  height = "100%",
+  mx = 0,
   wrapHeaders = false,
   children,
   popupParentRef,

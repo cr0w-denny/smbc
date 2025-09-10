@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => {
           "@smbc/applet-meta": path.resolve(__dirname, "../../packages/applet-meta"),
           "@smbc/ewi-events-mui": path.resolve(__dirname, "../../applets/ewi-events/mui/src"),
           "@smbc/ewi-events-api": path.resolve(__dirname, "../../applets/ewi-events/api/dist/@typespec/openapi3/openapi.json"),
+          "@smbc/ewi-event-details-mui": path.resolve(__dirname, "../../applets/ewi-event-details/mui/src"),
+          "@smbc/ewi-obligor-mui": path.resolve(__dirname, "../../applets/ewi-obligor/mui/src"),
           "@smbc/usage-stats-mui": path.resolve(__dirname, "../../applets/usage-stats/mui/src"),
           "@smbc/usage-stats-api": path.resolve(__dirname, "../../applets/usage-stats/api/dist/@typespec/openapi3/openapi.json"),
         }),
@@ -46,6 +48,8 @@ export default defineConfig(({ mode }) => {
         "@smbc/applet-meta",
         "@smbc/ewi-events-mui",
         "@smbc/ewi-events-api",
+        "@smbc/ewi-event-details-mui",
+        "@smbc/ewi-obligor-mui",
         "@smbc/usage-stats-mui",
         "@smbc/usage-stats-api",
       ],
@@ -54,10 +58,26 @@ export default defineConfig(({ mode }) => {
 
   // Use shared config with EWI-specific packages
   const finalConfig = mergeConfig(createAppConfig({
-    enableCoreAliases: true, // Enable HMR for SMBC core packages
+    enableCoreAliases: !isProduction, // Only enable source aliases in development for HMR
+    additionalVendorPackages: [
+      "ag-grid-community",
+      "ag-grid-enterprise", 
+      "ag-grid-react",
+      // Add Tiptap to vendor chunk since it's large
+      "@tiptap/core",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+      "@tiptap/extension-placeholder",
+      "@tiptap/extension-highlight",
+      "@tiptap/extension-task-list",
+      "@tiptap/extension-task-item",
+      "@tiptap/extension-character-count",
+    ],
     monorepoPackages: [
       "@smbc/ewi-events-mui",
-      "@smbc/ewi-events-api",
+      "@smbc/ewi-events-api", 
+      "@smbc/ewi-event-details-mui",
+      "@smbc/ewi-obligor-mui",
       "@smbc/usage-stats-mui",
       "@smbc/usage-stats-api",
     ],

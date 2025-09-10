@@ -57,6 +57,8 @@ export interface MuiHostAppProps {
   storagePrefix?: string;
   // Override default QueryClient
   queryClient?: QueryClient;
+  // Toolbar offset for sticky positioning
+  toolbarOffset?: number;
 }
 
 // Default feature flags that most host apps need
@@ -115,6 +117,7 @@ function AppWithEnvironment({
   enableMocksByDefault = true,
   disableMSW = false,
   showAppletHeading = false,
+  toolbarOffset = 67,
 }: MuiHostAppProps) {
   const environment = useFeatureFlag<Environment>("environment") || "mock";
   const isMockEnvironment = environment === "mock";
@@ -283,7 +286,7 @@ function AppContentWithQueryAccess({
 
   return (
     <>
-      <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: "flex", height: "100vh" }}>
         <Navigation
           applets={applets}
           appName={appName}
@@ -362,7 +365,10 @@ function Navigation({
 // Component with theme provider
 function AppWithThemeProvider(props: MuiHostAppProps) {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
-  const currentTheme = isDarkMode ? darkTheme : lightTheme;
+  const appShellTheme = darkTheme; // Always use dark theme for app shell
+  const appletTheme = isDarkMode ? darkTheme : lightTheme; // Toggleable theme for applets
+  
+  console.log("🎨 MuiHostApp theme setup:", { isDarkMode, appletTheme: appletTheme?.palette?.mode });
 
   // Create user with calculated permissions
   const userWithPermissions = {
@@ -377,11 +383,13 @@ function AppWithThemeProvider(props: MuiHostAppProps) {
     <QueryClientProvider
       client={props.queryClient || createDefaultQueryClient()}
     >
-      <ThemeProvider theme={currentTheme}>
+      <ThemeProvider theme={appShellTheme}>
         <CssBaseline />
         <AppletProvider
           initialRoleConfig={props.roleConfig}
           initialUser={userWithPermissions}
+          toolbarOffset={props.toolbarOffset}
+          theme={appletTheme}
         >
           <AppWithEnvironment {...props} />
         </AppletProvider>

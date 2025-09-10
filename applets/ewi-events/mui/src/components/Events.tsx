@@ -258,87 +258,104 @@ const StatusCellRenderer = (params: any) => {
 };
 
 // Actions cell renderer - just the menu button
-const ActionsCellRenderer = (params: any) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+const createActionsCellRenderer =
+  (navigate: (path: string) => void) => (params: any) => {
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    console.log(
-      "ActionsCellRenderer: Menu button clicked for row:",
-      params.data?.id,
-    );
-    setAnchorEl(event.currentTarget);
-  };
+    const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      console.log(
+        "ActionsCellRenderer: Menu button clicked for row:",
+        params.data?.id,
+      );
+      setAnchorEl(event.currentTarget);
+    };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
 
-  const handleAction = (action: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    console.log(`${action} action for:`, params.data);
-    handleMenuClose();
-  };
+    const handleAction = (action: string, event: React.MouseEvent) => {
+      event.stopPropagation();
+      console.log(`${action} action for:`, params.data);
 
-  return (
-    <Box sx={{ display: "flex", justifyContent: "center" }}>
-      <IconButton
-        size="small"
-        color="inherit"
-        onClick={handleMenuClick}
-        title="More Actions"
-        aria-controls={open ? "row-actions-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-      >
-        <MoreIcon fontSize="small" />
-      </IconButton>
-      <Menu
-        id="row-actions-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleMenuClose}
-        slotProps={{
-          paper: {
-            "aria-labelledby": "row-actions-button",
-            sx: {
-              boxShadow:
-                "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
+      if (action === "view" && params.data?.id) {
+        // Navigate to event details applet with event ID as query param
+        navigate(`/events/detail?id=${params.data.id}`);
+      }
+
+      handleMenuClose();
+    };
+
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <IconButton
+          size="small"
+          color="inherit"
+          onClick={handleMenuClick}
+          title="More Actions"
+          aria-controls={open ? "row-actions-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+        >
+          <MoreIcon fontSize="small" />
+        </IconButton>
+        <Menu
+          id="row-actions-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleMenuClose}
+          slotProps={{
+            paper: {
+              "aria-labelledby": "row-actions-button",
+              sx: {
+                boxShadow:
+                  "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
+              },
             },
-          },
-        }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
-        <MenuItem onClick={(e) => handleAction("view", e)}>
-          <ListIcon fontSize="small" sx={{ mr: 1 }} />
-          Show Details
-        </MenuItem>
-        <MenuItem onClick={(e) => handleAction("news", e)}>
-          <NewspaperIcon fontSize="small" sx={{ mr: 1 }} />
-          Related News
-        </MenuItem>
-        <MenuItem onClick={(e) => handleAction("submit-review", e)}>
-          <SendIcon fontSize="small" sx={{ mr: 1 }} />
-          Submit for Review
-        </MenuItem>
-        <MenuItem onClick={(e) => handleAction("revoke-review", e)}>
-          <CancelScheduledSendIcon fontSize="small" sx={{ mr: 1 }} />
-          Revoke Review Request
-        </MenuItem>
-        <MenuItem onClick={(e) => handleAction("reassign-owner", e)}>
-          <AssignmentAddIcon fontSize="small" sx={{ mr: 1 }} />
-          Reassign Event Owner
-        </MenuItem>
-        <MenuItem onClick={(e) => handleAction("reassign-approvers", e)}>
-          <AssignmentTurnedInIcon fontSize="small" sx={{ mr: 1 }} />
-          Reassign Event Approvers
-        </MenuItem>
-      </Menu>
-    </Box>
-  );
-};
+          }}
+          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        >
+          <MenuItem
+            component="a"
+            href={`#/events/detail?id=${params.data.id}`}
+            onClick={(e) => {
+              // Allow Cmd+Click (metaKey) or Ctrl+Click (ctrlKey) to open in new tab
+              if (!e.metaKey && !e.ctrlKey) {
+                e.preventDefault();
+                handleAction("view", e);
+              }
+            }}
+          >
+            <ListIcon fontSize="small" sx={{ mr: 1 }} />
+            Show Details
+          </MenuItem>
+          <MenuItem onClick={(e) => handleAction("news", e)}>
+            <NewspaperIcon fontSize="small" sx={{ mr: 1 }} />
+            Related News
+          </MenuItem>
+          <MenuItem onClick={(e) => handleAction("submit-review", e)}>
+            <SendIcon fontSize="small" sx={{ mr: 1 }} />
+            Submit for Review
+          </MenuItem>
+          <MenuItem onClick={(e) => handleAction("revoke-review", e)}>
+            <CancelScheduledSendIcon fontSize="small" sx={{ mr: 1 }} />
+            Revoke Review Request
+          </MenuItem>
+          <MenuItem onClick={(e) => handleAction("reassign-owner", e)}>
+            <AssignmentAddIcon fontSize="small" sx={{ mr: 1 }} />
+            Reassign Event Owner
+          </MenuItem>
+          <MenuItem onClick={(e) => handleAction("reassign-approvers", e)}>
+            <AssignmentTurnedInIcon fontSize="small" sx={{ mr: 1 }} />
+            Reassign Event Approvers
+          </MenuItem>
+        </Menu>
+      </Box>
+    );
+  };
 
 const EventsAgGrid: React.FC = () => {
   const { theme } = useAppletCore();
@@ -354,7 +371,11 @@ const EventsAgGrid: React.FC = () => {
     }
   }, []);
 
-  const { params: rawParams, setParams: setRawParams } = useHashNavigation({
+  const {
+    params: rawParams,
+    setParams: setRawParams,
+    navigate,
+  } = useHashNavigation({
     defaultParams: {
       dateFrom: "",
       dateTo: "",
@@ -399,6 +420,7 @@ const EventsAgGrid: React.FC = () => {
   const { data, isLoading, error } = useEvents(params);
 
   const columnDefs: ColDef[] = useMemo(() => {
+    const ActionsCellRenderer = createActionsCellRenderer(navigate);
     return [
       {
         field: "checkbox",
@@ -503,7 +525,7 @@ const EventsAgGrid: React.FC = () => {
         suppressColumnsToolPanel: true,
       },
     ];
-  }, []);
+  }, [navigate]);
 
   // Check if grid ref is set
   React.useEffect(() => {
@@ -643,7 +665,9 @@ const EventsAgGrid: React.FC = () => {
   return (
     <AppletPage
       error={error ? new Error(`Error loading events: ${error.message}`) : null}
-      filter={
+      showContainer={true}
+      height="100%"
+      toolbar={
         <FilterBar
           values={params}
           onValuesChange={setParams}
@@ -651,67 +675,71 @@ const EventsAgGrid: React.FC = () => {
         />
       }
     >
-      <ActionBar
-        values={params}
-        onValuesChange={setParams}
-        statusCounts={statusCounts}
-        workflowActions={workflowActions}
-        selectedItems={selectedRows}
-        gridRef={gridRef}
-      />
-
-      <AgGridTheme wrapHeaders={true} popupParentRef={popupParentRef}>
-        <AgGridReact
-          ref={gridRef}
-          popupParent={popupParent}
-          headerHeight={50}
-          rowData={data?.events || []}
-          columnDefs={columnDefs}
-          rowSelection="multiple"
-          suppressRowClickSelection={true}
-          onGridReady={onGridReady}
-          onSelectionChanged={onSelectionChanged}
-          onRowGroupOpened={onRowGroupOpened}
-          onColumnVisible={onColumnVisible}
-          loading={isLoading}
-          animateRows={true}
-          cellSelection={true}
-          pagination={true}
-          paginationPageSize={pageSize}
-          paginationPageSizeSelector={[10, 25, 50, 100]}
-          onPaginationChanged={(event) => {
-            if (event.api) {
-              const newPageSize = event.api.paginationGetPageSize();
-              if (newPageSize !== pageSize) {
-                setPageSize(newPageSize);
-              }
-            }
-          }}
-          masterDetail={true}
-          detailCellRenderer={DetailCellRenderer}
-          detailRowHeight={200}
-          isRowMaster={(dataItem) => {
-            // All rows can be expanded
-            console.log("isRowMaster called for:", dataItem);
-            return true;
-          }}
-          getRowStyle={(params) => {
-            console.log("getRowStyle called:", {
-              id: params.data?.id,
-              expanded: params.node.expanded,
-              nodeLevel: params.node.level,
-              detail: params.node.detail,
-            });
-            if (params.node.expanded) {
-              return {
-                borderBottom: "none",
-                backgroundColor: theme.palette.action.selected,
-              };
-            }
-            return undefined;
-          }}
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <ActionBar
+          values={params}
+          onValuesChange={setParams}
+          statusCounts={statusCounts}
+          workflowActions={workflowActions}
+          selectedItems={selectedRows}
+          gridRef={gridRef}
         />
-      </AgGridTheme>
+
+        <Box sx={{ flex: 1 }}>
+          <AgGridTheme wrapHeaders={true} popupParentRef={popupParentRef}>
+            <AgGridReact
+              ref={gridRef}
+              popupParent={popupParent}
+              headerHeight={50}
+              rowData={data?.events || []}
+              columnDefs={columnDefs}
+              rowSelection="multiple"
+              suppressRowClickSelection={true}
+              onGridReady={onGridReady}
+              onSelectionChanged={onSelectionChanged}
+              onRowGroupOpened={onRowGroupOpened}
+              onColumnVisible={onColumnVisible}
+              loading={isLoading}
+              animateRows={true}
+              cellSelection={true}
+              pagination={true}
+              paginationPageSize={pageSize}
+              paginationPageSizeSelector={[10, 25, 50, 100]}
+              onPaginationChanged={(event) => {
+                if (event.api) {
+                  const newPageSize = event.api.paginationGetPageSize();
+                  if (newPageSize !== pageSize) {
+                    setPageSize(newPageSize);
+                  }
+                }
+              }}
+              masterDetail={true}
+              detailCellRenderer={DetailCellRenderer}
+              detailRowHeight={200}
+              isRowMaster={(dataItem) => {
+                // All rows can be expanded
+                console.log("isRowMaster called for:", dataItem);
+                return true;
+              }}
+              getRowStyle={(params) => {
+                console.log("getRowStyle called:", {
+                  id: params.data?.id,
+                  expanded: params.node.expanded,
+                  nodeLevel: params.node.level,
+                  detail: params.node.detail,
+                });
+                if (params.node.expanded) {
+                  return {
+                    borderBottom: "none",
+                    backgroundColor: theme.palette.action.selected,
+                  };
+                }
+                return undefined;
+              }}
+            />
+          </AgGridTheme>
+        </Box>
+      </Box>
     </AppletPage>
   );
 };

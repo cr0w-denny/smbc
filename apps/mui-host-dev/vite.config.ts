@@ -13,12 +13,6 @@ export default defineConfig(() => {
     },
     build: {
       outDir: "dist",
-      // Force everything into one bundle for demo app
-      rollupOptions: {
-        output: {
-          manualChunks: () => 'index'
-        },
-      },
       sourcemap: false,
     },
     optimizeDeps: {
@@ -30,8 +24,9 @@ export default defineConfig(() => {
   // Use shared config with devtools and additional monorepo packages
   const finalConfig = mergeConfig(createAppConfig({ 
     includeDevtools: true,
-    disableChunking: true, // Let app-specific config handle chunking
+    disableChunking: false, // Enable proper code splitting
     enableCoreAliases: true, // Enable HMR for SMBC core packages
+    additionalVendorPackages: ["ag-grid-community", "ag-grid-react", "ag-grid-enterprise", "echarts", "echarts-for-react"],
     monorepoPackages: [
       // Devtools and dataview
       "@smbc/mui-applet-devtools",
@@ -45,6 +40,7 @@ export default defineConfig(() => {
       "@smbc/employee-directory-mui",
       "@smbc/usage-stats-mui",
       "@smbc/filter-test-mui",
+      "@smbc/reports-mui",
       
       // API packages  
       "@smbc/user-management-api",

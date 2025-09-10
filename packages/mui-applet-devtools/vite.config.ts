@@ -1,13 +1,10 @@
-import { defineConfig } from 'vite';
-import { createAppletConfig } from '@smbc/vite-config';
+import { defineConfig } from "vite";
+import { createAppletConfig } from "@smbc/vite-config";
 
 export default defineConfig(
   createAppletConfig({
-    appletName: 'mui-applet-devtools',
+    appletName: "mui-applet-devtools",
     rootDir: __dirname,
-    externalsPreset: 'full',
-    additionalSMBCPackages: [
-      '@smbc/applet-meta'
-    ]
-  })
+    additionalSMBCPackages: ["@smbc/applet-meta"],
+  }),
 );

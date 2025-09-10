@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Box,
-  Chip,
   Button,
   IconButton,
   Popover,
@@ -16,14 +15,17 @@ import {
   PriorityHigh as PriorityHighIcon,
   Settings as SettingsIcon,
   AccountTree as WorkflowIcon,
-  ArrowDropDown as ArrowDropDownIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
   PsychologyAlt as DiscretionaryIcon,
   Gavel as MandatoryIcon,
   FileDownload as ExportIcon,
   Print as PrintIcon,
   ViewColumn as ColumnIcon,
   FilterListOff as ResetFiltersIcon,
+  FilterChipToggle,
 } from "@smbc/mui-components";
+import type { FilterChip } from "@smbc/mui-components";
 interface BulkAction {
   type: "bulk";
   key: string;
@@ -113,161 +115,79 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     }
   }, [selectedItems.length, workflowAnchor]);
 
-  // Reusable function to create filter chips with consistent styling
-  const createStatusChip = (
-    icon: React.ReactElement,
-    label: string,
-    colors: { border: string; badge: string; fill: string },
-    count: number,
-    statusValue: string,
-    paramType: "status" | "category" = "status",
-  ) => {
-    const isActive =
-      paramType === "category"
-        ? values.category === statusValue
-        : values.status === statusValue;
+  // Create chip data for FilterChipToggle
+  const filterChips: FilterChip[] = [
+    {
+      value: "on-course",
+      label: "On Course",
+      icon: <CheckCircleIcon />,
+      count: statusCounts.onCourse ?? 0,
+      style: { border: "#12A187", badge: "#12A187", fill: "#FAFDFD" },
+      group: "status",
+    },
+    {
+      value: "almost-due",
+      label: "Almost Due",
+      icon: <WarningIcon />,
+      count: statusCounts.almostDue ?? 0,
+      style: { border: "#FD992E", badge: "#FD992E", fill: "#FAFDFD" },
+      group: "status",
+    },
+    {
+      value: "past-due",
+      label: "Past Due",
+      icon: <ErrorIcon />,
+      count: statusCounts.pastDue ?? 0,
+      style: { border: "#CD463C", badge: "#CD463C", fill: "#FDF9F9" },
+      group: "status",
+    },
+    {
+      value: "needs-attention",
+      label: "Needs Attention",
+      icon: <PriorityHighIcon />,
+      count: statusCounts.needsAttention ?? 0,
+      style: { border: "#A32B9A", badge: "#A32B9A", fill: "#FFFFFF" },
+      group: "status",
+    },
+    {
+      value: "Discretionary",
+      label: "Discretionary",
+      icon: <DiscretionaryIcon />,
+      count: statusCounts.discretionary ?? 0,
+      style: { border: "#6B46C1", badge: "#6B46C1", fill: "#F8F6FF" },
+      group: "category",
+    },
+    {
+      value: "Mandatory",
+      label: "Mandatory",
+      icon: <MandatoryIcon />,
+      count: statusCounts.mandatory ?? 0,
+      style: { border: "#0066CC", badge: "#0066CC", fill: "#F0F8FF" },
+      group: "category",
+    },
+  ];
 
-    return {
-      label: (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            gap: 1,
-          }}
-        >
-          {/* Left: Icon in light gray circle */}
-          <Box
-            sx={(theme: any) => ({
-              width: 24,
-              height: 24,
-              borderRadius: "50%",
-              backgroundColor: isActive
-                ? "#FFFFFF"
-                : theme.palette.mode === "dark"
-                ? "rgba(255, 255, 255, 0.1)"
-                : "#F0F0F0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            })}
-          >
-            {React.cloneElement(icon, {
-              sx: {
-                fontSize: "18px",
-                width: "18px",
-                height: "18px",
-                color: isActive ? colors.badge : colors.badge,
-              },
-            })}
-          </Box>
+  // Handle chip toggle
+  const handleChipToggle = (chipValue: string, isActive: boolean) => {
+    const chip = filterChips.find(c => c.value === chipValue);
+    if (!chip) return;
 
-          {/* Center: Label */}
-          <Box
-            sx={(theme: any) => ({
-              flex: 1,
-              textAlign: "center",
-              fontSize: "12px",
-              fontWeight: 500,
-              color: isActive
-                ? "#FFFFFF"
-                : theme.palette.mode === "dark"
-                ? theme.palette.text.primary
-                : "#1A1A1A",
-              [theme.breakpoints.up("lg")]: { fontSize: "14px" },
-            })}
-          >
-            {label}
-          </Box>
-
-          {/* Right: Count badge */}
-          <Box
-            component="span"
-            sx={{
-              bgcolor: isActive ? "#FFFFFF" : colors.badge,
-              color: isActive ? colors.badge : "#FFFFFF",
-              borderRadius: "50%",
-              minWidth: "24px",
-              height: "24px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-              fontWeight: "bold",
-              flexShrink: 0,
-            }}
-          >
-            {count}
-          </Box>
-        </Box>
-      ),
-      variant: "outlined" as const,
-      size: "medium" as const,
-      onClick: () => {
-        // Toggle behavior: if already selected, deselect it
-        if (paramType === "category") {
-          const newCategory =
-            values.category === statusValue ? "" : statusValue;
-          onValuesChange({ ...values, category: newCategory });
-        } else {
-          const newStatus = values.status === statusValue ? "" : statusValue;
-          onValuesChange({ ...values, status: newStatus });
-        }
-      },
-      sx: (theme: any) => ({
-        cursor: "pointer",
-        backgroundColor: isActive
-          ? colors.badge
-          : theme.palette.mode === "dark"
-          ? theme.palette.background.paper
-          : "#FFFFFF",
-        border: `1px solid ${colors.border}`,
-        borderRadius: "20px",
-        [theme.breakpoints.up("lg")]: {
-          minWidth: "187px",
-        },
-        height: "auto",
-        padding: "8px 12px",
-        fontSize: "14px",
-        fontWeight: 500,
-        display: "flex",
-        alignItems: "center",
-        transition: "none !important",
-        "&:hover": {
-          backgroundColor: `${
-            isActive
-              ? colors.badge
-              : theme.palette.mode === "dark"
-              ? theme.palette.background.paper
-              : "#FFFFFF"
-          } !important`,
-          transform: "translateY(-1px)",
-          boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
-        },
-        "&.MuiChip-clickable:hover": {
-          backgroundColor: `${
-            isActive
-              ? colors.badge
-              : theme.palette.mode === "dark"
-              ? theme.palette.background.paper
-              : "#FFFFFF"
-          } !important`,
-        },
-        "& .MuiChip-label": {
-          padding: 0,
-          display: "flex",
-          alignItems: "center",
-          width: "100%",
-        },
-      }),
-    };
+    if (chip.group === "category") {
+      const newCategory = isActive ? chipValue : "";
+      onValuesChange({ ...values, category: newCategory });
+    } else {
+      const newStatus = isActive ? chipValue : "";
+      onValuesChange({ ...values, status: newStatus });
+    }
   };
 
+  // Get active chip values
+  const activeChips = [];
+  if (values.status) activeChips.push(values.status);
+  if (values.category) activeChips.push(values.category);
+
   return (
-    <Box sx={{ px: 2 }}>
+    <Box sx={{ pt: 2, px: 2 }}>
       {/* Status Chips */}
       <Box
         sx={{
@@ -279,71 +199,17 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <Box
+        <FilterChipToggle
+          chips={filterChips}
+          activeValues={activeChips}
+          onChipToggle={handleChipToggle}
           sx={{
             display: "flex",
             gap: 1,
             flexWrap: "wrap",
             alignItems: "center",
           }}
-        >
-          <Chip
-            {...createStatusChip(
-              <CheckCircleIcon />,
-              "On Course",
-              { border: "#12A187", badge: "#12A187", fill: "#FAFDFD" },
-              statusCounts.onCourse ?? 0,
-              "on-course",
-            )}
-          />
-          <Chip
-            {...createStatusChip(
-              <WarningIcon />,
-              "Almost Due",
-              { border: "#FD992E", badge: "#FD992E", fill: "#FAFDFD" },
-              statusCounts.almostDue ?? 0,
-              "almost-due",
-            )}
-          />
-          <Chip
-            {...createStatusChip(
-              <ErrorIcon />,
-              "Past Due",
-              { border: "#CD463C", badge: "#CD463C", fill: "#FDF9F9" },
-              statusCounts.pastDue ?? 0,
-              "past-due",
-            )}
-          />
-          <Chip
-            {...createStatusChip(
-              <PriorityHighIcon />,
-              "Needs Attention",
-              { border: "#A32B9A", badge: "#A32B9A", fill: "#FFFFFF" },
-              statusCounts.needsAttention ?? 0,
-              "needs-attention",
-            )}
-          />
-          <Chip
-            {...createStatusChip(
-              <DiscretionaryIcon />,
-              "Discretionary",
-              { border: "#6B46C1", badge: "#6B46C1", fill: "#F8F6FF" },
-              statusCounts.discretionary ?? 0,
-              "Discretionary",
-              "category",
-            )}
-          />
-          <Chip
-            {...createStatusChip(
-              <MandatoryIcon />,
-              "Mandatory",
-              { border: "#0066CC", badge: "#0066CC", fill: "#F0F8FF" },
-              statusCounts.mandatory ?? 0,
-              "Mandatory",
-              "category",
-            )}
-          />
-        </Box>
+        />
 
         {/* Right Side Controls */}
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
@@ -362,7 +228,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
             variant="contained"
             color="primary"
             startIcon={<WorkflowIcon />}
-            endIcon={<ArrowDropDownIcon />}
+            endIcon={
+              Boolean(workflowAnchor) ? <ExpandLessIcon /> : <ExpandMoreIcon />
+            }
             onClick={handleWorkflowClick}
             disabled={selectedItems.length < 2}
             data-testid="workflow-button"
@@ -417,36 +285,40 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           <PrintIcon fontSize="small" sx={{ mr: 1 }} />
           Print Report
         </MenuItem>
-        <MenuItem onClick={() => {
-          handleSettingsClose();
-          // Show AG Grid's column chooser
-          if (gridRef?.current?.api) {
-            gridRef.current.api.showColumnChooser();
-          }
-        }}>
+        <MenuItem
+          onClick={() => {
+            handleSettingsClose();
+            // Show AG Grid's column chooser
+            if (gridRef?.current?.api) {
+              gridRef.current.api.showColumnChooser();
+            }
+          }}
+        >
           <ColumnIcon fontSize="small" sx={{ mr: 1 }} />
           Column Settings
         </MenuItem>
-        <MenuItem onClick={() => {
-          handleSettingsClose();
-          // Reset all filter values
-          onValuesChange({
-            dateFrom: "",
-            dateTo: "",
-            status: "",
-            category: "",
-            exRatings: "",
-            workflow: "",
-            priority: "",
-            types: "",
-            sortBy: "",
-            sortDirection: "",
-          });
-          // Clear AG Grid filters if available
-          if (gridRef?.current?.api) {
-            gridRef.current.api.setFilterModel(null);
-          }
-        }}>
+        <MenuItem
+          onClick={() => {
+            handleSettingsClose();
+            // Reset all filter values
+            onValuesChange({
+              dateFrom: "",
+              dateTo: "",
+              status: "",
+              category: "",
+              exRatings: "",
+              workflow: "",
+              priority: "",
+              types: "",
+              sortBy: "",
+              sortDirection: "",
+            });
+            // Clear AG Grid filters if available
+            if (gridRef?.current?.api) {
+              gridRef.current.api.setFilterModel(null);
+            }
+          }}
+        >
           <ResetFiltersIcon fontSize="small" sx={{ mr: 1 }} />
           Reset Filters
         </MenuItem>

@@ -78,7 +78,9 @@ export const TopNav: React.FC<TopNavProps> = ({
 
   const renderNavItem = (item: NavigationItem, index: number) => {
     // Check if item is active or if any dropdown items are active
-    const isActive = item.href === currentPath;
+    // Support nested paths (e.g., /events should be active for /events/detail)
+    const isActive = item.href === currentPath || 
+      (currentPath && item.href !== '/' && currentPath.startsWith(item.href + '/'));
     const hasActiveChild =
       item.type === "dropdown" &&
       item.items?.some((subItem) => subItem.href === currentPath);

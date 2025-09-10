@@ -329,7 +329,7 @@ describe("AppShellMenuBuilder", () => {
 
       expect(result[0].treeItems![0].children).toHaveLength(2); // home + users (secret filtered out)
       expect(result[0].treeItems![0].children![1].label).toBe("Manage Users");
-      expect(result[0].treeItems![0].children!.some(item => item.label === "Secret Area")).toBe(false);
+      expect(result[0].treeItems![0].children!.some((item: any) => item.label === "Secret Area")).toBe(false);
     });
 
     it("should filter entire applets based on permissions", () => {

@@ -75,3 +75,20 @@ export { AgGridTheme } from "./AgGridTheme";
 
 // Export icons for tree-shaking
 export * from "./icons";
+
+// TabBar
+export { TabBar } from "./TabBar";
+export type { TabBarProps, TabBarItem } from "./TabBar";
+
+// ConfigurableCard
+export { ConfigurableCard } from "./ConfigurableCard";
+export type { ConfigurableCardProps, CardMenuItem } from "./ConfigurableCard";
+
+// Table Components
+export { KeyValueTable } from "./KeyValueTable";
+export type { KV } from "./KeyValueTable";
+export { Table } from "./Table";
+
+// Filter Chip Toggle
+export { FilterChipToggle } from "./FilterChipToggle";
+export type { FilterChip, FilterChipToggleProps } from "./FilterChipToggle";

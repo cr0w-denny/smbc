@@ -10,6 +10,8 @@ import { BarChart, Dashboard } from "@smbc/mui-components";
 
 // Import applets from built packages for consistent production builds
 import ewiEventsApplet from "@smbc/ewi-events-mui";
+import ewiEventDetailsApplet from "@smbc/ewi-event-details-mui";
+import ewiObligorApplet from "@smbc/ewi-obligor-mui";
 import usageStatsApplet from "@smbc/usage-stats-mui";
 
 // =============================================================================
@@ -62,12 +64,27 @@ export const ROLE_CONFIG: RoleConfig = {
 // =============================================================================
 
 export const APPLETS: AppletMount[] = [
+  // More specific paths must come first for proper routing
+  mountApplet(ewiEventDetailsApplet, {
+    id: "ewi-event-details",
+    label: "Event Details", 
+    path: "/events/detail",
+    icon: Dashboard,
+    permissions: [],
+  }),
   mountApplet(ewiEventsApplet, {
     id: "ewi-events",
     label: "EWI Events",
-    path: "/ewi-events",
+    path: "/events",
     icon: Dashboard,
     permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
+  }),
+  mountApplet(ewiObligorApplet, {
+    id: "ewi-obligor",
+    label: "Obligor Dashboard",
+    path: "/obligor-dashboard",
+    icon: Dashboard,
+    permissions: [],
   }),
   mountApplet(usageStatsApplet, {
     id: "usage-stats",

@@ -12,6 +12,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./applet": {
+      "types": "./dist/presets/applet.d.ts",
+      "import": "./dist/presets/applet.js"
     }
   },
   "scripts": {

@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import { suppressUseClientWarnings } from '../plugins/suppress-warnings.js';
 import { getExternals, getSMBCExternals } from '../externals/index.js';
-import { createBaseConfig } from './base.js';
 
 export interface AppletConfigOptions {
   // Required
@@ -75,29 +74,18 @@ export function createAppletConfig(options: AppletConfigOptions): UserConfig {
     ...getSMBCExternals(additionalSMBCPackages)
   ];
 
-  // Base configuration
-  const baseConfig = createBaseConfig(rootDir);
 
   // Applet-specific configuration
   const appletConfig: UserConfig = {
     plugins: pluginOptions,
-    // Always strip console logs from package builds (libraries)
-    esbuild: {
-      drop: ['console', 'debugger']
-    },
     build: {
-      ...baseConfig.build,
       lib: {
         entry: resolve(rootDir, entry),
         formats: ['es'],
-        fileName: () => 'index.js'
+        fileName: 'index'
       },
       rollupOptions: {
         external: externals,
-        output: {
-          preserveModules: false,
-          exports: 'named'
-        }
       },
       outDir: resolve(rootDir, outDir)
     }
@@ -110,30 +98,21 @@ export function createAppletConfig(options: AppletConfigOptions): UserConfig {
     };
   }
 
-  // Merge all configurations
-  return mergeConfigs(baseConfig, appletConfig, viteConfig);
-}
-
-/**
- * Deep merge multiple Vite configurations
- */
-function mergeConfigs(...configs: UserConfig[]): UserConfig {
-  const result: UserConfig = {};
-  
-  for (const config of configs) {
-    for (const [key, value] of Object.entries(config)) {
-      if (Array.isArray(value) && Array.isArray(result[key as keyof UserConfig])) {
-        // Merge arrays
-        (result as any)[key] = [...(result as any)[key], ...value];
-      } else if (typeof value === 'object' && value !== null && typeof result[key as keyof UserConfig] === 'object') {
-        // Merge objects recursively
-        (result as any)[key] = mergeConfigs(result[key as keyof UserConfig] as any, value);
-      } else {
-        // Override value
-        (result as any)[key] = value;
-      }
-    }
+  // Simple merge with user config - avoid complex merging
+  if (viteConfig.plugins) {
+    appletConfig.plugins = [...(appletConfig.plugins || []), ...(Array.isArray(viteConfig.plugins) ? viteConfig.plugins : [viteConfig.plugins])];
   }
   
-  return result;
+  if (viteConfig.build) {
+    appletConfig.build = { ...appletConfig.build, ...viteConfig.build };
+  }
+
+  // Apply other simple config properties
+  Object.keys(viteConfig).forEach(key => {
+    if (key !== 'plugins' && key !== 'build') {
+      (appletConfig as any)[key] = (viteConfig as any)[key];
+    }
+  });
+
+  return appletConfig;
 }

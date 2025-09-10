@@ -103,9 +103,13 @@ export function MuiAppletRouter({
       component="main"
       sx={{
         flexGrow: 1,
-        p: 3,
+        display: "flex",
+        flexDirection: "column",
         width: `calc(100% - ${drawerWidth}px)`,
         marginLeft: `${drawerWidth}px`,
+        position: "relative",
+        height: "100vh",
+        overflow: "auto",
       }}
     >
       <Toolbar />

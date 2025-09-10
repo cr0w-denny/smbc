@@ -11,7 +11,6 @@ import {
   useHashNavigation,
   useApiClient,
   useFeatureFlag,
-  useAppletCore,
   type Environment,
 } from "@smbc/applet-core";
 import type { paths } from "@smbc/usage-stats-api";
@@ -327,7 +326,9 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
   return (
     <AppletPage
       error={error as Error | null}
-      filter={
+      showContainer={true}
+      height="100%"
+      toolbar={
         <Filter
           spec={filterSpec}
           values={filters}
@@ -336,13 +337,10 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
       }
     >
       {/* Main Grid */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "row" }}>
+      <Box sx={{ display: "flex", flexDirection: "row", height: "100%" }}>
         {/* Main Table */}
-        <Box sx={{ flex: 1, minHeight: 0 }}>
-          <AgGridTheme
-            height="100%"
-            popupParentRef={popupParentRef}
-          >
+        <Box sx={{ flex: 1, my: 2 }}>
+          <AgGridTheme height="100%" popupParentRef={popupParentRef}>
             <AgGridReact
               ref={gridRef}
               key={`usage-stats-${environment}`}
@@ -361,7 +359,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
               borderLeft: 1,
               borderColor: "divider",
               bgcolor: "background.paper",
-              p: 2,
+              p: 3,
             }}
           >
             <Typography variant="h6" sx={{ mb: 2 }}>

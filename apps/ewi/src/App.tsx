@@ -131,8 +131,21 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const maxWidthConfig = {
+    xs: "96%",
+    sm: "96%",
+    md: "88%", // 6% margin on each side
+    lg: "88%", // 6% margin on each side
+    xl: "92%", // 4% margin on each side
+  };
+
   return (
-    <AppletProvider applets={APPLETS} theme={appletTheme}>
+    <AppletProvider 
+      applets={APPLETS} 
+      theme={appletTheme}
+      maxWidth={maxWidthConfig}
+      toolbarOffset={104}
+    >
       <FeatureFlagProvider
         configs={[
           {
@@ -164,13 +177,7 @@ const AppContent: React.FC = () => {
                   <ActivityNotifications onNavigate={navigate} />
                 </Box>
               }
-              maxWidth={{
-                xs: "96%",
-                sm: "96%",
-                md: "88%", // 6% margin on each side
-                lg: "88%", // 6% margin on each side
-                xl: "92%", // 4% margin on each side
-              }}
+              maxWidth={maxWidthConfig}
             >
               <AppletRouter defaultComponent={AppRoutes} />
             </AppShell>

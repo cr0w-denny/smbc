@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
+import { getExternals } from "@smbc/vite-config";
 
 export default defineConfig({
   // Remove console logs in production builds
@@ -24,13 +25,7 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: [
-        "react",
-        "react-dom",
-        "@mui/material",
-        "@smbc/ui-core",
-        "@smbc/mui-applet-core",
-      ],
+      external: getExternals('full'),
       output: {
         globals: {
           react: "React",
@@ -38,5 +33,7 @@ export default defineConfig({
         },
       },
     },
+    minify: false,
+    sourcemap: true,
   },
 });

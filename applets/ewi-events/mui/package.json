@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.23",
+    "@smbc/vite-config": "*",
     "@vitejs/plugin-react": "^4.6.0",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
