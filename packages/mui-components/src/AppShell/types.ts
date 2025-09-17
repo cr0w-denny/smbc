@@ -1,5 +1,6 @@
 import { Theme } from '@mui/material/styles';
 import { ReactNode } from 'react';
+import { UserRole } from './components/UserMenu';
 
 // Tree-style navigation items for dropdowns (framework-agnostic)
 export interface TreeNavigationItem {
@@ -55,4 +56,13 @@ export interface AppShellProps {
   activeColor?: string;
   /** Maximum width for content area with responsive breakpoints */
   maxWidth?: string | { xs?: string; sm?: string; md?: string; lg?: string; xl?: string };
+  /** User roles for persona management */
+  userRoles?: UserRole[];
+  /** Callback when a user role is toggled */
+  onToggleRole?: (roleId: string, enabled: boolean) => void;
+  /** User menu action handlers */
+  onProfile?: () => void;
+  onSettings?: () => void;
+  onQuickGuide?: () => void;
+  onLogout?: () => void;
 }

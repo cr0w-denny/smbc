@@ -60,7 +60,7 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
         "& .ag-theme-quartz, & .ag-theme-quartz-dark": {
           height: "100%",
           "& .ag-root-wrapper": {
-            borderRadius: "0 !important",
+            borderRadius: "10px !important",
             border: "none !important",
           },
           // Theme colors

@@ -18,6 +18,12 @@ export const AppShell: React.FC<AppShellProps> = ({
   right,
   activeColor,
   maxWidth,
+  userRoles,
+  onToggleRole,
+  onProfile,
+  onSettings,
+  onQuickGuide,
+  onLogout,
 }) => {
   return (
     <Box
@@ -41,6 +47,12 @@ export const AppShell: React.FC<AppShellProps> = ({
         right={right}
         activeColor={activeColor}
         maxWidth={maxWidth}
+        userRoles={userRoles}
+        onToggleRole={onToggleRole}
+        onProfile={onProfile}
+        onSettings={onSettings}
+        onQuickGuide={onQuickGuide}
+        onLogout={onLogout}
       />
       <Box
         sx={{

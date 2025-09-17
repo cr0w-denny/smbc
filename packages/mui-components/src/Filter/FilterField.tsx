@@ -141,7 +141,20 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             }}
           >
             {normalizedOptions.map((option) => (
-              <MenuItem key={option.value ?? ""} value={option.value ?? ""}>
+              <MenuItem
+                key={option.value ?? ""}
+                value={option.value ?? ""}
+                sx={isMultiple ? { display: 'flex', alignItems: 'center' } : {}}
+              >
+                {isMultiple && (
+                  <Checkbox
+                    checked={
+                      Array.isArray(value) ? value.includes(option.value) : false
+                    }
+                    size="small"
+                    sx={{ mr: 1, p: 0 }}
+                  />
+                )}
                 {option.label}
               </MenuItem>
             ))}

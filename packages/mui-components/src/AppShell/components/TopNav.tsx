@@ -7,11 +7,14 @@ import {
   Menu,
   MenuItem,
   Button,
+  IconButton,
+  Avatar,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
 import { NavigationItem } from "../types";
 import { TreeDropdownMenu } from "./TreeDropdownMenu";
-import { UserMenu } from "./UserMenu";
+import { UserMenu, UserRole } from "./UserMenu";
 
 interface TopNavProps {
   logo?: React.ReactNode;
@@ -37,6 +40,15 @@ interface TopNavProps {
   maxWidth?:
     | string
     | { xs?: string; sm?: string; md?: string; lg?: string; xl?: string };
+  /** User roles for persona management */
+  userRoles?: UserRole[];
+  /** Callback when a user role is toggled */
+  onToggleRole?: (roleId: string, enabled: boolean) => void;
+  /** User menu action handlers */
+  onProfile?: () => void;
+  onSettings?: () => void;
+  onQuickGuide?: () => void;
+  onLogout?: () => void;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -52,9 +64,16 @@ export const TopNav: React.FC<TopNavProps> = ({
   right,
   activeColor,
   maxWidth,
+  userRoles,
+  onToggleRole,
+  onProfile,
+  onSettings,
+  onQuickGuide,
+  onLogout,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -277,11 +296,38 @@ export const TopNav: React.FC<TopNavProps> = ({
           >
             {rightNavItems.map(renderNavItem)}
             {right}
+            <IconButton
+              onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+              sx={{
+                color: "inherit",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              }}
+              aria-controls={userMenuAnchor ? "user-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={userMenuAnchor ? "true" : undefined}
+            >
+              {avatarUrl ? (
+                <Avatar src={avatarUrl} sx={{ width: 32, height: 32 }} />
+              ) : (
+                <AccountCircleOutlined sx={{ fontSize: 32 }} />
+              )}
+            </IconButton>
             <UserMenu
-              isDarkMode={isDarkMode}
-              onDarkModeToggle={onDarkModeToggle}
-              username={username}
+              open={Boolean(userMenuAnchor)}
+              anchorEl={userMenuAnchor}
+              onClose={() => setUserMenuAnchor(null)}
+              name={username || "User"}
               avatarUrl={avatarUrl}
+              onToggleDarkMode={onDarkModeToggle}
+              darkMode={isDarkMode}
+              userRoles={userRoles}
+              onToggleRole={onToggleRole}
+              onProfile={onProfile}
+              onSettings={onSettings}
+              onQuickGuide={onQuickGuide}
+              onLogout={onLogout}
             />
           </Box>
         </Box>
