@@ -39,7 +39,6 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
   const gridRef = useRef<AgGridReact>(null);
   const popupParentRef = useRef<HTMLDivElement>(null);
   const [popupParent, setPopupParent] = useState<HTMLElement | null>(null);
-  const [pageSize, setPageSize] = useState(25);
   const [activeChips, setActiveChips] = useState<string[]>([]);
 
   const testChips: FilterChip[] = [
@@ -240,17 +239,9 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
             onColumnVisible={onColumnVisible}
             animateRows={true}
             cellSelection={true}
-            pagination={true}
-            paginationPageSize={pageSize}
-            paginationPageSizeSelector={[10, 25, 50, 100]}
-            onPaginationChanged={(event) => {
-              if (event.api) {
-                const newPageSize = event.api.paginationGetPageSize();
-                if (newPageSize !== pageSize) {
-                  setPageSize(newPageSize);
-                }
-              }
-            }}
+            pagination={false}
+            suppressHorizontalScroll={false}
+            alwaysShowHorizontalScroll={false}
           />
         </AgGridTheme>
       </Box>

@@ -12,7 +12,6 @@ import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
   Error as ErrorIcon,
-  PriorityHigh as PriorityHighIcon,
   Settings as SettingsIcon,
   AccountTree as WorkflowIcon,
   ExpandMore as ExpandMoreIcon,
@@ -48,11 +47,11 @@ interface ActionBarProps {
     priority?: string;
   };
   onValuesChange: (values: any) => void;
+  onApply?: (values?: any) => void;
   statusCounts?: {
     onCourse?: number;
     almostDue?: number;
     pastDue?: number;
-    needsAttention?: number;
     discretionary?: number;
     mandatory?: number;
   };
@@ -67,6 +66,7 @@ interface ActionBarProps {
 export const ActionBar: React.FC<ActionBarProps> = ({
   values,
   onValuesChange,
+  onApply,
   statusCounts = {},
   workflowActions = [],
   selectedItems = [],
@@ -118,19 +118,27 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   // Create chip data for FilterChipToggle
   const filterChips: FilterChip[] = [
     {
+      value: "Mandatory",
+      label: "Mandatory",
+      icon: <MandatoryIcon />,
+      count: statusCounts.mandatory ?? 0,
+      style: { border: "#0066CC", badge: "#0066CC", fill: "#F0F8FF" },
+      group: "category",
+    },
+    {
+      value: "Discretionary",
+      label: "Discretionary",
+      icon: <DiscretionaryIcon />,
+      count: statusCounts.discretionary ?? 0,
+      style: { border: "#6B46C1", badge: "#6B46C1", fill: "#F8F6FF" },
+      group: "category",
+    },
+    {
       value: "on-course",
       label: "On Course",
       icon: <CheckCircleIcon />,
       count: statusCounts.onCourse ?? 0,
       style: { border: "#12A187", badge: "#12A187", fill: "#FAFDFD" },
-      group: "status",
-    },
-    {
-      value: "almost-due",
-      label: "Almost Due",
-      icon: <WarningIcon />,
-      count: statusCounts.almostDue ?? 0,
-      style: { border: "#FD992E", badge: "#FD992E", fill: "#FAFDFD" },
       group: "status",
     },
     {
@@ -142,42 +150,31 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       group: "status",
     },
     {
-      value: "needs-attention",
-      label: "Needs Attention",
-      icon: <PriorityHighIcon />,
-      count: statusCounts.needsAttention ?? 0,
-      style: { border: "#A32B9A", badge: "#A32B9A", fill: "#FFFFFF" },
+      value: "almost-due",
+      label: "Almost Due",
+      icon: <WarningIcon />,
+      count: statusCounts.almostDue ?? 0,
+      style: { border: "#FD992E", badge: "#FD992E", fill: "#FAFDFD" },
       group: "status",
-    },
-    {
-      value: "Discretionary",
-      label: "Discretionary",
-      icon: <DiscretionaryIcon />,
-      count: statusCounts.discretionary ?? 0,
-      style: { border: "#6B46C1", badge: "#6B46C1", fill: "#F8F6FF" },
-      group: "category",
-    },
-    {
-      value: "Mandatory",
-      label: "Mandatory",
-      icon: <MandatoryIcon />,
-      count: statusCounts.mandatory ?? 0,
-      style: { border: "#0066CC", badge: "#0066CC", fill: "#F0F8FF" },
-      group: "category",
     },
   ];
 
-  // Handle chip toggle
+  // Handle chip toggle - apply immediately
   const handleChipToggle = (chipValue: string, isActive: boolean) => {
     const chip = filterChips.find(c => c.value === chipValue);
     if (!chip) return;
 
+    const newValues = { ...values };
     if (chip.group === "category") {
-      const newCategory = isActive ? chipValue : "";
-      onValuesChange({ ...values, category: newCategory });
+      newValues.category = isActive ? chipValue : "";
     } else {
-      const newStatus = isActive ? chipValue : "";
-      onValuesChange({ ...values, status: newStatus });
+      newValues.status = isActive ? chipValue : "";
+    }
+
+    onValuesChange(newValues);
+    // Apply immediately for chips
+    if (onApply) {
+      onApply(newValues);
     }
   };
 
@@ -301,7 +298,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           onClick={() => {
             handleSettingsClose();
             // Reset all filter values
-            onValuesChange({
+            const resetValues = {
               dateFrom: "",
               dateTo: "",
               status: "",
@@ -310,12 +307,18 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               workflow: "",
               priority: "",
               types: "",
-              sortBy: "",
-              sortDirection: "",
-            });
+              plo: "",
+              my: "",
+            };
+            onValuesChange(resetValues);
             // Clear AG Grid filters if available
             if (gridRef?.current?.api) {
               gridRef.current.api.setFilterModel(null);
+            }
+            // Automatically apply the reset - directly update URL with reset values
+            if (onApply) {
+              // Pass reset values directly to ensure they're applied
+              onApply(resetValues);
             }
           }}
         >

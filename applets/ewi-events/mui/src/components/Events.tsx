@@ -15,7 +15,7 @@ import type {
   GridReadyEvent,
   SelectionChangedEvent,
 } from "ag-grid-community";
-import { useHashNavigation, useAppletCore } from "@smbc/applet-core";
+import { useHashNavigationWithApply, useAppletCore } from "@smbc/applet-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
 import type { components, paths } from "@smbc/ewi-events-api/types";
@@ -26,14 +26,13 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   MoreVert as MoreIcon,
-  Send as SendIcon,
-  CancelScheduleSend as CancelScheduledSendIcon,
-  AssignmentAdd as AssignmentAddIcon,
-  AssignmentTurnedIn as AssignmentTurnedInIcon,
   AddCircle as AddCircleIcon,
   List as ListIcon,
-  Newspaper as NewspaperIcon,
 } from "@smbc/mui-components";
+import {
+  PersonAdd as PersonAddIcon,
+  SupervisorAccount as SupervisorAccountIcon,
+} from "@mui/icons-material";
 
 function useEvents(params: Record<string, any>) {
   const client = useApiClient<paths>("ewi-events");
@@ -230,7 +229,7 @@ const StatusCellRenderer = (params: any) => {
 
   return (
     <Chip
-      label={params.value.replace("-", " ").toUpperCase()}
+      label={params.value.replace("-", " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
       sx={(theme: any) => {
         const isDark = theme.palette.mode === "dark";
         const config = getStatusConfig(params.value, isDark);
@@ -332,25 +331,17 @@ const createActionsCellRenderer =
             <ListIcon fontSize="small" sx={{ mr: 1 }} />
             Show Details
           </MenuItem>
-          <MenuItem onClick={(e) => handleAction("news", e)}>
-            <NewspaperIcon fontSize="small" sx={{ mr: 1 }} />
-            Related News
+          <MenuItem onClick={(e) => handleAction("add-1lod-analyst", e)}>
+            <PersonAddIcon fontSize="small" sx={{ mr: 1 }} />
+            Add 1 LOD Analyst(s)
           </MenuItem>
-          <MenuItem onClick={(e) => handleAction("submit-review", e)}>
-            <SendIcon fontSize="small" sx={{ mr: 1 }} />
-            Submit for Review
+          <MenuItem onClick={(e) => handleAction("add-1lod-management", e)}>
+            <SupervisorAccountIcon fontSize="small" sx={{ mr: 1 }} />
+            Add 1 LOD Management Reviewer(s)
           </MenuItem>
-          <MenuItem onClick={(e) => handleAction("revoke-review", e)}>
-            <CancelScheduledSendIcon fontSize="small" sx={{ mr: 1 }} />
-            Revoke Review Request
-          </MenuItem>
-          <MenuItem onClick={(e) => handleAction("reassign-owner", e)}>
-            <AssignmentAddIcon fontSize="small" sx={{ mr: 1 }} />
-            Reassign Event Owner
-          </MenuItem>
-          <MenuItem onClick={(e) => handleAction("reassign-approvers", e)}>
-            <AssignmentTurnedInIcon fontSize="small" sx={{ mr: 1 }} />
-            Reassign Event Approvers
+          <MenuItem onClick={(e) => handleAction("add-gbr-number", e)}>
+            <AddCircleIcon fontSize="small" sx={{ mr: 1 }} />
+            Add GBR Application Number
           </MenuItem>
         </Menu>
       </Box>
@@ -372,52 +363,119 @@ const EventsAgGrid: React.FC = () => {
   }, []);
 
   const {
-    params: rawParams,
-    setParams: setRawParams,
-    navigate,
-  } = useHashNavigation({
+    params: filterValues,
+    setParams: setFilterValues,
+    appliedParams: urlParams,
+    applyParams,
+    hasChanges: filtersChanged,
+    navigate
+  } = useHashNavigationWithApply({
     defaultParams: {
-      dateFrom: "",
-      dateTo: "",
+      dateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Today - 1 month
+      dateTo: new Date().toISOString().split('T')[0], // Today
       status: "",
       workflow: "",
       types: "",
       category: "",
-      sortBy: "",
-      sortDirection: "",
+      plo: "",
+      my: "",
     },
   });
 
-  // Transform params to handle types as CSV
-  const params = React.useMemo(() => {
-    const transformed = { ...rawParams };
-    // Convert CSV string to array for internal use
-    if (typeof transformed.types === "string" && transformed.types) {
-      transformed.types = transformed.types.split(",");
-    } else if (!transformed.types) {
-      transformed.types = [];
-    }
-    return transformed;
-  }, [rawParams]);
-
-  // Transform setParams to handle types as CSV
-  const setParams = React.useCallback(
-    (newParams: any) => {
-      const transformed = { ...newParams };
-      // Convert array to CSV string for URL
-      if (Array.isArray(transformed.types)) {
-        transformed.types =
-          transformed.types.length > 0 ? transformed.types.join(",") : "";
+  // Helper to transform CSV strings to arrays (keep booleans as strings)
+  const transformParams = (params: any) => {
+    const transformed = { ...params };
+    // Convert CSV strings to arrays for internal use
+    ['types', 'plo'].forEach(field => {
+      if (typeof transformed[field] === "string" && transformed[field]) {
+        transformed[field] = transformed[field].split(",");
+      } else if (!transformed[field]) {
+        transformed[field] = [];
       }
-      setRawParams(transformed);
-    },
-    [setRawParams],
-  );
+    });
+    // Keep 'my' as string for consistency
+    return transformed;
+  };
+
+  // Transform filter values for UI (arrays and convert 'my' to boolean for checkbox)
+  const params = React.useMemo(() => {
+    const transformed = transformParams(filterValues);
+    // Convert 'my' to boolean for checkbox display
+    transformed.my = transformed.my === 'true' || transformed.my === true;
+    return transformed;
+  }, [filterValues]);
+
+  // Transform applied filters for data fetching (arrays)
+  const appliedParams = React.useMemo(() => transformParams(urlParams), [urlParams]);
+
+  // Update UI filter state (convert boolean back to string)
+  const setParams = React.useCallback((newParams: any) => {
+    console.log('setParams received:', newParams);
+
+    // Clean the params - remove any non-filter fields
+    const toSet: any = {};
+    const validFields = ['dateFrom', 'dateTo', 'status', 'workflow', 'types', 'category', 'plo', 'my'];
+
+    validFields.forEach(field => {
+      if (field in newParams) {
+        toSet[field] = newParams[field];
+      }
+    });
+
+    // Convert boolean to string for storage
+    if (typeof toSet.my === 'boolean') {
+      toSet.my = toSet.my ? 'true' : '';
+    } else if (toSet.my && typeof toSet.my === 'object') {
+      // Prevent passing event objects
+      console.error('Received object for my field:', toSet.my);
+      toSet.my = '';
+    }
+
+    setFilterValues(toSet);
+  }, [setFilterValues]);
+
+  // Apply filters function - updates URL and triggers data fetch
+  const handleApplyFilters = React.useCallback((valuesToApply?: any) => {
+    const values = valuesToApply || filterValues;
+    const transformed = { ...values };
+
+    // Validate all values are serializable before sending to URL
+    Object.keys(transformed).forEach(key => {
+      const val = transformed[key];
+      // Check for non-serializable objects (like DOM events)
+      if (val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date)) {
+        console.error(`Warning: Non-serializable value for ${key}:`, val);
+        // Reset to default
+        if (key === 'my') {
+          transformed[key] = '';
+        } else {
+          transformed[key] = '';
+        }
+      }
+    });
+
+    // Convert arrays to CSV strings for URL
+    ['types', 'plo'].forEach(field => {
+      if (Array.isArray(transformed[field])) {
+        transformed[field] = transformed[field].length > 0 ? transformed[field].join(",") : "";
+      }
+    });
+
+    // Handle 'my' field - ensure it's a string
+    if (typeof transformed.my === 'boolean') {
+      transformed.my = transformed.my ? 'true' : '';
+    } else if (transformed.my === 'true' || transformed.my === true) {
+      transformed.my = 'true';
+    } else if (!transformed.my || transformed.my === 'false' || transformed.my === false) {
+      transformed.my = '';
+    }
+
+    applyParams(transformed);
+  }, [filterValues, applyParams]);
 
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);
-  const [pageSize, setPageSize] = useState(25);
 
-  const { data, isLoading, error } = useEvents(params);
+  const { data, isLoading, error } = useEvents(appliedParams);
 
   const columnDefs: ColDef[] = useMemo(() => {
     const ActionsCellRenderer = createActionsCellRenderer(navigate);
@@ -502,6 +560,7 @@ const EventsAgGrid: React.FC = () => {
         headerName: "Trigger Values",
         field: "trigger_values",
         suppressMenu: true,
+        hide: true,
       },
       {
         minWidth: 180,
@@ -548,6 +607,16 @@ const EventsAgGrid: React.FC = () => {
   const onGridReady = useCallback(({ api }: GridReadyEvent) => {
     api.sizeColumnsToFit();
 
+    // Set initial sort order: event category, event date, obligor
+    api.applyColumnState({
+      state: [
+        { colId: 'event_category', sort: 'asc', sortIndex: 0 },
+        { colId: 'event_date', sort: 'asc', sortIndex: 1 },
+        { colId: 'obligor', sort: 'asc', sortIndex: 2 },
+      ],
+      defaultState: { sort: null },
+    });
+
     // Add window resize listener
     const handleResize = () => {
       api.sizeColumnsToFit();
@@ -585,52 +654,22 @@ const EventsAgGrid: React.FC = () => {
     () => [
       {
         type: "bulk" as const,
-        key: "submit-for-review",
-        label: "Submit for Review",
-        icon: SendIcon,
+        key: "add-1lod-analyst",
+        label: "Add 1 LOD Analyst(s)",
+        icon: PersonAddIcon,
         color: "primary" as const,
         onClick: (selectedItems: any[]) => {
-          console.log("Submit for Review:", selectedItems);
+          console.log("Add 1 LOD Analyst(s):", selectedItems);
         },
       },
       {
         type: "bulk" as const,
-        key: "revoke-review-request",
-        label: "Revoke Review Request",
-        icon: CancelScheduledSendIcon,
-        color: "warning" as const,
-        onClick: (selectedItems: any[]) => {
-          console.log("Revoke Review Request:", selectedItems);
-        },
-      },
-      {
-        type: "bulk" as const,
-        key: "reassign-event-owner",
-        label: "Reassign Event Owner",
-        icon: AssignmentAddIcon,
+        key: "add-1lod-management",
+        label: "Add 1 LOD Management Reviewer(s)",
+        icon: SupervisorAccountIcon,
         color: "primary" as const,
         onClick: (selectedItems: any[]) => {
-          console.log("Reassign Event Owner:", selectedItems);
-        },
-      },
-      {
-        type: "bulk" as const,
-        key: "reassign-event-approvers",
-        label: "Reassign Event Approvers",
-        icon: AssignmentTurnedInIcon,
-        color: "primary" as const,
-        onClick: (selectedItems: any[]) => {
-          console.log("Reassign Event Approvers:", selectedItems);
-        },
-      },
-      {
-        type: "bulk" as const,
-        key: "add-gbr-ref",
-        label: "Add GBR Ref #",
-        icon: AddCircleIcon,
-        color: "success" as const,
-        onClick: (selectedItems: any[]) => {
-          console.log("Add GBR Ref #:", selectedItems);
+          console.log("Add 1 LOD Management Reviewer(s):", selectedItems);
         },
       },
     ],
@@ -650,9 +689,6 @@ const EventsAgGrid: React.FC = () => {
       pastDue: filteredEvents.filter(
         (event: Event) => event.lifecycle_status === "past-due",
       ).length,
-      needsAttention: filteredEvents.filter(
-        (event: Event) => event.lifecycle_status === "needs-attention",
-      ).length,
       discretionary: filteredEvents.filter(
         (event: Event) => event.event_category === "Discretionary",
       ).length,
@@ -671,7 +707,8 @@ const EventsAgGrid: React.FC = () => {
         <FilterBar
           values={params}
           onValuesChange={setParams}
-          onApply={() => {}}
+          onApply={handleApplyFilters}
+          filtersChanged={filtersChanged}
         />
       }
     >
@@ -679,6 +716,7 @@ const EventsAgGrid: React.FC = () => {
         <ActionBar
           values={params}
           onValuesChange={setParams}
+          onApply={handleApplyFilters}
           statusCounts={statusCounts}
           workflowActions={workflowActions}
           selectedItems={selectedRows}
@@ -702,17 +740,9 @@ const EventsAgGrid: React.FC = () => {
               loading={isLoading}
               animateRows={true}
               cellSelection={true}
-              pagination={true}
-              paginationPageSize={pageSize}
-              paginationPageSizeSelector={[10, 25, 50, 100]}
-              onPaginationChanged={(event) => {
-                if (event.api) {
-                  const newPageSize = event.api.paginationGetPageSize();
-                  if (newPageSize !== pageSize) {
-                    setPageSize(newPageSize);
-                  }
-                }
-              }}
+              pagination={false}
+              suppressHorizontalScroll={false}
+              alwaysShowHorizontalScroll={false}
               masterDetail={true}
               detailCellRenderer={DetailCellRenderer}
               detailRowHeight={200}
@@ -736,6 +766,12 @@ const EventsAgGrid: React.FC = () => {
                 }
                 return undefined;
               }}
+              defaultColDef={{
+                sortable: true,
+                resizable: true,
+              }}
+              sortingOrder={['asc', 'desc']}
+              multiSortKey={'ctrl'}
             />
           </AgGridTheme>
         </Box>
