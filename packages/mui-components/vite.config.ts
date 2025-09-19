@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 import { getExternals } from "@smbc/vite-config";
 
+// Fixed asset handling for Logo component in library builds
+
 export default defineConfig({
   // Remove console logs in production builds
   esbuild: {
