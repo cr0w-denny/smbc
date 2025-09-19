@@ -2,6 +2,7 @@ import React from 'react';
 import { useTheme } from '@mui/material';
 import logoLight from '../../assets/logo.png';
 import logoDark from '../../assets/logo-dark.png';
+// Force cache invalidation for asset fix
 
 export interface LogoProps {
   /** Height of the logo in pixels */
