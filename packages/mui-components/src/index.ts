@@ -1,4 +1,3 @@
-/// <reference types="./assets/assets.d.ts" />
 
 // Export all shared MUI components
 export { LoadingTable } from "./LoadingTable";
@@ -91,5 +90,5 @@ export { FilterChipToggle } from "./FilterChipToggle";
 export type { FilterChip, FilterChipToggleProps } from "./FilterChipToggle";
 
 // Logo
-export { Logo } from "./components/Logo";
-export type { LogoProps } from "./components/Logo";
+export { Logo } from "./Logo";
+export type { LogoProps } from "./Logo";

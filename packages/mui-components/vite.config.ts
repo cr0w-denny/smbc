@@ -38,6 +38,6 @@ export default defineConfig({
     },
     minify: false,
     sourcemap: true,
-    copyPublicDir: false,
+    copyPublicDir: true,
   },
 });

@@ -1,7 +1,7 @@
 import React from "react";
 import { useTheme } from "@mui/material";
-import logoLight from "./assets/logo.png";
-import logoDark from "./assets/logo-dark.png";
+const logoLight = "/assets/logo.png";
+const logoDark = "/assets/logo-dark.png";
 
 export interface LogoProps {
   /** Height of the logo in pixels */
