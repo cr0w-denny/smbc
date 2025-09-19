@@ -59,6 +59,8 @@ export interface MuiHostAppProps {
   queryClient?: QueryClient;
   // Toolbar offset for sticky positioning
   toolbarOffset?: number;
+  // Optional logo for the app bar
+  logo?: React.ReactNode;
 }
 
 // Default feature flags that most host apps need
@@ -117,8 +119,8 @@ function AppWithEnvironment({
   enableMocksByDefault = true,
   disableMSW = false,
   showAppletHeading = false,
-  toolbarOffset = 67,
-}: MuiHostAppProps) {
+  logo,
+}: Omit<MuiHostAppProps, 'toolbarOffset'>) {
   const environment = useFeatureFlag<Environment>("environment") || "mock";
   const isMockEnvironment = environment === "mock";
   const [mswReady, setMswReady] = React.useState(!isMockEnvironment);
@@ -247,6 +249,7 @@ function AppWithEnvironment({
         drawerWidth={drawerWidth}
         permissionMapping={permissionMapping}
         showAppletHeading={showAppletHeading}
+        logo={logo}
       />
     );
   }
@@ -259,6 +262,7 @@ function AppWithEnvironment({
       drawerWidth={drawerWidth}
       permissionMapping={permissionMapping}
       showAppletHeading={showAppletHeading}
+      logo={logo}
     />
   );
 }
@@ -271,6 +275,7 @@ function AppContentWithQueryAccess({
   drawerWidth = 240,
   permissionMapping = {},
   showAppletHeading = false,
+  logo,
 }: Pick<
   MuiHostAppProps,
   | "applets"
@@ -279,6 +284,7 @@ function AppContentWithQueryAccess({
   | "drawerWidth"
   | "permissionMapping"
   | "showAppletHeading"
+  | "logo"
 >) {
   const handleNavigate = (url: string) => {
     window.location.hash = url;
@@ -298,6 +304,7 @@ function AppContentWithQueryAccess({
           permissionMapping={permissionMapping}
           title={appName}
           showAppletHeading={showAppletHeading}
+          logo={logo}
         />
         <MuiAppletRouter
           applets={applets}
@@ -365,10 +372,7 @@ function Navigation({
 // Component with theme provider
 function AppWithThemeProvider(props: MuiHostAppProps) {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
-  const appShellTheme = darkTheme; // Always use dark theme for app shell
-  const appletTheme = isDarkMode ? darkTheme : lightTheme; // Toggleable theme for applets
-  
-  console.log("🎨 MuiHostApp theme setup:", { isDarkMode, appletTheme: appletTheme?.palette?.mode });
+  const theme = isDarkMode ? darkTheme : lightTheme; // Single theme for entire app
 
   // Create user with calculated permissions
   const userWithPermissions = {
@@ -383,13 +387,12 @@ function AppWithThemeProvider(props: MuiHostAppProps) {
     <QueryClientProvider
       client={props.queryClient || createDefaultQueryClient()}
     >
-      <ThemeProvider theme={appShellTheme}>
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         <AppletProvider
           initialRoleConfig={props.roleConfig}
           initialUser={userWithPermissions}
           toolbarOffset={props.toolbarOffset}
-          theme={appletTheme}
         >
           <AppWithEnvironment {...props} />
         </AppletProvider>

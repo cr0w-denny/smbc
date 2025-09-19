@@ -6,7 +6,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { IconButton, Popover, Box } from '@mui/material';
 
 const meta: Meta<typeof AppShell> = {
-  title: 'MUI Components/AppShell',
+  title: 'Components/AppShell',
   component: AppShell,
   parameters: {
     layout: 'fullscreen',

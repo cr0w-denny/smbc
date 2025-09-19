@@ -241,11 +241,8 @@ const AppContent: React.FC = () => {
     alert("Logout functionality would be implemented here");
   };
 
-  // App theme - always dark mode for shell/navigation
-  const appTheme = createTheme(true);
-
-  // Applet theme - responds to dark mode toggle for content areas
-  const appletTheme = React.useMemo(
+  // App theme - responds to dark mode toggle
+  const appTheme = React.useMemo(
     () => createTheme(isDarkMode),
     [isDarkMode],
   );
@@ -326,7 +323,6 @@ const AppContent: React.FC = () => {
   return (
     <AppletProvider
       applets={APPLETS}
-      theme={appletTheme}
       maxWidth={maxWidthConfig}
       toolbarOffset={104}
     >

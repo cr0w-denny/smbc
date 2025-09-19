@@ -1,5 +1,61 @@
 import StyleDictionary from "style-dictionary";
 
+// Custom transform for simplified naming
+StyleDictionary.registerTransform({
+  name: "name/simple",
+  type: "name",
+  transform: (token) => {
+    const path = token.path;
+
+    // Brand colors: color.brand.primary.trad-green → TradGreen
+    if (path[0] === "color" && path[1] === "brand" && path[2] === "primary") {
+      return path[3].split("-").map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join("");
+    }
+
+    // Secondary colors: color.secondary.honey-beige.100 → HoneyBeige100
+    if (path[0] === "color" && path[1] === "secondary") {
+      const colorName = path[2].split("-").map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join("");
+      return path[3] ? `${colorName}${path[3]}` : colorName;
+    }
+
+    // Tertiary colors: color.tertiary.soft-gray.100 → SoftGray100
+    if (path[0] === "color" && path[1] === "tertiary") {
+      const colorName = path[2].split("-").map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join("");
+      return path[3] ? `${colorName}${path[3]}` : colorName;
+    }
+
+    // Chart colors: color.chart.data-1 → Data1
+    if (path[0] === "color" && path[1] === "chart") {
+      return path[2].split("-").map((word, index) => {
+        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      }).join("");
+    }
+
+    // Semantic colors: color.semantic.success.500 → Success500
+    if (path[0] === "color" && path[1] === "semantic") {
+      const colorName = path[2].charAt(0).toUpperCase() + path[2].slice(1);
+      return path[3] ? `${colorName}${path[3]}` : colorName;
+    }
+
+    // Gray colors: color.gray.100 → Gray100
+    if (path[0] === "color" && path[1] === "gray") {
+      return `Gray${path[2]}`;
+    }
+
+    // Fall back to default naming for other tokens
+    return path.map(part =>
+      part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, "")
+    ).join("");
+  }
+});
+
 // Custom TypeScript format for v5
 StyleDictionary.registerFormat({
   name: "typescript/es6-declarations",
@@ -16,6 +72,12 @@ ${dictionary.allTokens
   .join("\n")}
 `;
   },
+});
+
+// Register custom transform group with simplified naming
+StyleDictionary.registerTransformGroup({
+  name: "js/simple",
+  transforms: ["attribute/cti", "name/simple", "color/hex", "size/px"]
 });
 
 export default {
@@ -58,12 +120,12 @@ export default {
       ],
     },
     ts: {
-      transformGroup: "js",
+      transformGroup: "js/simple",
       buildPath: "src/",
       files: [
         {
           destination: "tokens.generated.ts",
-          format: "typescript/es6-declarations",
+          format: "javascript/es6",
         },
       ],
     },

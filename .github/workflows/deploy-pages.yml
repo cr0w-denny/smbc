@@ -38,39 +38,66 @@ jobs:
       - name: Build UI Core package first
         run: npm run build --workspace=@smbc/ui-core
 
-      - name: Build workspace packages (excluding problematic ones)
+      - name: Build workspace packages (excluding storybook)
         run: |
           npx turbo run build \
             --filter="!@smbc/mui-storybook" \
             --filter="!@smbc/mui-storybook-old" \
             --continue
 
+      - name: Create deployment directory
+        run: mkdir -p ./deploy
+
+      - name: Build GitHub Pages Index
+        run: |
+          cd apps/gh-pages
+          npm run build
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/"
+
+      - name: Copy Index to deployment root
+        run: |
+          cp -r ./apps/gh-pages/dist/* ./deploy/
+
       - name: Build MUI Host Dev
         run: |
           cd apps/mui-host-dev
           npm run build
         env:
-          # Use development mode to keep console logs for debugging
           NODE_ENV: development
-          # Set base path for GitHub Pages (auto-detects repository name)
-          VITE_BASE_PATH: "/${{ github.event.repository.name }}/"
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/mui-host-dev/"
+
+      - name: Copy MUI Host Dev build
+        run: |
+          mkdir -p ./deploy/mui-host-dev
+          cp -r ./apps/mui-host-dev/dist/* ./deploy/mui-host-dev/
 
       - name: Build EWI App
         run: |
-          cd apps/ewi
+          cd apps/mui-ewi
           npm run build -- --mode development
         env:
-          # Use development mode to keep console logs for debugging
           NODE_ENV: development
-          # Set base path for EWI app under /ewi subdirectory
           VITE_BASE_PATH: "/${{ github.event.repository.name }}/ewi/"
-          # Enable mocks for the demo deployment
           VITE_USE_MOCKS: "true"
 
-      - name: Copy EWI build to MUI Host Dev dist
+      - name: Copy EWI build
         run: |
-          mkdir -p ./apps/mui-host-dev/dist/ewi
-          cp -r ./apps/ewi/dist/* ./apps/mui-host-dev/dist/ewi/
+          mkdir -p ./deploy/ewi
+          cp -r ./apps/mui-ewi/dist/* ./deploy/ewi/
+
+      - name: Build Storybook
+        run: |
+          cd apps/mui-storybook
+          npm run build-storybook -- --output-dir dist
+        env:
+          NODE_ENV: development
+
+      - name: Copy Storybook build
+        run: |
+          mkdir -p ./deploy/storybook
+          cp -r ./apps/mui-storybook/dist/* ./deploy/storybook/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -78,7 +105,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './apps/mui-host-dev/dist'
+          path: './deploy'
 
   deploy:
     environment:

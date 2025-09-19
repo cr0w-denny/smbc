@@ -9,12 +9,14 @@ import {
   Button,
   IconButton,
   Avatar,
+  ThemeProvider,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
 import { NavigationItem } from "../types";
 import { TreeDropdownMenu } from "./TreeDropdownMenu";
 import { UserMenu, UserRole } from "./UserMenu";
+import { darkTheme } from "../../theme/dark";
 
 interface TopNavProps {
   logo?: React.ReactNode;
@@ -173,28 +175,30 @@ export const TopNav: React.FC<TopNavProps> = ({
                 }}
               />
             )}
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl) && activeMenu === item.label}
-              onClose={handleMenuClose}
-              slotProps={{
-                paper: {
-                  sx: { "& .MuiMenuItem-root": { minHeight: "auto" } },
-                },
-              }}
-            >
-              {item.items?.map((subItem, subIndex) => (
-                <MenuItem
-                  key={subIndex}
-                  onClick={() => {
-                    if (subItem.onClick) subItem.onClick();
-                    handleNavigation(subItem.href);
-                  }}
-                >
-                  {subItem.label}
-                </MenuItem>
-              ))}
-            </Menu>
+            <ThemeProvider theme={darkTheme}>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl) && activeMenu === item.label}
+                onClose={handleMenuClose}
+                slotProps={{
+                  paper: {
+                    sx: { "& .MuiMenuItem-root": { minHeight: "auto" } },
+                  },
+                }}
+              >
+                {item.items?.map((subItem, subIndex) => (
+                  <MenuItem
+                    key={subIndex}
+                    onClick={() => {
+                      if (subItem.onClick) subItem.onClick();
+                      handleNavigation(subItem.href);
+                    }}
+                  >
+                    {subItem.label}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </ThemeProvider>
           </Box>
         );
 
@@ -209,13 +213,15 @@ export const TopNav: React.FC<TopNavProps> = ({
             >
               {item.label}
             </Button>
-            <TreeDropdownMenu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl) && activeMenu === item.label}
-              onClose={handleMenuClose}
-              items={item.treeItems || []}
-              menuId={item.label}
-            />
+            <ThemeProvider theme={darkTheme}>
+              <TreeDropdownMenu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl) && activeMenu === item.label}
+                onClose={handleMenuClose}
+                items={item.treeItems || []}
+                menuId={item.label}
+              />
+            </ThemeProvider>
           </Box>
         );
 
@@ -314,21 +320,23 @@ export const TopNav: React.FC<TopNavProps> = ({
                 <AccountCircleOutlined sx={{ fontSize: 32 }} />
               )}
             </IconButton>
-            <UserMenu
-              open={Boolean(userMenuAnchor)}
-              anchorEl={userMenuAnchor}
-              onClose={() => setUserMenuAnchor(null)}
-              name={username || "User"}
-              avatarUrl={avatarUrl}
-              onToggleDarkMode={onDarkModeToggle}
-              darkMode={isDarkMode}
-              userRoles={userRoles}
-              onToggleRole={onToggleRole}
-              onProfile={onProfile}
-              onSettings={onSettings}
-              onQuickGuide={onQuickGuide}
-              onLogout={onLogout}
-            />
+            <ThemeProvider theme={darkTheme}>
+              <UserMenu
+                open={Boolean(userMenuAnchor)}
+                anchorEl={userMenuAnchor}
+                onClose={() => setUserMenuAnchor(null)}
+                name={username || "User"}
+                avatarUrl={avatarUrl}
+                onToggleDarkMode={onDarkModeToggle}
+                darkMode={isDarkMode}
+                userRoles={userRoles}
+                onToggleRole={onToggleRole}
+                onProfile={onProfile}
+                onSettings={onSettings}
+                onQuickGuide={onQuickGuide}
+                onLogout={onLogout}
+              />
+            </ThemeProvider>
           </Box>
         </Box>
       </Toolbar>

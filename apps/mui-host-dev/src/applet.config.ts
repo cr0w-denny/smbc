@@ -54,7 +54,7 @@ export const DEMO_USER = {
 
 export const HOST = {
   drawerWidth: 320,
-  appName: "SMBC Applet Host",
+  appName: "Applet Host",
 } as const;
 
 // =============================================================================

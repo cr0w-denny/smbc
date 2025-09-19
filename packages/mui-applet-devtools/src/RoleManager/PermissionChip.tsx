@@ -15,7 +15,7 @@ export function PermissionChip({ permission }: PermissionChipProps) {
   return (
     <StyledPermissionChip
       label={permission.label}
-      color={permission.hasAccess ? "success" : "default"}
+      color={permission.hasAccess ? "primary" : "default"}
       variant={permission.hasAccess ? "filled" : "outlined"}
       size="small"
       sx={{

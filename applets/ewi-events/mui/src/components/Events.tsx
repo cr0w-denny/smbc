@@ -6,6 +6,7 @@ import {
   Typography,
   Menu,
   MenuItem,
+  useTheme,
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import { AgGridTheme } from "@smbc/mui-components";
@@ -15,7 +16,7 @@ import type {
   GridReadyEvent,
   SelectionChangedEvent,
 } from "ag-grid-community";
-import { useHashNavigationWithApply, useAppletCore } from "@smbc/applet-core";
+import { useHashNavigationWithApply } from "@smbc/applet-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
 import type { components, paths } from "@smbc/ewi-events-api/types";
@@ -349,7 +350,7 @@ const createActionsCellRenderer =
   };
 
 const EventsAgGrid: React.FC = () => {
-  const { theme } = useAppletCore();
+  const theme = useTheme();
   const gridRef = React.useRef<AgGridReact>(null);
   const popupParentRef = React.useRef<HTMLDivElement>(null);
 

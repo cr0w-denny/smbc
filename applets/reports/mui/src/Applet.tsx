@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { Box, GridLegacy as Grid, Paper, Typography } from "@mui/material";
+import { Box, GridLegacy as Grid, Paper, Typography, useTheme } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import ReactECharts from "echarts-for-react";
 import type { ColDef } from "ag-grid-community";
-import { useAppletCore } from "@smbc/applet-core";
 import { AppletPage } from "@smbc/mui-applet-core";
 import { AgGridTheme } from "@smbc/mui-components";
 
@@ -82,7 +81,7 @@ const statusCellRenderer = (params: any) => {
 
 export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
   const [pageSize, setPageSize] = useState(25);
-  const { theme } = useAppletCore();
+  const theme = useTheme();
   const textColor = theme.palette.text.primary;
   const axisLineColor = theme.palette.divider;
 

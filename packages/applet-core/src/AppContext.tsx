@@ -19,7 +19,6 @@ interface AppContextValue {
   state: AppState;
   roleUtils: ReturnType<typeof createRoleUtilities>;
   applets: AppletMount[];
-  theme?: any; // Using any to avoid MUI dependency in applet-core
   maxWidth?: Record<string, string>; // Responsive maxWidth settings
   toolbarOffset?: number; // Top offset for sticky toolbar in pixels
   actions: {
@@ -39,7 +38,6 @@ interface AppletProviderProps {
   initialRoleConfig?: RoleConfig;
   appletRegistry?: Record<string, any>;
   applets?: AppletMount[];
-  theme?: any; // Using any to avoid MUI dependency in applet-core
   maxWidth?: Record<string, string>; // Responsive maxWidth settings
   toolbarOffset?: number; // Top offset for sticky toolbar in pixels
 }
@@ -51,11 +49,9 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
   initialRoleConfig = { roles: ["Guest", "User"], permissionMappings: {} },
   appletRegistry = {},
   applets = [],
-  theme,
   maxWidth,
   toolbarOffset,
 }) => {
-  console.log("🎨 AppletProvider received theme:", { theme: theme?.palette?.mode });
   const [state, setState] = useState<AppState>({
     user: initialUser,
     isAuthenticated: initialUser !== null,
@@ -108,7 +104,6 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
     state,
     roleUtils,
     applets,
-    theme,
     maxWidth,
     toolbarOffset,
     actions: {

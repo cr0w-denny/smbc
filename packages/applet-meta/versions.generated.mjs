@@ -1,5 +1,5 @@
 // Auto-generated at build time - do not edit manually
-// Generated on: 2025-09-16T23:31:15.369Z
+// Generated on: 2025-09-19T06:14:23.584Z
 
 export const SMBC_PACKAGE_VERSIONS = {
   "@smbc/vite-config": "^0.0.1",
@@ -7,7 +7,6 @@ export const SMBC_PACKAGE_VERSIONS = {
   "@smbc/typespec-core": "^0.0.1",
   "@smbc/openapi-msw": "^0.0.1",
   "@smbc/mui-storybook-old": "^0.0.1",
-  "@smbc/mui-storybook": "^0.0.1",
   "@smbc/mui-components": "^0.0.1",
   "@smbc/mui-applet-devtools": "^0.0.1",
   "@smbc/mui-applet-core": "^0.0.1",

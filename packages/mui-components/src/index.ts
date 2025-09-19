@@ -1,3 +1,5 @@
+/// <reference types="./assets/assets.d.ts" />
+
 // Export all shared MUI components
 export { LoadingTable } from "./LoadingTable";
 export type { LoadingTableProps } from "./LoadingTable";
@@ -14,11 +16,6 @@ export type { EmptyStateProps } from "./EmptyState";
 export { CustomSelect } from "./CustomSelect";
 export type { CustomSelectProps } from "./CustomSelect";
 
-export { default as RowDetailModal } from "./RowDetailModal";
-export type { 
-  RowDetailModalProps, 
-  TableColumn 
-} from "./RowDetailModal";
 
 
 export { TreeMenu } from "./TreeMenu";
@@ -92,3 +89,7 @@ export { Table } from "./Table";
 // Filter Chip Toggle
 export { FilterChipToggle } from "./FilterChipToggle";
 export type { FilterChip, FilterChipToggleProps } from "./FilterChipToggle";
+
+// Logo
+export { Logo } from "./components/Logo";
+export type { LogoProps } from "./components/Logo";

@@ -59,7 +59,7 @@ export function RoleManager({
   });
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <DashboardHeader
         title={title}
         availableRoles={availableRoles}

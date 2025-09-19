@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, ThemeProvider, Typography } from "@mui/material";
+import { Box, Typography, ThemeProvider } from "@mui/material";
 import { useAppletCore } from "@smbc/applet-core";
 import { darkTheme } from "@smbc/mui-components";
 
@@ -50,29 +50,27 @@ const PageLayout: React.FC<{
   showContainer?: boolean;
   height?: string;
 }> = ({ toolbar, children, showContainer = false, height }) => {
-  const { theme, toolbarOffset = 67 } = useAppletCore();
-  console.log("🎨 AppletPage received theme:", {
-    theme: theme?.palette?.mode,
-    hasTheme: !!theme,
-  });
+  const { toolbarOffset = 67 } = useAppletCore();
 
   return (
     <Box sx={{ height: "100%" }}>
       {toolbar && (
-        <Box
-          sx={() => ({
-            position: "sticky",
-            top: toolbarOffset,
-            left: 0,
-            right: 0,
-            backgroundColor: "#242b2f",
-            // backdropFilter: "blur(8px)",
-            zIndex: 1000,
-            py: 2,
-          })}
-        >
-          {toolbar}
-        </Box>
+        <ThemeProvider theme={darkTheme}>
+          <Box
+            sx={() => ({
+              position: "sticky",
+              top: toolbarOffset,
+              left: 0,
+              right: 0,
+              backgroundColor: "#242b2f",
+              // backdropFilter: "blur(8px)",
+              zIndex: 1000,
+              py: 2,
+            })}
+          >
+            {toolbar}
+          </Box>
+        </ThemeProvider>
       )}
       {(() => {
         const content = (
@@ -96,9 +94,7 @@ const PageLayout: React.FC<{
           </Box>
         );
 
-        return (
-          <ThemeProvider theme={theme || darkTheme}>{content}</ThemeProvider>
-        );
+        return content;
       })()}
     </Box>
   );

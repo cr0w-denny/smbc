@@ -30,6 +30,7 @@ export interface AppletDrawerProps {
   title?: string;
   permissionMapping?: Record<string, string>;
   showAppletHeading?: boolean;
+  logo?: React.ReactNode;
 }
 
 export function AppletDrawer({
@@ -38,6 +39,7 @@ export function AppletDrawer({
   title,
   permissionMapping = {},
   showAppletHeading = false,
+  logo,
 }: AppletDrawerProps) {
   const { path, navigate } = useHashNavigation();
   const { hasAnyPermission } = useRoleManagement();
@@ -202,9 +204,16 @@ export function AppletDrawer({
         zIndex: 1000,
       }}
     >
-      {/* Title */}
-      <Box sx={{ p: 2 }}>
-        <Typography variant="h6">{title || constants.appName}</Typography>
+      {/* Title with Logo */}
+      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        {logo && (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {logo}
+          </Box>
+        )}
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          {title || constants.appName}
+        </Typography>
       </Box>
 
       {/* Non-filterable sections (Applet Guide) */}

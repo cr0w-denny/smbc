@@ -15,10 +15,13 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-essentials"),
     getAbsolutePath("@storybook/addon-docs"),
   ],
+
+  staticDirs: ["./public"],
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),
     options: {},
   },
+
 
   async viteFinal(config) {
     config.resolve = config.resolve || {};
@@ -26,19 +29,19 @@ const config: StorybookConfig = {
       ...config.resolve.alias,
       "@smbc/mui-components": path.resolve(
         __dirname,
-        "../../mui-components/src",
+        "../../../packages/mui-components/src",
       ),
-      "@smbc/applet-core": path.resolve(__dirname, "../../applet-core/src"),
+      "@smbc/applet-core": path.resolve(__dirname, "../../../packages/applet-core/src"),
       "@smbc/mui-applet-core": path.resolve(
         __dirname,
-        "../../mui-applet-core/src",
+        "../../../packages/mui-applet-core/src",
       ),
       "@smbc/mui-applet-devtools": path.resolve(
         __dirname,
-        "../../mui-applet-devtools/src",
+        "../../../packages/mui-applet-devtools/src",
       ),
-      "@smbc/dataview": path.resolve(__dirname, "../../dataview/src"),
-      "@smbc/ui-core": path.resolve(__dirname, "../../ui-core/src"),
+      "@smbc/dataview": path.resolve(__dirname, "../../../packages/dataview/src"),
+      "@smbc/ui-core": path.resolve(__dirname, "../../../packages/ui-core/src"),
     };
 
     return config;
