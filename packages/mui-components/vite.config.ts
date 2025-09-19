@@ -31,9 +31,11 @@ export default defineConfig({
           react: "React",
           "react-dom": "ReactDOM",
         },
+        assetFileNames: "assets/[name][extname]",
       },
     },
     minify: false,
     sourcemap: true,
+    copyPublicDir: false,
   },
 });
