@@ -1,8 +1,7 @@
-import React from 'react';
-import { useTheme } from '@mui/material';
-import logoLight from '../../assets/logo.png';
-import logoDark from '../../assets/logo-dark.png';
-// Force cache invalidation for asset fix
+import React from "react";
+import { useTheme } from "@mui/material";
+import logoLight from "./assets/logo.png";
+import logoDark from "./assets/logo-dark.png";
 
 export interface LogoProps {
   /** Height of the logo in pixels */
@@ -12,7 +11,7 @@ export interface LogoProps {
   /** Custom styling */
   style?: React.CSSProperties;
   /** Force a specific variant regardless of theme */
-  variant?: 'light' | 'dark' | 'auto';
+  variant?: "light" | "dark" | "auto";
 }
 
 /**
@@ -23,17 +22,17 @@ export function Logo({
   height = 32,
   alt = "SMBC Logo",
   style,
-  variant = 'auto'
+  variant = "auto",
 }: LogoProps) {
   const theme = useTheme();
 
   // Determine which logo to use
   const logoSrc = React.useMemo(() => {
-    if (variant === 'light') return logoLight;
-    if (variant === 'dark') return logoDark;
+    if (variant === "light") return logoLight;
+    if (variant === "dark") return logoDark;
 
     // Auto mode: use dark logo for dark theme, light logo for light theme
-    return theme.palette.mode === 'dark' ? logoDark : logoLight;
+    return theme.palette.mode === "dark" ? logoDark : logoLight;
   }, [theme.palette.mode, variant]);
 
   return (
@@ -42,7 +41,7 @@ export function Logo({
       alt={alt}
       style={{
         height,
-        objectFit: 'contain',
+        objectFit: "contain",
         ...style,
       }}
     />

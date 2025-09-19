@@ -1,5 +1,5 @@
 // Auto-generated at build time - do not edit manually
-// Generated on: 2025-09-19T06:14:23.584Z
+// Generated on: 2025-09-19T07:46:28.977Z
 
 export const SMBC_PACKAGE_VERSIONS = {
   "@smbc/vite-config": "^0.0.1",
