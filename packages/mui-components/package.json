@@ -16,7 +16,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "rm -rf dist && vite build",
     "dev": "vite build --watch",
     "clean": "rm -rf dist",
     "lint": "echo 'Lint: mui-components'",
