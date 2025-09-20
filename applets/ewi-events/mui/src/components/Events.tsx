@@ -532,6 +532,7 @@ const EventsAgGrid: React.FC = () => {
         cellRenderer: "agGroupCellRenderer",
         headerName: "",
         width: 60,
+        minWidth: 60,
         cellRendererParams: {
           innerRenderer: () => "", // No content in the cell
         },

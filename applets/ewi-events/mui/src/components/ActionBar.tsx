@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  IconButton,
-  Popover,
-  MenuItem,
-  MenuList,
-  Menu,
-} from "@mui/material";
+import { Box, Button, Popover, MenuItem, MenuList } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
@@ -65,7 +57,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   statusCounts = {},
   workflowActions = [],
   selectedItems = [],
-  gridRef,
 }) => {
   const [workflowAnchor, setWorkflowAnchor] =
     React.useState<null | HTMLElement>(null);
@@ -227,7 +218,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           </Button>
         </Box>
       </Box>
-
 
       {/* Workflow Menu */}
       <Popover
