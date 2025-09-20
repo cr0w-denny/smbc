@@ -28,7 +28,7 @@ const queryClient = new QueryClient({
 configureApplets(APPLETS);
 console.log("🔄 Configured applets for mock environment");
 
-const AppContent: React.FC = () => {
+const AppShellContent: React.FC = () => {
   const { path, navigate } = useHashNavigation();
   const [isDarkMode, setIsDarkMode] = useState(false);
   // Define available roles and their permissions
@@ -321,9 +321,53 @@ const AppContent: React.FC = () => {
   };
 
   return (
+    <ThemeProvider theme={appTheme}>
+      <CssBaseline />
+      <AppShell
+        logo={
+          <img
+            src={`${import.meta.env.BASE_URL}logo.svg`}
+            alt="EWI Logo"
+            style={{ height: 60 }}
+          />
+        }
+        navigation={navigation}
+        onNavigate={navigate}
+        currentPath={path}
+        isDarkMode={isDarkMode}
+        onDarkModeToggle={handleDarkModeToggle}
+        username="John Doe"
+        theme={appTheme}
+        userRoles={userRoles}
+        onToggleRole={handleRoleToggle}
+        onProfile={handleProfile}
+        onSettings={handleSettings}
+        onQuickGuide={handleQuickGuide}
+        onLogout={handleLogout}
+        right={
+          <Box sx={{ "& .MuiIconButton-root svg": { fontSize: 28 } }}>
+            <ActivityNotifications onNavigate={navigate} />
+          </Box>
+        }
+        maxWidth={maxWidthConfig}
+      >
+        <AppletRouter defaultComponent={AppRoutes} />
+      </AppShell>
+    </ThemeProvider>
+  );
+};
+
+const AppContent: React.FC = () => {
+  return (
     <AppletProvider
       applets={APPLETS}
-      maxWidth={maxWidthConfig}
+      maxWidth={{
+        xs: "96%",
+        sm: "96%",
+        md: "88%",
+        lg: "88%",
+        xl: "92%",
+      }}
       toolbarOffset={104}
     >
       <FeatureFlagProvider
@@ -335,39 +379,7 @@ const AppContent: React.FC = () => {
         ]}
       >
         <DataViewProvider>
-          <ThemeProvider theme={appTheme}>
-            <CssBaseline />
-            <AppShell
-              logo={
-                <img
-                  src={`${import.meta.env.BASE_URL}logo.svg`}
-                  alt="EWI Logo"
-                  style={{ height: 60 }}
-                />
-              }
-              navigation={navigation}
-              onNavigate={navigate}
-              currentPath={path}
-              isDarkMode={isDarkMode}
-              onDarkModeToggle={handleDarkModeToggle}
-              username="John Doe"
-              theme={appTheme}
-              userRoles={userRoles}
-              onToggleRole={handleRoleToggle}
-              onProfile={handleProfile}
-              onSettings={handleSettings}
-              onQuickGuide={handleQuickGuide}
-              onLogout={handleLogout}
-              right={
-                <Box sx={{ "& .MuiIconButton-root svg": { fontSize: 28 } }}>
-                  <ActivityNotifications onNavigate={navigate} />
-                </Box>
-              }
-              maxWidth={maxWidthConfig}
-            >
-              <AppletRouter defaultComponent={AppRoutes} />
-            </AppShell>
-          </ThemeProvider>
+          <AppShellContent />
         </DataViewProvider>
       </FeatureFlagProvider>
     </AppletProvider>

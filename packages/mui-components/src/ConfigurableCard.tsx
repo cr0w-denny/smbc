@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
+import * as ui from "@smbc/ui-core";
 
 export interface CardMenuItem {
   label: string;
@@ -23,7 +24,7 @@ export interface CardMenuItem {
 }
 
 export interface ConfigurableCardProps {
-  title: string;
+  title: string | React.ReactNode;
   subtitle?: string;
   menuItems?: CardMenuItem[];
   children: React.ReactNode;
@@ -73,16 +74,12 @@ export const ConfigurableCard: React.FC<ConfigurableCardProps> = ({
       elevation={elevation}
       sx={{
         backgroundImage: "none !important",
-        backgroundColor: (theme) =>
-          theme.palette.mode === "dark"
-            ? theme.palette.background.paper
-            : "#ffffff",
+        backgroundColor: (theme) => theme.palette.mode === "dark" ? ui.CardBackgroundDark : ui.CardBackgroundLight,
+        border: (theme) => `1px solid ${theme.palette.mode === "dark" ? ui.CardBorderDark : ui.CardBorderLight}`,
+        borderRadius: "16px",
         "&:hover": {
           boxShadow: elevation,
-          backgroundColor: (theme) =>
-            theme.palette.mode === "dark"
-              ? theme.palette.background.paper
-              : "#ffffff",
+          backgroundColor: (theme) => theme.palette.mode === "dark" ? ui.CardBackgroundDark : ui.CardBackgroundLight,
           backgroundImage: "none !important",
           transform: "none",
         },
@@ -170,6 +167,7 @@ export const ConfigurableCard: React.FC<ConfigurableCardProps> = ({
         sx={{
           p: 2,
           pb: 4,
+          height: "100%",
           "&:last-child": {
             pb: 4,
           },

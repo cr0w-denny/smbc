@@ -325,6 +325,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
 
   return (
     <AppletPage
+      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
       error={error as Error | null}
       showContainer={true}
       height="100%"

@@ -194,7 +194,7 @@ export interface AppletMount {
   packageName: string | false; // Package name (e.g., "@smbc/user-management-mui") or false for demo/in-app applets
   filterable?: boolean; // Whether this applet participates in search/filtering (default: true)
   getHostNavigation?: (
-    mountPath: string, 
+    mountPath: string,
     hasAnyPermission: (appletId: string, permissions: string[]) => boolean,
     appletId: string
   ) => {

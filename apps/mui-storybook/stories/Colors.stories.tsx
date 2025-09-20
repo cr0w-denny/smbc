@@ -444,6 +444,135 @@ export const Colors: Story = {
         </Grid>
       </ColorSection>
 
+      {/* Semantic Colors */}
+      <ColorSection
+        title="Semantic Colors"
+        subtitle="Design tokens that automatically adapt to light/dark themes using semantic color system."
+      >
+        {/* Input Colors */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+            Input Colors
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Input Value Light"
+                value={tokens.InputValueLight}
+                tokenName="InputValueLight"
+                textColor="#fff"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Input Value Dark"
+                value={tokens.InputValueDark}
+                tokenName="InputValueDark"
+                textColor="#000"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Input Active Light"
+                value={tokens.InputActiveLight}
+                tokenName="InputActiveLight"
+                textColor="#fff"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Input Active Dark"
+                value={tokens.InputActiveDark}
+                tokenName="InputActiveDark"
+                textColor="#000"
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+
+        {/* Table Colors */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom sx={{ mb: 2, mt: 3 }}>
+            Table Colors
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Header BG Light"
+                value={tokens.TableHeaderBackgroundLight}
+                tokenName="TableHeaderBackgroundLight"
+                textColor="#000"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Header BG Dark"
+                value={tokens.TableHeaderBackgroundDark}
+                tokenName="TableHeaderBackgroundDark"
+                textColor="#fff"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Row BG Light"
+                value={tokens.TableRowBackgroundLight}
+                tokenName="TableRowBackgroundLight"
+                textColor="#000"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Row BG Dark"
+                value={tokens.TableRowBackgroundDark}
+                tokenName="TableRowBackgroundDark"
+                textColor="#fff"
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+
+        {/* Card Colors */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom sx={{ mb: 2, mt: 3 }}>
+            Card Colors
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Card BG Light"
+                value={tokens.CardBackgroundLight}
+                tokenName="CardBackgroundLight"
+                textColor="#000"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Card BG Dark"
+                value={tokens.CardBackgroundDark}
+                tokenName="CardBackgroundDark"
+                textColor="#fff"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Card Border Light"
+                value={tokens.CardBorderLight}
+                tokenName="CardBorderLight"
+                textColor="#000"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <ColorSwatch
+                name="Card Border Dark"
+                value={tokens.CardBorderDark}
+                tokenName="CardBorderDark"
+                textColor="#fff"
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+      </ColorSection>
+
       {/* Usage Guidelines */}
       <Box sx={{ mt: 6, p: 3, bgcolor: "background.default", borderRadius: 2 }}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>

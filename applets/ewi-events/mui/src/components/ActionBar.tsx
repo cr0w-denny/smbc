@@ -12,16 +12,11 @@ import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
   Error as ErrorIcon,
-  Settings as SettingsIcon,
   AccountTree as WorkflowIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   PsychologyAlt as DiscretionaryIcon,
   Gavel as MandatoryIcon,
-  FileDownload as ExportIcon,
-  Print as PrintIcon,
-  ViewColumn as ColumnIcon,
-  FilterListOff as ResetFiltersIcon,
   FilterChipToggle,
 } from "@smbc/mui-components";
 import type { FilterChip } from "@smbc/mui-components";
@@ -72,8 +67,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   selectedItems = [],
   gridRef,
 }) => {
-  const [settingsAnchor, setSettingsAnchor] =
-    React.useState<null | HTMLElement>(null);
   const [workflowAnchor, setWorkflowAnchor] =
     React.useState<null | HTMLElement>(null);
 
@@ -92,16 +85,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     // Let user explicitly close it or clear all selections
   }, [selectedItems.length >= 2, workflowAnchor]); // Stable dependencies
 
-  const handleSettingsClick = (event: React.MouseEvent<HTMLElement>) => {
-    setSettingsAnchor(event.currentTarget);
-  };
-
   const handleWorkflowClick = (event: React.MouseEvent<HTMLElement>) => {
     setWorkflowAnchor(event.currentTarget);
-  };
-
-  const handleSettingsClose = () => {
-    setSettingsAnchor(null);
   };
 
   const handleWorkflowClose = () => {
@@ -161,7 +146,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
   // Handle chip toggle - apply immediately
   const handleChipToggle = (chipValue: string, isActive: boolean) => {
-    const chip = filterChips.find(c => c.value === chipValue);
+    const chip = filterChips.find((c) => c.value === chipValue);
     if (!chip) return;
 
     const newValues = { ...values };
@@ -184,7 +169,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   if (values.category) activeChips.push(values.category);
 
   return (
-    <Box sx={{ pt: 2, px: 2 }}>
+    <Box sx={{ pt: 2 }}>
       {/* Status Chips */}
       <Box
         sx={{
@@ -210,15 +195,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
         {/* Right Side Controls */}
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          {/* Settings Gear Icon */}
-          <IconButton
-            size="small"
-            onClick={handleSettingsClick}
-            sx={{ color: "text.secondary" }}
-          >
-            <SettingsIcon fontSize="small" />
-          </IconButton>
-
           {/* Workflow Button */}
           <Button
             size="small"
@@ -252,80 +228,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
         </Box>
       </Box>
 
-      {/* Settings Menu */}
-      <Menu
-        anchorEl={settingsAnchor}
-        open={Boolean(settingsAnchor)}
-        onClose={handleSettingsClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        slotProps={{
-          paper: {
-            sx: {
-              boxShadow:
-                "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
-            },
-          },
-        }}
-      >
-        <MenuItem onClick={handleSettingsClose}>
-          <ExportIcon fontSize="small" sx={{ mr: 1 }} />
-          Export Data
-        </MenuItem>
-        <MenuItem onClick={handleSettingsClose}>
-          <PrintIcon fontSize="small" sx={{ mr: 1 }} />
-          Print Report
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleSettingsClose();
-            // Show AG Grid's column chooser
-            if (gridRef?.current?.api) {
-              gridRef.current.api.showColumnChooser();
-            }
-          }}
-        >
-          <ColumnIcon fontSize="small" sx={{ mr: 1 }} />
-          Column Settings
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleSettingsClose();
-            // Reset all filter values
-            const resetValues = {
-              dateFrom: "",
-              dateTo: "",
-              status: "",
-              category: "",
-              exRatings: "",
-              workflow: "",
-              priority: "",
-              types: "",
-              plo: "",
-              my: "",
-            };
-            onValuesChange(resetValues);
-            // Clear AG Grid filters if available
-            if (gridRef?.current?.api) {
-              gridRef.current.api.setFilterModel(null);
-            }
-            // Automatically apply the reset - directly update URL with reset values
-            if (onApply) {
-              // Pass reset values directly to ensure they're applied
-              onApply(resetValues);
-            }
-          }}
-        >
-          <ResetFiltersIcon fontSize="small" sx={{ mr: 1 }} />
-          Reset Filters
-        </MenuItem>
-      </Menu>
 
       {/* Workflow Menu */}
       <Popover

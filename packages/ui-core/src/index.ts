@@ -10,10 +10,15 @@ export * from "./filter-types";
 // Import all tokens to create organized structure
 import * as tokens from "./tokens.generated";
 
-function groupTokensByPrefix(tokenObj: Record<string, string>) {
+function groupTokensByPrefix(tokenObj: Record<string, any>) {
   const groups: Record<string, any> = {};
 
   Object.entries(tokenObj).forEach(([key, value]) => {
+    // Skip complex objects, only process simple string values
+    if (typeof value !== 'string') {
+      return;
+    }
+
     // Handle different token naming patterns
     let parts: string[];
 
@@ -63,41 +68,4 @@ export const spacing = sizes.spacing || {};
 export const borderRadius = sizes.borderradius || {};
 export const breakpoints = sizes.breakpoint || {};
 
-// Theme-aware helper functions
-export const getSemanticColor = (
-  path: string,
-  mode: "light" | "dark" = "light",
-): string | undefined => {
-  const keys = path.split(".");
-  let current: any = semantic?.color;
-
-  for (const key of keys) {
-    current = current?.[key];
-    if (!current) return undefined;
-  }
-
-  return current?.[mode];
-};
-
-export const getSemanticShadow = (
-  size: string,
-  mode: "light" | "dark" = "light",
-): string | undefined => {
-  return semantic?.shadow?.[mode]?.[size];
-};
-
-// Utility helpers
-export const getColor = (path: string): string | undefined => {
-  const keys = path.split(".");
-  let current: any = colors;
-
-  for (const key of keys) {
-    current = current?.[key];
-    if (!current) return undefined;
-  }
-
-  return current;
-};
-
-export const getSpacing = (value: string): string | undefined =>
-  spacing?.[value];
+// All semantic functions removed - use direct token imports instead

@@ -15,6 +15,7 @@ import {
 import Logout from "@mui/icons-material/Logout";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
+import { InputActiveDark, InputActiveLight } from "@smbc/ui-core";
 
 export type UserRole = {
   id: string;
@@ -191,6 +192,13 @@ export function UserMenu({
                 checked={role.enabled}
                 onChange={() => onToggleRole?.(role.id, !role.enabled)}
                 onClick={(e) => e.stopPropagation()}
+                sx={(theme) => ({
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    '& .MuiSwitch-thumb': {
+                      backgroundColor: theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight,
+                    },
+                  },
+                })}
               />
             </MenuItem>
           ))}
@@ -229,7 +237,7 @@ export function UserMenu({
                   border: 0,
                 },
                 '& .MuiSwitch-thumb': {
-                  backgroundColor: theme.palette.primary.main,
+                  backgroundColor: theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight,
                   '&::before': {
                     background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M6 0.278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z'/%3E%3C/svg%3E") center/14px no-repeat`,
                   },

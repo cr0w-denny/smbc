@@ -224,7 +224,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
           Reports Dashboard
         </Typography>
       </Box>
-      <AppletPage>
+      <AppletPage maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}>
         <Box sx={{ p: 3 }}>
           <Grid container spacing={3}>
             {/* Charts Row */}

@@ -6,10 +6,10 @@ import {
   Typography,
   Menu,
   MenuItem,
-  useTheme,
+  ThemeProvider,
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
-import { AgGridTheme } from "@smbc/mui-components";
+import { AgGridTheme, ConfigurableCard, darkTheme } from "@smbc/mui-components";
 import { AppletPage } from "@smbc/mui-applet-core";
 import type {
   ColDef,
@@ -33,6 +33,10 @@ import {
 import {
   PersonAdd as PersonAddIcon,
   SupervisorAccount as SupervisorAccountIcon,
+  FileDownload as FileDownloadIcon,
+  Print as PrintIcon,
+  ViewColumn as ViewColumnIcon,
+  FilterListOff as FilterListOffIcon,
 } from "@mui/icons-material";
 
 function useEvents(params: Record<string, any>) {
@@ -115,9 +119,7 @@ const DetailCellRenderer = (params: any) => {
   const event = params.node.parent.data; // Get parent row data for master-detail
 
   return (
-    <Box
-      sx={{ p: 2, bgcolor: "action.selected", width: "100%", height: "100%" }}
-    >
+    <Box sx={{ p: 2, width: "100%", height: "100%" }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
         Event Details: {event.id}
       </Typography>
@@ -230,7 +232,9 @@ const StatusCellRenderer = (params: any) => {
 
   return (
     <Chip
-      label={params.value.replace("-", " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
+      label={params.value
+        .replace("-", " ")
+        .replace(/\b\w/g, (l: string) => l.toUpperCase())}
       sx={(theme: any) => {
         const isDark = theme.palette.mode === "dark";
         const config = getStatusConfig(params.value, isDark);
@@ -350,7 +354,6 @@ const createActionsCellRenderer =
   };
 
 const EventsAgGrid: React.FC = () => {
-  const theme = useTheme();
   const gridRef = React.useRef<AgGridReact>(null);
   const popupParentRef = React.useRef<HTMLDivElement>(null);
 
@@ -369,11 +372,13 @@ const EventsAgGrid: React.FC = () => {
     appliedParams: urlParams,
     applyParams,
     hasChanges: filtersChanged,
-    navigate
+    navigate,
   } = useHashNavigationWithApply({
     defaultParams: {
-      dateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Today - 1 month
-      dateTo: new Date().toISOString().split('T')[0], // Today
+      dateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // Today - 1 month
+      dateTo: new Date().toISOString().split("T")[0], // Today
       status: "",
       workflow: "",
       types: "",
@@ -387,7 +392,7 @@ const EventsAgGrid: React.FC = () => {
   const transformParams = (params: any) => {
     const transformed = { ...params };
     // Convert CSV strings to arrays for internal use
-    ['types', 'plo'].forEach(field => {
+    ["types", "plo"].forEach((field) => {
       if (typeof transformed[field] === "string" && transformed[field]) {
         transformed[field] = transformed[field].split(",");
       } else if (!transformed[field]) {
@@ -402,77 +407,105 @@ const EventsAgGrid: React.FC = () => {
   const params = React.useMemo(() => {
     const transformed = transformParams(filterValues);
     // Convert 'my' to boolean for checkbox display
-    transformed.my = transformed.my === 'true' || transformed.my === true;
+    transformed.my = transformed.my === "true" || transformed.my === true;
     return transformed;
   }, [filterValues]);
 
   // Transform applied filters for data fetching (arrays)
-  const appliedParams = React.useMemo(() => transformParams(urlParams), [urlParams]);
+  const appliedParams = React.useMemo(
+    () => transformParams(urlParams),
+    [urlParams],
+  );
 
   // Update UI filter state (convert boolean back to string)
-  const setParams = React.useCallback((newParams: any) => {
-    console.log('setParams received:', newParams);
+  const setParams = React.useCallback(
+    (newParams: any) => {
+      console.log("setParams received:", newParams);
 
-    // Clean the params - remove any non-filter fields
-    const toSet: any = {};
-    const validFields = ['dateFrom', 'dateTo', 'status', 'workflow', 'types', 'category', 'plo', 'my'];
+      // Clean the params - remove any non-filter fields
+      const toSet: any = {};
+      const validFields = [
+        "dateFrom",
+        "dateTo",
+        "status",
+        "workflow",
+        "types",
+        "category",
+        "plo",
+        "my",
+      ];
 
-    validFields.forEach(field => {
-      if (field in newParams) {
-        toSet[field] = newParams[field];
+      validFields.forEach((field) => {
+        if (field in newParams) {
+          toSet[field] = newParams[field];
+        }
+      });
+
+      // Convert boolean to string for storage
+      if (typeof toSet.my === "boolean") {
+        toSet.my = toSet.my ? "true" : "";
+      } else if (toSet.my && typeof toSet.my === "object") {
+        // Prevent passing event objects
+        console.error("Received object for my field:", toSet.my);
+        toSet.my = "";
       }
-    });
 
-    // Convert boolean to string for storage
-    if (typeof toSet.my === 'boolean') {
-      toSet.my = toSet.my ? 'true' : '';
-    } else if (toSet.my && typeof toSet.my === 'object') {
-      // Prevent passing event objects
-      console.error('Received object for my field:', toSet.my);
-      toSet.my = '';
-    }
-
-    setFilterValues(toSet);
-  }, [setFilterValues]);
+      setFilterValues(toSet);
+    },
+    [setFilterValues],
+  );
 
   // Apply filters function - updates URL and triggers data fetch
-  const handleApplyFilters = React.useCallback((valuesToApply?: any) => {
-    const values = valuesToApply || filterValues;
-    const transformed = { ...values };
+  const handleApplyFilters = React.useCallback(
+    (valuesToApply?: any) => {
+      const values = valuesToApply || filterValues;
+      const transformed = { ...values };
 
-    // Validate all values are serializable before sending to URL
-    Object.keys(transformed).forEach(key => {
-      const val = transformed[key];
-      // Check for non-serializable objects (like DOM events)
-      if (val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date)) {
-        console.error(`Warning: Non-serializable value for ${key}:`, val);
-        // Reset to default
-        if (key === 'my') {
-          transformed[key] = '';
-        } else {
-          transformed[key] = '';
+      // Validate all values are serializable before sending to URL
+      Object.keys(transformed).forEach((key) => {
+        const val = transformed[key];
+        // Check for non-serializable objects (like DOM events)
+        if (
+          val &&
+          typeof val === "object" &&
+          !Array.isArray(val) &&
+          !(val instanceof Date)
+        ) {
+          console.error(`Warning: Non-serializable value for ${key}:`, val);
+          // Reset to default
+          if (key === "my") {
+            transformed[key] = "";
+          } else {
+            transformed[key] = "";
+          }
         }
+      });
+
+      // Convert arrays to CSV strings for URL
+      ["types", "plo"].forEach((field) => {
+        if (Array.isArray(transformed[field])) {
+          transformed[field] =
+            transformed[field].length > 0 ? transformed[field].join(",") : "";
+        }
+      });
+
+      // Handle 'my' field - ensure it's a string
+      if (typeof transformed.my === "boolean") {
+        transformed.my = transformed.my ? "true" : "";
+      } else if (transformed.my === "true" || transformed.my === true) {
+        transformed.my = "true";
+      } else if (
+        !transformed.my ||
+        transformed.my === "false" ||
+        transformed.my === false
+      ) {
+        transformed.my = "";
       }
-    });
 
-    // Convert arrays to CSV strings for URL
-    ['types', 'plo'].forEach(field => {
-      if (Array.isArray(transformed[field])) {
-        transformed[field] = transformed[field].length > 0 ? transformed[field].join(",") : "";
-      }
-    });
-
-    // Handle 'my' field - ensure it's a string
-    if (typeof transformed.my === 'boolean') {
-      transformed.my = transformed.my ? 'true' : '';
-    } else if (transformed.my === 'true' || transformed.my === true) {
-      transformed.my = 'true';
-    } else if (!transformed.my || transformed.my === 'false' || transformed.my === false) {
-      transformed.my = '';
-    }
-
-    applyParams(transformed);
-  }, [filterValues, applyParams]);
+      applyParams(transformed);
+    },
+    [filterValues, applyParams],
+  );
 
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);
 
@@ -498,7 +531,7 @@ const EventsAgGrid: React.FC = () => {
         // Master detail column for expand/collapse
         cellRenderer: "agGroupCellRenderer",
         headerName: "",
-        width: 50,
+        width: 60,
         cellRendererParams: {
           innerRenderer: () => "", // No content in the cell
         },
@@ -611,9 +644,9 @@ const EventsAgGrid: React.FC = () => {
     // Set initial sort order: event category, event date, obligor
     api.applyColumnState({
       state: [
-        { colId: 'event_category', sort: 'asc', sortIndex: 0 },
-        { colId: 'event_date', sort: 'asc', sortIndex: 1 },
-        { colId: 'obligor', sort: 'asc', sortIndex: 2 },
+        { colId: "event_category", sort: "asc", sortIndex: 0 },
+        { colId: "event_date", sort: "asc", sortIndex: 1 },
+        { colId: "obligor", sort: "asc", sortIndex: 2 },
       ],
       defaultState: { sort: null },
     });
@@ -701,82 +734,143 @@ const EventsAgGrid: React.FC = () => {
 
   return (
     <AppletPage
+      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
       error={error ? new Error(`Error loading events: ${error.message}`) : null}
-      showContainer={true}
       height="100%"
+      toolbarHeight={175}
       toolbar={
-        <FilterBar
-          values={params}
-          onValuesChange={setParams}
-          onApply={handleApplyFilters}
-          filtersChanged={filtersChanged}
-        />
+        <ThemeProvider theme={darkTheme}>
+          <FilterBar
+            values={params}
+            onValuesChange={setParams}
+            onApply={handleApplyFilters}
+            filtersChanged={filtersChanged}
+          />
+          <ActionBar
+            values={params}
+            onValuesChange={setParams}
+            onApply={handleApplyFilters}
+            statusCounts={statusCounts}
+            workflowActions={workflowActions}
+            selectedItems={selectedRows}
+            gridRef={gridRef}
+          />
+        </ThemeProvider>
       }
     >
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        <ActionBar
-          values={params}
-          onValuesChange={setParams}
-          onApply={handleApplyFilters}
-          statusCounts={statusCounts}
-          workflowActions={workflowActions}
-          selectedItems={selectedRows}
-          gridRef={gridRef}
-        />
-
-        <Box sx={{ flex: 1 }}>
-          <AgGridTheme wrapHeaders={true} popupParentRef={popupParentRef}>
-            <AgGridReact
-              ref={gridRef}
-              popupParent={popupParent}
-              headerHeight={50}
-              rowData={data?.events || []}
-              columnDefs={columnDefs}
-              rowSelection="multiple"
-              suppressRowClickSelection={true}
-              onGridReady={onGridReady}
-              onSelectionChanged={onSelectionChanged}
-              onRowGroupOpened={onRowGroupOpened}
-              onColumnVisible={onColumnVisible}
-              loading={isLoading}
-              animateRows={true}
-              cellSelection={true}
-              pagination={false}
-              suppressHorizontalScroll={false}
-              alwaysShowHorizontalScroll={false}
-              masterDetail={true}
-              detailCellRenderer={DetailCellRenderer}
-              detailRowHeight={200}
-              isRowMaster={(dataItem) => {
-                // All rows can be expanded
-                console.log("isRowMaster called for:", dataItem);
-                return true;
-              }}
-              getRowStyle={(params) => {
-                console.log("getRowStyle called:", {
-                  id: params.data?.id,
-                  expanded: params.node.expanded,
-                  nodeLevel: params.node.level,
-                  detail: params.node.detail,
-                });
-                if (params.node.expanded) {
-                  return {
-                    borderBottom: "none",
-                    backgroundColor: theme.palette.action.selected,
-                  };
-                }
-                return undefined;
-              }}
-              defaultColDef={{
-                sortable: true,
-                resizable: true,
-              }}
-              sortingOrder={['asc', 'desc']}
-              multiSortKey={'ctrl'}
-            />
-          </AgGridTheme>
-        </Box>
-      </Box>
+      <ConfigurableCard
+        title={
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            Events Workflow
+            <Chip label={data?.events?.length || 0} size="small" />
+          </Box>
+        }
+        menuItems={[
+          {
+            label: "Export Data",
+            icon: <FileDownloadIcon fontSize="small" />,
+            onClick: () => {
+              // TODO: Implement export functionality
+              console.log("Export data");
+            },
+          },
+          {
+            label: "Print Report",
+            icon: <PrintIcon fontSize="small" />,
+            onClick: () => {
+              // TODO: Implement print functionality
+              console.log("Print report");
+            },
+          },
+          {
+            label: "Column Settings",
+            icon: <ViewColumnIcon fontSize="small" />,
+            onClick: () => {
+              if (gridRef?.current?.api) {
+                gridRef.current.api.showColumnChooser();
+              }
+            },
+          },
+          {
+            label: "Reset Filters",
+            icon: <FilterListOffIcon fontSize="small" />,
+            onClick: () => {
+              const resetValues = {
+                dateFrom: "",
+                dateTo: "",
+                status: "",
+                category: "",
+                exRatings: "",
+                workflow: "",
+                priority: "",
+                types: "",
+                plo: "",
+                my: "",
+              };
+              setParams(resetValues);
+              if (gridRef?.current?.api) {
+                gridRef.current.api.setFilterModel(null);
+              }
+            },
+            divider: true,
+          },
+        ]}
+        sx={{ height: "100%" }}
+      >
+        <AgGridTheme
+          height="95%"
+          wrapHeaders={true}
+          popupParentRef={popupParentRef}
+        >
+          <AgGridReact
+            ref={gridRef}
+            headerHeight={54}
+            popupParent={popupParent}
+            rowData={data?.events || []}
+            columnDefs={columnDefs}
+            rowSelection="multiple"
+            suppressRowClickSelection={true}
+            onGridReady={onGridReady}
+            onSelectionChanged={onSelectionChanged}
+            onRowGroupOpened={onRowGroupOpened}
+            onColumnVisible={onColumnVisible}
+            loading={isLoading}
+            animateRows={true}
+            cellSelection={true}
+            pagination={false}
+            suppressHorizontalScroll={false}
+            alwaysShowHorizontalScroll={false}
+            masterDetail={true}
+            detailCellRenderer={DetailCellRenderer}
+            detailRowHeight={200}
+            isRowMaster={(dataItem) => {
+              // All rows can be expanded
+              console.log("isRowMaster called for:", dataItem);
+              return true;
+            }}
+            getRowStyle={(params) => {
+              console.log("getRowStyle called:", {
+                id: params.data?.id,
+                expanded: params.node.expanded,
+                nodeLevel: params.node.level,
+                detail: params.node.detail,
+              });
+              if (params.node.expanded) {
+                return {
+                  borderBottom: "none",
+                };
+              }
+              return undefined;
+            }}
+            defaultColDef={{
+              sortable: true,
+              resizable: true,
+            }}
+            sortingOrder={["asc", "desc"]}
+            multiSortKey={"ctrl"}
+          />
+        </AgGridTheme>
+      </ConfigurableCard>
     </AppletPage>
   );
 };

@@ -24,7 +24,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   filtersChanged = true,
 }) => {
   const filterSpec: FilterSpec = {
-    debounceMs: 0,  // Disable debouncing since we have apply button
+    debounceMs: 0, // Disable debouncing since we have apply button
     fields: [
       {
         name: "dateFrom",
@@ -93,9 +93,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         spec={filterSpec}
         values={values}
         onFiltersChange={onValuesChange}
-        sx={{ mb: 0, flex: 1 }}
+        sx={{ mt: 1, flex: 1 }}
       />
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="caption" color="text.secondary">
+          Updated on <br />
+          9/18/25 9:00 AM
+        </Typography>
         <Button
           variant="contained"
           color="primary"
@@ -104,17 +108,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           disabled={!filtersChanged}
           sx={{
             minWidth: 100,
-            '&.Mui-disabled': {
-              border: 'none',
-              backgroundColor: 'action.disabledBackground',
-            }
+            "&.Mui-disabled": {
+              border: "none",
+              backgroundColor: "action.disabledBackground",
+            },
           }}
         >
           Apply Filters
         </Button>
-        <Typography variant="caption" color="text.secondary">
-          Updated on {new Date().toLocaleDateString()}
-        </Typography>
       </Box>
     </Box>
   );

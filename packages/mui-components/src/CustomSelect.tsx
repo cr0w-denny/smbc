@@ -9,6 +9,7 @@ import {
   Box,
 } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
+import { InputActiveLight, InputActiveDark, InputBackgroundLight, InputBackgroundDark, InputValueLight, InputValueDark, InputBorderLight, InputBorderDark, InputHoverLight, InputHoverDark } from "@smbc/ui-core";
 
 // Custom dropdown icon component
 const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
@@ -23,7 +24,7 @@ const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
         height: 24,
         borderRadius: 12,
         border: "2px solid",
-        borderColor: "primary.main",
+        borderColor: (theme) => theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -31,9 +32,9 @@ const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
       }}
     >
       {open ? (
-        <ExpandLess sx={{ color: "primary.main", fontSize: 20 }} />
+        <ExpandLess sx={{ color: (theme) => theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight, fontSize: 20 }} />
       ) : (
-        <ExpandMore sx={{ color: "primary.main", fontSize: 20 }} />
+        <ExpandMore sx={{ color: (theme) => theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight, fontSize: 20 }} />
       )}
     </Box>
   );
@@ -65,7 +66,21 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       sx={{ ...formControlProps?.sx, position: "relative" }}
     >
       {label && (
-        <InputLabel {...inputLabelProps} shrink={true}>
+        <InputLabel
+          {...inputLabelProps}
+          shrink={true}
+          sx={{
+            ...inputLabelProps?.sx,
+            position: "absolute",
+            top: "8px",
+            left: "20px",
+            fontSize: "12px !important",
+            color: (theme) => `${theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight} !important`,
+            zIndex: 2,
+            pointerEvents: "none",
+            transform: "none",
+          }}
+        >
           {label}
         </InputLabel>
       )}
@@ -77,12 +92,35 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         IconComponent={() => null}
         sx={{
           ...selectProps.sx,
+          height: "57px",
+          backgroundColor: (theme) => theme.palette.mode === "dark" ? InputBackgroundDark : InputBackgroundLight,
           "& .MuiSelect-select": {
-            padding: "7px 12px",
+            padding: "26px 20px 10px 12px",
             paddingRight: "50px !important",
+            fontSize: "15px",
+            minHeight: "21px",
+            lineHeight: 1.2,
+            height: "55px",
+            boxSizing: "border-box",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            color: (theme) => theme.palette.mode === "dark" ? InputValueDark : InputValueLight,
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: (theme) => theme.palette.mode === "dark" ? InputBorderDark : InputBorderLight,
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: (theme) => theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight,
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: (theme) => theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight,
+          },
+          "&.Mui-focused": {
+            backgroundColor: (theme) => theme.palette.mode === "dark" ? InputHoverDark : InputHoverLight,
           },
         }}
-        label={label}
+        label={undefined}
       >
         {children}
       </Select>

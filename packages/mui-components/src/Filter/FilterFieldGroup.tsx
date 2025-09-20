@@ -37,7 +37,7 @@ export const FilterFieldGroup: React.FC<FilterFieldGroupProps> = ({
         gap: spacing,
         flexWrap: wrap ? "wrap" : "nowrap",
         justifyContent: "flex-start",
-        alignItems: "flex-start",
+        alignItems: "center",
       }}
     >
       {fields.map((field) => {

@@ -19,8 +19,6 @@ interface AppContextValue {
   state: AppState;
   roleUtils: ReturnType<typeof createRoleUtilities>;
   applets: AppletMount[];
-  maxWidth?: Record<string, string>; // Responsive maxWidth settings
-  toolbarOffset?: number; // Top offset for sticky toolbar in pixels
   actions: {
     setUser: (user: User | null) => void;
     setNavigation: (navigation: NavigationItem[]) => void;
@@ -38,8 +36,6 @@ interface AppletProviderProps {
   initialRoleConfig?: RoleConfig;
   appletRegistry?: Record<string, any>;
   applets?: AppletMount[];
-  maxWidth?: Record<string, string>; // Responsive maxWidth settings
-  toolbarOffset?: number; // Top offset for sticky toolbar in pixels
 }
 
 export const AppletProvider: React.FC<AppletProviderProps> = ({
@@ -49,8 +45,6 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
   initialRoleConfig = { roles: ["Guest", "User"], permissionMappings: {} },
   appletRegistry = {},
   applets = [],
-  maxWidth,
-  toolbarOffset,
 }) => {
   const [state, setState] = useState<AppState>({
     user: initialUser,
@@ -100,12 +94,11 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
     setState((prev: AppState) => ({ ...prev, mswStatus }));
   }, []);
 
+
   const contextValue: AppContextValue = {
     state,
     roleUtils,
     applets,
-    maxWidth,
-    toolbarOffset,
     actions: {
       setUser,
       setNavigation,

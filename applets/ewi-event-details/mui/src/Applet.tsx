@@ -99,7 +99,9 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
 
   return (
     <AppletPage
+      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
       showContainer={false}
+      toolbarHeight={78}
       toolbar={
         <Box
           sx={{
@@ -201,7 +203,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
           sx={{
             flex: 1,
             position: "sticky",
-            top: "175px", // TopNav (104px) + Toolbar (~46px)
+            top: "184px", // TopNav (104px) + Fixed Toolbar (80px)
             height: "calc(100vh - 210px)",
           }}
         >

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Typography, styled, alpha } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
+import * as ui from "@smbc/ui-core";
 
 export interface TabBarItem {
   value: string;
@@ -41,7 +42,7 @@ const TabItem = styled(Box, {
     color: isDisabled
       ? theme.palette.text.disabled
       : isActive
-      ? theme.palette.primary.contrastText
+      ? theme.palette.mode === "dark" ? ui.TextPrimaryDark : ui.TextPrimaryLight
       : theme.palette.text.secondary,
     fontWeight: isActive ? 600 : 500,
 
@@ -57,7 +58,7 @@ const ActivePill = styled(motion.div)(({ theme }) => ({
   left: 6,
   right: 6,
   bottom: 6,
-  backgroundColor: theme.palette.primary.main,
+  backgroundColor: theme.palette.mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
   borderRadius: Number(theme.shape.borderRadius) * 1.5,
   boxShadow: theme.shadows[2],
   zIndex: 0,

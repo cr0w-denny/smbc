@@ -1,7 +1,6 @@
 import React from "react";
-import { Box, Typography, ThemeProvider } from "@mui/material";
-import { useAppletCore } from "@smbc/applet-core";
-import { darkTheme } from "@smbc/mui-components";
+import { Box, Typography } from "@mui/material";
+import * as ui from "@smbc/ui-core";
 
 interface AppletPageProps {
   toolbar?: React.ReactNode;
@@ -9,6 +8,9 @@ interface AppletPageProps {
   error?: Error | null;
   showContainer?: boolean;
   height?: string;
+  toolbarOffset?: number;
+  toolbarHeight?: number;
+  maxWidth: Record<string, string>;
 }
 
 interface ErrorBoundaryState {
@@ -43,59 +45,138 @@ const ErrorDisplay: React.FC<{ error: Error }> = ({ error }) => (
   </Box>
 );
 
-// Page Layout Component
 const PageLayout: React.FC<{
   toolbar?: React.ReactNode;
   children: React.ReactNode;
-  showContainer?: boolean;
   height?: string;
-}> = ({ toolbar, children, showContainer = false, height }) => {
-  const { toolbarOffset = 67 } = useAppletCore();
+  toolbarOffset?: number;
+  toolbarHeight?: number;
+  maxWidth?: Record<string, string>;
+}> = ({
+  toolbar,
+  children,
+  height,
+  toolbarOffset = 104,
+  toolbarHeight = 94,
+  maxWidth,
+}) => {
+  // Use props with sensible defaults
 
   return (
-    <Box sx={{ height: "100%" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "calc(100vh)",
+        position: "relative",
+        "&::before": {
+          content: '""',
+          position: "fixed",
+          top: 104,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "linear-gradient(116.47deg, rgba(13, 21, 36, 0.905882) -3.25%, #0B1220 30.67%, #070F1A 61.84%, #040B13 105.6%)"
+              : theme.palette.background.default,
+          zIndex: -1,
+        },
+        paddingBottom: 3,
+        isolation: "isolate",
+      }}
+    >
       {toolbar && (
-        <ThemeProvider theme={darkTheme}>
+        <>
+          {/* Background-only element that extends below content - only in light mode */}
           <Box
-            sx={() => ({
-              position: "sticky",
+            sx={(theme) => ({
+              position: "fixed",
               top: toolbarOffset,
               left: 0,
               right: 0,
-              backgroundColor: "#242b2f",
-              // backdropFilter: "blur(8px)",
-              zIndex: 1000,
+              height: `${toolbarHeight + 100}px`, // Extend 20px below toolbar content
+              backgroundColor: ui.NavigationBackgroundLight,
+              zIndex: 1000, // Behind content and toolbar
+              display: theme.palette.mode === "light" ? "block" : "none",
+            })}
+          />
+          {/* Actual toolbar container */}
+          <Box
+            sx={(theme) => ({
+              position: "fixed",
+              top: toolbarOffset,
+              left: 0,
+              right: 0,
+              zIndex: 1002, // Above background
               py: 2,
+              background:
+                theme.palette.mode === "light"
+                  ? ui.NavigationBackgroundLight
+                  : "linear-gradient(116.47deg, rgba(13, 21, 36, 0.905882) -3.25%, #0B1220 30.67%, #070F1A 61.84%, #040B13 105.6%)",
             })}
           >
-            {toolbar}
+            <Box
+              sx={{
+                maxWidth: maxWidth,
+                margin: "0 auto",
+                width: "100%",
+              }}
+            >
+              {toolbar}
+            </Box>
           </Box>
-        </ThemeProvider>
+        </>
       )}
-      {(() => {
-        const content = (
-          <Box
-            sx={{
-              width: "100%",
-              ...(height && { height }),
-              ...(showContainer && {
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 0.5,
-                bgcolor: "background.paper",
-              }),
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              position: "relative",
-            }}
-          >
-            {children}
-          </Box>
-        );
+      <Box
+        sx={{
+          flexGrow: 1,
+          // Account for fixed header height
+          marginTop: "104px",
+          height: toolbar
+            ? `calc(100vh - 104px - ${toolbarHeight}px)`
+            : "calc(100vh - 104px)",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          zIndex: 1001, // Above background, below toolbar
+          // Add extra top padding when toolbar is present to prevent overlap with fixed toolbar
+          ...(toolbar && { paddingTop: `${toolbarHeight}px` }), // Account for toolbar height + padding
+        }}
+      >
+        {(() => {
+          const content = (
+            <Box
+              sx={{
+                width: "100%",
+                paddingBottom: 1,
+                ...(height && { height }),
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                position: "relative",
+              }}
+            >
+              {children}
+            </Box>
+          );
 
-        return content;
-      })()}
+          return (
+            <Box
+              sx={{
+                maxWidth: maxWidth,
+                margin: "0 auto",
+                width: "100%",
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {content}
+            </Box>
+          );
+        })()}
+      </Box>
     </Box>
   );
 };
@@ -138,25 +219,41 @@ export const AppletPage: React.FC<AppletPageProps> = ({
   toolbar,
   children,
   error,
-  showContainer = false,
   height,
+  toolbarOffset,
+  toolbarHeight,
+  maxWidth,
 }) => {
   const content = error ? (
-    <PageLayout toolbar={toolbar} height={height}>
+    <PageLayout
+      toolbar={toolbar}
+      height={height}
+      toolbarOffset={toolbarOffset}
+      toolbarHeight={toolbarHeight}
+      maxWidth={maxWidth}
+    >
       <ErrorDisplay error={error} />
     </PageLayout>
   ) : (
     <ErrorBoundary
       fallback={(err) => (
-        <PageLayout toolbar={toolbar} height={height}>
+        <PageLayout
+          toolbar={toolbar}
+          height={height}
+          toolbarOffset={toolbarOffset}
+          toolbarHeight={toolbarHeight}
+          maxWidth={maxWidth}
+        >
           <ErrorDisplay error={err} />
         </PageLayout>
       )}
     >
       <PageLayout
         toolbar={toolbar}
-        showContainer={showContainer}
         height={height}
+        toolbarOffset={toolbarOffset}
+        toolbarHeight={toolbarHeight}
+        maxWidth={maxWidth}
       >
         {children}
       </PageLayout>

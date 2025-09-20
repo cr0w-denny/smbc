@@ -5,7 +5,9 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  useTheme,
 } from "@mui/material";
+import { TableHeaderBackgroundLight, TableHeaderBackgroundDark } from "@smbc/ui-core";
 
 type ColumnDef<T> = {
   header: string;
@@ -25,6 +27,9 @@ export function Table<T>({
   rows: T[];
   sx?: any;
 }) {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   return (
     <MuiTable size="small" sx={sx}>
       <TableHead>
@@ -34,9 +39,12 @@ export function Table<T>({
               key={i}
               align={c.align ?? "left"}
               sx={{
-                bgcolor: "action.hover",
+                bgcolor: isDarkMode ? TableHeaderBackgroundDark : TableHeaderBackgroundLight,
                 fontWeight: 600,
                 width: c.width,
+                borderBottom: "none",
+                height: "42px",
+                padding: "0 16px",
                 ...c.headSx,
               }}
             >
@@ -52,7 +60,12 @@ export function Table<T>({
               <TableCell
                 key={j}
                 align={c.align ?? "left"}
-                sx={{ borderBottomColor: "divider", ...c.cellSx }}
+                sx={{
+                  borderBottomColor: "divider",
+                  height: "54px",
+                  padding: "0 16px",
+                  ...c.cellSx
+                }}
               >
                 {c.render(r)}
               </TableCell>

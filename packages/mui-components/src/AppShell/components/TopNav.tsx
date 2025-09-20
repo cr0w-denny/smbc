@@ -64,7 +64,6 @@ export const TopNav: React.FC<TopNavProps> = ({
   username,
   avatarUrl,
   right,
-  activeColor,
   maxWidth,
   userRoles,
   onToggleRole,
@@ -129,6 +128,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             </Button>
             {showActiveIndicator && (
               <Box
+                className="nav-active-indicator"
                 sx={{
                   position: "absolute",
                   bottom: -8,
@@ -136,7 +136,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                   transform: "translateX(-50%)",
                   width: "80%",
                   height: 5,
-                  bgcolor: activeColor || "primary.main",
+                  background: "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
                   borderRadius: "2px 2px 0 0",
                 }}
               />
@@ -163,6 +163,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             </Button>
             {showActiveIndicator && (
               <Box
+                className="nav-active-indicator"
                 sx={{
                   position: "absolute",
                   bottom: -8,
@@ -170,7 +171,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                   transform: "translateX(-50%)",
                   width: "80%",
                   height: 5,
-                  bgcolor: activeColor || "primary.main",
+                  background: "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
                   borderRadius: "2px 2px 0 0",
                 }}
               />

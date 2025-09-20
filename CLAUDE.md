@@ -9,7 +9,7 @@
 
 ### Development
 - **NEVER run `npm run dev`** - User will handle this manually
-- Use `npm run build` to test builds
+- **STOP running `npm run build` after every change** - it takes way too long, only run when necessary
 - Use `npm run lint` for linting
 - Use `npm run typecheck` for type checking
 
@@ -33,3 +33,6 @@
 - this is a real implementation. never use something and say "in a real implementation" because this IS A REAL IMPLEMENTATION
 - **NEVER use `require()` - we are using ESM modules exclusively**
 - **ALWAYS verify tests exercise actual functionality** - Before writing any test, ensure it will fail if the implementation logic is broken, not just if mocks change. Avoid tests that only verify mock data passthrough or trivial object existence.
+- never put colors or specific values for size, shadow, etc, outside of ui-core. we only want to use tokens throughout the codebase
+- never updated generated files, especially not in ui-core. edit source and regenerate outputs instead
+- after editing tokens always run ui-core build

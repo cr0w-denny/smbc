@@ -122,6 +122,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <AppletPage
+      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
       toolbar={
         <Filter
           spec={filterSpec}

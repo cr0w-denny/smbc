@@ -1,5 +1,5 @@
 import { Components, Theme } from "@mui/material/styles";
-import { getSemanticColor, getSemanticShadow } from "@smbc/ui-core";
+import * as ui from "@smbc/ui-core";
 
 export const createBaseComponents = (
   theme: Theme,
@@ -18,7 +18,9 @@ export const createBaseComponents = (
           boxShadow: "none",
           "&:hover": {
             boxShadow:
-              getSemanticShadow("sm", mode) || "0 2px 4px rgba(0,0,0,0.1)",
+              mode === "dark"
+                ? ui.SemanticShadowDarkSm
+                : ui.SemanticShadowLightSm,
           },
           "&.Mui-disabled": {
             backgroundColor: "transparent !important",
@@ -29,23 +31,23 @@ export const createBaseComponents = (
           },
         },
         contained: {
-          background: `linear-gradient(160deg, #024fb0 0%, #2c88f3 100%)`,
-          border: "1px solid #2c88f3",
+          background:
+            "linear-gradient(130.39deg, #024FB0 24.79%, #2C88F3 75.21%)",
+          border: "1px solid #2C88F3",
           color: "#ffffff",
           "&:hover": {
-            background: `linear-gradient(160deg, #2c88f3 0%, #024fb0 100%)`,
-            border: "1px solid #2c88f3",
+            background:
+              "linear-gradient(130.39deg, #023d8a 24.79%, #2472d9 75.21%)",
+            border: "1px solid #2472d9",
             boxShadow:
-              getSemanticShadow("md", mode) || "0 4px 8px rgba(0,0,0,0.15)",
+              mode === "dark"
+                ? ui.SemanticShadowDarkMd
+                : ui.SemanticShadowLightMd,
           },
           "&.MuiButton-containedSecondary": {
-            background:
-              getSemanticColor("gradient.secondary", mode) ||
-              `linear-gradient(180deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+            background: `linear-gradient(180deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
             "&:hover": {
-              background:
-                getSemanticColor("gradient.secondary.hover", mode) ||
-                `linear-gradient(180deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`,
+              background: `linear-gradient(180deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`,
             },
           },
           "&.Mui-disabled": {
@@ -67,68 +69,80 @@ export const createBaseComponents = (
           "& .MuiOutlinedInput-root": {
             borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
             fontSize: "0.875rem",
-            ...(theme.palette.mode === "dark" && {
-              backgroundColor: "#141b1d",
-            }),
+            backgroundColor:
+              mode === "dark"
+                ? ui.InputBackgroundDark
+                : ui.InputBackgroundLight,
             "& fieldset": {
               borderColor:
-                getSemanticColor("border.secondary", mode) ||
-                (theme.palette.mode === "dark"
-                  ? "rgba(255, 255, 255, 0.23)"
-                  : "rgba(0, 0, 0, 0.23)"),
+                mode === "dark" ? ui.InputBorderDark : ui.InputBorderLight,
               ...(theme.palette.mode === "dark" && {
                 borderRadius: theme.spacing(3),
               }),
             },
             "&:hover fieldset": {
               borderColor:
-                getSemanticColor("border.focus", mode) ||
-                theme.palette.primary.main,
+                mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
             },
             "&.Mui-focused fieldset": {
               borderColor:
-                getSemanticColor("border.focus", mode) ||
-                theme.palette.primary.main,
+                mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
               borderWidth: 2,
+            },
+            "&.Mui-focused": {
+              backgroundColor:
+                mode === "dark" ? ui.InputHoverDark : ui.InputHoverLight,
+            },
+            "& .MuiSvgIcon-root": {
+              color: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
             },
           },
           "& .MuiInputBase-input": {
             padding: "9px 12px",
-          },
-          ...(theme.palette.mode === "dark" && {
-            "& .MuiInputBase-root, & .MuiOutlinedInput-root": {
-              backgroundColor: "#141b1d",
-              borderRadius: theme.spacing(3),
+            color: mode === "dark" ? ui.InputValueDark : ui.InputValueLight,
+            "&::placeholder": {
+              color: mode === "dark" ? ui.InputValueDark : ui.InputValueLight,
+              opacity: 1,
+              fontSize: "1rem",
             },
-          }),
+          },
+          "& .MuiInputLabel-root": {
+            color: mode === "dark" ? ui.InputValueDark : ui.InputValueLight,
+            "&.Mui-focused": {
+              color: `${
+                mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight
+              } !important`,
+            },
+          },
         },
       },
     },
     MuiSelect: {
       styleOverrides: {
         root: {
-          ...(theme.palette.mode === "dark" && {
-            backgroundColor: "#141b1d",
-            borderRadius: theme.spacing(3),
-          }),
+          backgroundColor:
+            mode === "dark" ? ui.InputBackgroundDark : ui.InputBackgroundLight,
+          borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
           "& .MuiOutlinedInput-notchedOutline": {
             borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
             borderColor:
-              getSemanticColor("border.secondary", mode) ||
-              (theme.palette.mode === "dark"
-                ? "rgba(255, 255, 255, 0.23)"
-                : "rgba(0, 0, 0, 0.23)"),
+              mode === "dark" ? ui.InputBorderDark : ui.InputBorderLight,
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
             borderColor:
-              getSemanticColor("border.focus", mode) ||
-              theme.palette.primary.main,
+              mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
             borderColor:
-              getSemanticColor("border.focus", mode) ||
-              theme.palette.primary.main,
+              mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
             borderWidth: 2,
+          },
+          "&.Mui-focused": {
+            backgroundColor:
+              mode === "dark" ? ui.InputHoverDark : ui.InputHoverLight,
+          },
+          "& .MuiSvgIcon-root": {
+            color: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
           },
         },
       },
@@ -136,45 +150,17 @@ export const createBaseComponents = (
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: theme.spacing(3),
-          background:
-            getSemanticColor("gradient.surface", mode) ||
-            (theme.palette.mode === "dark"
-              ? `linear-gradient(145deg, ${
-                  getSemanticColor("background.tertiary", mode) || "#2a2a2a"
-                } 0%, ${
-                  getSemanticColor("background.secondary", mode) || "#1f1f1f"
-                } 100%)`
-              : `linear-gradient(145deg, ${
-                  getSemanticColor("background.secondary", mode) || "#ffffff"
-                } 0%, ${
-                  getSemanticColor("background.primary", mode) || "#f8f9fa"
-                } 100%)`),
+          borderRadius: "16px",
+          backgroundColor: `${
+            mode === "dark" ? ui.CardBackgroundDark : ui.CardBackgroundLight
+          } !important`,
+          border: `1px solid ${
+            mode === "dark" ? ui.CardBorderDark : ui.CardBorderLight
+          }`,
           boxShadow:
-            getSemanticShadow("base", mode) ||
-            (theme.palette.mode === "dark"
-              ? "0 1px 3px rgba(0,0,0,0.3)"
-              : "0 1px 3px rgba(0,0,0,0.1)"),
-          "&:hover": {
-            background:
-              getSemanticColor("gradient.surface.hover", mode) ||
-              (theme.palette.mode === "dark"
-                ? `linear-gradient(145deg, ${
-                    getSemanticColor("background.secondary", mode) || "#1f1f1f"
-                  } 0%, ${
-                    getSemanticColor("background.tertiary", mode) || "#2a2a2a"
-                  } 100%)`
-                : `linear-gradient(145deg, ${
-                    getSemanticColor("background.primary", mode) || "#f8f9fa"
-                  } 0%, ${
-                    getSemanticColor("background.secondary", mode) || "#ffffff"
-                  } 100%)`),
-            boxShadow:
-              getSemanticShadow("lg", mode) ||
-              (theme.palette.mode === "dark"
-                ? "0 4px 12px rgba(0,0,0,0.4)"
-                : "0 4px 12px rgba(0,0,0,0.15)"),
-          },
+            mode === "dark"
+              ? ui.SemanticShadowDarkBase
+              : ui.SemanticShadowLightBase,
         },
       },
     },
@@ -189,24 +175,21 @@ export const createBaseComponents = (
         },
         elevation1: {
           boxShadow:
-            getSemanticShadow("base", mode) ||
-            (theme.palette.mode === "dark"
-              ? "0 1px 3px rgba(0,0,0,0.3)"
-              : "0 1px 3px rgba(0,0,0,0.1)"),
+            mode === "dark"
+              ? ui.SemanticShadowDarkBase
+              : ui.SemanticShadowLightBase,
         },
         elevation2: {
           boxShadow:
-            getSemanticShadow("md", mode) ||
-            (theme.palette.mode === "dark"
-              ? "0 2px 6px rgba(0,0,0,0.3)"
-              : "0 2px 6px rgba(0,0,0,0.1)"),
+            mode === "dark"
+              ? ui.SemanticShadowDarkMd
+              : ui.SemanticShadowLightMd,
         },
         elevation3: {
           boxShadow:
-            getSemanticShadow("lg", mode) ||
-            (theme.palette.mode === "dark"
-              ? "0 4px 12px rgba(0,0,0,0.4)"
-              : "0 4px 12px rgba(0,0,0,0.15)"),
+            mode === "dark"
+              ? ui.SemanticShadowDarkLg
+              : ui.SemanticShadowLightLg,
         },
       },
     },
@@ -216,6 +199,20 @@ export const createBaseComponents = (
           borderRadius: theme.spacing(3),
           fontSize: "0.75rem",
           height: 24,
+          backgroundColor:
+            mode === "dark"
+              ? ui.ChipDefaultBackgroundDark
+              : ui.ChipDefaultBackgroundLight,
+          color:
+            mode === "dark" ? ui.ChipDefaultTextDark : ui.ChipDefaultTextLight,
+        },
+        colorPrimary: {
+          backgroundColor:
+            mode === "dark"
+              ? ui.ChipPrimaryBackgroundDark
+              : ui.ChipPrimaryBackgroundLight,
+          color:
+            mode === "dark" ? ui.ChipPrimaryTextDark : ui.ChipPrimaryTextLight,
         },
       },
     },
@@ -223,16 +220,19 @@ export const createBaseComponents = (
       styleOverrides: {
         root: {
           backgroundColor: `${
-            getSemanticColor("surface.header", mode) || "#141b1d"
+            mode === "dark"
+              ? ui.NavigationBackgroundDark
+              : ui.NavigationBackgroundLight
           } !important`,
           color: `${
-            getSemanticColor("brand.primaryContrast", mode) || "#ffffff"
+            mode === "dark"
+              ? ui.NavigationTextDark
+              : ui.NavigationTextLight
           } !important`,
           boxShadow:
-            getSemanticShadow("base", mode) ||
-            (mode === "dark"
-              ? "0 1px 3px rgba(0,0,0,0.3)"
-              : "0 1px 3px rgba(0,0,0,0.1)"),
+            mode === "dark"
+              ? ui.SemanticShadowDarkBase
+              : ui.SemanticShadowLightBase,
           borderRadius: 0,
           borderBottom: "3px solid #02080b",
           // Remove MUI's default overlay
@@ -249,6 +249,11 @@ export const createBaseComponents = (
               width: "calc(100% - 24px) !important",
             },
           },
+          // Active navigation item blue gradient underline
+          "& .nav-active-indicator": {
+            background:
+              "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%) !important",
+          },
         },
       },
     },
@@ -257,10 +262,9 @@ export const createBaseComponents = (
         root: {
           minHeight: 70,
           backgroundColor:
-            mode === "dark"
-              ? getSemanticColor("surface.header", mode)
-              : "inherit",
-          color: mode === "dark" ? "#ffffff" : "inherit",
+            mode === "dark" ? ui.NavigationBackgroundDark : ui.NavigationBackgroundLight,
+          color:
+            mode === "dark" ? ui.NavigationTextDark : ui.NavigationTextLight,
         },
       },
     },
@@ -270,17 +274,17 @@ export const createBaseComponents = (
           backgroundColor: theme.palette.mode === "dark" ? "#222" : "#f5f5f5",
         },
         indicator: {
-          backgroundColor: theme.palette.primary.main,
+          backgroundColor: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
         },
       },
     },
     MuiTab: {
       styleOverrides: {
         root: {
-          color: theme.palette.mode === "dark" ? "#ccc" : "#666",
+          color: mode === "dark" ? ui.TextSecondaryDark : ui.TextSecondaryLight,
           "&.Mui-selected": {
-            color: theme.palette.mode === "dark" ? "#fff" : "#000",
-            backgroundColor: theme.palette.mode === "dark" ? "#333" : "#e0e0e0",
+            color: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
+            backgroundColor: mode === "dark" ? ui.ActionSelectedDark : ui.ActionSelectedLight,
           },
         },
       },
@@ -289,11 +293,50 @@ export const createBaseComponents = (
       styleOverrides: {
         paper: {
           borderRight: `1px solid ${
-            getSemanticColor("border.primary", mode) ||
-            (theme.palette.mode === "dark"
-              ? "rgba(255, 255, 255, 0.12)"
-              : "#e0e0e0")
+            mode === "dark" ? ui.BorderPrimaryDark : ui.BorderPrimaryLight
           }`,
+        },
+      },
+    },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          backgroundColor:
+            mode === "dark"
+              ? ui.TableRowBackgroundDark
+              : ui.TableRowBackgroundLight,
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          backgroundColor:
+            mode === "dark"
+              ? ui.TableHeaderBackgroundDark
+              : ui.TableHeaderBackgroundLight,
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          "&:hover": {
+            backgroundColor:
+              mode === "dark" ? ui.TableRowHoverDark : ui.TableRowHoverLight,
+          },
+          "&.Mui-selected": {
+            backgroundColor:
+              mode === "dark"
+                ? ui.TableRowSelectedDark
+                : ui.TableRowSelectedLight,
+            "&:hover": {
+              backgroundColor:
+                mode === "dark"
+                  ? ui.TableRowSelectedDark
+                  : ui.TableRowSelectedLight,
+            },
+          },
         },
       },
     },
@@ -304,10 +347,7 @@ export const createBaseComponents = (
           paddingBottom: 6,
           "&:hover": {
             backgroundColor:
-              getSemanticColor("action.hover", mode) ||
-              (theme.palette.mode === "dark"
-                ? "rgba(255, 255, 255, 0.08)"
-                : "rgba(51, 85, 0, 0.04)"),
+              mode === "dark" ? ui.ActionHoverDark : ui.ActionHoverLight,
           },
         },
       },
@@ -319,22 +359,30 @@ export const createBaseComponents = (
           margin: "0 8px",
           "&:hover": {
             backgroundColor:
-              getSemanticColor("action.hover", mode) ||
-              (theme.palette.mode === "dark"
-                ? "rgba(255, 255, 255, 0.08)"
-                : "rgba(51, 85, 0, 0.04)"),
+              mode === "dark" ? ui.ActionHoverDark : ui.ActionHoverLight,
           },
           "&.Mui-selected": {
             backgroundColor:
-              getSemanticColor("action.selected", mode) ||
-              (theme.palette.mode === "dark"
-                ? "rgba(255, 255, 255, 0.12)"
-                : "rgba(51, 85, 0, 0.08)"),
+              mode === "dark" ? ui.ActionSelectedDark : ui.ActionSelectedLight,
             "&:hover": {
               backgroundColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255, 255, 255, 0.16)"
-                  : "rgba(51, 85, 0, 0.12)",
+                mode === "dark" ? ui.ActionHoverDark : ui.ActionHoverLight,
+            },
+          },
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          "&.Mui-selected": {
+            backgroundColor: `${
+              mode === "dark" ? ui.ActionSelectedDark : ui.ActionSelectedLight
+            } !important`,
+            "&:hover": {
+              backgroundColor: `${
+                mode === "dark" ? ui.ActionHoverDark : ui.ActionHoverLight
+              } !important`,
             },
           },
         },
@@ -345,12 +393,17 @@ export const createBaseComponents = (
         root: {
           padding: "8px 16px",
           fontSize: "0.875rem",
+          borderColor:
+            mode === "dark" ? ui.TableBorderDark : ui.TableBorderLight,
         },
         head: {
-          fontWeight: 500,
+          fontWeight: 600,
           backgroundColor:
-            getSemanticColor("background.tertiary", mode) ||
-            (theme.palette.mode === "dark" ? "#2a2a2a" : "#fafafa"),
+            mode === "dark"
+              ? ui.TableHeaderBackgroundDark
+              : ui.TableHeaderBackgroundLight,
+          color:
+            mode === "dark" ? ui.TableHeaderTextDark : ui.TableHeaderTextLight,
         },
       },
     },
@@ -361,10 +414,19 @@ export const createBaseComponents = (
           padding: 8,
           "&:hover": {
             backgroundColor:
-              getSemanticColor("action.hover", mode) ||
-              (theme.palette.mode === "dark"
-                ? "rgba(255, 255, 255, 0.08)"
-                : "rgba(51, 85, 0, 0.04)"),
+              mode === "dark" ? ui.ActionHoverDark : ui.ActionHoverLight,
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: mode === "dark" ? ui.InputValueDark : ui.InputValueLight,
+          "&.Mui-focused": {
+            color: `${
+              mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight
+            } !important`,
           },
         },
       },
@@ -373,11 +435,11 @@ export const createBaseComponents = (
       styleOverrides: {
         tooltip: {
           backgroundColor:
-            getSemanticColor("text.inverse", mode) ||
-            (theme.palette.mode === "dark" ? "#fff" : "#333"),
+            mode === "dark" ? ui.TextInverseDark : ui.TextInverseLight,
           color:
-            getSemanticColor("background.primary", mode) ||
-            (theme.palette.mode === "dark" ? "#333" : "#fff"),
+            mode === "dark"
+              ? ui.BackgroundPrimaryDark
+              : ui.BackgroundPrimaryLight,
           fontSize: "0.75rem",
           borderRadius: 6,
         },
@@ -386,8 +448,7 @@ export const createBaseComponents = (
     MuiTypography: {
       styleOverrides: {
         root: {
-          color: getSemanticColor("text.primary", mode) ||
-            (mode === "dark" ? "rgba(255, 255, 255, 0.87)" : "#212121"),
+          color: mode === "dark" ? ui.TextPrimaryDark : ui.TextPrimaryLight,
         },
       },
     },
@@ -395,24 +456,45 @@ export const createBaseComponents = (
     MuiInputBase: {
       styleOverrides: {
         root: {
-          ...(theme.palette.mode === "dark" && {
-            backgroundColor: "#141b1d",
-            borderRadius: theme.spacing(3),
-          }),
+          backgroundColor:
+            mode === "dark" ? ui.InputBackgroundDark : ui.InputBackgroundLight,
+          borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
         },
       },
     },
     MuiFormControl: {
       styleOverrides: {
         root: {
-          ...(theme.palette.mode === "dark" && {
-            "&.MuiPickersTextField-root": {
-              "& .MuiInputBase-root, & .MuiOutlinedInput-root": {
-                backgroundColor: "#141b1d",
-                borderRadius: theme.spacing(3),
+          "&.MuiPickersTextField-root": {
+            "& .MuiInputBase-root, & .MuiOutlinedInput-root": {
+              backgroundColor:
+                mode === "dark"
+                  ? ui.InputBackgroundDark
+                  : ui.InputBackgroundLight,
+              borderRadius:
+                theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+              "& fieldset": {
+                borderColor:
+                  mode === "dark" ? ui.InputBorderDark : ui.InputBorderLight,
+              },
+              "&:hover fieldset": {
+                borderColor:
+                  mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
+              },
+              "&.Mui-focused fieldset": {
+                borderColor:
+                  mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
+                borderWidth: 2,
+              },
+              "&.Mui-focused": {
+                backgroundColor:
+                  mode === "dark" ? ui.InputHoverDark : ui.InputHoverLight,
               },
             },
-          }),
+            "& .MuiIconButton-root": {
+              color: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
+            },
+          },
         },
       },
     },
@@ -421,19 +503,66 @@ export const createBaseComponents = (
     MuiPickersInputBase: {
       styleOverrides: {
         root: {
-          ...(theme.palette.mode === "dark" && {
-            backgroundColor: "#141b1d",
-            borderRadius: theme.spacing(3),
-            "&.MuiPickersOutlinedInput-root": {
-              backgroundColor: "#141b1d",
-              borderRadius: theme.spacing(3),
+          padding: "5px 0",
+          backgroundColor:
+            mode === "dark" ? ui.InputBackgroundDark : ui.InputBackgroundLight,
+          borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+          "&.MuiPickersOutlinedInput-root": {
+            backgroundColor:
+              mode === "dark"
+                ? ui.InputBackgroundDark
+                : ui.InputBackgroundLight,
+            borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+            "& fieldset": {
+              borderColor: `${
+                mode === "dark" ? ui.InputBorderDark : ui.InputBorderLight
+              } !important`,
             },
-            "& .MuiIconButton-root": {
-              color:
-                getSemanticColor("brand.primary", mode) ||
-                theme.palette.primary.main,
+            "&:hover fieldset": {
+              borderColor: `${
+                mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight
+              } !important`,
             },
-          }),
+            "&.Mui-focused fieldset": {
+              borderColor: `${
+                mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight
+              } !important`,
+              borderWidth: 2,
+            },
+            "&.Mui-focused": {
+              backgroundColor:
+                mode === "dark" ? ui.InputHoverDark : ui.InputHoverLight,
+            },
+          },
+          "& .MuiIconButton-root": {
+            color: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
+          },
+          "& .MuiInputBase-input": {
+            color: mode === "dark" ? ui.InputValueDark : ui.InputValueLight,
+            "&::placeholder": {
+              color: mode === "dark" ? ui.InputValueDark : ui.InputValueLight,
+              opacity: 1,
+              fontSize: "1rem",
+            },
+          },
+        },
+      },
+    },
+    // @ts-ignore - MuiPickersDay may not be in types but is used by MUI X Date Pickers
+    MuiPickersDay: {
+      styleOverrides: {
+        root: {
+          "&.Mui-selected": {
+            backgroundColor: `${
+              mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight
+            } !important`,
+            color: mode === "dark" ? "#000000" : "#ffffff",
+            "&:hover": {
+              backgroundColor: `${
+                mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight
+              } !important`,
+            },
+          },
         },
       },
     },
@@ -442,10 +571,8 @@ export const createBaseComponents = (
       styleOverrides: {
         body: {
           backgroundColor:
-            getSemanticColor("surface.body", mode) ||
-            (mode === "dark" ? "#242b2f" : "#fafafa"),
-          color: getSemanticColor("text.primary", mode) ||
-            (mode === "dark" ? "rgba(255, 255, 255, 0.87)" : "#212121"),
+            mode === "dark" ? ui.SurfaceBodyDark : ui.SurfaceBodyLight,
+          color: mode === "dark" ? ui.TextPrimaryDark : ui.TextPrimaryLight,
         },
         ...(mode === "dark" && {
           // Scrollbar styling for dark mode
