@@ -199,7 +199,7 @@ function FontWeightDemo() {
               mb: 0.5,
             }}
           >
-            SMBC Group Typography - {weight.name}
+            SMBC Typography - {weight.name}
           </MuiTypography>
           <MuiTypography variant="caption" color="text.secondary">
             Font Weight: {weight.value}
@@ -265,17 +265,21 @@ export const Typography: Story = {
   render: () => (
     <Box sx={{ p: 4 }}>
       <Box sx={{ mb: 6, textAlign: "center" }}>
-        <MuiTypography variant="h2" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
-          SMBC Group Typography System
+        <MuiTypography
+          variant="h2"
+          gutterBottom
+          sx={{ fontWeight: 700, mb: 2 }}
+        >
+          SMBC Typography
         </MuiTypography>
         <MuiTypography
           variant="h6"
           color="text.secondary"
           sx={{ maxWidth: "600px", mx: "auto" }}
         >
-          A comprehensive typography system built on Montserrat and Roboto, designed for clarity,
-          accessibility, and consistent brand expression across all digital
-          experiences.
+          A comprehensive typography system built on Montserrat and Roboto,
+          designed for clarity, accessibility, and consistent brand expression
+          across all digital experiences.
         </MuiTypography>
       </Box>
 
@@ -554,7 +558,11 @@ export const Typography: Story = {
 
       {/* Typography Guidelines */}
       <Box sx={{ mt: 6, p: 4, bgcolor: "background.default", borderRadius: 2 }}>
-        <MuiTypography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+        <MuiTypography
+          variant="h5"
+          gutterBottom
+          sx={{ fontWeight: 600, mb: 3 }}
+        >
           Typography Guidelines
         </MuiTypography>
         <Grid container spacing={4}>
@@ -564,9 +572,9 @@ export const Typography: Story = {
                 Hierarchy
               </MuiTypography>
               <MuiTypography variant="body2" color="text.secondary">
-                Use consistent type scales to create clear information hierarchy.
-                Montserrat for display and headings, Roboto for body text
-                and UI elements.
+                Use consistent type scales to create clear information
+                hierarchy. Montserrat for display and headings, Roboto for body
+                text and UI elements.
               </MuiTypography>
             </Box>
           </Grid>
@@ -598,7 +606,11 @@ export const Typography: Story = {
 
         <Divider sx={{ my: 4 }} />
 
-        <MuiTypography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+        <MuiTypography
+          variant="h6"
+          gutterBottom
+          sx={{ fontWeight: 600, mb: 2 }}
+        >
           Best Practices
         </MuiTypography>
         <Grid container spacing={2}>

@@ -164,31 +164,3 @@ export const WithActions: Story = {
   },
 };
 
-export const CustomStyling: Story = {
-  args: {
-    columns: [
-      {
-        header: "Product",
-        render: (item: any) => item.name,
-        headSx: { color: "primary.main" },
-      },
-      {
-        header: "Price",
-        render: (item: any) => `$${item.price}`,
-        align: "right",
-        cellSx: { fontWeight: 600, color: "success.main" },
-      },
-      {
-        header: "Stock",
-        render: (item: any) => item.stock,
-        align: "center",
-      },
-    ],
-    rows: [
-      { name: "Laptop", price: 999, stock: 15 },
-      { name: "Mouse", price: 25, stock: 150 },
-      { name: "Keyboard", price: 75, stock: 45 },
-    ],
-    sx: { border: "1px solid", borderColor: "divider" },
-  },
-};

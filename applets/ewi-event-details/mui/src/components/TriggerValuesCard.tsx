@@ -1,5 +1,5 @@
 import React from "react";
-import { ConfigurableCard, KeyValueTable } from "@smbc/mui-components";
+import { Card, KeyValueTable } from "@smbc/mui-components";
 import type { CardMenuItem, KV } from "@smbc/mui-components";
 
 export type TriggerValueRow = { attribute: string; value: React.ReactNode };
@@ -15,8 +15,8 @@ export const TriggerValuesCard: React.FC<{
   }));
 
   return (
-    <ConfigurableCard title="Events Trigger Values" menuItems={menuItems}>
+    <Card title="Events Trigger Values" menuItems={menuItems}>
       <KeyValueTable items={kvItems} />
-    </ConfigurableCard>
+    </Card>
   );
 };

@@ -96,7 +96,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         sx={{ mt: 1, flex: 1 }}
       />
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ textAlign: "center" }}
+        >
           Updated on <br />
           9/18/25 9:00 AM
         </Typography>

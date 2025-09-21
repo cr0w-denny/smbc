@@ -435,13 +435,14 @@ export const createBaseComponents = (
       styleOverrides: {
         tooltip: {
           backgroundColor:
-            mode === "dark" ? ui.TextInverseDark : ui.TextInverseLight,
+            mode === "dark" ? "#ffffff" : "#424242",
           color:
-            mode === "dark"
-              ? ui.BackgroundPrimaryDark
-              : ui.BackgroundPrimaryLight,
+            mode === "dark" ? "#000000" : "#ffffff",
           fontSize: "0.75rem",
           borderRadius: 6,
+          boxShadow: mode === "dark"
+            ? "0px 2px 8px rgba(0,0,0,0.3)"
+            : "0px 2px 8px rgba(0,0,0,0.15)",
         },
       },
     },
@@ -562,6 +563,35 @@ export const createBaseComponents = (
                 mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight
               } !important`,
             },
+          },
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.12)",
+        },
+      },
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        root: {
+          '& .MuiSwitch-switchBase.Mui-checked': {
+            color: "#1976D2",
+            '& + .MuiSwitch-track': {
+              backgroundColor: "#114377",
+            },
+            '& .MuiSwitch-thumb': {
+              backgroundColor: "#1976D2",
+            },
+          },
+          '& .MuiSwitch-thumb': {
+            backgroundColor: mode === "dark" ? "#1976D2" : "#FAFAFA",
+            boxShadow: mode === "light" ? "0 2px 4px 0 rgba(0,0,0,0.3)" : "none",
+          },
+          '& .MuiSwitch-track': {
+            backgroundColor: mode === "dark" ? "#114377" : "#9E9E9E",
           },
         },
       },

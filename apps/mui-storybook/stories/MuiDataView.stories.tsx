@@ -190,27 +190,3 @@ export const EmptyState: Story = {
   },
 };
 
-export const LargeDataset: Story = {
-  args: {
-    data: Array.from({ length: 50 }, (_, i) => ({
-      id: `${i + 1}`,
-      firstName: `User${i + 1}`,
-      lastName: `Last${i + 1}`,
-      email: `user${i + 1}@example.com`,
-      isActive: Math.random() > 0.3,
-      isAdmin: Math.random() > 0.8,
-      createdAt: new Date(
-        Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-    })),
-    columns,
-    actions,
-    isLoading: false,
-    error: null,
-    selection: {
-      enabled: true,
-      selectedIds: [],
-      onSelectionChange: (ids: string[]) => console.log("Selected IDs:", ids),
-    },
-  },
-};

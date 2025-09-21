@@ -15,7 +15,8 @@ import {
 import Logout from "@mui/icons-material/Logout";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
-import { InputActiveDark, InputActiveLight } from "@smbc/ui-core";
+import { InputActiveDark, InputActiveLight, SizeBorderRadiusBase } from "@smbc/ui-core";
+import { DarkModeSwitch } from "../../DarkModeSwitch";
 
 export type UserRole = {
   id: string;
@@ -47,6 +48,15 @@ export type UserMenuProps = {
   onToggleRole?: (roleId: string, enabled: boolean) => void;
 };
 
+const sxDivider = {
+  my: 2,
+  border: "none",
+  height: (theme: any) => theme.palette.mode === "dark" ? "1.7px" : "1px",
+  background: (theme: any) => theme.palette.mode === "dark"
+    ? "linear-gradient(90deg, transparent 0%, #4A5971 50%, transparent 100%)"
+    : "linear-gradient(90deg, transparent 0%, #00000080 50%, transparent 100%)",
+};
+
 export function UserMenu({
   open,
   anchorEl,
@@ -75,23 +85,28 @@ export function UserMenu({
         paper: {
           elevation: 6,
           sx: {
-            width: 280,
-            borderRadius: 3,
+            width: 283,
+            borderRadius: `${SizeBorderRadiusBase}px`,
             overflow: "visible",
             mt: 1.5,
             ml: 0.125, // 1px offset to the right
             p: 2,
+            backgroundColor: (theme) => theme.palette.mode === "dark" ? "#0A111B" : "#ffffff",
+            border: (theme) => `1px solid ${theme.palette.mode === "dark" ? "#24324C" : "rgba(36, 50, 76, 0.17)"}`,
+            "&.MuiPaper-root": {
+              backgroundImage: "none",
+            },
           },
         },
         list: { dense: true, sx: { p: 0 } }
       }}
     >
       {/* Header */}
-      <Box sx={{ pb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar src={avatarUrl} alt={name} sx={{ width: 44, height: 44, mb: 1 }} />
+      <Box sx={{ pb: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Avatar src={avatarUrl} alt={name} sx={{ width: 44, height: 44, mb: 1.5 }} />
         <Typography
           variant="subtitle1"
-          sx={{ fontWeight: 700, letterSpacing: 1.2, textAlign: 'center' }}
+          sx={{ fontWeight: 700, letterSpacing: 1.2, textAlign: 'center', fontSize: '13px' }}
           noWrap
         >
           {name?.toUpperCase()}
@@ -104,27 +119,32 @@ export function UserMenu({
           onProfile?.();
           onClose();
         }}
-        sx={{ justifyContent: 'center', py: 1.5 }}
+        sx={{ justifyContent: 'center', py: 0.75 }}
       >
-        <ListItemText primary="Profile" sx={{ textAlign: 'center', flex: 'none' }} />
+        <ListItemText primary="Profile" sx={{ textAlign: 'center', flex: 'none', '& .MuiListItemText-primary': { fontSize: '13px' } }} />
       </MenuItem>
       <MenuItem
         onClick={() => {
           onSettings?.();
           onClose();
         }}
-        sx={{ justifyContent: 'center', py: 1.5 }}
+        sx={{ justifyContent: 'center', py: 0.75 }}
       >
-        <ListItemText primary="Settings" sx={{ textAlign: 'center', flex: 'none' }} />
+        <ListItemText primary="Settings" sx={{ textAlign: 'center', flex: 'none', '& .MuiListItemText-primary': { fontSize: '13px' } }} />
       </MenuItem>
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={sxDivider} />
 
       {/* Dashboard section */}
       <Box sx={{ px: 2, py: 1, textAlign: 'center' }}>
         <Typography
           variant="body2"
-          sx={{ color: "text.secondary", fontWeight: 600, letterSpacing: 0.5 }}
+          sx={{
+            color: (theme) => theme.palette.mode === "dark" ? "#9FBCDE" : "text.secondary",
+            fontWeight: 600,
+            letterSpacing: 0.5,
+            fontSize: '13px'
+          }}
         >
           DASHBOARD
         </Typography>
@@ -136,74 +156,100 @@ export function UserMenu({
         }}
         sx={{ justifyContent: 'center' }}
       >
-        <ListItemText primary="Quick Guide" sx={{ textAlign: 'center', flex: 'none' }} />
+        <ListItemText
+          primary="Quick Guide"
+          sx={{
+            textAlign: 'center',
+            flex: 'none',
+            '& .MuiListItemText-primary': {
+              fontSize: '13px',
+              color: (theme) => theme.palette.mode === "dark" ? "#3794F5" : "#1E68B4E5"
+            }
+          }}
+        />
       </MenuItem>
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={sxDivider} />
 
-      {/* Personas section */}
-      <Box
-        sx={{
-          px: 2,
-          py: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          cursor: 'pointer'
-        }}
-        onClick={() => setPersonasExpanded(!personasExpanded)}
-      >
-        <Typography
-          variant="body2"
-          sx={{ color: "text.secondary", fontWeight: 600, letterSpacing: 0.5 }}
-        >
-          PERSONAS
-        </Typography>
-        <IconButton size="small" sx={{ ml: 1 }}>
-          {personasExpanded ? <ExpandLess /> : <ExpandMore />}
-        </IconButton>
-      </Box>
-
-      <Collapse in={personasExpanded}>
-        <Box
-          sx={{
-            px: 2,
-            py: 1,
-            maxHeight: 200, // Limit height to prevent menu from being too tall
-            overflowY: 'auto', // Add scrolling when content exceeds max height
-          }}
-        >
-          {/* Role toggles */}
-          {userRoles.map((role) => (
-            <MenuItem
-              key={role.id}
-              disableRipple
-              sx={{ py: 0.75, justifyContent: 'space-between' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleRole?.(role.id, !role.enabled);
+      {/* Personas section - only show if userRoles exist */}
+      {userRoles.length > 0 && (
+        <>
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer'
+            }}
+            onClick={() => setPersonasExpanded(!personasExpanded)}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: (theme) => theme.palette.mode === "dark" ? "#9FBCDE" : "text.secondary",
+                fontWeight: 600,
+                letterSpacing: 0.5,
+                fontSize: '13px'
               }}
             >
-              <Typography variant="body2">
-                {role.label}
-              </Typography>
-              <Switch
-                size="small"
-                checked={role.enabled}
-                onChange={() => onToggleRole?.(role.id, !role.enabled)}
-                onClick={(e) => e.stopPropagation()}
-                sx={(theme) => ({
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    '& .MuiSwitch-thumb': {
-                      backgroundColor: theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight,
-                    },
-                  },
-                })}
-              />
-            </MenuItem>
-          ))}
-        </Box>
-      </Collapse>
+              PERSONAS
+            </Typography>
+            <IconButton
+              size="small"
+              sx={{
+                ml: 1,
+                p: 0.5,
+                border: (theme) => `1px solid ${theme.palette.mode === "dark" ? "#3794F5" : "#1163C8"}`,
+                borderRadius: '50%',
+                width: 20,
+                height: 20,
+                color: (theme) => theme.palette.mode === "dark" ? "#3794F5" : "#1163C8",
+                '& .MuiSvgIcon-root': {
+                  fontSize: '0.875rem',
+                }
+              }}
+            >
+              {personasExpanded ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Box>
+
+          <Collapse in={personasExpanded}>
+            <Box
+              sx={{
+                px: 2,
+                py: 1,
+                maxHeight: 200, // Limit height to prevent menu from being too tall
+                overflowY: 'auto', // Add scrolling when content exceeds max height
+              }}
+            >
+              {/* Role toggles */}
+              {userRoles.map((role) => (
+                <MenuItem
+                  key={role.id}
+                  disableRipple
+                  sx={{ py: 0.25, justifyContent: 'space-between' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleRole?.(role.id, !role.enabled);
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontSize: '13px' }}>
+                    {role.label}
+                  </Typography>
+                  <Switch
+                    size="small"
+                    checked={role.enabled}
+                    onChange={() => onToggleRole?.(role.id, !role.enabled)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </MenuItem>
+              ))}
+            </Box>
+          </Collapse>
+        </>
+      )}
 
       {/* Dark Mode - Always visible */}
       <MenuItem
@@ -215,67 +261,14 @@ export function UserMenu({
           onToggleDarkMode?.(!darkMode);
         }}
       >
-        <Switch
-          checked={!!darkMode}
-          onChange={(e) => onToggleDarkMode?.(e.target.checked)}
-          onClick={(e) => e.stopPropagation()}
-          slotProps={{ input: { "aria-label": "Toggle dark mode" } }}
-          sx={(theme) => ({
-            width: 62,
-            height: 34,
-            padding: 0,
-            '& .MuiSwitch-switchBase': {
-              padding: 0,
-              margin: '2px',
-              transitionDuration: '300ms',
-              '&.Mui-checked': {
-                transform: 'translateX(28px)',
-                color: '#fff',
-                '& + .MuiSwitch-track': {
-                  backgroundColor: theme.palette.action.disabledBackground,
-                  opacity: 1,
-                  border: 0,
-                },
-                '& .MuiSwitch-thumb': {
-                  backgroundColor: theme.palette.mode === "dark" ? InputActiveDark : InputActiveLight,
-                  '&::before': {
-                    background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M6 0.278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z'/%3E%3C/svg%3E") center/14px no-repeat`,
-                  },
-                },
-              },
-            },
-            '& .MuiSwitch-thumb': {
-              backgroundColor: theme.palette.grey[600],
-              width: 30,
-              height: 30,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 4px 0 rgba(0,35,11,0.2)',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                left: 0,
-                top: 0,
-                borderRadius: '50%',
-                background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M6 0.278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z'/%3E%3C/svg%3E") center/14px no-repeat`,
-              },
-            },
-            '& .MuiSwitch-track': {
-              borderRadius: 34 / 2,
-              backgroundColor: theme.palette.action.disabledBackground,
-              opacity: 1,
-              transition: theme.transitions.create(['background-color'], {
-                duration: 500,
-              }),
-              border: 0,
-            },
-          })}
+        <DarkModeSwitch
+          checked={!darkMode}
+          onChange={(checked) => onToggleDarkMode?.(!checked)}
+          showLabel={true}
         />
-        <Typography sx={{ ml: 2 }}>Dark Mode</Typography>
       </MenuItem>
+
+      <Divider sx={sxDivider} />
 
       <Box sx={{ p: 2 }}>
         <Button

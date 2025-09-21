@@ -1,16 +1,16 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import * as ui from "@smbc/ui-core";
 
 interface AppletPageProps {
   toolbar?: React.ReactNode;
   children: React.ReactNode;
   error?: Error | null;
-  showContainer?: boolean;
   height?: string;
   toolbarOffset?: number;
   toolbarHeight?: number;
   maxWidth: Record<string, string>;
+  bgExtended?: boolean;
 }
 
 interface ErrorBoundaryState {
@@ -52,6 +52,7 @@ const PageLayout: React.FC<{
   toolbarOffset?: number;
   toolbarHeight?: number;
   maxWidth?: Record<string, string>;
+  bgExtended?: boolean;
 }> = ({
   toolbar,
   children,
@@ -59,8 +60,12 @@ const PageLayout: React.FC<{
   toolbarOffset = 104,
   toolbarHeight = 94,
   maxWidth,
+  bgExtended,
 }) => {
-  // Use props with sensible defaults
+  const theme = useTheme();
+  const isLightMode = theme.palette.mode === "light";
+  const gradient =
+    "linear-gradient(116.47deg, rgba(13, 21, 36, 0.905882) -3.25%, #0B1220 30.67%, #070F1A 61.84%, #040B13 105.6%)";
 
   return (
     <Box
@@ -78,7 +83,7 @@ const PageLayout: React.FC<{
           bottom: 0,
           background: (theme) =>
             theme.palette.mode === "dark"
-              ? "linear-gradient(116.47deg, rgba(13, 21, 36, 0.905882) -3.25%, #0B1220 30.67%, #070F1A 61.84%, #040B13 105.6%)"
+              ? gradient
               : theme.palette.background.default,
           zIndex: -1,
         },
@@ -90,7 +95,7 @@ const PageLayout: React.FC<{
         <>
           {/* Background-only element that extends below content - only in light mode */}
           <Box
-            sx={(theme) => ({
+            sx={{
               position: "fixed",
               top: toolbarOffset,
               left: 0,
@@ -98,23 +103,24 @@ const PageLayout: React.FC<{
               height: `${toolbarHeight + 100}px`, // Extend 20px below toolbar content
               backgroundColor: ui.NavigationBackgroundLight,
               zIndex: 1000, // Behind content and toolbar
-              display: theme.palette.mode === "light" ? "block" : "none",
-            })}
+              display: isLightMode && bgExtended ? "block" : "none",
+            }}
           />
           {/* Actual toolbar container */}
           <Box
-            sx={(theme) => ({
+            sx={{
               position: "fixed",
               top: toolbarOffset,
               left: 0,
               right: 0,
               zIndex: 1002, // Above background
               py: 2,
-              background:
-                theme.palette.mode === "light"
+              background: isLightMode
+                ? bgExtended
                   ? ui.NavigationBackgroundLight
-                  : "linear-gradient(116.47deg, rgba(13, 21, 36, 0.905882) -3.25%, #0B1220 30.67%, #070F1A 61.84%, #040B13 105.6%)",
-            })}
+                  : ""
+                : gradient,
+            }}
           >
             <Box
               sx={{
@@ -223,6 +229,7 @@ export const AppletPage: React.FC<AppletPageProps> = ({
   toolbarOffset,
   toolbarHeight,
   maxWidth,
+  bgExtended,
 }) => {
   const content = error ? (
     <PageLayout
@@ -254,6 +261,7 @@ export const AppletPage: React.FC<AppletPageProps> = ({
         toolbarOffset={toolbarOffset}
         toolbarHeight={toolbarHeight}
         maxWidth={maxWidth}
+        bgExtended={bgExtended}
       >
         {children}
       </PageLayout>

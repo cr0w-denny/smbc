@@ -1,19 +1,13 @@
-import React, {
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-  useEffect,
-} from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Box } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import {
   AgGridTheme,
-  ConfigurableCard,
+  Card,
   Filter,
   FilterChipToggle,
 } from "@smbc/mui-components";
-import type { ColDef, GridReadyEvent } from "ag-grid-community";
+import type { ColDef } from "ag-grid-community";
 import type { CardMenuItem, FilterChip } from "@smbc/mui-components";
 import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
@@ -47,7 +41,6 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "Past Due",
       icon: <ErrorIcon />,
       count: 3,
-      style: { border: "#EF5569", badge: "#EF5569", fill: "#FAFDFD" },
       group: "status",
     },
     {
@@ -55,7 +48,6 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "Almost Due",
       icon: <WarningIcon />,
       count: 7,
-      style: { border: "#FD992E", badge: "#FD992E", fill: "#FAFDFD" },
       group: "status",
     },
     {
@@ -63,7 +55,6 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "On Course",
       icon: <CheckCircleIcon />,
       count: 12,
-      style: { border: "#12A187", badge: "#12A187", fill: "#FAFDFD" },
       group: "status",
     },
   ];
@@ -101,43 +92,43 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       {
         headerName: "Obligor Name",
         field: "obligor_name",
-        suppressMenu: true,
+        flex: 1,
         minWidth: 200,
       },
       {
         headerName: "SUN ID",
         field: "sun_id",
-        suppressMenu: true,
+        flex: 1,
         width: 120,
       },
       {
         headerName: "Total Exposure",
         field: "exposure",
-        suppressMenu: true,
+        flex: 1,
         width: 140,
       },
       {
         headerName: "Risk Rating",
         field: "risk_rating",
-        suppressMenu: true,
+        flex: 1,
         width: 120,
       },
       {
         headerName: "Country",
         field: "country",
-        suppressMenu: true,
+        flex: 1,
         width: 100,
       },
       {
         headerName: "Industry",
         field: "industry",
-        suppressMenu: true,
+        flex: 1,
         width: 140,
       },
       {
         headerName: "Last Review",
         field: "last_review",
-        suppressMenu: true,
+        flex: 1,
         width: 130,
         valueFormatter: ({ value }) =>
           value ? new Date(value).toLocaleDateString() : "---",
@@ -146,29 +137,8 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
     [],
   );
 
-  // Event handlers
-  const onGridReady = useCallback(({ api }: GridReadyEvent) => {
-    api.sizeColumnsToFit();
-
-    const handleResize = () => {
-      api.sizeColumnsToFit();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    (api as any).resizeCleanup = () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  const onColumnVisible = useCallback(() => {
-    if (gridRef.current?.api) {
-      gridRef.current.api.sizeColumnsToFit();
-    }
-  }, []);
-
   return (
-    <ConfigurableCard
+    <Card
       title={`Obligor Related Events`}
       menuItems={menuItems}
       sx={{
@@ -234,17 +204,23 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
             rowData={obligors}
             columnDefs={columnDefs}
             rowSelection="multiple"
-            suppressRowClickSelection={true}
-            onGridReady={onGridReady}
-            onColumnVisible={onColumnVisible}
+            suppressCellFocus
+            suppressRowClickSelection
             animateRows={true}
-            cellSelection={true}
+            cellSelection={false}
             pagination={false}
             suppressHorizontalScroll={false}
             alwaysShowHorizontalScroll={false}
+            columnMenu="legacy"
+            defaultColDef={{
+              filter: true,
+              sortable: true,
+              resizable: true,
+              menuTabs: ["filterMenuTab", "columnsMenuTab"],
+            }}
           />
         </AgGridTheme>
       </Box>
-    </ConfigurableCard>
+    </Card>
   );
 };

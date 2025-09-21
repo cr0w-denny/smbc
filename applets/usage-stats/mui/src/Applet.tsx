@@ -301,6 +301,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
                   }));
                 },
               },
+              detailRowHeight: 200,
             }
           : undefined,
       // External filtering for sub-components
@@ -327,7 +328,6 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     <AppletPage
       maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
       error={error as Error | null}
-      showContainer={true}
       height="100%"
       toolbar={
         <Filter
@@ -340,7 +340,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
       {/* Main Grid */}
       <Box sx={{ display: "flex", flexDirection: "row", height: "100%" }}>
         {/* Main Table */}
-        <Box sx={{ flex: 1, my: 2 }}>
+        <Box sx={{ flex: 1 }}>
           <AgGridTheme height="100%" popupParentRef={popupParentRef}>
             <AgGridReact
               ref={gridRef}

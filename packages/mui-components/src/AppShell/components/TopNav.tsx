@@ -119,7 +119,6 @@ export const TopNav: React.FC<TopNavProps> = ({
               }}
               sx={{
                 textTransform: "none",
-                fontFamily: "Roboto",
                 fontSize: "17px",
                 fontWeight: 600, // semibold
               }}
@@ -154,7 +153,6 @@ export const TopNav: React.FC<TopNavProps> = ({
               size="small"
               sx={{
                 textTransform: "none",
-                fontFamily: "Roboto",
                 fontSize: "17px",
                 fontWeight: 600, // semibold
               }}
@@ -181,9 +179,15 @@ export const TopNav: React.FC<TopNavProps> = ({
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl) && activeMenu === item.label}
                 onClose={handleMenuClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                 slotProps={{
                   paper: {
-                    sx: { "& .MuiMenuItem-root": { minHeight: "auto" } },
+                    sx: {
+                      minWidth: 150,
+                      mt: "15px",
+                      "& .MuiMenuItem-root": { minHeight: "auto" }
+                    },
                   },
                 }}
               >
@@ -321,23 +325,21 @@ export const TopNav: React.FC<TopNavProps> = ({
                 <AccountCircleOutlined sx={{ fontSize: 32 }} />
               )}
             </IconButton>
-            <ThemeProvider theme={darkTheme}>
-              <UserMenu
-                open={Boolean(userMenuAnchor)}
-                anchorEl={userMenuAnchor}
-                onClose={() => setUserMenuAnchor(null)}
-                name={username || "User"}
-                avatarUrl={avatarUrl}
-                onToggleDarkMode={onDarkModeToggle}
-                darkMode={isDarkMode}
-                userRoles={userRoles}
-                onToggleRole={onToggleRole}
-                onProfile={onProfile}
-                onSettings={onSettings}
-                onQuickGuide={onQuickGuide}
-                onLogout={onLogout}
-              />
-            </ThemeProvider>
+            <UserMenu
+              open={Boolean(userMenuAnchor)}
+              anchorEl={userMenuAnchor}
+              onClose={() => setUserMenuAnchor(null)}
+              name={username || "User"}
+              avatarUrl={avatarUrl}
+              onToggleDarkMode={onDarkModeToggle}
+              darkMode={isDarkMode}
+              userRoles={userRoles}
+              onToggleRole={onToggleRole}
+              onProfile={onProfile}
+              onSettings={onSettings}
+              onQuickGuide={onQuickGuide}
+              onLogout={onLogout}
+            />
           </Box>
         </Box>
       </Toolbar>

@@ -12,7 +12,8 @@ export const KeyValueTable: React.FC<{
   items: KV[];
   pairsPerRow?: 1 | 2;
   sx?: any;
-}> = ({ items, pairsPerRow = 1, sx }) => {
+  verticalAlign?: "top" | "center" | "bottom";
+}> = ({ items, pairsPerRow = 1, sx, verticalAlign = "center" }) => {
   const rows: KV[][] = [];
   const step = pairsPerRow === 2 ? 2 : 1;
   for (let i = 0; i < items.length; i += step)
@@ -22,7 +23,7 @@ export const KeyValueTable: React.FC<{
     <Table size="small" sx={{ width: "100%", tableLayout: "fixed", ...sx }}>
       <TableBody>
         {rows.map((pair, idx) => (
-          <TableRow key={idx}>
+          <TableRow key={idx} sx={{ height: 44 }}>
             {pair.map((kv, j) => (
               <React.Fragment key={j}>
                 <TableCell
@@ -33,7 +34,7 @@ export const KeyValueTable: React.FC<{
                     color: "text.secondary",
                     fontWeight: 500,
                     borderBottomColor: "divider",
-                    verticalAlign: "top",
+                    verticalAlign: verticalAlign,
                   }}
                 >
                   {kv.label}
@@ -42,7 +43,7 @@ export const KeyValueTable: React.FC<{
                   sx={{ 
                     width: pairsPerRow === 2 ? "25%" : "50%",
                     borderBottomColor: "divider", 
-                    verticalAlign: "top",
+                    verticalAlign: verticalAlign,
                     wordBreak: "break-word",
                   }}
                 >

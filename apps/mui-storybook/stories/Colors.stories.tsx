@@ -156,7 +156,7 @@ export const Colors: Story = {
     <Box sx={{ p: 4 }}>
       <Box sx={{ mb: 6, textAlign: "center" }}>
         <Typography variant="h2" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
-          SMBC Group Color System
+          SMBC Colors
         </Typography>
         <Typography
           variant="h6"
@@ -339,9 +339,12 @@ export const Colors: Story = {
         ].map(({ name, value }) => (
           <Grid item xs={6} sm={4} md={2} key={name}>
             <ColorSwatch
+              name={name}
               value={value}
               tokenName={name}
-              textColor={name.includes("700") || name.includes("900") ? "#fff" : "#000"}
+              textColor={
+                name.includes("700") || name.includes("900") ? "#fff" : "#000"
+              }
             />
           </Grid>
         ))}
@@ -354,6 +357,7 @@ export const Colors: Story = {
       >
         <Grid item xs={6} md={3}>
           <ColorSwatch
+            name="Success"
             value={tokens.Success500}
             tokenName="Success500"
             textColor="#fff"
@@ -361,6 +365,7 @@ export const Colors: Story = {
         </Grid>
         <Grid item xs={6} md={3}>
           <ColorSwatch
+            name="Warning"
             value={tokens.Warning500}
             tokenName="Warning500"
             textColor="#000"
@@ -368,6 +373,7 @@ export const Colors: Story = {
         </Grid>
         <Grid item xs={6} md={3}>
           <ColorSwatch
+            name="Error"
             value={tokens.Error500}
             tokenName="Error500"
             textColor="#fff"
@@ -375,6 +381,7 @@ export const Colors: Story = {
         </Grid>
         <Grid item xs={6} md={3}>
           <ColorSwatch
+            name="Info"
             value={tokens.Info500}
             tokenName="Info500"
             textColor="#fff"

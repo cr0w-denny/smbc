@@ -1,30 +1,6 @@
 import React from "react";
 import { Box, useTheme } from "@mui/material";
-import {
-  TableHeaderBackgroundDark,
-  TableHeaderBackgroundLight,
-  TableRowBackgroundLight,
-  TableRowBackgroundDark,
-  TableRowBackgroundAltDark,
-  TableHeaderTextLight,
-  TableHeaderTextDark,
-  TableBorderLight,
-  TableBorderDark,
-  TableRowHoverLight,
-  TableRowHoverDark,
-  TableRowSelectedLight,
-  TableRowSelectedDark,
-  InputBorderLight,
-  InputBorderDark,
-  InputBackgroundLight,
-  InputBackgroundDark,
-  InputActiveLight,
-  InputActiveDark,
-  InputDisabledLight,
-  InputDisabledDark,
-  ChipDefaultBackgroundLight,
-  ChipDefaultBackgroundDark
-} from "@smbc/ui-core";
+import * as ui from "@smbc/ui-core";
 
 // Import AG Grid styles
 import "ag-grid-community/styles/ag-grid.css";
@@ -52,16 +28,6 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
     ? "ag-theme-quartz-dark"
     : "ag-theme-quartz";
 
-  const noBorderOutline = {
-    border: "none !important",
-    outline: "none !important",
-  };
-
-  const transparentBorder = {
-    border: "1px solid transparent !important",
-    backgroundColor: "transparent !important",
-  };
-
   const headerWrapStyles = wrapHeaders
     ? {
         "& .ag-header-cell-label": {
@@ -88,23 +54,46 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
             borderRadius: "0px !important",
             border: "none !important",
           },
-          // Theme colors using semantic tokens
-          "--ag-background-color": isDarkMode ? TableRowBackgroundDark : TableRowBackgroundLight,
-          "--ag-odd-row-background-color": isDarkMode ? TableRowBackgroundAltDark : TableRowBackgroundLight,
+          "--ag-background-color": isDarkMode
+            ? ui.TableRowBackgroundDark
+            : ui.TableRowBackgroundLight,
+          "--ag-odd-row-background-color": isDarkMode
+            ? ui.TableRowBackgroundAltDark
+            : ui.TableRowBackgroundLight,
           "--ag-foreground-color": theme.palette.text.primary,
-          "--ag-header-background-color": isDarkMode ? TableHeaderBackgroundDark : TableHeaderBackgroundLight,
-          "--ag-header-foreground-color": isDarkMode ? TableHeaderTextDark : TableHeaderTextLight,
-          "--ag-border-color": isDarkMode ? TableBorderDark : TableBorderLight,
-          "--ag-row-hover-color": isDarkMode ? TableRowHoverDark : TableRowHoverLight,
-          "--ag-selected-row-background-color": isDarkMode ? TableRowSelectedDark : TableRowSelectedLight,
+          "--ag-header-background-color": isDarkMode
+            ? ui.TableHeaderBackgroundDark
+            : ui.TableHeaderBackgroundLight,
+          "--ag-header-foreground-color": isDarkMode
+            ? ui.TableHeaderTextDark
+            : ui.TableHeaderTextLight,
+          "--ag-border-color": isDarkMode
+            ? ui.TableBorderDark
+            : ui.TableBorderLight,
+          "--ag-row-hover-color": isDarkMode
+            ? ui.TableRowHoverDark
+            : ui.TableRowHoverLight,
+          "--ag-selected-row-background-color": isDarkMode
+            ? ui.TableRowSelectedDark
+            : ui.TableRowSelectedLight,
           "--ag-header-row-border-style": "none",
           "--ag-borders-critical": "none",
           // Additional AG Grid theme variables
-          "--ag-input-border-color": isDarkMode ? InputBorderDark : InputBorderLight,
-          "--ag-input-background-color": isDarkMode ? InputBackgroundDark : InputBackgroundLight,
-          "--ag-input-focus-border-color": isDarkMode ? InputActiveDark : InputActiveLight,
-          "--ag-input-disabled-background-color": isDarkMode ? InputDisabledDark : InputDisabledLight,
-          "--ag-chip-background-color": isDarkMode ? ChipDefaultBackgroundDark : ChipDefaultBackgroundLight,
+          "--ag-input-border-color": isDarkMode
+            ? ui.InputBorderDark
+            : ui.InputBorderLight,
+          "--ag-input-background-color": isDarkMode
+            ? ui.InputBackgroundDark
+            : ui.InputBackgroundLight,
+          "--ag-input-focus-border-color": isDarkMode
+            ? ui.InputActiveDark
+            : ui.InputActiveLight,
+          "--ag-input-disabled-background-color": isDarkMode
+            ? ui.InputDisabledDark
+            : ui.InputDisabledLight,
+          "--ag-chip-background-color": isDarkMode
+            ? ui.ChipDefaultBackgroundDark
+            : ui.ChipDefaultBackgroundLight,
           "--ag-modal-overlay-background-color": "rgba(0, 0, 0, 0.4)",
           // Row heights
           "--ag-header-height": "42px",
@@ -116,42 +105,25 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
           "& .ag-pinned-right-header, & .ag-cell.ag-cell-first-right-pinned": {
             borderLeft: "none !important",
           },
-          // Remove all cell focus styling
-          "& .ag-cell:focus, & .ag-cell:focus-within, & .ag-cell-focus:not(.ag-cell-range-selected):focus-within":
-            noBorderOutline,
-          "& .ag-cell.ag-cell-focus": {
-            border: "1px solid transparent !important",
-            outline: "none !important",
-          },
-          // Special cells without focus
+          // Special cells styling for actions and expand
           "& .actions-cell, & .expand-cell": {
-            ...noBorderOutline,
             display: "flex !important",
             alignItems: "center !important",
             justifyContent: "center !important",
-            "&:focus, &:focus-within, &.ag-cell-focus": {
-              ...noBorderOutline,
-              ...transparentBorder,
-            },
-            "&.ag-cell-focus:not(.ag-cell-range-selected)": transparentBorder,
-            "&.ag-cell-range-single-cell, &.ag-cell-range-selected-1":
-              transparentBorder,
-            "&.ag-cell-range-selected-1:not(.ag-cell-focus)": {
-              backgroundColor: "transparent !important",
-            },
           },
-          // Remove range selection styling from pinned columns
-          "& .ag-pinned-left-cols-container .ag-cell-range-single-cell, & .ag-pinned-left-cols-container .ag-cell-range-selected-1":
-            transparentBorder,
-          // Force background colors in dark mode
-          ...(isDarkMode && {
-            "& .ag-row, & .ag-row-even, & .ag-row-odd": {
-              backgroundColor: "#121B2C !important",
-            },
-            "& .ag-center-cols-container, & .ag-center-cols-clipper": {
-              backgroundColor: "#121B2C !important",
-            },
-          }),
+          // Remove detail grid padding/margin
+          "& .ag-full-width-row .ag-cell-wrapper": {
+            margin: "0 !important",
+            padding: "0 !important",
+          },
+          "& .ag-details-row": {
+            padding: "0 !important",
+            margin: "0 !important",
+          },
+          "& .ag-details-grid": {
+            padding: "0 !important",
+            margin: "0 !important",
+          },
           // Header wrapping styles
           ...headerWrapStyles,
         },

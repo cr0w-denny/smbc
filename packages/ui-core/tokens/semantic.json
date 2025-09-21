@@ -194,7 +194,7 @@
         },
         "rowSelected": {
           "light": { "value": "#EDECEC", "type": "color" },
-          "dark": { "value": "rgba(129, 199, 132, 0.16)", "type": "color" }
+          "dark": { "value": "rgba(255, 255, 255, 0.12)", "type": "color" }
         },
         "border": {
           "light": { "value": "{color.gray.200}", "type": "color" },
@@ -279,6 +279,28 @@
         "borderRadius": {
           "light": { "value": "16px", "type": "borderRadius" },
           "dark": { "value": "16px", "type": "borderRadius" }
+        },
+        "header": {
+          "text": {
+            "light": { "value": "#486C94", "type": "color" },
+            "dark": { "value": "#98A4B9", "type": "color" }
+          },
+          "fontSize": {
+            "medium": { "value": "18px", "type": "fontSize" },
+            "large": { "value": "21px", "type": "fontSize" }
+          },
+          "fontFamily": {
+            "light": { "value": "Roboto, sans-serif", "type": "fontFamily" },
+            "dark": { "value": "Montserrat, sans-serif", "type": "fontFamily" }
+          },
+          "fontWeight": {
+            "light": { "value": "400", "type": "fontWeight" },
+            "dark": { "value": "500", "type": "fontWeight" }
+          },
+          "padding": {
+            "medium": { "value": "24px", "type": "spacing" },
+            "large": { "value": "24px", "type": "spacing" }
+          }
         }
       },
       "scrollbar": {

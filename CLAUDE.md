@@ -36,3 +36,4 @@
 - never put colors or specific values for size, shadow, etc, outside of ui-core. we only want to use tokens throughout the codebase
 - never updated generated files, especially not in ui-core. edit source and regenerate outputs instead
 - after editing tokens always run ui-core build
+- keep suppressRowClickSelection. we need it

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import { Box, Typography } from "@mui/material";
-import { ConfigurableCard, Filter } from "@smbc/mui-components";
+import { Box, Typography, ThemeProvider } from "@mui/material";
+import { Card, Filter, darkTheme } from "@smbc/mui-components";
 import { AppletPage } from "@smbc/mui-applet-core";
 import { useHashNavigation } from "@smbc/applet-core";
 import { DetailsCard } from "./DetailsCard";
@@ -122,13 +122,16 @@ const Dashboard: React.FC = () => {
 
   return (
     <AppletPage
+      bgExtended
       maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
       toolbar={
-        <Filter
-          spec={filterSpec}
-          values={params}
-          onFiltersChange={handleFilterChange}
-        />
+        <ThemeProvider theme={darkTheme}>
+          <Filter
+            spec={filterSpec}
+            values={params}
+            onFiltersChange={handleFilterChange}
+          />
+        </ThemeProvider>
       }
     >
       <Box
@@ -156,27 +159,24 @@ const Dashboard: React.FC = () => {
         <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
           {/* Position 2,1: Dummy Card 1 */}
           <Box sx={{ flex: "1 1 45%", minWidth: 400 }}>
-            <ConfigurableCard
-              title="Event Occurrence by Month"
-              menuItems={dummyMenuItems}
-            >
+            <Card title="Event Occurrence by Month" menuItems={dummyMenuItems}>
               <Box sx={{ p: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                   INSERT CHART
                 </Typography>
               </Box>
-            </ConfigurableCard>
+            </Card>
           </Box>
 
           {/* Position 2,2: Dummy Card 2 */}
           <Box sx={{ flex: "1 1 45%", minWidth: 400 }}>
-            <ConfigurableCard title="Related News" menuItems={dummyMenuItems}>
+            <Card title="Related News" menuItems={dummyMenuItems}>
               <Box sx={{ p: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                   INSERT NEWS FEED
                 </Typography>
               </Box>
-            </ConfigurableCard>
+            </Card>
           </Box>
         </Box>
       </Box>

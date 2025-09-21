@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, Chip, LinearProgress } from "@mui/material";
-import { ConfigurableCard } from "@smbc/mui-components";
+import { Card } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import {
   Edit as EditIcon,
@@ -71,7 +71,7 @@ export const EventTab: React.FC<EventTabProps> = ({ data }) => {
     >
       <EventDetailsCard items={data.eventDetails} menuItems={eventDetailsMenuItems} />
       
-      <ConfigurableCard 
+      <Card 
         title="Workflow Status" 
         subtitle="Current: 1 LOD Review"
         menuItems={workflowMenuItems}
@@ -101,7 +101,7 @@ export const EventTab: React.FC<EventTabProps> = ({ data }) => {
             Last updated: 2 hours ago by Rob Lynn
           </Typography>
         </Box>
-      </ConfigurableCard>
+      </Card>
       
       <AttachmentsCard rows={data.attachments} menuItems={attachmentsMenuItems} />
     </Box>

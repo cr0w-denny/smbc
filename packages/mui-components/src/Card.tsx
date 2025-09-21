@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  Card,
+  Card as MuiCard,
   CardContent,
   CardHeader,
   IconButton,
@@ -11,6 +11,7 @@ import {
   Box,
   Divider,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import * as ui from "@smbc/ui-core";
@@ -23,12 +24,13 @@ export interface CardMenuItem {
   disabled?: boolean;
 }
 
-export interface ConfigurableCardProps {
+export interface CardProps {
   title: string | React.ReactNode;
   subtitle?: string;
   menuItems?: CardMenuItem[];
   children: React.ReactNode;
   elevation?: number;
+  size?: "medium" | "large";
   sx?: any;
   headerSx?: any;
   contentSx?: any;
@@ -38,12 +40,13 @@ export interface ConfigurableCardProps {
   toolbar?: React.ReactNode;
 }
 
-export const ConfigurableCard: React.FC<ConfigurableCardProps> = ({
+export const Card: React.FC<CardProps> = ({
   title,
   subtitle,
   menuItems = [],
   children,
   elevation = 1,
+  size = "medium",
   sx,
   headerSx,
   contentSx,
@@ -53,6 +56,8 @@ export const ConfigurableCard: React.FC<ConfigurableCardProps> = ({
   toolbar,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -69,17 +74,20 @@ export const ConfigurableCard: React.FC<ConfigurableCardProps> = ({
     handleMenuClose();
   };
 
+  // Get the padding value based on size
+  const headerPadding = size === "large" ? ui.CardHeaderPaddingLarge : ui.CardHeaderPaddingMedium;
+
   return (
-    <Card
+    <MuiCard
       elevation={elevation}
       sx={{
         backgroundImage: "none !important",
-        backgroundColor: (theme) => theme.palette.mode === "dark" ? ui.CardBackgroundDark : ui.CardBackgroundLight,
-        border: (theme) => `1px solid ${theme.palette.mode === "dark" ? ui.CardBorderDark : ui.CardBorderLight}`,
-        borderRadius: "16px",
+        backgroundColor: isDark ? ui.CardBackgroundDark : ui.CardBackgroundLight,
+        border: `1px solid ${isDark ? ui.CardBorderDark : ui.CardBorderLight}`,
+        borderRadius: ui.CardBorderRadiusDark || "16px",
         "&:hover": {
           boxShadow: elevation,
-          backgroundColor: (theme) => theme.palette.mode === "dark" ? ui.CardBackgroundDark : ui.CardBackgroundLight,
+          backgroundColor: isDark ? ui.CardBackgroundDark : ui.CardBackgroundLight,
           backgroundImage: "none !important",
           transform: "none",
         },
@@ -87,51 +95,63 @@ export const ConfigurableCard: React.FC<ConfigurableCardProps> = ({
         ...sx,
       }}
     >
-      <CardHeader
-        title={
-          <Box
+      {/* Header section with title, toolbar, and menu */}
+      <Box sx={{
+        px: 3,
+        pt: headerPadding,
+        ...headerSx
+      }}>
+        {/* Top row: title, toolbar, and menu */}
+        <Box sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          mb: subtitle ? 0.5 : 0
+        }}>
+          {/* Title */}
+          <Typography
+            component="div"
             sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
+              fontSize: size === "large" ? ui.CardHeaderFontSizeLarge : ui.CardHeaderFontSizeMedium,
+              fontWeight: isDark ? ui.CardHeaderFontWeightDark : ui.CardHeaderFontWeightLight,
+              fontFamily: isDark ? ui.CardHeaderFontFamilyDark : ui.CardHeaderFontFamilyLight,
+              color: isDark ? ui.CardHeaderTextDark : ui.CardHeaderTextLight,
+              lineHeight: 1.2
             }}
           >
-            <Box>
-              <Typography variant="h6" component="div">
-                {title}
-              </Typography>
-              {subtitle && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 0.5 }}
-                >
-                  {subtitle}
-                </Typography>
-              )}
+            {title}
+          </Typography>
+
+          {/* Toolbar in the middle */}
+          {toolbar && (
+            <Box sx={{ mt: -1, display: "flex", alignItems: "center" }}>
+              {toolbar}
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center" }}>{toolbar}</Box>
-            <Box>
-              {showMenu && menuItems.length > 0 && (
-                <IconButton
-                  size="small"
-                  onClick={handleMenuClick}
-                  aria-label="more options"
-                >
-                  <MoreVertIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-          </Box>
-        }
-        sx={{
-          pb: 0,
-          pt: 1.5,
-          px: 2,
-          ...headerSx,
-        }}
-      />
+          )}
+
+          {/* Menu button on the right */}
+          {showMenu && menuItems.length > 0 && (
+            <IconButton
+              size="small"
+              onClick={handleMenuClick}
+              aria-label="more options"
+              sx={{ mr: "-8px", mt: -0.5 }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+          )}
+        </Box>
+
+        {/* Subtitle */}
+        {subtitle && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            {subtitle}
+          </Typography>
+        )}
+      </Box>
       {showMenu && menuItems.length > 0 && (
         <Menu
           anchorEl={anchorEl}
@@ -176,8 +196,8 @@ export const ConfigurableCard: React.FC<ConfigurableCardProps> = ({
       >
         {children}
       </CardContent>
-    </Card>
+    </MuiCard>
   );
 };
 
-export default ConfigurableCard;
+export default Card;

@@ -57,24 +57,3 @@ export const Default: Story = {
   },
 };
 
-export const Destructive: Story = {
-  render: (args) => <DialogWrapper {...args} />,
-  args: {
-    title: "Delete Item",
-    message: "This action cannot be undone. Are you sure you want to delete this item?",
-    confirmText: "Delete",
-    cancelText: "Cancel",
-    confirmColor: "error",
-  },
-};
-
-export const CustomText: Story = {
-  render: (args) => <DialogWrapper {...args} />,
-  args: {
-    title: "Save Changes",
-    message: "You have unsaved changes. Would you like to save them before continuing?",
-    confirmText: "Save & Continue",
-    cancelText: "Discard Changes",
-    confirmColor: "success",
-  },
-};

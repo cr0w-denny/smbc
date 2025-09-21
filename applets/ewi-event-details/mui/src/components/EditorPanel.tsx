@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { ConfigurableCard } from "@smbc/mui-components";
+import { Card } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import {
   Fullscreen as FullscreenIcon,
@@ -98,7 +98,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   }
 
   return (
-    <ConfigurableCard
+    <Card
       title="Notes"
       menuItems={editorMenuItems}
       sx={{
@@ -297,6 +297,6 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
       >
         <EditorContent editor={editor} />
       </Box>
-    </ConfigurableCard>
+    </Card>
   );
 };

@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-import { ConfigurableCard } from "@smbc/mui-components";
+import { Card } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import { KeyValueTable, type KV } from "@smbc/mui-components";
 
@@ -10,7 +10,7 @@ export const DetailsCard: React.FC<{
 }> = ({ items, menuItems }) => {
   return (
     <Box sx={{ height: "100%" }}>
-      <ConfigurableCard
+      <Card
         title="Obligor Details"
         menuItems={menuItems}
         sx={{
@@ -18,7 +18,7 @@ export const DetailsCard: React.FC<{
         }}
       >
         <KeyValueTable items={items} />
-      </ConfigurableCard>
+      </Card>
     </Box>
   );
 };

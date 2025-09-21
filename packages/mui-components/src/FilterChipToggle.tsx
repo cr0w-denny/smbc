@@ -1,16 +1,29 @@
 import React from "react";
 import { Box, Chip } from "@mui/material";
 
+// Color calculation utilities
+const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 0, g: 0, b: 0 };
+};
+
+const hexToRgba = (hex: string, alpha: number): string => {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 export interface FilterChip {
   value: string;
   label: string;
   icon?: React.ReactElement;
   count?: number;
-  style?: {
-    border?: string;
-    badge?: string;
-    fill?: string;
-  };
+  color?: string; // Base color - defaults to theme primary
   disabled?: boolean;
   group?: string;
 }
@@ -28,53 +41,42 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
   onChipToggle,
   sx,
 }) => {
-  const createChipSx = (chip: FilterChip, isActive: boolean) => {
-    const colors = chip.style || { border: "#666", badge: "#666", fill: "#FAFDFD" };
-    
+  const createChipSx = (
+    chip: FilterChip,
+    isActive: boolean,
+    shadowColor: string,
+  ) => {
+    const baseColor = chip.color || "#1976D2"; // Default to theme primary
+
     return (theme: any) => ({
       cursor: "pointer",
-      backgroundColor: isActive
-        ? colors.badge
-        : theme.palette.mode === "dark"
-        ? theme.palette.background.paper
-        : "#FFFFFF",
-      border: `1px solid ${colors.border}`,
-      borderRadius: "20px",
-      [theme.breakpoints.up("lg")]: {
-        minWidth: "187px",
-      },
-      height: "auto",
-      padding: "8px 12px",
-      fontSize: "14px",
+      backgroundColor:
+        theme.palette.mode === "dark"
+          ? theme.palette.background.paper
+          : "#FFFFFF",
+      border: "none",
+      outline: isActive ? `3px solid ${baseColor}` : "none",
+      borderRadius: "23px", // 46px height / 2 for full rounded
+      minWidth: "158px",
+      maxWidth: "186px",
+      height: "46px",
+      padding: "0 12px",
+      fontSize: "13px",
       fontWeight: 500,
       display: "flex",
       alignItems: "center",
-      transition: "none !important",
+      boxShadow: `0 0 1px 3px ${shadowColor}`,
       "&:hover": {
-        backgroundColor: `${
-          isActive
-            ? colors.badge
-            : theme.palette.mode === "dark"
-            ? theme.palette.background.paper
-            : "#FFFFFF"
-        } !important`,
-        transform: "translateY(-1px)",
-        boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+        outline: isActive ? `3px solid ${baseColor}` : `1px solid ${baseColor}`,
+        boxShadow: `0 0 1px 3px ${shadowColor}`,
       },
-      "&.MuiChip-clickable:hover": {
-        backgroundColor: `${
-          isActive
-            ? colors.badge
-            : theme.palette.mode === "dark"
-            ? theme.palette.background.paper
-            : "#FFFFFF"
-        } !important`,
-      },
+      "&.MuiChip-clickable:hover": {},
       "& .MuiChip-label": {
         padding: 0,
         display: "flex",
         alignItems: "center",
         width: "100%",
+        overflow: "visible",
       },
     });
   };
@@ -91,7 +93,8 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
     >
       {chips.map((chip) => {
         const isActive = activeValues.includes(chip.value);
-        const colors = chip.style || { border: "#666", badge: "#666" };
+        const baseColor = chip.color || "#1976D2";
+        const shadowColor = hexToRgba(baseColor, 0.3);
 
         return (
           <Chip
@@ -102,25 +105,27 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
             disabled={chip.disabled}
             onClick={() => {
               const newActiveState = !isActive;
-              
+
               // If this chip has a group and is being activated
               if (chip.group && newActiveState) {
                 // Find all other chips in the same group
                 const sameGroupChips = chips
-                  .filter(c => c.group === chip.group && c.value !== chip.value)
-                  .map(c => c.value);
-                
+                  .filter(
+                    (c) => c.group === chip.group && c.value !== chip.value,
+                  )
+                  .map((c) => c.value);
+
                 // Call toggle for each chip in the same group to deactivate them
-                sameGroupChips.forEach(chipValue => {
+                sameGroupChips.forEach((chipValue) => {
                   if (activeValues.includes(chipValue)) {
                     onChipToggle(chipValue, false);
                   }
                 });
               }
-              
+
               onChipToggle(chip.value, newActiveState);
             }}
-            sx={createChipSx(chip, isActive)}
+            sx={createChipSx(chip, isActive, shadowColor)}
             label={
               <Box
                 sx={{
@@ -134,27 +139,24 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
                 {/* Left: Icon */}
                 {chip.icon && (
                   <Box
-                    sx={(theme: any) => ({
+                    sx={{
                       width: 24,
                       height: 24,
-                      borderRadius: "50%",
-                      backgroundColor: isActive
-                        ? "#FFFFFF"
-                        : theme.palette.mode === "dark"
-                        ? "rgba(255, 255, 255, 0.1)"
-                        : "#F0F0F0",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                    })}
+                    }}
                   >
                     {React.cloneElement(chip.icon, {
                       sx: {
                         fontSize: "18px",
                         width: "18px",
                         height: "18px",
-                        color: isActive ? colors.badge : colors.badge,
+                        color: isActive ? "#FFFFFF" : baseColor,
+                        filter: isActive
+                          ? `drop-shadow(0 0 4px ${baseColor}) drop-shadow(0 0 8px ${baseColor})`
+                          : `drop-shadow(0 0 8px ${baseColor})`,
                       },
                     })}
                   </Box>
@@ -165,14 +167,13 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
                   sx={(theme: any) => ({
                     flex: 1,
                     textAlign: "center",
-                    fontSize: "12px",
+                    fontSize: "13px",
                     fontWeight: 500,
                     color: isActive
                       ? "#FFFFFF"
                       : theme.palette.mode === "dark"
                       ? theme.palette.text.primary
                       : "#1A1A1A",
-                    [theme.breakpoints.up("lg")]: { fontSize: "14px" },
                   })}
                 >
                   {chip.label}
@@ -183,8 +184,8 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
                   <Box
                     component="span"
                     sx={{
-                      bgcolor: isActive ? "#FFFFFF" : colors.badge,
-                      color: isActive ? colors.badge : "#FFFFFF",
+                      bgcolor: baseColor,
+                      color: "#FFFFFF",
                       borderRadius: "50%",
                       minWidth: "24px",
                       height: "24px",

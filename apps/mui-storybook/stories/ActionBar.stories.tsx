@@ -159,19 +159,3 @@ export const GlobalActionsOnly: Story = {
   },
 };
 
-export const NoActions: Story = {
-  args: {
-    globalActions: [],
-    bulkActions: [],
-    selectedItems: [],
-    totalItems: sampleUsers.length,
-    onClearSelection: () => console.log("Clear selection clicked"),
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "ActionBar with no actions - shows minimal state.",
-      },
-    },
-  },
-};

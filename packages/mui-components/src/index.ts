@@ -76,9 +76,9 @@ export * from "./icons";
 export { TabBar } from "./TabBar";
 export type { TabBarProps, TabBarItem } from "./TabBar";
 
-// ConfigurableCard
-export { ConfigurableCard } from "./ConfigurableCard";
-export type { ConfigurableCardProps, CardMenuItem } from "./ConfigurableCard";
+// Card
+export { Card } from "./Card";
+export type { CardProps, CardMenuItem } from "./Card";
 
 // Table Components
 export { KeyValueTable } from "./KeyValueTable";
@@ -92,3 +92,7 @@ export type { FilterChip, FilterChipToggleProps } from "./FilterChipToggle";
 // Logo
 export { Logo } from "./Logo";
 export type { LogoProps } from "./Logo";
+
+// Dark Mode Switch
+export { DarkModeSwitch } from "./DarkModeSwitch";
+export type { DarkModeSwitchProps } from "./DarkModeSwitch";

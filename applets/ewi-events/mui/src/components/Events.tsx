@@ -9,14 +9,11 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
-import { AgGridTheme, ConfigurableCard, darkTheme } from "@smbc/mui-components";
+import { AgGridTheme, Card, darkTheme } from "@smbc/mui-components";
 import { AppletPage } from "@smbc/mui-applet-core";
-import type {
-  ColDef,
-  GridReadyEvent,
-  SelectionChangedEvent,
-} from "ag-grid-community";
+import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import { useHashNavigationWithApply } from "@smbc/applet-core";
+import * as ui from "@smbc/ui-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
 import type { components, paths } from "@smbc/ewi-events-api/types";
@@ -37,6 +34,7 @@ import {
   Print as PrintIcon,
   ViewColumn as ViewColumnIcon,
   FilterListOff as FilterListOffIcon,
+  Clear as ClearIcon,
 } from "@mui/icons-material";
 
 function useEvents(params: Record<string, any>) {
@@ -176,27 +174,27 @@ const StatusCellRenderer = (params: any) => {
       "on-course": {
         outline: "#12A187",
         fill: "rgba(18, 161, 135, 0.1)",
-        text: "#12A187",
+        text: "#FFFFFF",
       },
       "almost-due": {
         outline: "#FD992E",
         fill: "rgba(253, 153, 46, 0.1)",
-        text: "#FD992E",
+        text: "#FFFFFF",
       },
       "past-due": {
         outline: "#CD463C",
         fill: "rgba(205, 70, 60, 0.1)",
-        text: "#CD463C",
+        text: "#FFFFFF",
       },
       "needs-attention": {
         outline: "#A32B9A",
         fill: "rgba(163, 43, 154, 0.1)",
-        text: "#A32B9A",
+        text: "#FFFFFF",
       },
       default: {
         outline: "#757575",
         fill: "rgba(117, 117, 117, 0.1)",
-        text: "#757575",
+        text: "#FFFFFF",
       },
     };
 
@@ -244,7 +242,7 @@ const StatusCellRenderer = (params: any) => {
           color: config.text,
           border: `1px solid ${config.outline}`,
           fontSize: "12px",
-          fontWeight: 500,
+          fontWeight: isDark ? 300 : 400,
           height: "24px",
           width: "160px",
           transition: "none !important",
@@ -540,61 +538,70 @@ const EventsAgGrid: React.FC = () => {
         lockPosition: true,
         sortable: false,
         filter: false,
-        suppressMenu: true,
         cellClass: "expand-cell",
         suppressColumnsToolPanel: true,
       },
       {
         headerName: "Event Date",
         field: "event_date",
+        minWidth: 150,
         valueFormatter: ({ value }) => (value ? value.split("T")[0] : "---"),
-        suppressMenu: true,
+        flex: 1,
+        sort: "asc",
+        sortIndex: 1,
       },
       {
         headerName: "Category",
         field: "event_category",
-        suppressMenu: true,
+        minWidth: 160,
+        flex: 1,
+        sort: "asc",
+        sortIndex: 0,
       },
       {
         headerName: "Workflow Status",
         field: "workflow_status",
-        suppressMenu: true,
+        flex: 1,
       },
       {
         headerName: "Obligor Name",
+        minWidth: 150,
         field: "obligor",
-        suppressMenu: true,
+        flex: 1,
+        sort: "asc",
+        sortIndex: 2,
       },
       {
         headerName: "SUN ID",
+        maxWidth: 110,
         field: "sun_id",
-        suppressMenu: true,
+        flex: 1,
       },
       {
         headerName: "PLO",
+        maxWidth: 110,
         field: "plo",
-        suppressMenu: true,
+        flex: 1,
       },
       {
         headerName: "Exposure $",
         field: "exposure",
-        suppressMenu: true,
+        flex: 1,
       },
       {
         headerName: "Trigger",
         field: "trigger_shortname",
         minWidth: 120,
-        suppressMenu: true,
+        flex: 1,
       },
       {
         headerName: "Trigger Type",
         field: "trigger_type",
-        suppressMenu: true,
+        flex: 1,
       },
       {
         headerName: "Trigger Values",
         field: "trigger_values",
-        suppressMenu: true,
         hide: true,
       },
       {
@@ -603,7 +610,6 @@ const EventsAgGrid: React.FC = () => {
         field: "lifecycle_status",
         cellRenderer: StatusCellRenderer,
         pinned: "right",
-        suppressMenu: true,
       },
       {
         field: "actions",
@@ -613,7 +619,6 @@ const EventsAgGrid: React.FC = () => {
         filter: false,
         cellRenderer: ActionsCellRenderer,
         pinned: "right",
-        suppressMenu: true,
         resizable: false,
         cellClass: "actions-cell",
         suppressColumnsToolPanel: true,
@@ -639,38 +644,6 @@ const EventsAgGrid: React.FC = () => {
   }, []);
 
   // Event handlers
-  const onGridReady = useCallback(({ api }: GridReadyEvent) => {
-    api.sizeColumnsToFit();
-
-    // Set initial sort order: event category, event date, obligor
-    api.applyColumnState({
-      state: [
-        { colId: "event_category", sort: "asc", sortIndex: 0 },
-        { colId: "event_date", sort: "asc", sortIndex: 1 },
-        { colId: "obligor", sort: "asc", sortIndex: 2 },
-      ],
-      defaultState: { sort: null },
-    });
-
-    // Add window resize listener
-    const handleResize = () => {
-      api.sizeColumnsToFit();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    // Store cleanup function on the api object
-    (api as any).resizeCleanup = () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  // Recalculate column widths when columns are shown/hidden
-  const onColumnVisible = useCallback(() => {
-    if (gridRef.current?.api) {
-      gridRef.current.api.sizeColumnsToFit();
-    }
-  }, []);
 
   const onRowGroupOpened = useCallback((event: any) => {
     console.log("Row group opened/closed:", event.node.expanded);
@@ -681,12 +654,27 @@ const EventsAgGrid: React.FC = () => {
   const onSelectionChanged = useCallback((event: SelectionChangedEvent) => {
     const selectedNodes = event.api.getSelectedNodes();
     const selectedData = selectedNodes.map((node) => node.data);
+    console.log("Selection changed:", selectedData.length, selectedData);
     setSelectedRows(selectedData);
   }, []);
 
   // Workflow actions
   const workflowActions = useMemo(
     () => [
+      {
+        type: "bulk" as const,
+        key: "remove-selections",
+        label: "Clear selections",
+        icon: ClearIcon,
+        color: "secondary" as const,
+        onClick: (_selectedItems: any[]) => {
+          console.log("Clearing selections");
+          if (gridRef?.current?.api) {
+            gridRef.current.api.deselectAll();
+          }
+          setSelectedRows([]);
+        },
+      },
       {
         type: "bulk" as const,
         key: "add-1lod-analyst",
@@ -708,7 +696,7 @@ const EventsAgGrid: React.FC = () => {
         },
       },
     ],
-    [],
+    [selectedRows.length, gridRef],
   );
 
   // Calculate status counts from filtered dataset
@@ -738,6 +726,7 @@ const EventsAgGrid: React.FC = () => {
       maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
       error={error ? new Error(`Error loading events: ${error.message}`) : null}
       height="100%"
+      bgExtended
       toolbarHeight={175}
       toolbar={
         <ThemeProvider theme={darkTheme}>
@@ -759,11 +748,24 @@ const EventsAgGrid: React.FC = () => {
         </ThemeProvider>
       }
     >
-      <ConfigurableCard
+      <Card
+        size="large"
         title={
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             Events Workflow
-            <Chip label={data?.events?.length || 0} size="small" />
+            <Chip
+              label={data?.events?.length || 0}
+              size="small"
+              sx={{
+                color: "#98A4B9",
+                backgroundColor: "#0E131D",
+                fontSize: "14px",
+                "& .MuiChip-label": {
+                  px: 1.5,
+                  fontSize: "14px",
+                },
+              }}
+            />
           </Box>
         }
         menuItems={[
@@ -819,7 +821,7 @@ const EventsAgGrid: React.FC = () => {
         sx={{ height: "100%" }}
       >
         <AgGridTheme
-          height="95%"
+          height="92%"
           wrapHeaders={true}
           popupParentRef={popupParentRef}
         >
@@ -830,18 +832,16 @@ const EventsAgGrid: React.FC = () => {
             rowData={data?.events || []}
             columnDefs={columnDefs}
             rowSelection="multiple"
-            suppressRowClickSelection={true}
-            onGridReady={onGridReady}
             onSelectionChanged={onSelectionChanged}
             onRowGroupOpened={onRowGroupOpened}
-            onColumnVisible={onColumnVisible}
             loading={isLoading}
-            animateRows={true}
-            cellSelection={true}
-            pagination={false}
+            animateRows
+            suppressCellFocus
+            suppressRowClickSelection
+            cellSelection={false}
             suppressHorizontalScroll={false}
             alwaysShowHorizontalScroll={false}
-            masterDetail={true}
+            masterDetail
             detailCellRenderer={DetailCellRenderer}
             detailRowHeight={200}
             isRowMaster={(dataItem) => {
@@ -858,20 +858,34 @@ const EventsAgGrid: React.FC = () => {
               });
               if (params.node.expanded) {
                 return {
-                  borderBottom: "none",
+                  backgroundColor:
+                    darkTheme.palette.mode === "dark"
+                      ? ui.TableRowHoverDark
+                      : ui.TableRowHoverLight,
+                };
+              }
+              if (params.node.detail) {
+                return {
+                  backgroundColor:
+                    darkTheme.palette.mode === "dark"
+                      ? ui.TableRowSelectedDark
+                      : ui.TableRowSelectedLight,
                 };
               }
               return undefined;
             }}
             defaultColDef={{
+              filter: true,
               sortable: true,
               resizable: true,
+              menuTabs: ["filterMenuTab", "columnsMenuTab"],
             }}
             sortingOrder={["asc", "desc"]}
             multiSortKey={"ctrl"}
+            columnMenu="legacy"
           />
         </AgGridTheme>
-      </ConfigurableCard>
+      </Card>
     </AppletPage>
   );
 };

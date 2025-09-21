@@ -3,7 +3,7 @@ import { Chip, useMediaQuery, useTheme } from "@mui/material";
 import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { ConfigurableCard } from "@smbc/mui-components";
+import { Card } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import { KeyValueTable, type KV } from "@smbc/mui-components";
 
@@ -66,11 +66,11 @@ export const EventDetailsCard: React.FC<{
   });
 
   return (
-    <ConfigurableCard title="Event Details" menuItems={menuItems}>
+    <Card title="Event Details" menuItems={menuItems}>
       <KeyValueTable
         items={transformedItems}
         pairsPerRow={isLargeScreen ? 2 : 1}
       />
-    </ConfigurableCard>
+    </Card>
   );
 };

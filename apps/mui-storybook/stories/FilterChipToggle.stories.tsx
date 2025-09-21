@@ -41,7 +41,7 @@ const FilterChipWrapper = ({ chips }: { chips: FilterChip[] }) => {
         activeValues={activeValues}
         onChipToggle={handleChipToggle}
       />
-      <Box sx={{ mt: 2, p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
+      <Box sx={{ mt: 2, p: 2, bgcolor: "background.paper", border: 1, borderColor: "divider", borderRadius: 1 }}>
         <strong>Active filters:</strong> {activeValues.length > 0 ? activeValues.join(", ") : "None"}
       </Box>
     </Box>
@@ -65,10 +65,10 @@ export const WithIcons: Story = {
   render: () => (
     <FilterChipWrapper
       chips={[
-        { value: "users", label: "Users", icon: <PersonIcon /> },
-        { value: "categories", label: "Categories", icon: <CategoryIcon /> },
-        { value: "locations", label: "Locations", icon: <LocationIcon /> },
-        { value: "favorites", label: "Favorites", icon: <StarIcon /> },
+        { value: "users", label: "Users", icon: <PersonIcon />, color: "#1976D2" },
+        { value: "categories", label: "Categories", icon: <CategoryIcon />, color: "#7B1FA2" },
+        { value: "locations", label: "Locations", icon: <LocationIcon />, color: "#388E3C" },
+        { value: "favorites", label: "Favorites", icon: <StarIcon />, color: "#F57C00" },
       ]}
     />
   ),
@@ -78,49 +78,54 @@ export const WithCounts: Story = {
   render: () => (
     <FilterChipWrapper
       chips={[
-        { value: "all", label: "All Items", count: 156 },
-        { value: "new", label: "New", count: 12 },
-        { value: "in-progress", label: "In Progress", count: 34 },
-        { value: "completed", label: "Completed", count: 89 },
-        { value: "cancelled", label: "Cancelled", count: 21 },
+        { value: "all", label: "All Items", count: 156, color: "#616161" },
+        { value: "new", label: "New", count: 12, color: "#2196F3" },
+        { value: "in-progress", label: "In Progress", count: 34, color: "#FF9800" },
+        { value: "completed", label: "Completed", count: 89, color: "#4CAF50" },
+        { value: "cancelled", label: "Cancelled", count: 21, color: "#F44336" },
       ]}
     />
   ),
 };
 
-export const WithCustomStyling: Story = {
+export const StatusChips: Story = {
   render: () => (
     <FilterChipWrapper
       chips={[
         {
-          value: "high-priority",
-          label: "High Priority",
-          count: 5,
-          style: {
-            border: "#d32f2f",
-            badge: "#d32f2f",
-            fill: "#ffebee",
-          },
+          value: "on-course",
+          label: "On Course",
+          count: 17,
+          icon: <CheckIcon />,
+          color: "#12A187",
         },
         {
-          value: "medium-priority",
-          label: "Medium Priority",
-          count: 23,
-          style: {
-            border: "#ed6c02",
-            badge: "#ed6c02",
-            fill: "#fff3e0",
-          },
+          value: "almost-due",
+          label: "Almost Due",
+          count: 12,
+          icon: <CategoryIcon />,
+          color: "#FD992E",
         },
         {
-          value: "low-priority",
-          label: "Low Priority",
-          count: 45,
-          style: {
-            border: "#2e7d32",
-            badge: "#2e7d32",
-            fill: "#e8f5e8",
-          },
+          value: "past-due",
+          label: "Past Due",
+          count: 24,
+          icon: <LocationIcon />,
+          color: "#CD463C",
+        },
+        {
+          value: "mandatory",
+          label: "Mandatory",
+          count: 22,
+          icon: <StarIcon />,
+          color: "#0066CC",
+        },
+        {
+          value: "discretionary",
+          label: "Discretionary",
+          count: 22,
+          icon: <PersonIcon />,
+          color: "#6B46C1",
         },
       ]}
     />
@@ -131,75 +136,12 @@ export const WithDisabledChips: Story = {
   render: () => (
     <FilterChipWrapper
       chips={[
-        { value: "available", label: "Available", count: 45 },
-        { value: "maintenance", label: "Under Maintenance", count: 0, disabled: true },
-        { value: "assigned", label: "Assigned", count: 23 },
-        { value: "offline", label: "Offline", count: 0, disabled: true },
+        { value: "available", label: "Available", count: 45, color: "#4CAF50" },
+        { value: "maintenance", label: "Under Maintenance", count: 0, disabled: true, color: "#9E9E9E" },
+        { value: "assigned", label: "Assigned", count: 23, color: "#2196F3" },
+        { value: "offline", label: "Offline", count: 0, disabled: true, color: "#9E9E9E" },
       ]}
     />
   ),
 };
 
-export const LargeSet: Story = {
-  render: () => (
-    <FilterChipWrapper
-      chips={[
-        { value: "javascript", label: "JavaScript", count: 42 },
-        { value: "typescript", label: "TypeScript", count: 38 },
-        { value: "react", label: "React", count: 35 },
-        { value: "vue", label: "Vue.js", count: 12 },
-        { value: "angular", label: "Angular", count: 8 },
-        { value: "nodejs", label: "Node.js", count: 25 },
-        { value: "python", label: "Python", count: 31 },
-        { value: "java", label: "Java", count: 18 },
-        { value: "csharp", label: "C#", count: 14 },
-        { value: "go", label: "Go", count: 9 },
-        { value: "rust", label: "Rust", count: 6 },
-        { value: "php", label: "PHP", count: 15 },
-      ]}
-    />
-  ),
-};
-
-export const WithIconsAndCounts: Story = {
-  render: () => (
-    <FilterChipWrapper
-      chips={[
-        {
-          value: "verified",
-          label: "Verified",
-          icon: <CheckIcon />,
-          count: 89,
-          style: {
-            border: "#2e7d32",
-            badge: "#2e7d32",
-            fill: "#e8f5e8",
-          },
-        },
-        {
-          value: "users",
-          label: "Users",
-          icon: <PersonIcon />,
-          count: 156,
-        },
-        {
-          value: "locations",
-          label: "Locations",
-          icon: <LocationIcon />,
-          count: 23,
-        },
-        {
-          value: "favorites",
-          label: "Favorites",
-          icon: <StarIcon />,
-          count: 12,
-          style: {
-            border: "#ed6c02",
-            badge: "#ed6c02",
-            fill: "#fff3e0",
-          },
-        },
-      ]}
-    />
-  ),
-};

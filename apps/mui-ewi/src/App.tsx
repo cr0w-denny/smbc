@@ -156,7 +156,7 @@ const AppShellContent: React.FC = () => {
   }));
 
   // Calculate current permissions based on selected roles
-  const currentPermissions = React.useMemo(() => {
+  const _currentPermissions = React.useMemo(() => {
     const permissions = new Set<string>();
     selectedRoleIds.forEach((roleId) => {
       const role = availableRoles.find((r) => r.id === roleId);
@@ -242,10 +242,7 @@ const AppShellContent: React.FC = () => {
   };
 
   // App theme - responds to dark mode toggle
-  const appTheme = React.useMemo(
-    () => createTheme(isDarkMode),
-    [isDarkMode],
-  );
+  const appTheme = React.useMemo(() => createTheme(isDarkMode), [isDarkMode]);
 
   // Default component for unmatched routes
   const AppRoutes = () => {
@@ -276,7 +273,7 @@ const AppShellContent: React.FC = () => {
 
       case "/subscription-managers":
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 3, mt: 14, ml: 11 }}>
             <Typography variant="h4" gutterBottom>
               Subscription Managers
             </Typography>
@@ -359,17 +356,7 @@ const AppShellContent: React.FC = () => {
 
 const AppContent: React.FC = () => {
   return (
-    <AppletProvider
-      applets={APPLETS}
-      maxWidth={{
-        xs: "96%",
-        sm: "96%",
-        md: "88%",
-        lg: "88%",
-        xl: "92%",
-      }}
-      toolbarOffset={104}
-    >
+    <AppletProvider applets={APPLETS}>
       <FeatureFlagProvider
         configs={[
           {

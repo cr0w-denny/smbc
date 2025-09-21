@@ -1,5 +1,5 @@
 import React from "react";
-import { ConfigurableCard } from "@smbc/mui-components";
+import { Card } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import { Table } from "@smbc/mui-components";
 
@@ -9,7 +9,7 @@ export const ActivityCard: React.FC<{
   rows: ActivityRow[];
   menuItems?: CardMenuItem[];
 }> = ({ rows, menuItems }) => (
-  <ConfigurableCard title="Event Activity" menuItems={menuItems}>
+  <Card title="Event Activity" menuItems={menuItems}>
     <Table
       columns={[
         {
@@ -22,5 +22,5 @@ export const ActivityCard: React.FC<{
       ]}
       rows={rows}
     />
-  </ConfigurableCard>
+  </Card>
 );

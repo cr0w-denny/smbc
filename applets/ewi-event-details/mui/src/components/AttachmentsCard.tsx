@@ -3,7 +3,7 @@ import { Box, IconButton, Link } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
-import { ConfigurableCard } from "@smbc/mui-components";
+import { Card } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import { Table } from "@smbc/mui-components";
 
@@ -28,7 +28,7 @@ export const AttachmentsCard: React.FC<{
   rows: AttachmentRow[];
   menuItems?: CardMenuItem[];
 }> = ({ rows, menuItems }) => (
-  <ConfigurableCard title="Event Attachments" menuItems={menuItems}>
+  <Card title="Event Attachments" menuItems={menuItems}>
     <Table
       columns={[
         {
@@ -71,5 +71,5 @@ export const AttachmentsCard: React.FC<{
       ]}
       rows={rows}
     />
-  </ConfigurableCard>
+  </Card>
 );

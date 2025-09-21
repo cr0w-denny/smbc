@@ -30,26 +30,6 @@ export const Default: Story = {
   },
 };
 
-export const Small: Story = {
-  args: {
-    height: 24,
-    variant: "auto",
-  },
-};
-
-export const Large: Story = {
-  args: {
-    height: 64,
-    variant: "auto",
-  },
-};
-
-export const ExtraLarge: Story = {
-  args: {
-    height: 96,
-    variant: "auto",
-  },
-};
 
 export const LightVariant: Story = {
   args: {
@@ -58,7 +38,7 @@ export const LightVariant: Story = {
   },
   decorators: [
     (Story) => (
-      <Paper sx={{ p: 3, bgcolor: "grey.900" }}>
+      <Paper sx={{ p: 3, bgcolor: "grey.100" }}>
         <Story />
       </Paper>
     ),
@@ -72,21 +52,10 @@ export const DarkVariant: Story = {
   },
   decorators: [
     (Story) => (
-      <Paper sx={{ p: 3, bgcolor: "grey.100" }}>
+      <Paper sx={{ p: 3, bgcolor: "grey.900" }}>
         <Story />
       </Paper>
     ),
   ],
 };
 
-export const ResponsiveSizes: Story = {
-  render: () => (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
-      <Logo height={16} />
-      <Logo height={24} />
-      <Logo height={32} />
-      <Logo height={48} />
-      <Logo height={64} />
-    </Box>
-  ),
-};

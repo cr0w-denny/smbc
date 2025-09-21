@@ -98,7 +98,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Mandatory",
       icon: <MandatoryIcon />,
       count: statusCounts.mandatory ?? 0,
-      style: { border: "#0066CC", badge: "#0066CC", fill: "#F0F8FF" },
+      color: "#0066CC",
       group: "category",
     },
     {
@@ -106,7 +106,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Discretionary",
       icon: <DiscretionaryIcon />,
       count: statusCounts.discretionary ?? 0,
-      style: { border: "#6B46C1", badge: "#6B46C1", fill: "#F8F6FF" },
+      color: "#6B46C1",
       group: "category",
     },
     {
@@ -114,7 +114,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "On Course",
       icon: <CheckCircleIcon />,
       count: statusCounts.onCourse ?? 0,
-      style: { border: "#12A187", badge: "#12A187", fill: "#FAFDFD" },
+      color: "#12A187",
       group: "status",
     },
     {
@@ -122,7 +122,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Past Due",
       icon: <ErrorIcon />,
       count: statusCounts.pastDue ?? 0,
-      style: { border: "#CD463C", badge: "#CD463C", fill: "#FDF9F9" },
+      color: "#CD463C",
       group: "status",
     },
     {
@@ -130,7 +130,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Almost Due",
       icon: <WarningIcon />,
       count: statusCounts.almostDue ?? 0,
-      style: { border: "#FD992E", badge: "#FD992E", fill: "#FAFDFD" },
+      color: "#FD992E",
       group: "status",
     },
   ];
@@ -160,13 +160,12 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   if (values.category) activeChips.push(values.category);
 
   return (
-    <Box sx={{ pt: 2 }}>
+    <Box sx={{ pt: 2.5 }}>
       {/* Status Chips */}
       <Box
         sx={{
           display: "flex",
           gap: 1,
-          mb: 2,
           flexWrap: "nowrap",
           alignItems: "center",
           justifyContent: "space-between",
@@ -178,7 +177,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           onChipToggle={handleChipToggle}
           sx={{
             display: "flex",
-            gap: 1,
+            gap: 2,
             flexWrap: "wrap",
             alignItems: "center",
           }}
