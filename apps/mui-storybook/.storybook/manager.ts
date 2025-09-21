@@ -5,7 +5,7 @@ const theme = create({
   base: "dark",
   brandTitle: "SMBC Component Library",
   brandUrl: "../",
-  brandImage: "./logo.png",
+  brandImage: "./logo-dark.png",
   brandTarget: "_self",
 });
 
