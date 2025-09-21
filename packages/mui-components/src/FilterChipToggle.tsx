@@ -54,7 +54,9 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
         theme.palette.mode === "dark"
           ? theme.palette.background.paper
           : "#FFFFFF",
-      border: "none",
+      border: theme.palette.mode === "dark"
+        ? "none"
+        : `1px solid ${baseColor}`,
       outline: isActive ? `3px solid ${baseColor}` : "none",
       borderRadius: "23px", // 46px height / 2 for full rounded
       minWidth: "158px",
@@ -65,10 +67,14 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
       fontWeight: 500,
       display: "flex",
       alignItems: "center",
-      boxShadow: `0 0 1px 3px ${shadowColor}`,
+      boxShadow: theme.palette.mode === "dark"
+        ? `0 0 1px 3px ${shadowColor}`
+        : "none",
       "&:hover": {
         outline: isActive ? `3px solid ${baseColor}` : `1px solid ${baseColor}`,
-        boxShadow: `0 0 1px 3px ${shadowColor}`,
+        boxShadow: theme.palette.mode === "dark"
+          ? `0 0 1px 3px ${shadowColor}`
+          : "none",
       },
       "&.MuiChip-clickable:hover": {},
       "& .MuiChip-label": {
