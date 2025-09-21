@@ -59,6 +59,8 @@ jobs:
       - name: Copy Index to deployment root
         run: |
           cp -r ./apps/gh-pages/dist/* ./deploy/
+          mkdir -p ./deploy/assets
+          cp ./apps/mui-storybook/public/assets/logo*.png ./deploy/assets/
 
       - name: Build MUI Host Dev
         run: |
@@ -72,6 +74,8 @@ jobs:
         run: |
           mkdir -p ./deploy/mui-host-dev
           cp -r ./apps/mui-host-dev/dist/* ./deploy/mui-host-dev/
+          mkdir -p ./deploy/mui-host-dev/assets
+          cp ./apps/mui-storybook/public/assets/logo*.png ./deploy/mui-host-dev/assets/
 
       - name: Build EWI App
         run: |
@@ -86,6 +90,8 @@ jobs:
         run: |
           mkdir -p ./deploy/ewi
           cp -r ./apps/mui-ewi/dist/* ./deploy/ewi/
+          mkdir -p ./deploy/ewi/assets
+          cp ./apps/mui-storybook/public/assets/logo*.png ./deploy/ewi/assets/
 
       - name: Build Storybook
         run: |
@@ -98,6 +104,8 @@ jobs:
         run: |
           mkdir -p ./deploy/storybook
           cp -r ./apps/mui-storybook/dist/* ./deploy/storybook/
+          mkdir -p ./deploy/storybook/assets
+          cp ./apps/mui-storybook/public/assets/logo*.png ./deploy/storybook/assets/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
