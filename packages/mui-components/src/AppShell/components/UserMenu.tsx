@@ -15,7 +15,7 @@ import {
 import Logout from "@mui/icons-material/Logout";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
-import { InputActiveDark, InputActiveLight, SizeBorderRadiusBase } from "@smbc/ui-core";
+import { SizeBorderRadiusBase } from "@smbc/ui-core";
 import { DarkModeSwitch } from "../../DarkModeSwitch";
 
 export type UserRole = {
