@@ -1,8 +1,17 @@
 import React from "react";
 import { useTheme } from "@mui/material";
 
-// Use base path for asset URLs to work with GitHub Pages subpaths
-const basePath = import.meta.env.VITE_BASE_PATH || "";
+// Get base path for asset URLs to work with GitHub Pages subpaths
+const getBasePath = () => {
+  try {
+    // @ts-ignore - import.meta.env might not be available in all environments
+    return import.meta?.env?.VITE_BASE_PATH || "";
+  } catch {
+    return "";
+  }
+};
+
+const basePath = getBasePath();
 const logoLight = `${basePath}assets/logo.png`;
 const logoDark = `${basePath}assets/logo-dark.png`;
 
