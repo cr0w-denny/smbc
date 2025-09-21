@@ -1,7 +1,10 @@
 import React from "react";
 import { useTheme } from "@mui/material";
-const logoLight = "/assets/logo.png";
-const logoDark = "/assets/logo-dark.png";
+
+// Use base path for asset URLs to work with GitHub Pages subpaths
+const basePath = import.meta.env.VITE_BASE_PATH || "";
+const logoLight = `${basePath}assets/logo.png`;
+const logoDark = `${basePath}assets/logo-dark.png`;
 
 export interface LogoProps {
   /** Height of the logo in pixels */

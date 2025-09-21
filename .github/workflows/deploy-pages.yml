@@ -99,6 +99,7 @@ jobs:
           npm run build-storybook -- --output-dir dist
         env:
           NODE_ENV: development
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/storybook/"
 
       - name: Copy Storybook build
         run: |
