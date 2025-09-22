@@ -35,38 +35,74 @@ jobs:
           rm -f package-lock.json
           npm install --ignore-scripts --legacy-peer-deps
 
-      - name: Build all packages and apps
-        run: npx turbo run build --continue
+      - name: Build workspace packages (excluding apps)
+        run: |
+          npx turbo run build \
+            --filter="!@smbc/gh-pages" \
+            --filter="!@smbc/mui-host-dev" \
+            --filter="!@smbc/mui-ewi" \
+            --filter="!@smbc/mui-storybook" \
+            --filter="!@smbc/mui-storybook-old" \
+            --continue
+
+      - name: Create deployment directory
+        run: mkdir -p ./deploy
+
+      - name: Build GitHub Pages Index
+        run: |
+          cd apps/gh-pages
+          npm run build
         env:
           NODE_ENV: development
-          VITE_BASE_PATH_GH_PAGES: "/${{ github.event.repository.name }}/"
-          VITE_BASE_PATH_MUI_HOST_DEV: "/${{ github.event.repository.name }}/mui-host-dev/"
-          VITE_BASE_PATH_EWI: "/${{ github.event.repository.name }}/ewi/"
-          VITE_BASE_PATH_STORYBOOK: "/${{ github.event.repository.name }}/storybook/"
-          VITE_USE_MOCKS: "true"
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/"
 
-      - name: Create deployment directory and copy all builds
+      - name: Copy Index to deployment root
         run: |
-          mkdir -p ./deploy
-
-          # Copy GitHub Pages Index
           cp -r ./apps/gh-pages/dist/* ./deploy/
           mkdir -p ./deploy/assets
           cp ./apps/mui-storybook/public/assets/logo*.png ./deploy/assets/
 
-          # Copy MUI Host Dev
+      - name: Build MUI Host Dev
+        run: |
+          cd apps/mui-host-dev
+          npm run build
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/mui-host-dev/"
+
+      - name: Copy MUI Host Dev build
+        run: |
           mkdir -p ./deploy/mui-host-dev
           cp -r ./apps/mui-host-dev/dist/* ./deploy/mui-host-dev/
           mkdir -p ./deploy/mui-host-dev/assets
           cp ./apps/mui-storybook/public/assets/logo*.png ./deploy/mui-host-dev/assets/
 
-          # Copy EWI App
+      - name: Build EWI App
+        run: |
+          cd apps/mui-ewi
+          npm run build -- --mode development
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/ewi/"
+          VITE_USE_MOCKS: "true"
+
+      - name: Copy EWI build
+        run: |
           mkdir -p ./deploy/ewi
           cp -r ./apps/mui-ewi/dist/* ./deploy/ewi/
           mkdir -p ./deploy/ewi/assets
           cp ./apps/mui-storybook/public/assets/logo*.png ./deploy/ewi/assets/
 
-          # Copy Storybook
+      - name: Build Storybook
+        run: |
+          cd apps/mui-storybook
+          npm run build-storybook -- --output-dir dist
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/${{ github.event.repository.name }}/storybook/"
+
+      - name: Copy Storybook build
+        run: |
           mkdir -p ./deploy/storybook
           cp -r ./apps/mui-storybook/dist/* ./deploy/storybook/
           mkdir -p ./deploy/storybook/assets
