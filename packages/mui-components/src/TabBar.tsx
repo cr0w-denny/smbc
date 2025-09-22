@@ -22,10 +22,10 @@ const Container = styled(Box)(({ theme }) => ({
   display: "inline-flex",
   alignItems: "center",
   position: "relative",
-  backgroundColor: alpha(theme.palette.action.hover, 0.04),
+  backgroundColor: theme.palette.mode === "light" ? "#353D41" : alpha(theme.palette.action.hover, 0.04),
   borderRadius: Number(theme.shape.borderRadius) * 2,
   padding: theme.spacing(0.25),
-  border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+  border: `1px solid ${theme.palette.mode === "light" ? "#020D10" : alpha(theme.palette.divider, 0.08)}`,
 }));
 
 const TabItem = styled(Box, {
@@ -37,17 +37,22 @@ const TabItem = styled(Box, {
     borderRadius: Number(theme.shape.borderRadius) * 1.5,
     cursor: isDisabled ? "not-allowed" : "pointer",
     userSelect: "none",
-    transition: "color 150ms ease",
+    transition: "opacity 150ms ease",
     zIndex: isActive ? 2 : 1,
     color: isDisabled
       ? theme.palette.text.disabled
       : isActive
-      ? theme.palette.mode === "dark" ? ui.TextPrimaryDark : ui.TextPrimaryLight
-      : theme.palette.text.secondary,
+      ? theme.palette.mode === "dark" ? "#000000" : ui.TextPrimaryLight
+      : theme.palette.mode === "light" ? "#FFFFFF" : theme.palette.mode === "dark" ? "#FFFFFF" : theme.palette.text.secondary,
+    opacity: isDisabled
+      ? 0.5
+      : isActive
+      ? 1
+      : 0.7,
     fontWeight: isActive ? 600 : 500,
 
     "&:hover": {
-      color: !isDisabled && !isActive ? theme.palette.text.primary : undefined,
+      opacity: !isDisabled && !isActive ? 1 : undefined,
     },
   }),
 );
@@ -58,7 +63,7 @@ const ActivePill = styled(motion.div)(({ theme }) => ({
   left: 6,
   right: 6,
   bottom: 6,
-  backgroundColor: theme.palette.mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
+  backgroundColor: "#9AC2FA",
   borderRadius: Number(theme.shape.borderRadius) * 1.5,
   boxShadow: theme.shadows[2],
   zIndex: 0,

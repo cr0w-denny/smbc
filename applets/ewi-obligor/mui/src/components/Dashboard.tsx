@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Box, Typography, ThemeProvider } from "@mui/material";
-import { Card, Filter, darkTheme } from "@smbc/mui-components";
+import { Card, Filter, darkTheme, RelatedNews } from "@smbc/mui-components";
+import type { NewsItem } from "@smbc/mui-components";
 import { AppletPage } from "@smbc/mui-applet-core";
 import { useHashNavigation } from "@smbc/applet-core";
 import { DetailsCard } from "./DetailsCard";
@@ -49,6 +50,60 @@ const mockKVData = [
   { label: "Last Updated", value: "2024-03-01" },
   { label: "Portfolio Status", value: "Active" },
   { label: "Review Cycle", value: "Quarterly" },
+];
+
+// Mock news data for RelatedNews
+const mockNewsData: NewsItem[] = [
+  {
+    id: "1",
+    title: "Sandy Tong: S.F.'s first Asian fire chief - and first without fire...",
+    date: "06-Sep",
+    author: "Yujie Zhou",
+    source: "Google: 70.4%",
+    imageUrl: "/api/placeholder/38/38",
+    externalUrl: "https://example.com/news/1",
+    readingProgress: 70,
+  },
+  {
+    id: "2",
+    title: "Election Results 2025: See results across San Francisco",
+    date: "05-Sep",
+    author: "News Team",
+    source: "Google: 78.1%",
+    imageUrl: "/api/placeholder/38/38",
+    externalUrl: "https://example.com/news/2",
+    readingProgress: 45,
+  },
+  {
+    id: "3",
+    title: "Homeless people often choose the street over a bed. We look...",
+    date: "04-Sep",
+    author: "Reporter",
+    source: "Google: 65.2%",
+    imageUrl: "/api/placeholder/38/38",
+    externalUrl: "https://example.com/news/3",
+    readingProgress: 90,
+  },
+  {
+    id: "4",
+    title: "Auto Towing owners accused of buying Lamborghini while...",
+    date: "03-Sep",
+    author: "Business Desk",
+    source: "Google: 72.8%",
+    imageUrl: "/api/placeholder/38/38",
+    externalUrl: "https://example.com/news/4",
+    readingProgress: 25,
+  },
+  {
+    id: "5",
+    title: "San Francisco Harley-Davidson closes abruptly after 110 Years in...",
+    date: "02-Sep",
+    author: "Auto Reporter",
+    source: "Google: 81.3%",
+    imageUrl: "/api/placeholder/38/38",
+    externalUrl: "https://example.com/news/5",
+    readingProgress: 60,
+  },
 ];
 
 const Dashboard: React.FC = () => {
@@ -168,14 +223,10 @@ const Dashboard: React.FC = () => {
             </Card>
           </Box>
 
-          {/* Position 2,2: Dummy Card 2 */}
+          {/* Position 2,2: Related News */}
           <Box sx={{ flex: "1 1 45%", minWidth: 400 }}>
             <Card title="Related News" menuItems={dummyMenuItems}>
-              <Box sx={{ p: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  INSERT NEWS FEED
-                </Typography>
-              </Box>
+              <RelatedNews items={mockNewsData} />
             </Card>
           </Box>
         </Box>

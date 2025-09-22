@@ -5,10 +5,10 @@ import {
   AgGridTheme,
   Card,
   Filter,
-  FilterChipToggle,
+  ChipToggleGroup,
 } from "@smbc/mui-components";
 import type { ColDef } from "ag-grid-community";
-import type { CardMenuItem, FilterChip } from "@smbc/mui-components";
+import type { CardMenuItem, ChipToggleItem } from "@smbc/mui-components";
 import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -35,12 +35,13 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
   const [popupParent, setPopupParent] = useState<HTMLElement | null>(null);
   const [activeChips, setActiveChips] = useState<string[]>([]);
 
-  const testChips: FilterChip[] = [
+  const testChips: ChipToggleItem[] = [
     {
       value: "past-due",
       label: "Past Due",
       icon: <ErrorIcon />,
       count: 3,
+      color: "#CD463C",
       group: "status",
     },
     {
@@ -48,6 +49,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "Almost Due",
       icon: <WarningIcon />,
       count: 7,
+      color: "#FD992E",
       group: "status",
     },
     {
@@ -55,6 +57,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "On Course",
       icon: <CheckCircleIcon />,
       count: 12,
+      color: "#12A187",
       group: "status",
     },
   ];
@@ -176,7 +179,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
         />
       }
     >
-      <FilterChipToggle
+      <ChipToggleGroup
         chips={testChips}
         activeValues={activeChips}
         onChipToggle={handleChipToggle}

@@ -19,7 +19,7 @@ type Story = StoryObj<typeof AppShell>;
 
 export const Default: Story = {
   args: {
-    logo: <Logo height={60} />,
+    logo: <Logo height={60} variant="dark" />,
     navigation: [
       { label: "Events Dashboard", type: "link", href: "/events" },
       { label: "Obligor Dashboard", type: "link", href: "/obligor" },

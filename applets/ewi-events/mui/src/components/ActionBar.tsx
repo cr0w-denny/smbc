@@ -9,9 +9,9 @@ import {
   ExpandLess as ExpandLessIcon,
   PsychologyAlt as DiscretionaryIcon,
   Gavel as MandatoryIcon,
-  FilterChipToggle,
+  ChipToggleGroup,
 } from "@smbc/mui-components";
-import type { FilterChip } from "@smbc/mui-components";
+import type { ChipToggleItem } from "@smbc/mui-components";
 interface BulkAction {
   type: "bulk";
   key: string;
@@ -91,8 +91,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     }
   }, [selectedItems.length, workflowAnchor]);
 
-  // Create chip data for FilterChipToggle
-  const filterChips: FilterChip[] = [
+  // Create chip data for ChipToggleGroup
+  const filterChips: ChipToggleItem[] = [
     {
       value: "Mandatory",
       label: "Mandatory",
@@ -171,7 +171,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <FilterChipToggle
+        <ChipToggleGroup
           chips={filterChips}
           activeValues={activeChips}
           onChipToggle={handleChipToggle}

@@ -3,7 +3,7 @@ import { Chip, useMediaQuery, useTheme } from "@mui/material";
 import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { Card } from "@smbc/mui-components";
+import { Card, StatusChip } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import { KeyValueTable, type KV } from "@smbc/mui-components";
 
@@ -14,50 +14,43 @@ export const EventDetailsCard: React.FC<{
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
 
-  // Transform lifecycle status to use Chip component with icon
+  // Transform lifecycle status to use StatusChip component with icon
   const transformedItems = items.map((item) => {
     if (item.label === "Lifecycle Status") {
       const status = String(item.value);
       let icon: React.ReactElement;
-      let colors: { border: string; badge: string };
+      let variant: "error" | "warning" | "success" | "default";
 
-      // Determine icon and colors based on status
+      // Determine icon and variant based on status
       if (status.toLowerCase().includes("past due")) {
         icon = <ErrorIcon sx={{ fontSize: 16 }} />;
-        colors = { border: "#EF5569", badge: "#EF5569" };
+        variant = "error";
       } else if (
         status.toLowerCase().includes("pending") ||
         status.toLowerCase().includes("almost")
       ) {
         icon = <WarningIcon sx={{ fontSize: 16 }} />;
-        colors = { border: "#FD992E", badge: "#FD992E" };
+        variant = "warning";
       } else if (
         status.toLowerCase().includes("complete") ||
         status.toLowerCase().includes("resolved") ||
         status.toLowerCase().includes("on course")
       ) {
         icon = <CheckCircleIcon sx={{ fontSize: 16 }} />;
-        colors = { border: "#12A187", badge: "#12A187" };
+        variant = "success";
       } else {
         icon = <CheckCircleIcon sx={{ fontSize: 16 }} />;
-        colors = { border: "#666", badge: "#666" };
+        variant = "default";
       }
 
       return {
         ...item,
         value: (
-          <Chip
+          <StatusChip
             icon={icon}
             label={status}
             size="small"
-            variant="outlined"
-            sx={{
-              borderColor: colors.border,
-              color: colors.badge,
-              "& .MuiChip-icon": {
-                color: colors.badge,
-              },
-            }}
+            variant={variant}
           />
         ),
       };

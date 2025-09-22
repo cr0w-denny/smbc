@@ -7,9 +7,10 @@ import {
   Menu,
   MenuItem,
   ThemeProvider,
+  useTheme,
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
-import { AgGridTheme, Card, darkTheme } from "@smbc/mui-components";
+import { AgGridTheme, Card, darkTheme, StatusChip } from "@smbc/mui-components";
 import { AppletPage } from "@smbc/mui-applet-core";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import { useHashNavigationWithApply } from "@smbc/applet-core";
@@ -157,62 +158,59 @@ const DetailCellRenderer = (params: any) => {
 
 // Status cell renderer
 const StatusCellRenderer = (params: any) => {
-  const getStatusConfig = (status: string, isDark: boolean) => {
-    const lightConfig = {
-      "on-course": { outline: "#12A187", fill: "#FAFDFD", text: "#1A1A1A" },
-      "almost-due": { outline: "#FD992E", fill: "#FFFCFB", text: "#1A1A1A" },
-      "past-due": { outline: "#CD463C", fill: "#FDF9F9", text: "#1A1A1A" },
-      "needs-attention": {
-        outline: "#A32B9A",
-        fill: "#FDF9FD",
-        text: "#1A1A1A",
-      },
-      default: { outline: "#757575", fill: "#F5F5F5", text: "#1A1A1A" },
-    };
+  const theme = useTheme();
 
-    const darkConfig = {
-      "on-course": {
-        outline: "#12A187",
-        fill: "rgba(18, 161, 135, 0.1)",
-        text: "#FFFFFF",
-      },
-      "almost-due": {
-        outline: "#FD992E",
-        fill: "rgba(253, 153, 46, 0.1)",
-        text: "#FFFFFF",
-      },
-      "past-due": {
-        outline: "#CD463C",
-        fill: "rgba(205, 70, 60, 0.1)",
-        text: "#FFFFFF",
-      },
-      "needs-attention": {
-        outline: "#A32B9A",
-        fill: "rgba(163, 43, 154, 0.1)",
-        text: "#FFFFFF",
-      },
-      default: {
-        outline: "#757575",
-        fill: "rgba(117, 117, 117, 0.1)",
-        text: "#FFFFFF",
-      },
+  // Map specific status values to StatusChip variants
+  const getVariant = (status: string) => {
+    const statusMap = {
+      "on-course": "success" as const,
+      "almost-due": "warning" as const,
+      "past-due": "error" as const,
+      "needs-attention": "custom" as const,
     };
-
-    const config = isDark ? darkConfig : lightConfig;
-    return config[status as keyof typeof config] || config.default;
+    return statusMap[status as keyof typeof statusMap] || "default" as const;
   };
 
   // Handle undefined or null values
   if (!params.value) {
     return (
-      <Chip
+      <StatusChip
+        variant="default"
         label="UNKNOWN"
         sx={{
-          backgroundColor: "#F5F5F5",
-          color: "#757575",
-          border: "1px solid #757575",
           fontSize: "12px",
-          fontWeight: 500,
+          height: "24px",
+          width: "160px",
+          transition: "none !important",
+          "& .MuiChip-label": {
+            px: 1.5,
+            py: 0.5,
+            textAlign: "center",
+            width: "100%",
+          },
+        }}
+        size="small"
+      />
+    );
+  }
+
+  const variant = getVariant(params.value);
+  const label = params.value
+    .replace("-", " ")
+    .replace(/\b\w/g, (l: string) => l.toUpperCase());
+
+  // Special handling for needs-attention (purple) variant
+  if (variant === "custom") {
+    return (
+      <StatusChip
+        variant="custom"
+        label={label}
+        outlineColor="#A32B9A"
+        fillColor={theme.palette.mode === "dark" ? "rgba(163, 43, 154, 0.1)" : "#FDF9FD"}
+        textColor={theme.palette.mode === "dark" ? "#FFFFFF" : "#1A1A1A"}
+        sx={{
+          fontSize: "12px",
+          fontWeight: theme.palette.mode === "dark" ? 300 : 400,
           height: "24px",
           width: "160px",
           transition: "none !important",
@@ -229,30 +227,21 @@ const StatusCellRenderer = (params: any) => {
   }
 
   return (
-    <Chip
-      label={params.value
-        .replace("-", " ")
-        .replace(/\b\w/g, (l: string) => l.toUpperCase())}
-      sx={(theme: any) => {
-        const isDark = theme.palette.mode === "dark";
-        const config = getStatusConfig(params.value, isDark);
-
-        return {
-          backgroundColor: config.fill,
-          color: config.text,
-          border: `1px solid ${config.outline}`,
-          fontSize: "12px",
-          fontWeight: isDark ? 300 : 400,
-          height: "24px",
-          width: "160px",
-          transition: "none !important",
-          "& .MuiChip-label": {
-            px: 1.5,
-            py: 0.5,
-            textAlign: "center",
-            width: "100%",
-          },
-        };
+    <StatusChip
+      variant={variant}
+      label={label}
+      sx={{
+        fontSize: "12px",
+        fontWeight: theme.palette.mode === "dark" ? 300 : 400,
+        height: "24px",
+        width: "160px",
+        transition: "none !important",
+        "& .MuiChip-label": {
+          px: 1.5,
+          py: 0.5,
+          textAlign: "center",
+          width: "100%",
+        },
       }}
       size="small"
     />
@@ -756,15 +745,15 @@ const EventsAgGrid: React.FC = () => {
             <Chip
               label={data?.events?.length || 0}
               size="small"
-              sx={{
-                color: "#98A4B9",
-                backgroundColor: "#0E131D",
+              sx={(theme) => ({
+                color: theme.palette.mode === "dark" ? ui.ChipDefaultTextDark : ui.ChipDefaultTextLight,
+                backgroundColor: theme.palette.mode === "dark" ? ui.ChipDefaultBackgroundDark : ui.ChipDefaultBackgroundLight,
                 fontSize: "14px",
                 "& .MuiChip-label": {
                   px: 1.5,
                   fontSize: "14px",
                 },
-              }}
+              })}
             />
           </Box>
         }

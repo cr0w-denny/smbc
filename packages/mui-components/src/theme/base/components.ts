@@ -67,7 +67,7 @@ export const createBaseComponents = (
       styleOverrides: {
         root: {
           "& .MuiOutlinedInput-root": {
-            borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+            borderRadius: theme.spacing(3),
             fontSize: "0.875rem",
             backgroundColor:
               mode === "dark"
@@ -122,9 +122,9 @@ export const createBaseComponents = (
         root: {
           backgroundColor:
             mode === "dark" ? ui.InputBackgroundDark : ui.InputBackgroundLight,
-          borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+          borderRadius: theme.spacing(3),
           "& .MuiOutlinedInput-notchedOutline": {
-            borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+            borderRadius: theme.spacing(3),
             borderColor:
               mode === "dark" ? ui.InputBorderDark : ui.InputBorderLight,
           },
@@ -225,9 +225,7 @@ export const createBaseComponents = (
               : ui.NavigationBackgroundLight
           } !important`,
           color: `${
-            mode === "dark"
-              ? ui.NavigationTextDark
-              : ui.NavigationTextLight
+            mode === "dark" ? ui.NavigationTextDark : ui.NavigationTextLight
           } !important`,
           boxShadow:
             mode === "dark"
@@ -262,7 +260,9 @@ export const createBaseComponents = (
         root: {
           minHeight: 70,
           backgroundColor:
-            mode === "dark" ? ui.NavigationBackgroundDark : ui.NavigationBackgroundLight,
+            mode === "dark"
+              ? ui.NavigationBackgroundDark
+              : ui.NavigationBackgroundLight,
           color:
             mode === "dark" ? ui.NavigationTextDark : ui.NavigationTextLight,
         },
@@ -274,7 +274,8 @@ export const createBaseComponents = (
           backgroundColor: theme.palette.mode === "dark" ? "#222" : "#f5f5f5",
         },
         indicator: {
-          backgroundColor: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
+          backgroundColor:
+            mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
         },
       },
     },
@@ -284,7 +285,8 @@ export const createBaseComponents = (
           color: mode === "dark" ? ui.TextSecondaryDark : ui.TextSecondaryLight,
           "&.Mui-selected": {
             color: mode === "dark" ? ui.InputActiveDark : ui.InputActiveLight,
-            backgroundColor: mode === "dark" ? ui.ActionSelectedDark : ui.ActionSelectedLight,
+            backgroundColor:
+              mode === "dark" ? ui.ActionSelectedDark : ui.ActionSelectedLight,
           },
         },
       },
@@ -434,15 +436,14 @@ export const createBaseComponents = (
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor:
-            mode === "dark" ? "#ffffff" : "#424242",
-          color:
-            mode === "dark" ? "#000000" : "#ffffff",
+          backgroundColor: mode === "dark" ? "#ffffff" : "#424242",
+          color: mode === "dark" ? "#000000" : "#ffffff",
           fontSize: "0.75rem",
           borderRadius: 6,
-          boxShadow: mode === "dark"
-            ? "0px 2px 8px rgba(0,0,0,0.3)"
-            : "0px 2px 8px rgba(0,0,0,0.15)",
+          boxShadow:
+            mode === "dark"
+              ? "0px 2px 8px rgba(0,0,0,0.3)"
+              : "0px 2px 8px rgba(0,0,0,0.15)",
         },
       },
     },
@@ -453,13 +454,12 @@ export const createBaseComponents = (
         },
       },
     },
-    // EWI-specific input styling for dark themes
     MuiInputBase: {
       styleOverrides: {
         root: {
           backgroundColor:
             mode === "dark" ? ui.InputBackgroundDark : ui.InputBackgroundLight,
-          borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+          borderRadius: theme.spacing(3),
         },
       },
     },
@@ -472,8 +472,7 @@ export const createBaseComponents = (
                 mode === "dark"
                   ? ui.InputBackgroundDark
                   : ui.InputBackgroundLight,
-              borderRadius:
-                theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+              borderRadius: theme.spacing(3),
               "& fieldset": {
                 borderColor:
                   mode === "dark" ? ui.InputBorderDark : ui.InputBorderLight,
@@ -507,13 +506,13 @@ export const createBaseComponents = (
           padding: "5px 0",
           backgroundColor:
             mode === "dark" ? ui.InputBackgroundDark : ui.InputBackgroundLight,
-          borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+          borderRadius: theme.spacing(3),
           "&.MuiPickersOutlinedInput-root": {
             backgroundColor:
               mode === "dark"
                 ? ui.InputBackgroundDark
                 : ui.InputBackgroundLight,
-            borderRadius: theme.palette.mode === "dark" ? theme.spacing(3) : 8,
+            borderRadius: theme.spacing(3),
             "& fieldset": {
               borderColor: `${
                 mode === "dark" ? ui.InputBorderDark : ui.InputBorderLight
@@ -570,27 +569,31 @@ export const createBaseComponents = (
     MuiDivider: {
       styleOverrides: {
         root: {
-          borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.12)",
+          borderColor:
+            mode === "dark"
+              ? "rgba(255, 255, 255, 0.12)"
+              : "rgba(0, 0, 0, 0.12)",
         },
       },
     },
     MuiSwitch: {
       styleOverrides: {
         root: {
-          '& .MuiSwitch-switchBase.Mui-checked': {
+          "& .MuiSwitch-switchBase.Mui-checked": {
             color: "#1976D2",
-            '& + .MuiSwitch-track': {
+            "& + .MuiSwitch-track": {
               backgroundColor: "#114377",
             },
-            '& .MuiSwitch-thumb': {
+            "& .MuiSwitch-thumb": {
               backgroundColor: "#1976D2",
             },
           },
-          '& .MuiSwitch-thumb': {
+          "& .MuiSwitch-thumb": {
             backgroundColor: mode === "dark" ? "#1976D2" : "#FAFAFA",
-            boxShadow: mode === "light" ? "0 2px 4px 0 rgba(0,0,0,0.3)" : "none",
+            boxShadow:
+              mode === "light" ? "0 2px 4px 0 rgba(0,0,0,0.3)" : "none",
           },
-          '& .MuiSwitch-track': {
+          "& .MuiSwitch-track": {
             backgroundColor: mode === "dark" ? "#114377" : "#9E9E9E",
           },
         },

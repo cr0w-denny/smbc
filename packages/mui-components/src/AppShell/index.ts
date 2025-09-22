@@ -1,3 +1,3 @@
 export { AppShell } from './AppShell';
 export { UserMenu } from './components/UserMenu';
-export type { AppShellProps, NavigationItem, TreeNavigationItem, StatusChip } from './types';
+export type { AppShellProps, NavigationItem, TreeNavigationItem } from './types';

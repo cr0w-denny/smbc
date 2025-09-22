@@ -63,7 +63,6 @@ export type {
   AppShellProps,
   NavigationItem,
   TreeNavigationItem,
-  StatusChip,
 } from "./AppShell";
 
 // AG Grid Theme
@@ -85,9 +84,9 @@ export { KeyValueTable } from "./KeyValueTable";
 export type { KV } from "./KeyValueTable";
 export { Table } from "./Table";
 
-// Filter Chip Toggle
-export { FilterChipToggle } from "./FilterChipToggle";
-export type { FilterChip, FilterChipToggleProps } from "./FilterChipToggle";
+// Chip Toggle Group
+export { ChipToggleGroup } from "./ChipToggleGroup";
+export type { ChipToggleItem, ChipToggleGroupProps } from "./ChipToggleGroup";
 
 // Logo
 export { Logo } from "./Logo";
@@ -96,3 +95,11 @@ export type { LogoProps } from "./Logo";
 // Dark Mode Switch
 export { DarkModeSwitch } from "./DarkModeSwitch";
 export type { DarkModeSwitchProps } from "./DarkModeSwitch";
+
+// Status Chip
+export { StatusChip } from "./StatusChip";
+export type { StatusChipProps } from "./StatusChip";
+
+// Related News
+export { RelatedNews } from "./RelatedNews";
+export type { RelatedNewsProps, NewsItem } from "./RelatedNews";

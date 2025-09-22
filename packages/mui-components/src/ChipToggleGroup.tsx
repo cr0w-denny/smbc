@@ -18,7 +18,7 @@ const hexToRgba = (hex: string, alpha: number): string => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-export interface FilterChip {
+export interface ChipToggleItem {
   value: string;
   label: string;
   icon?: React.ReactElement;
@@ -28,21 +28,21 @@ export interface FilterChip {
   group?: string;
 }
 
-export interface FilterChipToggleProps {
-  chips: FilterChip[];
+export interface ChipToggleGroupProps {
+  chips: ChipToggleItem[];
   activeValues: string[];
   onChipToggle: (value: string, isActive: boolean) => void;
   sx?: any;
 }
 
-export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
+export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
   chips,
   activeValues,
   onChipToggle,
   sx,
 }) => {
   const createChipSx = (
-    chip: FilterChip,
+    chip: ChipToggleItem,
     isActive: boolean,
     shadowColor: string,
   ) => {
@@ -53,11 +53,13 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
       backgroundColor:
         theme.palette.mode === "dark"
           ? theme.palette.background.paper
-          : "#FFFFFF",
+          : (isActive ? hexToRgba(baseColor, 0.1) : "#FFFFFF"),
       border: theme.palette.mode === "dark"
         ? "none"
-        : `1px solid ${baseColor}`,
-      outline: isActive ? `3px solid ${baseColor}` : "none",
+        : `1px solid ${hexToRgba(baseColor, 0.5)}`,
+      outline: isActive
+        ? (theme.palette.mode === "dark" ? `3px solid ${baseColor}` : `1px solid ${baseColor}`)
+        : "none",
       borderRadius: "23px", // 46px height / 2 for full rounded
       minWidth: "158px",
       maxWidth: "186px",
@@ -145,25 +147,33 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
                 {/* Left: Icon */}
                 {chip.icon && (
                   <Box
-                    sx={{
+                    sx={(theme: any) => ({
                       width: 24,
                       height: 24,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                    }}
+                      backgroundColor: theme.palette.mode === "light"
+                        ? (isActive ? hexToRgba(baseColor, 0.2) : hexToRgba(baseColor, 0.1))
+                        : "transparent",
+                      borderRadius: "50%",
+                    })}
                   >
                     {React.cloneElement(chip.icon, {
-                      sx: {
+                      sx: (theme: any) => ({
                         fontSize: "18px",
                         width: "18px",
                         height: "18px",
-                        color: isActive ? "#FFFFFF" : baseColor,
+                        color: isActive
+                          ? (theme.palette.mode === "dark" ? "#FFFFFF" : baseColor)
+                          : baseColor,
                         filter: isActive
-                          ? `drop-shadow(0 0 4px ${baseColor}) drop-shadow(0 0 8px ${baseColor})`
-                          : `drop-shadow(0 0 8px ${baseColor})`,
-                      },
+                          ? (theme.palette.mode === "dark"
+                            ? `drop-shadow(0 0 4px ${baseColor}) drop-shadow(0 0 8px ${baseColor})`
+                            : "none")
+                          : (theme.palette.mode === "dark" ? `drop-shadow(0 0 8px ${baseColor})` : "none"),
+                      }),
                     })}
                   </Box>
                 )}
@@ -176,7 +186,7 @@ export const FilterChipToggle: React.FC<FilterChipToggleProps> = ({
                     fontSize: "13px",
                     fontWeight: 500,
                     color: isActive
-                      ? "#FFFFFF"
+                      ? (theme.palette.mode === "dark" ? "#FFFFFF" : baseColor)
                       : theme.palette.mode === "dark"
                       ? theme.palette.text.primary
                       : "#1A1A1A",

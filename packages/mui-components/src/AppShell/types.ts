@@ -25,12 +25,6 @@ export interface NavigationItem {
   color?: 'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
 }
 
-export interface StatusChip {
-  label: string;
-  color: 'default' | 'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'info';
-  variant?: 'filled' | 'outlined';
-  onClick?: () => void;
-}
 
 export interface AppShellProps {
   logo?: ReactNode;
