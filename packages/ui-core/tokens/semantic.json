@@ -306,15 +306,19 @@
       "scrollbar": {
         "track": {
           "light": { "value": "{color.gray.100}", "type": "color" },
-          "dark": { "value": "#2a2a2a", "type": "color" }
+          "dark": { "value": "{semantic.color.background.primary.dark}", "type": "color" }
         },
         "thumb": {
           "light": { "value": "{color.gray.400}", "type": "color" },
-          "dark": { "value": "rgba(255, 255, 255, 0.2)", "type": "color" }
+          "dark": { "value": "{semantic.color.border.primary.dark}", "type": "color" }
         },
         "thumbHover": {
           "light": { "value": "{color.gray.500}", "type": "color" },
-          "dark": { "value": "rgba(255, 255, 255, 0.3)", "type": "color" }
+          "dark": { "value": "#2a4272", "type": "color" }
+        },
+        "thumbActive": {
+          "light": { "value": "{color.gray.600}", "type": "color" },
+          "dark": { "value": "#35528b", "type": "color" }
         }
       }
     },
