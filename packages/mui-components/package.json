@@ -25,6 +25,7 @@
   "devDependencies": {
     "@smbc/ui-core": "*",
     "@smbc/dataview": "*",
+    "@smbc/vite-config": "*",
     "@types/node": "^20.11.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
