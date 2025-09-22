@@ -4,7 +4,7 @@ import { AgGridReact } from "ag-grid-react";
 import ReactECharts from "echarts-for-react";
 import type { ColDef } from "ag-grid-community";
 import { AppletPage } from "@smbc/mui-applet-core";
-import { AgGridTheme } from "@smbc/mui-components";
+import { AgGridTheme } from "@smbc/mui-grid";
 
 export interface AppletProps {
   mountPath: string;

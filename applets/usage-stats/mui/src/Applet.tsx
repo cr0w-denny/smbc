@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef, GridOptions } from "ag-grid-community";
 import "ag-grid-enterprise";
-import { Filter, AgGridTheme } from "@smbc/mui-components";
+import { Filter } from "@smbc/mui-components";
+import { AgGridTheme } from "@smbc/mui-grid";
 import { AppletPage } from "@smbc/mui-applet-core";
 import type { FilterSpec } from "@smbc/mui-components";
 import {

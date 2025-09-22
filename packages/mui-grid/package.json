@@ -1,0 +1,46 @@
+{
+  "name": "@smbc/mui-grid",
+  "version": "0.0.1",
+  "description": "AG Grid components and theming for SMBC MUI applications",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./dist/index.css": "./dist/index.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && vite build",
+    "dev": "vite build --watch",
+    "clean": "rm -rf dist",
+    "lint": "echo 'Lint: mui-grid'",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ag-grid-community": "^33.3.2",
+    "ag-grid-enterprise": "^33.3.2",
+    "ag-grid-react": "^33.3.2"
+  },
+  "devDependencies": {
+    "@smbc/ui-core": "*",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@mui/material": "^7.2.0",
+    "react": "^18.3.1",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4",
+    "vite-plugin-dts": "^4.4.0"
+  },
+  "peerDependencies": {
+    "@mui/material": "^7.0.0",
+    "react": "^18.0.0"
+  }
+}

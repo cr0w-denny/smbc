@@ -2,11 +2,11 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Box } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import {
-  AgGridTheme,
   Card,
   Filter,
   ChipToggleGroup,
 } from "@smbc/mui-components";
+import { AgGridTheme } from "@smbc/mui-grid";
 import type { ColDef } from "ag-grid-community";
 import type { CardMenuItem, ChipToggleItem } from "@smbc/mui-components";
 import ErrorIcon from "@mui/icons-material/Error";

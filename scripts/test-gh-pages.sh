@@ -36,6 +36,7 @@ if [ ! -f "package.json" ] || [ ! -d "apps" ]; then
 fi
 
 # Parse command line arguments
+BUILD_SERVE=false
 SERVE=false
 CLEAN=false
 BUILD_ONLY=""
@@ -45,6 +46,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --serve|-s)
             SERVE=true
+            shift
+            ;;
+        --build-serve)
+            BUILD_SERVE=true
             shift
             ;;
         --clean|-c)
@@ -63,20 +68,22 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [options]"
             echo ""
             echo "Options:"
-            echo "  --serve, -s     Serve the built apps after building"
-            echo "  --clean, -c     Clean previous builds before starting"
-            echo "  --only APP      Build only specific app (gh-pages, mui-host-dev, mui-ewi, storybook)"
-            echo "  --verbose, -v   Show verbose build output"
-            echo "  --help, -h      Show this help message"
+            echo "  --serve, -s       Serve existing builds without rebuilding"
+            echo "  --build-serve     Build all apps and serve locally"
+            echo "  --clean, -c       Clean previous builds before starting"
+            echo "  --only APP        Build only specific app (gh-pages, mui-host-dev, mui-ewi, storybook)"
+            echo "  --verbose, -v     Show verbose build output"
+            echo "  --help, -h        Show this help message"
             echo ""
             echo "Examples:"
-            echo "  $0                    # Build all apps"
-            echo "  $0 --serve            # Build all apps and serve locally"
-            echo "  $0 --only gh-pages    # Build only the GitHub Pages index"
-            echo "  $0 --clean --serve    # Clean, build all, and serve"
+            echo "  $0                        # Build all apps"
+            echo "  $0 --serve                # Serve existing builds without rebuilding"
+            echo "  $0 --build-serve          # Build all apps and serve locally"
+            echo "  $0 --only gh-pages        # Build only the GitHub Pages index"
+            echo "  $0 --clean --build-serve  # Clean, build all, and serve"
             echo ""
             echo "Note: Storybook build is slow. To skip it, build specific apps:"
-            echo "  $0 --only gh-pages --serve    # Skip storybook, build only index"
+            echo "  $0 --only gh-pages --build-serve    # Skip storybook, build only index"
             exit 0
             ;;
         *)
@@ -108,9 +115,9 @@ build_gh_pages() {
     cd apps/gh-pages
     # Use root path for local testing
     if [ "$VERBOSE" = true ]; then
-        npm run build
+        VITE_BASE_PATH="/" npm run build
     else
-        npm run build > /dev/null 2>&1 || {
+        VITE_BASE_PATH="/" npm run build > /dev/null 2>&1 || {
             print_error "GitHub Pages build failed. Run with --verbose to see details."
             exit 1
         }
@@ -174,8 +181,16 @@ build_storybook() {
     print_success "Storybook built and copied"
 }
 
-# Build packages first (unless building only a specific app)
-if [ -z "$BUILD_ONLY" ]; then
+# Skip all building if serve is requested
+if [ "$SERVE" = true ]; then
+    if [ ! -d "local-deploy" ]; then
+        print_error "No existing build found. Run without --serve first to build."
+        exit 1
+    fi
+    print_step "Skipping build - serving existing files..."
+else
+    # Build packages first (unless building only a specific app)
+    if [ -z "$BUILD_ONLY" ]; then
     print_step "Building UI Core package..."
     if [ "$VERBOSE" = true ]; then
         npm run build --workspace=@smbc/ui-core
@@ -231,9 +246,10 @@ case "$BUILD_ONLY" in
         print_warning "Available apps: gh-pages, mui-host-dev, mui-ewi, storybook"
         exit 1
         ;;
-esac
+    esac
 
-print_success "All builds completed successfully!"
+    print_success "All builds completed successfully!"
+fi
 
 # Create a summary
 echo ""
@@ -245,7 +261,7 @@ echo "├── 📁 ewi/ (EWI App)"
 echo "└── 📁 storybook/ (Component Library)"
 
 # Serve if requested
-if [ "$SERVE" = true ]; then
+if [ "$SERVE" = true ] || [ "$BUILD_SERVE" = true ]; then
     echo ""
     print_step "Starting local server..."
 

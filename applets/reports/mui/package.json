@@ -25,6 +25,7 @@
   "devDependencies": {
     "@smbc/mui-applet-core": "*",
     "@smbc/mui-components": "*",
+    "@smbc/mui-grid": "*",
     "@types/node": "^20.11.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
@@ -47,6 +48,7 @@
     "@smbc/applet-core": "*",
     "@smbc/mui-applet-core": "*",
     "@smbc/mui-components": "*",
+    "@smbc/mui-grid": "*",
     "ag-grid-community": "^32.0.0",
     "ag-grid-react": "^32.0.0",
     "echarts": "^5.4.3",

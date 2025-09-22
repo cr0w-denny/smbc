@@ -25,6 +25,8 @@
     "test": "echo 'No tests configured'"
   },
   "dependencies": {
+    "@smbc/mui-components": "*",
+    "@smbc/mui-grid": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

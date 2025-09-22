@@ -7,7 +7,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import "ag-grid-enterprise";
 
-interface AgGridThemeProps {
+export interface AgGridThemeProps {
   height?: string | number;
   mx?: number;
   wrapHeaders?: boolean;

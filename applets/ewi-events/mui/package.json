@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@smbc/mui-components": "*",
+    "@smbc/mui-grid": "*",
     "@smbc/applet-core": "*",
     "@smbc/ewi-events-api": "*",
     "@mui/material": "^7.2.0",

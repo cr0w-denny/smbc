@@ -3,9 +3,9 @@ import { Box } from "@mui/material";
 import {
   Card,
   RelatedNews,
-  AgGridTheme,
   StatusChip,
 } from "@smbc/mui-components";
+import { AgGridTheme } from "@smbc/mui-grid";
 import type { NewsItem } from "@smbc/mui-components";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef } from "ag-grid-community";

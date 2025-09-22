@@ -65,8 +65,6 @@ export type {
   TreeNavigationItem,
 } from "./AppShell";
 
-// AG Grid Theme
-export { AgGridTheme } from "./AgGridTheme";
 
 // Export icons for tree-shaking
 export * from "./icons";

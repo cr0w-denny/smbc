@@ -10,7 +10,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
-import { AgGridTheme, Card, darkTheme, StatusChip } from "@smbc/mui-components";
+import { Card, darkTheme, StatusChip } from "@smbc/mui-components";
+import { AgGridTheme } from "@smbc/mui-grid";
 import { AppletPage } from "@smbc/mui-applet-core";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import { useHashNavigationWithApply } from "@smbc/applet-core";
