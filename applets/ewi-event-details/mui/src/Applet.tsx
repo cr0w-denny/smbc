@@ -197,11 +197,27 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
           gap: "30px",
         }}
       >
-        {!isEditorMaximized && renderTabContent()}
+        {!isEditorMaximized && (
+          <Box
+            sx={{
+              flex: { xs: 1.2, sm: 1.2, md: 1, lg: 1, xl: 1 },
+              minWidth: { xs: "400px", sm: "500px", md: "600px" },
+              overflow: "hidden",
+            }}
+          >
+            {renderTabContent()}
+          </Box>
+        )}
 
         <Box
           sx={{
-            flex: 1,
+            flex: isEditorMaximized
+              ? 1
+              : { xs: 0.8, sm: 0.8, md: 1, lg: 1, xl: 1 },
+            minWidth: isEditorMaximized
+              ? "100%"
+              : { xs: "280px", sm: "320px", md: "400px" },
+            width: isEditorMaximized ? "100%" : "auto",
             position: "sticky",
             top: "184px", // TopNav (104px) + Fixed Toolbar (80px)
             height: "calc(100vh - 210px)",

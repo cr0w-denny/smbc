@@ -103,3 +103,9 @@ export type { StatusChipProps } from "./StatusChip";
 // Related News
 export { RelatedNews } from "./RelatedNews";
 export type { RelatedNewsProps, NewsItem } from "./RelatedNews";
+
+// Scrollbar utilities
+export {
+  darkScrollbarStyles,
+  lightScrollbarStyles
+} from "./theme/dark/scrollbar";

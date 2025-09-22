@@ -1,5 +1,6 @@
 import { Components, Theme } from "@mui/material/styles";
 import * as ui from "@smbc/ui-core";
+import { darkScrollbarStyles, lightScrollbarStyles } from "../dark/scrollbar";
 
 export const createBaseComponents = (
   theme: Theme,
@@ -607,32 +608,10 @@ export const createBaseComponents = (
             mode === "dark" ? ui.SurfaceBodyDark : ui.SurfaceBodyLight,
           color: mode === "dark" ? ui.TextPrimaryDark : ui.TextPrimaryLight,
         },
-        ...(mode === "dark" && {
-          // Scrollbar styling for dark mode
-          "body, .ag-theme-quartz, .ag-body-viewport, .MuiPaper-root": {
-            scrollbarColor: "#555 #2a2a2a",
-            scrollbarWidth: "thin",
-            "&::-webkit-scrollbar": {
-              width: "10px",
-              height: "10px",
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "#2a2a2a",
-              borderRadius: "5px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#555",
-              borderRadius: "5px",
-              border: "1px solid #2a2a2a",
-              "&:hover": {
-                backgroundColor: "#666",
-              },
-            },
-            "&::-webkit-scrollbar-corner": {
-              backgroundColor: "#2a2a2a",
-            },
-          },
-        }),
+        // Global scrollbar styling for both light and dark modes
+        "html, body, .ag-theme-quartz, .ag-body-viewport, .MuiPaper-root": {
+          ...(mode === "dark" ? darkScrollbarStyles : lightScrollbarStyles),
+        },
       },
     },
   };

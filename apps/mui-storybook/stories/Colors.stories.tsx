@@ -123,6 +123,132 @@ function ColorSwatch({
   );
 }
 
+interface LightDarkSwatchProps {
+  name: string;
+  lightValue: string;
+  darkValue: string;
+  lightTokenName: string;
+  darkTokenName: string;
+  size?: "small" | "medium" | "large";
+}
+
+function LightDarkSwatch({
+  name,
+  lightValue,
+  darkValue,
+  lightTokenName,
+  darkTokenName,
+  size = "medium",
+}: LightDarkSwatchProps) {
+  const height = size === "small" ? 40 : size === "large" ? 80 : 60;
+
+  // Function to calculate contrast and determine text color
+  const getContrastColor = (hexColor: string) => {
+    // Convert hex to RGB
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return black for light backgrounds, white for dark backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  };
+
+  return (
+    <Paper
+      elevation={2}
+      sx={{
+        overflow: "hidden",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-2px)",
+          boxShadow: 3,
+        },
+      }}
+    >
+      {/* Light Theme Color */}
+      <Box
+        sx={{
+          bgcolor: lightValue,
+          height: height,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          borderBottom: "1px solid #ddd",
+          p: 1.5,
+        }}
+      >
+        <Typography variant="caption" sx={{
+          fontFamily: "monospace",
+          fontWeight: "bold",
+          fontSize: "0.75rem",
+          color: getContrastColor(lightValue),
+          textShadow: getContrastColor(lightValue) === '#ffffff' ? "0 0 3px rgba(0,0,0,0.9)" : "0 0 3px rgba(255,255,255,0.9)",
+          mb: 0.5
+        }}>
+          {lightValue.toUpperCase()}
+        </Typography>
+        <Typography variant="caption" sx={{
+          fontFamily: "monospace",
+          fontSize: "0.7rem",
+          color: getContrastColor(lightValue),
+          textShadow: getContrastColor(lightValue) === '#ffffff' ? "0 0 3px rgba(0,0,0,0.9)" : "0 0 3px rgba(255,255,255,0.9)",
+          opacity: 0.9
+        }}>
+          {lightTokenName}
+        </Typography>
+      </Box>
+
+      {/* Dark Theme Color */}
+      <Box
+        sx={{
+          bgcolor: darkValue,
+          height: height,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 1.5,
+        }}
+      >
+        <Typography variant="caption" sx={{
+          fontFamily: "monospace",
+          fontWeight: "bold",
+          fontSize: "0.75rem",
+          color: getContrastColor(darkValue),
+          textShadow: getContrastColor(darkValue) === '#ffffff' ? "0 0 3px rgba(0,0,0,0.9)" : "0 0 3px rgba(255,255,255,0.9)",
+          mb: 0.5
+        }}>
+          {darkTokenName}
+        </Typography>
+        <Typography variant="caption" sx={{
+          fontFamily: "monospace",
+          fontSize: "0.7rem",
+          color: getContrastColor(darkValue),
+          textShadow: getContrastColor(darkValue) === '#ffffff' ? "0 0 3px rgba(0,0,0,0.9)" : "0 0 3px rgba(255,255,255,0.9)",
+          opacity: 0.9
+        }}>
+          {darkValue.toUpperCase()}
+        </Typography>
+      </Box>
+
+      <Box sx={{ p: 1.5 }}>
+        <Typography
+          variant="subtitle2"
+          color="primary.main"
+          sx={{ fontWeight: 600, textAlign: "center" }}
+        >
+          {name}
+        </Typography>
+      </Box>
+    </Paper>
+  );
+}
+
 interface ColorSectionProps {
   title: string;
   subtitle?: string;
@@ -463,35 +589,39 @@ export const Colors: Story = {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Input Value Light"
-                value={tokens.InputValueLight}
-                tokenName="InputValueLight"
-                textColor="#fff"
+              <LightDarkSwatch
+                name="Input Value"
+                lightValue={tokens.InputValueLight}
+                darkValue={tokens.InputValueDark}
+                lightTokenName="InputValueLight"
+                darkTokenName="InputValueDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Input Value Dark"
-                value={tokens.InputValueDark}
-                tokenName="InputValueDark"
-                textColor="#000"
+              <LightDarkSwatch
+                name="Input Active"
+                lightValue={tokens.InputActiveLight}
+                darkValue={tokens.InputActiveDark}
+                lightTokenName="InputActiveLight"
+                darkTokenName="InputActiveDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Input Active Light"
-                value={tokens.InputActiveLight}
-                tokenName="InputActiveLight"
-                textColor="#fff"
+              <LightDarkSwatch
+                name="Input Background"
+                lightValue={tokens.InputBackgroundLight}
+                darkValue={tokens.InputBackgroundDark}
+                lightTokenName="InputBackgroundLight"
+                darkTokenName="InputBackgroundDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Input Active Dark"
-                value={tokens.InputActiveDark}
-                tokenName="InputActiveDark"
-                textColor="#000"
+              <LightDarkSwatch
+                name="Input Border"
+                lightValue={tokens.InputBorderLight}
+                darkValue={tokens.InputBorderDark}
+                lightTokenName="InputBorderLight"
+                darkTokenName="InputBorderDark"
               />
             </Grid>
           </Grid>
@@ -504,35 +634,39 @@ export const Colors: Story = {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Header BG Light"
-                value={tokens.TableHeaderBackgroundLight}
-                tokenName="TableHeaderBackgroundLight"
-                textColor="#000"
+              <LightDarkSwatch
+                name="Header Background"
+                lightValue={tokens.TableHeaderBackgroundLight}
+                darkValue={tokens.TableHeaderBackgroundDark}
+                lightTokenName="TableHeaderBackgroundLight"
+                darkTokenName="TableHeaderBackgroundDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Header BG Dark"
-                value={tokens.TableHeaderBackgroundDark}
-                tokenName="TableHeaderBackgroundDark"
-                textColor="#fff"
+              <LightDarkSwatch
+                name="Row Background"
+                lightValue={tokens.TableRowBackgroundLight}
+                darkValue={tokens.TableRowBackgroundDark}
+                lightTokenName="TableRowBackgroundLight"
+                darkTokenName="TableRowBackgroundDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Row BG Light"
-                value={tokens.TableRowBackgroundLight}
-                tokenName="TableRowBackgroundLight"
-                textColor="#000"
+              <LightDarkSwatch
+                name="Header Text"
+                lightValue={tokens.TableHeaderTextLight}
+                darkValue={tokens.TableHeaderTextDark}
+                lightTokenName="TableHeaderTextLight"
+                darkTokenName="TableHeaderTextDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Row BG Dark"
-                value={tokens.TableRowBackgroundDark}
-                tokenName="TableRowBackgroundDark"
-                textColor="#fff"
+              <LightDarkSwatch
+                name="Table Border"
+                lightValue={tokens.TableBorderLight}
+                darkValue={tokens.TableBorderDark}
+                lightTokenName="TableBorderLight"
+                darkTokenName="TableBorderDark"
               />
             </Grid>
           </Grid>
@@ -545,35 +679,75 @@ export const Colors: Story = {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Card BG Light"
-                value={tokens.CardBackgroundLight}
-                tokenName="CardBackgroundLight"
-                textColor="#000"
+              <LightDarkSwatch
+                name="Card Background"
+                lightValue={tokens.CardBackgroundLight}
+                darkValue={tokens.CardBackgroundDark}
+                lightTokenName="CardBackgroundLight"
+                darkTokenName="CardBackgroundDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Card BG Dark"
-                value={tokens.CardBackgroundDark}
-                tokenName="CardBackgroundDark"
-                textColor="#fff"
+              <LightDarkSwatch
+                name="Card Border"
+                lightValue={tokens.CardBorderLight}
+                darkValue={tokens.CardBorderDark}
+                lightTokenName="CardBorderLight"
+                darkTokenName="CardBorderDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Card Border Light"
-                value={tokens.CardBorderLight}
-                tokenName="CardBorderLight"
-                textColor="#000"
+              <LightDarkSwatch
+                name="Card Header Text"
+                lightValue={tokens.CardHeaderTextLight}
+                darkValue={tokens.CardHeaderTextDark}
+                lightTokenName="CardHeaderTextLight"
+                darkTokenName="CardHeaderTextDark"
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+
+        {/* Scrollbar Colors */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom sx={{ mb: 2, mt: 3 }}>
+            Scrollbar Colors
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={4} md={3}>
+              <LightDarkSwatch
+                name="Track"
+                lightValue={tokens.ScrollbarTrackLight}
+                darkValue={tokens.ScrollbarTrackDark}
+                lightTokenName="ScrollbarTrackLight"
+                darkTokenName="ScrollbarTrackDark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
-              <ColorSwatch
-                name="Card Border Dark"
-                value={tokens.CardBorderDark}
-                tokenName="CardBorderDark"
-                textColor="#fff"
+              <LightDarkSwatch
+                name="Thumb"
+                lightValue={tokens.ScrollbarThumbLight}
+                darkValue={tokens.ScrollbarThumbDark}
+                lightTokenName="ScrollbarThumbLight"
+                darkTokenName="ScrollbarThumbDark"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <LightDarkSwatch
+                name="Thumb Hover"
+                lightValue={tokens.ScrollbarThumbHoverLight}
+                darkValue={tokens.ScrollbarThumbHoverDark}
+                lightTokenName="ScrollbarThumbHoverLight"
+                darkTokenName="ScrollbarThumbHoverDark"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+              <LightDarkSwatch
+                name="Thumb Active"
+                lightValue={tokens.ScrollbarThumbActiveLight}
+                darkValue={tokens.ScrollbarThumbActiveDark}
+                lightTokenName="ScrollbarThumbActiveLight"
+                darkTokenName="ScrollbarThumbActiveDark"
               />
             </Grid>
           </Grid>
