@@ -1,0 +1,72 @@
+name: PR Build Checks
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Dependencies with legacy peer deps
+        run: |
+          rm -f package-lock.json
+          npm install --ignore-scripts --legacy-peer-deps
+
+      - name: Run type checking
+        run: npm run type-check
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Build workspace packages (excluding apps)
+        run: |
+          npx turbo run build \
+            --filter="!@smbc/gh-pages" \
+            --filter="!@smbc/mui-host-dev" \
+            --filter="!@smbc/mui-ewi" \
+            --filter="!@smbc/mui-storybook" \
+            --continue
+
+      - name: Test build GitHub Pages Index
+        run: |
+          cd apps/gh-pages
+          npm run build
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/test/"
+
+      - name: Test build MUI Host Dev
+        run: |
+          cd apps/mui-host-dev
+          npm run build
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/test/mui-host-dev/"
+
+      - name: Test build EWI App
+        run: |
+          cd apps/mui-ewi
+          npm run build -- --mode development
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/test/ewi/"
+          VITE_USE_MOCKS: "true"
+
+      - name: Test build Storybook
+        run: |
+          cd apps/mui-storybook
+          npm run build-storybook -- --output-dir dist
+        env:
+          NODE_ENV: development
+          VITE_BASE_PATH: "/test/storybook/"
+
