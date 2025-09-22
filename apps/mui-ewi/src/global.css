@@ -6,6 +6,8 @@ html {
 }
 
 body {
+    /* avoid popover induced layout shift */
+    padding: 0 !important;
     /* allow children to take full height */
     height: 100%;
 }

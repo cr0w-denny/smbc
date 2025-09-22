@@ -74,7 +74,9 @@ export const TopNav: React.FC<TopNavProps> = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
+    null,
+  );
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -99,8 +101,11 @@ export const TopNav: React.FC<TopNavProps> = ({
   const renderNavItem = (item: NavigationItem, index: number) => {
     // Check if item is active or if any dropdown items are active
     // Support nested paths (e.g., /events should be active for /events/detail)
-    const isActive = item.href === currentPath || 
-      (currentPath && item.href !== '/' && currentPath.startsWith(item.href + '/'));
+    const isActive =
+      item.href === currentPath ||
+      (currentPath &&
+        item.href !== "/" &&
+        currentPath.startsWith(item.href + "/"));
     const hasActiveChild =
       item.type === "dropdown" &&
       item.items?.some((subItem) => subItem.href === currentPath);
@@ -135,7 +140,8 @@ export const TopNav: React.FC<TopNavProps> = ({
                   transform: "translateX(-50%)",
                   width: "80%",
                   height: 5,
-                  background: "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
+                  background:
+                    "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
                   borderRadius: "2px 2px 0 0",
                 }}
               />
@@ -169,7 +175,8 @@ export const TopNav: React.FC<TopNavProps> = ({
                   transform: "translateX(-50%)",
                   width: "80%",
                   height: 5,
-                  background: "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
+                  background:
+                    "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
                   borderRadius: "2px 2px 0 0",
                 }}
               />
@@ -179,14 +186,14 @@ export const TopNav: React.FC<TopNavProps> = ({
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl) && activeMenu === item.label}
                 onClose={handleMenuClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
                 slotProps={{
                   paper: {
                     sx: {
                       minWidth: 150,
                       mt: "15px",
-                      "& .MuiMenuItem-root": { minHeight: "auto" }
+                      "& .MuiMenuItem-root": { minHeight: "auto" },
                     },
                   },
                 }}
@@ -255,7 +262,15 @@ export const TopNav: React.FC<TopNavProps> = ({
   const rightNavItems: any[] = [];
 
   return (
-    <AppBar position="fixed" sx={{ height: "104px", zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <AppBar
+      position="fixed"
+      sx={{
+        /* Avoid popover induced layout shift */
+        padding: "0 !important",
+        height: "104px",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+      }}
+    >
       <Toolbar variant="dense" sx={{ height: "100%", p: "0 !important" }}>
         {/* Max-width container for header content */}
         <Box
