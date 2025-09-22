@@ -297,7 +297,7 @@ const AppShellContent: React.FC = () => {
 
       default:
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 3, mt: 14, ml: 11 }}>
             <Typography variant="h4" gutterBottom>
               Welcome to EWI
             </Typography>

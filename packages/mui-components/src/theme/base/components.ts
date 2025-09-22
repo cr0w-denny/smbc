@@ -1,6 +1,6 @@
 import { Components, Theme } from "@mui/material/styles";
 import * as ui from "@smbc/ui-core";
-import { darkScrollbarStyles, lightScrollbarStyles } from "../dark/scrollbar";
+import { getScrollbarStyles } from "../dark/scrollbar";
 
 export const createBaseComponents = (
   theme: Theme,
@@ -610,7 +610,7 @@ export const createBaseComponents = (
         },
         // Global scrollbar styling for both light and dark modes
         "html, body, .ag-theme-quartz, .ag-body-viewport, .MuiPaper-root": {
-          ...(mode === "dark" ? darkScrollbarStyles : lightScrollbarStyles),
+          ...getScrollbarStyles(mode === "dark", ""),
         },
       },
     },

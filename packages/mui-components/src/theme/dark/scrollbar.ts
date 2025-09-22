@@ -1,66 +1,42 @@
 import * as ui from "@smbc/ui-core";
 
 /**
- * Dark theme scrollbar styles
- * Provides custom scrollbar styling for webkit browsers and Firefox
+ * Creates scrollbar styles with the given selector prefix
+ * @param selector - The selector prefix to use (e.g., '&' for styled components, '' for global)
  */
-export const darkScrollbarStyles = {
+export const getScrollbarStyles = (isDark: boolean, selector = '&') => ({
+  // Firefox
+  scrollbarWidth: 'thin' as const,
+  scrollbarColor: isDark
+    ? `${ui.ScrollbarThumbDark} ${ui.ScrollbarTrackDark}`
+    : `${ui.ScrollbarThumbLight} ${ui.ScrollbarTrackLight}`,
+
   // Webkit browsers (Chrome, Safari, Edge)
-  '&::-webkit-scrollbar': {
+  [`${selector}::-webkit-scrollbar`]: {
     width: '12px',
     height: '12px',
   },
-  '&::-webkit-scrollbar-track': {
-    background: ui.ScrollbarTrackDark,
+  [`${selector}::-webkit-scrollbar-track`]: {
+    background: isDark ? ui.ScrollbarTrackDark : ui.ScrollbarTrackLight,
     borderRadius: '6px',
   },
-  '&::-webkit-scrollbar-thumb': {
-    background: ui.ScrollbarThumbDark,
+  [`${selector}::-webkit-scrollbar-thumb`]: {
+    background: isDark ? ui.ScrollbarThumbDark : ui.ScrollbarThumbLight,
     borderRadius: '6px',
-    border: `2px solid ${ui.ScrollbarTrackDark}`,
-    '&:hover': {
-      background: ui.ScrollbarThumbHoverDark,
-    },
-    '&:active': {
-      background: ui.ScrollbarThumbActiveDark,
-    },
+    border: `2px solid ${isDark ? ui.ScrollbarTrackDark : ui.ScrollbarTrackLight}`,
   },
-  '&::-webkit-scrollbar-corner': {
-    background: ui.ScrollbarTrackDark,
+  [`${selector}::-webkit-scrollbar-thumb:hover`]: {
+    background: isDark ? ui.ScrollbarThumbHoverDark : ui.ScrollbarThumbHoverLight,
   },
+  [`${selector}::-webkit-scrollbar-thumb:active`]: {
+    background: isDark ? ui.ScrollbarThumbActiveDark : ui.ScrollbarThumbActiveLight,
+  },
+  [`${selector}::-webkit-scrollbar-corner`]: {
+    background: isDark ? ui.ScrollbarTrackDark : ui.ScrollbarTrackLight,
+  },
+});
 
-  // Firefox
-  scrollbarWidth: 'thin' as const,
-  scrollbarColor: `${ui.ScrollbarThumbDark} ${ui.ScrollbarTrackDark}`,
-};
-
-export const lightScrollbarStyles = {
-  // Webkit browsers (Chrome, Safari, Edge)
-  '&::-webkit-scrollbar': {
-    width: '12px',
-    height: '12px',
-  },
-  '&::-webkit-scrollbar-track': {
-    background: ui.ScrollbarTrackLight,
-    borderRadius: '6px',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: ui.ScrollbarThumbLight,
-    borderRadius: '6px',
-    border: `2px solid ${ui.ScrollbarTrackLight}`,
-    '&:hover': {
-      background: ui.ScrollbarThumbHoverLight,
-    },
-    '&:active': {
-      background: ui.ScrollbarThumbActiveLight,
-    },
-  },
-  '&::-webkit-scrollbar-corner': {
-    background: ui.ScrollbarTrackLight,
-  },
-
-  // Firefox
-  scrollbarWidth: 'thin' as const,
-  scrollbarColor: `${ui.ScrollbarThumbLight} ${ui.ScrollbarTrackLight}`,
-};
+// Convenience exports for common use cases
+export const darkScrollbarStyles = getScrollbarStyles(true, '&');
+export const lightScrollbarStyles = getScrollbarStyles(false, '&');
 
