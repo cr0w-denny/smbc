@@ -76,7 +76,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
   switch (field.type) {
     case "search":
       return (
-        <Box>
+        <Box sx={{ minWidth: field.minWidth }}>
           <SearchInput
             value={value || ""}
             onChange={handleChange}
@@ -85,6 +85,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
             size={field.size}
             fullWidth={field.fullWidth}
             debounceMs={disableDebounce ? 0 : 300}
+            textFieldProps={{ sx: { minWidth: field.minWidth } }}
           />
           {error && <FormHelperText error>{error}</FormHelperText>}
         </Box>
@@ -95,7 +96,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
       const isMultiple = field.multiple;
 
       return (
-        <Box>
+        <Box sx={{ minWidth: field.minWidth }}>
           <CustomSelect
             label={field.label}
             value={isMultiple ? (value || []) : (value === undefined ? "" : value)}
@@ -136,7 +137,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
               }
             }}
             formControlProps={{
-              sx: { minWidth: 120 },
+              sx: { minWidth: field.minWidth || 120 },
               fullWidth: field.fullWidth,
             }}
           >
@@ -175,11 +176,14 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           onChange={(e) =>
             handleChange(e.target.value ? Number(e.target.value) : null)
           }
-          inputProps={{
-            min: field.min,
-            max: field.max,
+          slotProps={{
+            htmlInput: {
+              min: field.min,
+              max: field.max,
+            },
           }}
           helperText={error}
+          sx={{ minWidth: field.minWidth }}
         />
       );
 
@@ -203,7 +207,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "date":
       return (
-        <Box sx={{ width: 170 }}>
+        <Box sx={{ minWidth: field.minWidth || 170, width: field.minWidth || 170 }}>
           <DatePicker
             label={field.label}
             value={parseDate(value, field.dateFormat)}
@@ -228,7 +232,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "datetime":
       return (
-        <Box sx={{ width: 170 }}>
+        <Box sx={{ minWidth: field.minWidth || 170, width: field.minWidth || 170 }}>
           <DateTimePicker
             label={field.label}
             value={parseDate(value, field.dateFormat || "yyyy-MM-dd HH:mm:ss")}
@@ -266,7 +270,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
 
     case "daterange":
       return (
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center", minWidth: field.minWidth }}>
           <DatePicker
             label={`${field.label} From`}
             value={parseDate(value?.from, field.dateFormat)}
@@ -329,6 +333,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
           value={value || ""}
           onChange={(e) => handleChange(e.target.value)}
           helperText={error}
+          sx={{ minWidth: field.minWidth }}
         />
       );
   }
