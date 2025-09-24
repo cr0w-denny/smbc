@@ -1,7 +1,7 @@
 import { createTheme, TypographyVariantsOptions } from "@mui/material/styles";
 import { lightPalette } from "./palette";
 import { baseTypography, baseSpacing, createBaseComponents } from "../base";
-import { shadows, breakpoints } from "@smbc/ui-core";
+import { shadow, breakpoints } from "@smbc/ui-core";
 
 // Create the base theme with light palette
 const baseTheme = createTheme({
@@ -10,39 +10,39 @@ const baseTheme = createTheme({
   spacing: baseSpacing,
   breakpoints: {
     values: {
-      xs: parseInt(breakpoints.Xs),
-      sm: parseInt(breakpoints.Sm),
-      md: parseInt(breakpoints.Md),
-      lg: parseInt(breakpoints.Lg),
-      xl: parseInt(breakpoints.Xl),
+      xs: parseInt(breakpoints.xs),
+      sm: parseInt(breakpoints.sm),
+      md: parseInt(breakpoints.md),
+      lg: parseInt(breakpoints.lg),
+      xl: parseInt(breakpoints.xl),
     },
   },
   shadows: [
     "none",
-    shadows?.sm || "none",
-    shadows?.base || "none",
-    shadows?.md || "none",
-    shadows?.lg || "none",
-    shadows?.xl || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
-    shadows?.["2xl"] || "none",
+    shadow?.sm || "none",
+    shadow?.base || "none",
+    shadow?.md || "none",
+    shadow?.lg || "none",
+    shadow?.xl || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
+    shadow?.["2xl"] || "none",
   ],
 });
 

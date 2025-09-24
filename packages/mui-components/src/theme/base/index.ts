@@ -1,7 +1,11 @@
-import { createTheme as muiCreateTheme, TypographyVariantsOptions, ThemeOptions } from "@mui/material/styles";
+import {
+  createTheme as muiCreateTheme,
+  TypographyVariantsOptions,
+  ThemeOptions,
+} from "@mui/material/styles";
 import { lightPalette } from "../light/palette";
 import { darkPalette } from "../dark/palette";
-import { shadows, breakpoints } from "@smbc/ui-core";
+import { shadow, breakpoints } from "@smbc/ui-core";
 import { baseTypography } from "./typography";
 import { baseSpacing } from "./spacing";
 import { createBaseComponents } from "./components";
@@ -18,10 +22,10 @@ export { createBaseComponents } from "./components";
  */
 export const createTheme = (
   isDarkMode: boolean = false,
-  appOverrides: ThemeOptions = {}
+  appOverrides: ThemeOptions = {},
 ) => {
   const palette = isDarkMode ? darkPalette : lightPalette;
-  
+
   // Create base theme with palette
   const baseTheme = muiCreateTheme({
     palette,
@@ -32,39 +36,39 @@ export const createTheme = (
     },
     breakpoints: {
       values: {
-        xs: parseInt(breakpoints.Xs),
-        sm: parseInt(breakpoints.Sm),
-        md: parseInt(breakpoints.Md),
-        lg: parseInt(breakpoints.Lg),
-        xl: parseInt(breakpoints.Xl),
+        xs: parseInt(breakpoints.xs),
+        sm: parseInt(breakpoints.sm),
+        md: parseInt(breakpoints.md),
+        lg: parseInt(breakpoints.lg),
+        xl: parseInt(breakpoints.xl),
       },
     },
     shadows: [
       "none",
-      shadows?.sm || "none",
-      shadows?.base || "none",
-      shadows?.md || "none",
-      shadows?.lg || "none",
-      shadows?.xl || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
-      shadows?.["2xl"] || "none",
+      shadow?.sm || "none",
+      shadow?.base || "none",
+      shadow?.md || "none",
+      shadow?.lg || "none",
+      shadow?.xl || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
+      shadow?.["2xl"] || "none",
     ],
     ...appOverrides,
   });
@@ -72,13 +76,20 @@ export const createTheme = (
   // Create final theme with base components + app component overrides
   const baseComponents = createBaseComponents(baseTheme);
   const mergedComponents = { ...baseComponents };
-  
+
   // Deep merge app component overrides with base components
   if (appOverrides.components) {
-    for (const [componentName, componentOverride] of Object.entries(appOverrides.components)) {
-      const existingComponent = mergedComponents[componentName as keyof typeof mergedComponents];
-      
-      if (existingComponent && typeof existingComponent === 'object' && typeof componentOverride === 'object') {
+    for (const [componentName, componentOverride] of Object.entries(
+      appOverrides.components,
+    )) {
+      const existingComponent =
+        mergedComponents[componentName as keyof typeof mergedComponents];
+
+      if (
+        existingComponent &&
+        typeof existingComponent === "object" &&
+        typeof componentOverride === "object"
+      ) {
         // Merge styleOverrides if both exist
         mergedComponents[componentName as keyof typeof mergedComponents] = {
           ...(existingComponent as any),
@@ -89,7 +100,8 @@ export const createTheme = (
         };
       } else {
         // Add new component override
-        mergedComponents[componentName as keyof typeof mergedComponents] = componentOverride;
+        mergedComponents[componentName as keyof typeof mergedComponents] =
+          componentOverride;
       }
     }
   }

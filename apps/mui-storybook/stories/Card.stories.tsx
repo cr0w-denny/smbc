@@ -11,7 +11,7 @@ import {
   Archive as ArchiveIcon,
 } from "@mui/icons-material";
 import { Card, CardMenuItem } from "@smbc/mui-components";
-import * as ui from "@smbc/ui-core";
+import { ui } from "@smbc/ui-core";
 
 const meta: Meta<typeof Card> = {
   title: "Components/Card",
@@ -84,7 +84,7 @@ export const LargeSize: Story = {
           label="142"
           size="small"
           sx={{
-            color: ui.CardHeaderTextDark || "#98A4B9",
+            color: ui.color.card.header.text.dark || "#98A4B9",
             backgroundColor: "#0E131D", // Custom dark chip background
             fontSize: "14px",
             "& .MuiChip-label": {
@@ -172,7 +172,7 @@ export const ComplexTitle: Story = {
             }}
           />
         </Box>
-        <Typography variant="caption" sx={{ color: ui.TextSecondaryDark || "rgba(255,255,255,0.6)" }}>
+        <Typography variant="caption" sx={{ color: ui.color.text.secondary.dark || "rgba(255,255,255,0.6)" }}>
           Last updated: 2 minutes ago
         </Typography>
       </Box>

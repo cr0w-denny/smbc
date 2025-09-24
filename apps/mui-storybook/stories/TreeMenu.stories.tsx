@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Box, Paper, Typography, TextField, InputAdornment } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
 import {
   Search as SearchIcon,
   Dashboard as DashboardIcon,
@@ -8,15 +14,11 @@ import {
   Article as ArticleIcon,
   Assessment as AssessmentIcon,
   Settings as SettingsIcon,
-  Menu as MenuIcon,
-  Build as BuildIcon,
-  Inventory as InventoryIcon,
-  ShoppingCart as ShoppingCartIcon,
-  Analytics as AnalyticsIcon,
-  IntegrationInstructions as IntegrationIcon,
 } from "@mui/icons-material";
 import {
   TreeMenu,
+} from "@smbc/mui-components";
+import type {
   TreeMenuSection,
   TreeMenuHeader,
   NavigationRoute,
@@ -197,7 +199,15 @@ const TreeMenuWrapper = ({
           {...props}
         />
       </Paper>
-      <Box sx={{ flex: 1, p: 3, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Box
+        sx={{
+          flex: 1,
+          p: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Typography variant="h6">
           Current Path: <strong>{currentPath}</strong>
         </Typography>
@@ -254,4 +264,3 @@ export const Compact: Story = {
     />
   ),
 };
-

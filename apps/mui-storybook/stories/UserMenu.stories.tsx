@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Box, Button, Avatar } from "@mui/material";
+import { Button } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
 import { UserMenu } from "@smbc/mui-components";
 
@@ -31,10 +31,8 @@ const UserMenuWrapper = ({ ...props }) => {
   };
 
   const handleToggleRole = (roleId: string, enabled: boolean) => {
-    setUserRoles(prev =>
-      prev.map(role =>
-        role.id === roleId ? { ...role, enabled } : role
-      )
+    setUserRoles((prev: any[]) =>
+      prev.map((role) => (role.id === roleId ? { ...role, enabled } : role)),
     );
   };
 
@@ -113,12 +111,7 @@ export const ManyRoles: Story = {
 };
 
 export const NoRoles: Story = {
-  render: () => (
-    <UserMenuWrapper
-      name="Basic User"
-      userRoles={[]}
-    />
-  ),
+  render: () => <UserMenuWrapper name="Basic User" userRoles={[]} />,
 };
 
 export const LongName: Story = {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Popover, MenuItem, MenuList } from "@mui/material";
+import { Box, Button, Popover, MenuItem, MenuList, useTheme } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
@@ -11,6 +11,8 @@ import {
   Gavel as MandatoryIcon,
   ChipToggleGroup,
 } from "@smbc/mui-components";
+import { ui, color, shadow } from "@smbc/ui-core";
+import { token } from "@smbc/mui-components";
 import type { ChipToggleItem } from "@smbc/mui-components";
 interface BulkAction {
   type: "bulk";
@@ -58,6 +60,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   workflowActions = [],
   selectedItems = [],
 }) => {
+  const theme = useTheme();
   const [workflowAnchor, setWorkflowAnchor] =
     React.useState<null | HTMLElement>(null);
 
@@ -98,7 +101,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Mandatory",
       icon: <MandatoryIcon />,
       count: statusCounts.mandatory ?? 0,
-      color: "#0066CC",
+      color: color.status.info500,
       group: "category",
     },
     {
@@ -106,7 +109,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Discretionary",
       icon: <DiscretionaryIcon />,
       count: statusCounts.discretionary ?? 0,
-      color: "#6B46C1",
+      color: color.tertiary.plum100,
       group: "category",
     },
     {
@@ -114,7 +117,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "On Course",
       icon: <CheckCircleIcon />,
       count: statusCounts.onCourse ?? 0,
-      color: "#12A187",
+      color: token(theme, ui.color.status.success),
       group: "status",
     },
     {
@@ -122,7 +125,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Past Due",
       icon: <ErrorIcon />,
       count: statusCounts.pastDue ?? 0,
-      color: "#CD463C",
+      color: token(theme, ui.color.status.error),
       group: "status",
     },
     {
@@ -130,7 +133,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       label: "Almost Due",
       icon: <WarningIcon />,
       count: statusCounts.almostDue ?? 0,
-      color: "#FD992E",
+      color: token(theme, ui.color.status.warning),
       group: "status",
     },
   ];
@@ -202,14 +205,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               minWidth: 120,
               "&.Mui-disabled": {
                 backgroundColor: "transparent !important",
-                border:
-                  theme.palette.mode === "dark"
-                    ? "1px solid rgba(255, 255, 255, 0.12) !important"
-                    : "1px solid rgba(0, 0, 0, 0.12) !important",
-                color:
-                  theme.palette.mode === "dark"
-                    ? "rgba(255, 255, 255, 0.3) !important"
-                    : "rgba(0, 0, 0, 0.26) !important",
+                border: `1px solid ${token(theme, ui.color.border.secondary)} !important`,
+                color: `${token(theme, ui.color.action.disabled)} !important`,
               },
             })}
           >
@@ -245,8 +242,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           },
           "& .MuiPaper-root": {
             pointerEvents: "auto",
-            boxShadow:
-              "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
+            boxShadow: shadow.md,
           },
         }}
       >

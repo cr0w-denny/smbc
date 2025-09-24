@@ -7,7 +7,7 @@ import {
   Divider,
   Chip,
 } from "@mui/material";
-import * as tokens from "@smbc/ui-core";
+import { typography } from "@smbc/ui-core";
 
 const meta: Meta = {
   title: "Foundations/Typography",
@@ -427,7 +427,7 @@ export const Typography: Story = {
             fontWeight="400"
             lineHeight="1.5"
             letterSpacing="0em"
-            fontFamily={tokens.TypographyFontFamilySecondary}
+            fontFamily={typography.fontFamily.secondary}
             description="Large body text for introductory content and emphasis"
             usage="Lead paragraphs, feature descriptions, important notices"
           />
@@ -440,7 +440,7 @@ export const Typography: Story = {
             fontWeight="400"
             lineHeight="1.5"
             letterSpacing="0em"
-            fontFamily={tokens.TypographyFontFamilySecondary}
+            fontFamily={typography.fontFamily.secondary}
             description="Standard body text for general content"
             usage="Standard paragraphs, descriptions, content blocks"
           />
@@ -453,7 +453,7 @@ export const Typography: Story = {
             fontWeight="400"
             lineHeight="1.4"
             letterSpacing="0em"
-            fontFamily={tokens.TypographyFontFamilySecondary}
+            fontFamily={typography.fontFamily.secondary}
             description="Small body text for secondary information"
             usage="Secondary descriptions, terms, disclaimers"
           />

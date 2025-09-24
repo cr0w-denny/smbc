@@ -22,6 +22,7 @@ export type {
   NavigationRoute,
   TreeMenuSection,
   TreeMenuGroup,
+  TreeMenuHeader,
   TreeMenuProps,
 } from "./TreeMenu";
 
@@ -109,3 +110,6 @@ export {
   darkScrollbarStyles,
   lightScrollbarStyles
 } from "./theme/dark/scrollbar";
+
+// Token utilities
+export { token, t } from "./utils/tokens";

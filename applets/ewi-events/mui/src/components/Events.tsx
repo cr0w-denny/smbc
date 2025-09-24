@@ -10,11 +10,11 @@ import {
   useTheme,
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
-import { AgGridTheme, Card, darkTheme, StatusChip } from "@smbc/mui-components";
+import { AgGridTheme, Card, darkTheme, StatusChip, token } from "@smbc/mui-components";
 import { AppletPage } from "@smbc/mui-applet-core";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import { useHashNavigationWithApply } from "@smbc/applet-core";
-import * as ui from "@smbc/ui-core";
+import { ui, color, shadow } from "@smbc/ui-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
 import type { components, paths } from "@smbc/ewi-events-api/types";
@@ -205,9 +205,9 @@ const StatusCellRenderer = (params: any) => {
       <StatusChip
         variant="custom"
         label={label}
-        outlineColor="#A32B9A"
-        fillColor={theme.palette.mode === "dark" ? "rgba(163, 43, 154, 0.1)" : "#FDF9FD"}
-        textColor={theme.palette.mode === "dark" ? "#FFFFFF" : "#1A1A1A"}
+        outlineColor={color.tertiary.plum100}
+        fillColor={token(theme, ui.color.background.tertiary)}
+        textColor={token(theme, ui.color.text.primary)}
         sx={{
           fontSize: "12px",
           fontWeight: theme.palette.mode === "dark" ? 300 : 400,
@@ -301,8 +301,7 @@ const createActionsCellRenderer =
             paper: {
               "aria-labelledby": "row-actions-button",
               sx: {
-                boxShadow:
-                  "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
+                boxShadow: shadow.md,
               },
             },
           }}
@@ -746,8 +745,8 @@ const EventsAgGrid: React.FC = () => {
               label={data?.events?.length || 0}
               size="small"
               sx={(theme) => ({
-                color: theme.palette.mode === "dark" ? ui.ChipDefaultTextDark : ui.ChipDefaultTextLight,
-                backgroundColor: theme.palette.mode === "dark" ? ui.ChipDefaultBackgroundDark : ui.ChipDefaultBackgroundLight,
+                color: token(theme, ui.color.chip.default.text),
+                backgroundColor: token(theme, ui.color.chip.default.background),
                 fontSize: "14px",
                 "& .MuiChip-label": {
                   px: 1.5,
@@ -847,18 +846,12 @@ const EventsAgGrid: React.FC = () => {
               });
               if (params.node.expanded) {
                 return {
-                  backgroundColor:
-                    darkTheme.palette.mode === "dark"
-                      ? ui.TableRowHoverDark
-                      : ui.TableRowHoverLight,
+                  backgroundColor: token(darkTheme, ui.color.table.row.hover),
                 };
               }
               if (params.node.detail) {
                 return {
-                  backgroundColor:
-                    darkTheme.palette.mode === "dark"
-                      ? ui.TableRowSelectedDark
-                      : ui.TableRowSelectedLight,
+                  backgroundColor: token(darkTheme, ui.color.table.row.selected),
                 };
               }
               return undefined;

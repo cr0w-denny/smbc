@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import { mkdirSync, existsSync } from "fs";
 import { dts } from "vite-plugin-dts-build";
 
 export default defineConfig({
@@ -14,20 +13,6 @@ export default defineConfig({
       tsconfigPath: "./tsconfig.json",
       cacheDir: "./.tsBuildCache-ui-core",
     }),
-    // Custom plugin to preserve Style Dictionary outputs
-    {
-      name: "preserve-style-dictionary",
-      writeBundle() {
-        // Ensure CSS directory exists
-        if (!existsSync("dist/css")) {
-          mkdirSync("dist/css", { recursive: true });
-        }
-        // Copy CSS files if they exist
-        if (existsSync("dist/css/tokens.css")) {
-          // CSS files are already there from Style Dictionary
-        }
-      },
-    },
   ],
   build: {
     lib: {
@@ -43,6 +28,5 @@ export default defineConfig({
       },
     },
     copyPublicDir: false,
-    emptyOutDir: false, // Don't empty the dist folder to preserve Style Dictionary outputs
   },
 });

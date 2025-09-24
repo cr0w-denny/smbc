@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
-import * as ui from "@smbc/ui-core";
+import { ui } from "@smbc/ui-core";
 
 interface AppletPageProps {
   toolbar?: React.ReactNode;
@@ -101,7 +101,7 @@ const PageLayout: React.FC<{
               left: 0,
               right: 0,
               height: `${toolbarHeight + 100}px`, // Extend 20px below toolbar content
-              backgroundColor: ui.NavigationBackgroundLight,
+              backgroundColor: ui.color.navigation.background.light,
               zIndex: 1000, // Behind content and toolbar
               display: isLightMode && bgExtended ? "block" : "none",
             }}
@@ -117,7 +117,7 @@ const PageLayout: React.FC<{
               py: 2,
               background: isLightMode
                 ? bgExtended
-                  ? ui.NavigationBackgroundLight
+                  ? ui.color.navigation.background.light
                   : ""
                 : gradient,
             }}

@@ -12,35 +12,20 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./css": {
-      "import": "./dist/css/tokens.css",
-      "default": "./dist/css/tokens.css"
-    },
-    "./scss": {
-      "import": "./dist/scss/_tokens.scss",
-      "default": "./dist/scss/_tokens.scss"
-    },
-    "./js": {
-      "import": "./dist/js/tokens.js",
-      "default": "./dist/js/tokens.js"
-    }
+    "./tokens/*": "./tokens/*"
   },
   "files": [
-    "dist"
+    "dist",
+    "tokens"
   ],
   "scripts": {
-    "build": "style-dictionary build --config style-dictionary.config.js && rm -f tsconfig.tsbuildinfo && tsc -b",
-    "dev": "style-dictionary build --config style-dictionary.config.js && concurrently \"chokidar 'tokens/**/*.json' -c 'style-dictionary build --config style-dictionary.config.js'\" \"tsc -b --watch\"",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo src/tokens.generated.ts",
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "echo 'Lint: ui-core'",
-    "type-check": "tsc --noEmit",
-    "tokens:build": "style-dictionary build --config style-dictionary.config.js",
-    "tokens:watch": "style-dictionary build --watch"
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "chokidar-cli": "^3.0.0",
-    "concurrently": "^9.2.0",
-    "style-dictionary": "^5.0.0",
     "typescript": "~5.8.3"
   },
   "publishConfig": {

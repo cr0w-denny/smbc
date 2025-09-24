@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { MuiDataView } from "@smbc/mui-applet-core";
-import { Chip, IconButton } from "@mui/material";
+import { Chip } from "@mui/material";
 import { Edit, Delete, Visibility } from "@mui/icons-material";
 
 const meta: Meta<typeof MuiDataView.TableComponent> = {
@@ -189,4 +189,3 @@ export const EmptyState: Story = {
     error: null,
   },
 };
-

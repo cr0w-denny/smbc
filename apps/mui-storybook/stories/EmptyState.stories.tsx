@@ -3,7 +3,6 @@ import { Box } from "@mui/material";
 import {
   Search as SearchIcon,
   Add as AddIcon,
-  Refresh as RefreshIcon,
   FolderOpen as FolderIcon,
   ErrorOutline as ErrorIcon,
 } from "@mui/icons-material";
@@ -18,7 +17,15 @@ const meta: Meta<typeof EmptyState> = {
   tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <Box sx={{ width: 400, height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Box
+        sx={{
+          width: 400,
+          height: 300,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Story />
       </Box>
     ),
@@ -39,7 +46,8 @@ export const WithIcon: Story = {
   args: {
     icon: <SearchIcon sx={{ fontSize: 64, color: "text.secondary" }} />,
     title: "No search results",
-    description: "Try adjusting your search criteria to find what you're looking for.",
+    description:
+      "Try adjusting your search criteria to find what you're looking for.",
   },
 };
 

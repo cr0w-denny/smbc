@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Box, Typography, GridLegacy as Grid, Paper } from "@mui/material";
-import * as tokens from "@smbc/ui-core";
+import { color, ui } from "@smbc/ui-core";
 
 const meta: Meta = {
   title: "Foundations/Colors",
@@ -302,8 +302,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6}>
           <ColorSwatch
             name="Trad Green"
-            value={tokens.TradGreen}
-            tokenName="TradGreen"
+            value={color.brand.primary.tradGreen}
+            tokenName="color.brand.primary.tradGreen"
             description="Tradition, reliability, and trust"
             textColor="#fff"
             size="large"
@@ -315,8 +315,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6}>
           <ColorSwatch
             name="Fresh Green"
-            value={tokens.FreshGreen}
-            tokenName="FreshGreen"
+            value={color.brand.primary.freshGreen}
+            tokenName="color.brand.primary.freshGreen"
             description="Youth, sensitivity, and kindness"
             textColor="#000"
             size="large"
@@ -335,8 +335,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={3}>
           <ColorSwatch
             name="Honey Beige"
-            value={tokens.HoneyBeige100}
-            tokenName="HoneyBeige100"
+            value={color.secondary.honeyBeige100}
+            tokenName="color.secondary.honeyBeige100"
             textColor="#fff"
             pantone="2470 C"
             cmyk="0/15/42/39"
@@ -346,8 +346,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={3}>
           <ColorSwatch
             name="Wheat Yellow"
-            value={tokens.WheatYellow100}
-            tokenName="WheatYellow100"
+            value={color.secondary.wheatYellow100}
+            tokenName="color.secondary.wheatYellow100"
             textColor="#000"
             pantone="4023 C"
             cmyk="0/14/50/13"
@@ -357,8 +357,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={3}>
           <ColorSwatch
             name="Jade Green"
-            value={tokens.JadeGreen100}
-            tokenName="JadeGreen100"
+            value={color.secondary.jadeGreen100}
+            tokenName="color.secondary.jadeGreen100"
             textColor="#fff"
             pantone="5565 C"
             cmyk="50/19/36/7"
@@ -368,8 +368,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={3}>
           <ColorSwatch
             name="Storm Blue"
-            value={tokens.StormBlue100}
-            tokenName="StormBlue100"
+            value={color.secondary.stormBlue100}
+            tokenName="color.secondary.stormBlue100"
             textColor="#fff"
             pantone="4158 C"
             cmyk="64/15/0/46"
@@ -386,8 +386,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <ColorSwatch
             name="Soft Gray"
-            value={tokens.SoftGray100}
-            tokenName="SoftGray100"
+            value={color.tertiary.softGray100}
+            tokenName="color.tertiary.softGray100"
             textColor="#000"
             pantone="427C"
             cmyk="0/1/4/16"
@@ -397,8 +397,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <ColorSwatch
             name="Dark Gray"
-            value={tokens.DarkGray100}
-            tokenName="DarkGray100"
+            value={color.tertiary.darkGray100}
+            tokenName="color.tertiary.darkGray100"
             textColor="#fff"
             pantone="4278 C"
             cmyk="0/0/0/50"
@@ -408,8 +408,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <ColorSwatch
             name="Plum"
-            value={tokens.Plum100}
-            tokenName="Plum100"
+            value={color.tertiary.plum100}
+            tokenName="color.tertiary.plum100"
             textColor="#fff"
             pantone="668 C"
             cmyk="13/37/0/53"
@@ -419,8 +419,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <ColorSwatch
             name="Khaki"
-            value={tokens.Khaki100}
-            tokenName="Khaki100"
+            value={color.tertiary.khaki100}
+            tokenName="color.tertiary.khaki100"
             textColor="#000"
             pantone="4241 C"
             cmyk="0/7/28/25"
@@ -430,8 +430,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <ColorSwatch
             name="Sky Blue"
-            value={tokens.SkyBlue100}
-            tokenName="SkyBlue100"
+            value={color.tertiary.skyBlue100}
+            tokenName="color.tertiary.skyBlue100"
             textColor="#fff"
             pantone="2121C"
             cmyk="36/19/0/16"
@@ -441,8 +441,8 @@ export const Colors: Story = {
         <Grid item xs={12} sm={6} md={4} lg={2}>
           <ColorSwatch
             name="Calm Navy"
-            value={tokens.CalmNavy100}
-            tokenName="CalmNavy100"
+            value={color.tertiary.calmNavy100}
+            tokenName="color.tertiary.calmNavy100"
             textColor="#fff"
             pantone="2378 C"
             cmyk="54/36/0/55"
@@ -457,17 +457,17 @@ export const Colors: Story = {
         subtitle="Neutral colors for text, borders, backgrounds, and UI elements."
       >
         {[
-          { name: "Gray100", value: tokens.Gray100 },
-          { name: "Gray300", value: tokens.Gray300 },
-          { name: "Gray500", value: tokens.Gray500 },
-          { name: "Gray700", value: tokens.Gray700 },
-          { name: "Gray900", value: tokens.Gray900 },
-        ].map(({ name, value }) => (
+          { name: "Gray100", value: color.gray100, tokenName: "color.gray100" },
+          { name: "Gray300", value: color.gray300, tokenName: "color.gray300" },
+          { name: "Gray500", value: color.gray500, tokenName: "color.gray500" },
+          { name: "Gray700", value: color.gray700, tokenName: "color.gray700" },
+          { name: "Gray900", value: color.gray900, tokenName: "color.gray900" },
+        ].map(({ name, value, tokenName }) => (
           <Grid item xs={6} sm={4} md={2} key={name}>
             <ColorSwatch
               name={name}
               value={value}
-              tokenName={name}
+              tokenName={tokenName || name}
               textColor={
                 name.includes("700") || name.includes("900") ? "#fff" : "#000"
               }
@@ -484,32 +484,32 @@ export const Colors: Story = {
         <Grid item xs={6} md={3}>
           <ColorSwatch
             name="Success"
-            value={tokens.Success500}
-            tokenName="Success500"
+            value={color.status.success500}
+            tokenName="color.status.success500"
             textColor="#fff"
           />
         </Grid>
         <Grid item xs={6} md={3}>
           <ColorSwatch
             name="Warning"
-            value={tokens.Warning500}
-            tokenName="Warning500"
+            value={color.status.warning500}
+            tokenName="color.status.warning500"
             textColor="#000"
           />
         </Grid>
         <Grid item xs={6} md={3}>
           <ColorSwatch
             name="Error"
-            value={tokens.Error500}
-            tokenName="Error500"
+            value={color.status.error500}
+            tokenName="color.status.error500"
             textColor="#fff"
           />
         </Grid>
         <Grid item xs={6} md={3}>
           <ColorSwatch
             name="Info"
-            value={tokens.Info500}
-            tokenName="Info500"
+            value={color.status.info500}
+            tokenName="color.status.info500"
             textColor="#fff"
           />
         </Grid>
@@ -524,8 +524,8 @@ export const Colors: Story = {
           <Grid item xs={6} sm={4} md={3} lg={2.4} key={num}>
             <ColorSwatch
               name={`Data ${num}`}
-              value={(tokens as any)[`Data${num}`]}
-              tokenName={`Data${num}`}
+              value={(color.chart as any)[`data${num}`]}
+              tokenName={`color.chart.data${num}`}
               textColor={[2, 4, 8].includes(num) ? "#000" : "#fff"}
               size="small"
             />
@@ -547,28 +547,32 @@ export const Colors: Story = {
               <Grid item xs={6} sm={3}>
                 <ColorSwatch
                   name="100%"
-                  value={tokens.JadeGreen100}
+                  value={color.secondary.jadeGreen100}
+                  tokenName="color.secondary.jadeGreen100"
                   textColor="#fff"
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <ColorSwatch
                   name="75%"
-                  value={tokens.JadeGreen75}
+                  value={color.secondary.jadeGreen75}
+                  tokenName="color.secondary.jadeGreen75"
                   textColor="#000"
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <ColorSwatch
                   name="50%"
-                  value={tokens.JadeGreen50}
+                  value={color.secondary.jadeGreen50}
+                  tokenName="color.secondary.jadeGreen50"
                   textColor="#000"
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <ColorSwatch
                   name="25%"
-                  value={tokens.JadeGreen25}
+                  value={color.secondary.jadeGreen25}
+                  tokenName="color.secondary.jadeGreen25"
                   textColor="#000"
                 />
               </Grid>
@@ -591,37 +595,37 @@ export const Colors: Story = {
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Input Value"
-                lightValue={tokens.InputValueLight}
-                darkValue={tokens.InputValueDark}
-                lightTokenName="InputValueLight"
-                darkTokenName="InputValueDark"
+                lightValue={ui.color.input.value.light}
+                darkValue={ui.color.input.value.dark}
+                lightTokenName="ui.color.input.value.light"
+                darkTokenName="ui.color.input.value.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Input Active"
-                lightValue={tokens.InputActiveLight}
-                darkValue={tokens.InputActiveDark}
-                lightTokenName="InputActiveLight"
-                darkTokenName="InputActiveDark"
+                lightValue={ui.color.input.active.light}
+                darkValue={ui.color.input.active.dark}
+                lightTokenName="ui.color.input.active.light"
+                darkTokenName="ui.color.input.active.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Input Background"
-                lightValue={tokens.InputBackgroundLight}
-                darkValue={tokens.InputBackgroundDark}
-                lightTokenName="InputBackgroundLight"
-                darkTokenName="InputBackgroundDark"
+                lightValue={ui.color.input.background.light}
+                darkValue={ui.color.input.background.dark}
+                lightTokenName="ui.color.input.background.light"
+                darkTokenName="ui.color.input.background.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Input Border"
-                lightValue={tokens.InputBorderLight}
-                darkValue={tokens.InputBorderDark}
-                lightTokenName="InputBorderLight"
-                darkTokenName="InputBorderDark"
+                lightValue={ui.color.input.border.light}
+                darkValue={ui.color.input.border.dark}
+                lightTokenName="ui.color.input.border.light"
+                darkTokenName="ui.color.input.border.dark"
               />
             </Grid>
           </Grid>
@@ -636,37 +640,37 @@ export const Colors: Story = {
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Header Background"
-                lightValue={tokens.TableHeaderBackgroundLight}
-                darkValue={tokens.TableHeaderBackgroundDark}
-                lightTokenName="TableHeaderBackgroundLight"
-                darkTokenName="TableHeaderBackgroundDark"
+                lightValue={ui.color.table.header.background.light}
+                darkValue={ui.color.table.header.background.dark}
+                lightTokenName="ui.color.table.header.background.light"
+                darkTokenName="ui.color.table.header.background.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Row Background"
-                lightValue={tokens.TableRowBackgroundLight}
-                darkValue={tokens.TableRowBackgroundDark}
-                lightTokenName="TableRowBackgroundLight"
-                darkTokenName="TableRowBackgroundDark"
+                lightValue={ui.color.table.row.background.light}
+                darkValue={ui.color.table.row.background.dark}
+                lightTokenName="ui.color.table.row.background.light"
+                darkTokenName="ui.color.table.row.background.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Header Text"
-                lightValue={tokens.TableHeaderTextLight}
-                darkValue={tokens.TableHeaderTextDark}
-                lightTokenName="TableHeaderTextLight"
-                darkTokenName="TableHeaderTextDark"
+                lightValue={ui.color.table.header.text.light}
+                darkValue={ui.color.table.header.text.dark}
+                lightTokenName="ui.color.table.header.text.light"
+                darkTokenName="ui.color.table.header.text.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Table Border"
-                lightValue={tokens.TableBorderLight}
-                darkValue={tokens.TableBorderDark}
-                lightTokenName="TableBorderLight"
-                darkTokenName="TableBorderDark"
+                lightValue={ui.color.table.border.light}
+                darkValue={ui.color.table.border.dark}
+                lightTokenName="ui.color.table.border.light"
+                darkTokenName="ui.color.table.border.dark"
               />
             </Grid>
           </Grid>
@@ -681,28 +685,28 @@ export const Colors: Story = {
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Card Background"
-                lightValue={tokens.CardBackgroundLight}
-                darkValue={tokens.CardBackgroundDark}
-                lightTokenName="CardBackgroundLight"
-                darkTokenName="CardBackgroundDark"
+                lightValue={ui.color.card.background.light}
+                darkValue={ui.color.card.background.dark}
+                lightTokenName="ui.color.card.background.light"
+                darkTokenName="ui.color.card.background.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Card Border"
-                lightValue={tokens.CardBorderLight}
-                darkValue={tokens.CardBorderDark}
-                lightTokenName="CardBorderLight"
-                darkTokenName="CardBorderDark"
+                lightValue={ui.color.card.border.light}
+                darkValue={ui.color.card.border.dark}
+                lightTokenName="ui.color.card.border.light"
+                darkTokenName="ui.color.card.border.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Card Header Text"
-                lightValue={tokens.CardHeaderTextLight}
-                darkValue={tokens.CardHeaderTextDark}
-                lightTokenName="CardHeaderTextLight"
-                darkTokenName="CardHeaderTextDark"
+                lightValue={ui.color.card.header.text.light}
+                darkValue={ui.color.card.header.text.dark}
+                lightTokenName="ui.color.card.header.text.light"
+                darkTokenName="ui.color.card.header.text.dark"
               />
             </Grid>
           </Grid>
@@ -717,37 +721,37 @@ export const Colors: Story = {
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Track"
-                lightValue={tokens.ScrollbarTrackLight}
-                darkValue={tokens.ScrollbarTrackDark}
-                lightTokenName="ScrollbarTrackLight"
-                darkTokenName="ScrollbarTrackDark"
+                lightValue={ui.color.scrollbar.track.light}
+                darkValue={ui.color.scrollbar.track.dark}
+                lightTokenName="ui.color.scrollbar.track.light"
+                darkTokenName="ui.color.scrollbar.track.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Thumb"
-                lightValue={tokens.ScrollbarThumbLight}
-                darkValue={tokens.ScrollbarThumbDark}
-                lightTokenName="ScrollbarThumbLight"
-                darkTokenName="ScrollbarThumbDark"
+                lightValue={ui.color.scrollbar.thumb.light}
+                darkValue={ui.color.scrollbar.thumb.dark}
+                lightTokenName="ui.color.scrollbar.thumb.light"
+                darkTokenName="ui.color.scrollbar.thumb.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Thumb Hover"
-                lightValue={tokens.ScrollbarThumbHoverLight}
-                darkValue={tokens.ScrollbarThumbHoverDark}
-                lightTokenName="ScrollbarThumbHoverLight"
-                darkTokenName="ScrollbarThumbHoverDark"
+                lightValue={ui.color.scrollbar.thumbHover.light}
+                darkValue={ui.color.scrollbar.thumbHover.dark}
+                lightTokenName="ui.color.scrollbar.thumbHover.light"
+                darkTokenName="ui.color.scrollbar.thumbHover.dark"
               />
             </Grid>
             <Grid item xs={6} sm={4} md={3}>
               <LightDarkSwatch
                 name="Thumb Active"
-                lightValue={tokens.ScrollbarThumbActiveLight}
-                darkValue={tokens.ScrollbarThumbActiveDark}
-                lightTokenName="ScrollbarThumbActiveLight"
-                darkTokenName="ScrollbarThumbActiveDark"
+                lightValue={ui.color.scrollbar.thumbActive.light}
+                darkValue={ui.color.scrollbar.thumbActive.dark}
+                lightTokenName="ui.color.scrollbar.thumbActive.light"
+                darkTokenName="ui.color.scrollbar.thumbActive.dark"
               />
             </Grid>
           </Grid>

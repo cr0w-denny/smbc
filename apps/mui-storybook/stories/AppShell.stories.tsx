@@ -1,9 +1,7 @@
-import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Paper, Typography } from "@mui/material";
 import { AppShell, Logo } from "@smbc/mui-components";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { IconButton, Popover, Box } from "@mui/material";
+import { Box } from "@mui/material";
 
 const meta: Meta<typeof AppShell> = {
   title: "Components/AppShell",

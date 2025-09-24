@@ -1,4 +1,5 @@
-import * as ui from "@smbc/ui-core";
+import { ui } from "@smbc/ui-core";
+import { token } from "../../utils/tokens";
 
 /**
  * Creates scrollbar styles with the given selector prefix
@@ -7,9 +8,7 @@ import * as ui from "@smbc/ui-core";
 export const getScrollbarStyles = (isDark: boolean, selector = '&') => ({
   // Firefox
   scrollbarWidth: 'thin' as const,
-  scrollbarColor: isDark
-    ? `${ui.ScrollbarThumbDark} ${ui.ScrollbarTrackDark}`
-    : `${ui.ScrollbarThumbLight} ${ui.ScrollbarTrackLight}`,
+  scrollbarColor: `${token(isDark, ui.color.scrollbar.thumb)} ${token(isDark, ui.color.scrollbar.track)}`,
 
   // Webkit browsers (Chrome, Safari, Edge)
   [`${selector}::-webkit-scrollbar`]: {
@@ -17,22 +16,22 @@ export const getScrollbarStyles = (isDark: boolean, selector = '&') => ({
     height: '12px',
   },
   [`${selector}::-webkit-scrollbar-track`]: {
-    background: isDark ? ui.ScrollbarTrackDark : ui.ScrollbarTrackLight,
+    background: token(isDark, ui.color.scrollbar.track),
     borderRadius: '6px',
   },
   [`${selector}::-webkit-scrollbar-thumb`]: {
-    background: isDark ? ui.ScrollbarThumbDark : ui.ScrollbarThumbLight,
+    background: token(isDark, ui.color.scrollbar.thumb),
     borderRadius: '6px',
-    border: `2px solid ${isDark ? ui.ScrollbarTrackDark : ui.ScrollbarTrackLight}`,
+    border: `2px solid ${token(isDark, ui.color.scrollbar.track)}`,
   },
   [`${selector}::-webkit-scrollbar-thumb:hover`]: {
-    background: isDark ? ui.ScrollbarThumbHoverDark : ui.ScrollbarThumbHoverLight,
+    background: token(isDark, ui.color.scrollbar.thumbHover),
   },
   [`${selector}::-webkit-scrollbar-thumb:active`]: {
-    background: isDark ? ui.ScrollbarThumbActiveDark : ui.ScrollbarThumbActiveLight,
+    background: token(isDark, ui.color.scrollbar.thumbActive),
   },
   [`${selector}::-webkit-scrollbar-corner`]: {
-    background: isDark ? ui.ScrollbarTrackDark : ui.ScrollbarTrackLight,
+    background: token(isDark, ui.color.scrollbar.track),
   },
 });
 

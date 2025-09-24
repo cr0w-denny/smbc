@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, useTheme } from "@mui/material";
-import * as ui from "@smbc/ui-core";
+import { ui } from "@smbc/ui-core";
+import { token } from "./utils/tokens";
 
 // Import AG Grid styles
 import "ag-grid-community/styles/ag-grid.css";
@@ -54,46 +55,22 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
             borderRadius: "0px !important",
             border: "none !important",
           },
-          "--ag-background-color": isDarkMode
-            ? ui.TableRowBackgroundDark
-            : ui.TableRowBackgroundLight,
-          "--ag-odd-row-background-color": isDarkMode
-            ? ui.TableRowBackgroundAltDark
-            : ui.TableRowBackgroundLight,
+          "--ag-background-color": token(theme, ui.color.table.row.background),
+          "--ag-odd-row-background-color": token(theme, ui.color.table.row.backgroundAlt),
           "--ag-foreground-color": theme.palette.text.primary,
-          "--ag-header-background-color": isDarkMode
-            ? ui.TableHeaderBackgroundDark
-            : ui.TableHeaderBackgroundLight,
-          "--ag-header-foreground-color": isDarkMode
-            ? ui.TableHeaderTextDark
-            : ui.TableHeaderTextLight,
-          "--ag-border-color": isDarkMode
-            ? ui.TableBorderDark
-            : ui.TableBorderLight,
-          "--ag-row-hover-color": isDarkMode
-            ? ui.TableRowHoverDark
-            : ui.TableRowHoverLight,
-          "--ag-selected-row-background-color": isDarkMode
-            ? ui.TableRowSelectedDark
-            : ui.TableRowSelectedLight,
+          "--ag-header-background-color": token(theme, ui.color.table.header.background),
+          "--ag-header-foreground-color": token(theme, ui.color.table.header.text),
+          "--ag-border-color": token(theme, ui.color.table.border),
+          "--ag-row-hover-color": token(theme, ui.color.table.row.hover),
+          "--ag-selected-row-background-color": token(theme, ui.color.table.row.selected),
           "--ag-header-row-border-style": "none",
           "--ag-borders-critical": "none",
           // Additional AG Grid theme variables
-          "--ag-input-border-color": isDarkMode
-            ? ui.InputBorderDark
-            : ui.InputBorderLight,
-          "--ag-input-background-color": isDarkMode
-            ? ui.InputBackgroundDark
-            : ui.InputBackgroundLight,
-          "--ag-input-focus-border-color": isDarkMode
-            ? ui.InputActiveDark
-            : ui.InputActiveLight,
-          "--ag-input-disabled-background-color": isDarkMode
-            ? ui.InputDisabledDark
-            : ui.InputDisabledLight,
-          "--ag-chip-background-color": isDarkMode
-            ? ui.ChipDefaultBackgroundDark
-            : ui.ChipDefaultBackgroundLight,
+          "--ag-input-border-color": token(theme, ui.color.input.border),
+          "--ag-input-background-color": token(theme, ui.color.input.background),
+          "--ag-input-focus-border-color": token(theme, ui.color.input.active),
+          "--ag-input-disabled-background-color": token(theme, ui.color.input.disabled),
+          "--ag-chip-background-color": token(theme, ui.color.chip.default.background),
           "--ag-modal-overlay-background-color": "rgba(0, 0, 0, 0.4)",
           // Row heights
           "--ag-header-height": "42px",

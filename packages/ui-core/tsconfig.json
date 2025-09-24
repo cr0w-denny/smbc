@@ -8,6 +8,6 @@
     "declaration": true,
     "declarationMap": true
   },
-  "include": ["src"],
-  "exclude": ["dist", "node_modules"]
+  "include": ["src", "tokens"],
+  "exclude": ["node_modules"]
 }

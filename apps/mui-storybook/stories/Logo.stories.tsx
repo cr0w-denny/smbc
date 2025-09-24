@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Box, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import { Logo } from "@smbc/mui-components";
 
 const meta: Meta<typeof Logo> = {
@@ -30,7 +30,6 @@ export const Default: Story = {
   },
 };
 
-
 export const LightVariant: Story = {
   args: {
     height: 48,
@@ -58,4 +57,3 @@ export const DarkVariant: Story = {
     ),
   ],
 };
-

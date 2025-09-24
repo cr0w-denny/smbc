@@ -6,7 +6,7 @@ import {
   Paper,
   Chip,
 } from "@mui/material";
-import * as ui from "@smbc/ui-core";
+import { color, size, shadow, zIndex } from "@smbc/ui-core";
 
 const meta: Meta = {
   title: "Foundations/Tokens",
@@ -35,7 +35,7 @@ const SpacingExample = ({ size, value }: { size: string; value: string }) => (
     <Box
       sx={{
         height: "16px",
-        backgroundColor: ui.TradGreen,
+        backgroundColor: color.brand.primary.tradGreen,
         width: `${Math.min(parseInt(value), 200)}px`,
       }}
     />
@@ -93,12 +93,12 @@ export const Tokens: Story = {
       </Typography>
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
-          { name: "Spacing1", value: ui.SizeSpacing1 },
-          { name: "Spacing2", value: ui.SizeSpacing2 },
-          { name: "Spacing3", value: ui.SizeSpacing3 },
-          { name: "Spacing4", value: ui.SizeSpacing4 },
-          { name: "Spacing6", value: ui.SizeSpacing6 },
-          { name: "Spacing8", value: ui.SizeSpacing8 },
+          { name: "size.spacing['1']", value: size.spacing["1"] },
+          { name: "size.spacing['2']", value: size.spacing["2"] },
+          { name: "size.spacing['3']", value: size.spacing["3"] },
+          { name: "size.spacing['4']", value: size.spacing["4"] },
+          { name: "size.spacing['6']", value: size.spacing["6"] },
+          { name: "size.spacing['8']", value: size.spacing["8"] },
         ].map(({ name, value }) => (
           <Grid item xs={12} sm={6} md={4} key={name}>
             <SpacingExample size={name} value={value} />
@@ -112,12 +112,12 @@ export const Tokens: Story = {
       </Typography>
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
-          { name: "BorderRadiusSm", value: ui.SizeBorderRadiusSm },
-          { name: "BorderRadiusBase", value: ui.SizeBorderRadiusBase },
-          { name: "BorderRadiusMd", value: ui.SizeBorderRadiusMd },
-          { name: "BorderRadiusLg", value: ui.SizeBorderRadiusLg },
-          { name: "BorderRadiusXl", value: ui.SizeBorderRadiusXl },
-          { name: "BorderRadius2xl", value: ui.SizeBorderRadius2xl },
+          { name: "size.borderRadius.sm", value: size.borderRadius.sm },
+          { name: "size.borderRadius.base", value: size.borderRadius.base },
+          { name: "size.borderRadius.md", value: size.borderRadius.md },
+          { name: "size.borderRadius.lg", value: size.borderRadius.lg },
+          { name: "size.borderRadius.xl", value: size.borderRadius.xl },
+          { name: "size.borderRadius['2xl']", value: size.borderRadius["2xl"] },
         ].map(({ name, value }) => (
           <Grid item xs={6} sm={4} md={2} key={name}>
             <Paper sx={{ p: 2, textAlign: "center" }}>
@@ -125,7 +125,7 @@ export const Tokens: Story = {
                 sx={{
                   width: "60px",
                   height: "60px",
-                  backgroundColor: ui.TradGreen,
+                  backgroundColor: color.brand.primary.tradGreen,
                   borderRadius: `${value}px`,
                   mx: "auto",
                   mb: 1,
@@ -153,12 +153,12 @@ export const Tokens: Story = {
       </Typography>
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
-          { name: "ShadowSm", value: ui.ShadowSm },
-          { name: "ShadowBase", value: ui.ShadowBase },
-          { name: "ShadowMd", value: ui.ShadowMd },
-          { name: "ShadowLg", value: ui.ShadowLg },
-          { name: "ShadowXl", value: ui.ShadowXl },
-          { name: "Shadow2xl", value: ui.Shadow2xl },
+          { name: "shadow.sm", value: shadow.sm },
+          { name: "shadow.base", value: shadow.base },
+          { name: "shadow.md", value: shadow.md },
+          { name: "shadow.lg", value: shadow.lg },
+          { name: "shadow.xl", value: shadow.xl },
+          { name: "shadow['2xl']", value: shadow["2xl"] },
         ].map(({ name, value }) => (
           <Grid item xs={6} sm={4} md={2} key={name}>
             <ShadowExample name={name} value={value} />
@@ -172,10 +172,10 @@ export const Tokens: Story = {
       </Typography>
       <Grid container spacing={1} sx={{ mb: 4 }}>
         {[
-          { name: "ZBase", value: ui.ZIndexBase },
-          { name: "ZDropdown", value: ui.ZIndexDropdown },
-          { name: "ZModal", value: ui.ZIndexModal },
-          { name: "ZTooltip", value: ui.ZIndexTooltip },
+          { name: "zIndex.base", value: zIndex.base },
+          { name: "zIndex.dropdown", value: zIndex.dropdown },
+          { name: "zIndex.modal", value: zIndex.modal },
+          { name: "zIndex.tooltip", value: zIndex.tooltip },
         ].map(({ name, value }) => (
           <Grid item xs={6} sm={3} key={name}>
             <Chip
@@ -207,23 +207,23 @@ export const Tokens: Story = {
           variant="body2"
           sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}
         >
-          {`import * as ui from '@smbc/ui-core';
+          {`import { color, size, shadow } from '@smbc/ui-core';
 
 // Use in MUI sx prop
 <Button sx={{
-  backgroundColor: ui.TradGreen,
+  backgroundColor: color.brand.primary.tradGreen,
   color: '#ffffff',
-  padding: \`\${ui.SizeSpacing3}px \${ui.SizeSpacing4}px\`,
-  borderRadius: \`\${ui.SizeBorderRadiusBase}px\`,
-  boxShadow: ui.ShadowSm,
+  padding: \`\${size.spacing['3']}px \${size.spacing['4']}px\`,
+  borderRadius: \`\${size.borderRadius.base}px\`,
+  boxShadow: shadow.sm,
 }} />
 
 // Use in styled components
 const StyledCard = styled(Paper)\`
-  padding: \${ui.SizeSpacing6}px;
-  border-radius: \${ui.SizeBorderRadiusMd}px;
-  box-shadow: \${ui.ShadowMd};
-  background-color: \${ui.Gray50};
+  padding: \${size.spacing['6']}px;
+  border-radius: \${size.borderRadius.md}px;
+  box-shadow: \${shadow.md};
+  background-color: \${color.gray['50']};
 \`;`}
         </Typography>
       </Paper>

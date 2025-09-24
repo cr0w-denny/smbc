@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   Box,
@@ -6,7 +6,6 @@ import {
   FormControlLabel,
   Typography,
   Stack,
-  Paper,
   FormGroup,
   Divider,
 } from "@mui/material";
@@ -22,7 +21,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Wrapper component to handle state
-const ToggleWrapper = ({ label, defaultChecked = false, disabled = false }) => {
+const ToggleWrapper = ({ label, defaultChecked = false, disabled = false }: { label: string; defaultChecked?: boolean; disabled?: boolean }) => {
   const [checked, setChecked] = useState(defaultChecked);
 
   return (
@@ -61,18 +60,13 @@ export const Default: Story = {
           Toggle Sizes
         </Typography>
         <Stack direction="row" spacing={3} alignItems="center">
-          <FormControlLabel
-            control={<Switch size="small" />}
-            label="Small"
-          />
+          <FormControlLabel control={<Switch size="small" />} label="Small" />
           <FormControlLabel
             control={<Switch size="medium" />}
             label="Medium (Default)"
           />
         </Stack>
       </Box>
-
     </Stack>
   ),
 };
-

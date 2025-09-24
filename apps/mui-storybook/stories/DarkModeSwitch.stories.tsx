@@ -1,12 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Box,
-  Typography,
-  Stack,
-  Paper,
-  Divider,
-} from "@mui/material";
 import { DarkModeSwitch } from "@smbc/mui-components";
 
 const meta: Meta<typeof DarkModeSwitch> = {
@@ -29,11 +22,6 @@ const meta: Meta<typeof DarkModeSwitch> = {
       control: "boolean",
       description: "Whether to show the mode label",
     },
-    labelPlacement: {
-      control: "select",
-      options: ["start", "end", "top", "bottom"],
-      description: "Label placement relative to the switch",
-    },
   },
 };
 
@@ -44,13 +32,7 @@ type Story = StoryObj<typeof meta>;
 const DarkModeSwitchWrapper = ({ defaultChecked = false, ...props }) => {
   const [checked, setChecked] = useState(defaultChecked);
 
-  return (
-    <DarkModeSwitch
-      checked={checked}
-      onChange={setChecked}
-      {...props}
-    />
-  );
+  return <DarkModeSwitch checked={checked} onChange={setChecked} {...props} />;
 };
 
 export const Default: Story = {
@@ -60,4 +42,3 @@ export const Default: Story = {
 export const WithoutLabel: Story = {
   render: () => <DarkModeSwitchWrapper showLabel={false} />,
 };
-

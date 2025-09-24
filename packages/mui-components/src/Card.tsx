@@ -13,7 +13,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
-import * as ui from "@smbc/ui-core";
+import { ui } from "@smbc/ui-core";
+import { token } from "./utils/tokens";
 
 export interface CardMenuItem {
   label: string;
@@ -74,19 +75,19 @@ export const Card: React.FC<CardProps> = ({
   };
 
   // Get the padding value based on size
-  const headerPadding = size === "large" ? ui.CardHeaderPaddingLarge : ui.CardHeaderPaddingMedium;
+  const headerPadding = size === "large" ? ui.color.card.header.padding.large : ui.color.card.header.padding.medium;
 
   return (
     <MuiCard
       elevation={elevation}
       sx={{
         backgroundImage: "none !important",
-        backgroundColor: isDark ? ui.CardBackgroundDark : ui.CardBackgroundLight,
-        border: `1px solid ${isDark ? ui.CardBorderDark : ui.CardBorderLight}`,
-        borderRadius: ui.CardBorderRadiusDark || "16px",
+        backgroundColor: token(isDark, ui.color.card.background),
+        border: `1px solid ${token(isDark, ui.color.card.border)}`,
+        borderRadius: ui.color.card.borderRadius.dark,
         "&:hover": {
           boxShadow: elevation,
-          backgroundColor: isDark ? ui.CardBackgroundDark : ui.CardBackgroundLight,
+          backgroundColor: token(isDark, ui.color.card.background),
           backgroundImage: "none !important",
           transform: "none",
         },
@@ -111,10 +112,10 @@ export const Card: React.FC<CardProps> = ({
           <Typography
             component="div"
             sx={{
-              fontSize: size === "large" ? ui.CardHeaderFontSizeLarge : ui.CardHeaderFontSizeMedium,
-              fontWeight: isDark ? ui.CardHeaderFontWeightDark : ui.CardHeaderFontWeightLight,
-              fontFamily: isDark ? ui.CardHeaderFontFamilyDark : ui.CardHeaderFontFamilyLight,
-              color: isDark ? ui.CardHeaderTextDark : ui.CardHeaderTextLight,
+              fontSize: size === "large" ? ui.color.card.header.fontSize.large : ui.color.card.header.fontSize.medium,
+              fontWeight: token(isDark, ui.color.card.header.fontWeight),
+              fontFamily: token(isDark, ui.color.card.header.fontFamily),
+              color: token(isDark, ui.color.card.header.text),
               lineHeight: 1.2
             }}
           >

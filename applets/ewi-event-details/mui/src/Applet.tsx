@@ -19,6 +19,7 @@ import {
 import { AppletPage } from "@smbc/mui-applet-core";
 import { useHashNavigation } from "@smbc/applet-core";
 import { TabBar } from "@smbc/mui-components";
+import { shadow } from "@smbc/ui-core";
 import type { TabBarItem } from "@smbc/mui-components";
 import { EventTab } from "./components/EventTab";
 import { TriggerTab } from "./components/TriggerTab";
@@ -152,8 +153,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
               sx={{
                 mt: 1,
                 "& .MuiPaper-root": {
-                  boxShadow:
-                    "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
+                  boxShadow: shadow.md,
                 },
               }}
             >

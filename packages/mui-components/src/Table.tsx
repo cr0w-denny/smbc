@@ -7,7 +7,8 @@ import {
   TableRow,
   useTheme,
 } from "@mui/material";
-import { TableHeaderBackgroundLight, TableHeaderBackgroundDark } from "@smbc/ui-core";
+import { ui } from "@smbc/ui-core";
+import { token } from "./utils/tokens";
 
 type ColumnDef<T> = {
   header: string;
@@ -39,7 +40,7 @@ export function Table<T>({
               key={i}
               align={c.align ?? "left"}
               sx={{
-                bgcolor: isDarkMode ? TableHeaderBackgroundDark : TableHeaderBackgroundLight,
+                bgcolor: token(isDarkMode, ui.color.table.header.background),
                 fontWeight: 600,
                 width: c.width,
                 borderBottom: "none",

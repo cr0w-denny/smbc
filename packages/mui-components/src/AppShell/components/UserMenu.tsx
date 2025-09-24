@@ -15,7 +15,7 @@ import {
 import Logout from "@mui/icons-material/Logout";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
-import { SizeBorderRadiusBase } from "@smbc/ui-core";
+import { size } from "@smbc/ui-core";
 import { DarkModeSwitch } from "../../DarkModeSwitch";
 
 export type UserRole = {
@@ -86,7 +86,7 @@ export function UserMenu({
           elevation: 6,
           sx: {
             width: 283,
-            borderRadius: `${SizeBorderRadiusBase}px`,
+            borderRadius: `${size.borderRadius.base}px`,
             overflow: "visible",
             mt: 1.5,
             ml: 0.125, // 1px offset to the right
