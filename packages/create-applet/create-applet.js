@@ -2,7 +2,20 @@
 import { writeFile, mkdir, readFile } from 'fs/promises';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs';
-import { CORE_DEPS } from '@smbc/applet-meta';
+// Core dependency versions
+const CORE_DEPS = {
+  "@emotion/react": "^11.14.0",
+  "@emotion/styled": "^11.14.1",
+  "@mui/material": "^7.2.0",
+  "@mui/icons-material": "^7.2.0",
+  "@types/react": "^18.3.23",
+  "@types/react-dom": "^18.3.7",
+  "@vitejs/plugin-react": "^4.6.0",
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "typescript": "~5.8.3",
+  "vite": "^7.0.4"
+};
 import prompts from 'prompts';
 
 async function createApplet(options) {

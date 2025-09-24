@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import { fileURLToPath } from "url";
-import { injectAppletVersions } from "../index.js";
 
 /**
  * Get chunking configuration
@@ -57,8 +56,6 @@ export function createAppConfig({
     
     // Global definitions
     define: {
-      // Applet version injection
-      ...injectAppletVersions(),
       // Common environment flags
       __DEV__: !isProduction,
       __ENABLE_API_DOCS__: !isProduction || process.env.VITE_ENABLE_API_DOCS === "true",
@@ -80,7 +77,6 @@ export function createAppConfig({
             "@smbc/applet-core": path.resolve(__dirname, "../../../applet-core/src"),
             "@smbc/applet-host": path.resolve(__dirname, "../../../applet-host/src"),
             "@smbc/mui-applet-core": path.resolve(__dirname, "../../../mui-applet-core/src"),
-            "@smbc/applet-meta": path.resolve(__dirname, "../../../applet-meta"),
             "@smbc/mui-applet-devtools": path.resolve(__dirname, "../../../mui-applet-devtools/src"),
             "@smbc/applet-devtools": path.resolve(__dirname, "../../../applet-devtools/src"),
             "@smbc/dataview": path.resolve(__dirname, "../../../dataview/src"),
@@ -169,7 +165,6 @@ export function createAppConfig({
         "@smbc/applet-host",
         "@smbc/mui-applet-core",
         "@smbc/mui-components",
-        "@smbc/applet-meta",
         "@smbc/openapi-msw",
         "@smbc/typespec-core",
         // Additional monorepo packages

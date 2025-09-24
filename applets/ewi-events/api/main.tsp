@@ -125,7 +125,7 @@ interface Events {
   @get
   @operationId("getEvents")
   @extension("x-mock-response", #{
-    count: 200,
+    count: 500,
     returnArray: true
   })
   list(

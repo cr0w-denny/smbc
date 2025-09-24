@@ -9,15 +9,23 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
-import { getInstalledApplets } from './applet-discovery.js';
-
 console.log('🔍 SMBC Applets\n');
 
-// Get installed applets (those actually installed via npm)
-const installedApplets = getInstalledApplets();
-const installedPackageNames = installedApplets.map(applet => applet.packageName);
+// Available SMBC applets
+const availableApplets = [
+  '@smbc/hello-mui',
+  '@smbc/user-management-mui',
+  '@smbc/product-catalog-mui',
+  '@smbc/employee-directory-mui',
+  '@smbc/usage-stats-mui',
+  '@smbc/reports-mui',
+  '@smbc/filter-demo-mui',
+  '@smbc/ewi-obligor-mui',
+  '@smbc/ewi-events-mui',
+  '@smbc/ewi-event-details-mui'
+];
 
-console.log(`📦 Installed applets: ${installedPackageNames.length}\n`);
+console.log(`📦 Available applets: ${availableApplets.length}\n`);
 
 // Check current working directory for applet.config.ts
 const configPath = resolve(process.cwd(), 'src/applet.config.ts');
@@ -30,23 +38,16 @@ if (hasConfig) {
 }
 console.log('');
 
-// Display installed applets
-if (installedPackageNames.length > 0) {
-  console.log('✅ Installed applets:\n');
-  
-  installedApplets.forEach(applet => {
-    console.log(`✅ ${applet.metadata.name}`);
-    console.log(`   Package: ${applet.packageName}`);
-    console.log(`   Description: ${applet.metadata.description}`);
-    console.log(`   Path: ${applet.metadata.path}`);
-    if (applet.metadata.permissions && applet.metadata.permissions.length > 0) {
-      console.log(`   Permissions: ${applet.metadata.permissions.join(', ')}`);
-    }
-    console.log('');
-  });
-} else {
-  console.log('💡 No applets currently installed\n');
-}
+// Display available applets
+console.log('📦 Available applets:\n');
+
+availableApplets.forEach(pkg => {
+  const name = pkg.replace('@smbc/', '').replace('-mui', '');
+  const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+  console.log(`• ${displayName}`);
+  console.log(`   Package: ${pkg}`);
+  console.log('');
+});
 
 // Show usage instructions
 console.log('📖 Usage:');

@@ -25,7 +25,6 @@ export {
 } from './externals/index.js';
 
 // Utilities
-export { getAppletVersions, injectAppletVersions } from './utils/applet-versions.js';
 
 // Re-export types for convenience
 export type { UserConfig, Plugin } from 'vite';

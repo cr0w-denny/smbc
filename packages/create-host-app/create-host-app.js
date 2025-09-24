@@ -3,12 +3,38 @@ import { writeFile, mkdir, readFile } from "fs/promises";
 import { join, resolve, dirname } from "path";
 import { existsSync } from "fs";
 import { fileURLToPath } from "url";
-import { CORE_DEPS, SMBC_PACKAGE_VERSIONS } from "@smbc/applet-meta";
+// Core dependency versions
+const CORE_DEPS = {
+  "@emotion/react": "^11.14.0",
+  "@emotion/styled": "^11.14.1",
+  "@mui/material": "^7.2.0",
+  "@mui/icons-material": "^7.2.0",
+  "@tanstack/react-query": "^5.0.0",
+  "@types/node": "^20.11.0",
+  "@types/react": "^18.3.23",
+  "@types/react-dom": "^18.3.7",
+  "@vitejs/plugin-react": "^4.6.0",
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "typescript": "~5.8.3",
+  "vite": "^7.0.4"
+};
+
+// SMBC package versions
+const SMBC_PACKAGE_VERSIONS = {
+  "@smbc/applet-core": "*",
+  "@smbc/applet-host": "*",
+  "@smbc/mui-components": "*",
+  "@smbc/mui-applet-core": "*",
+  "@smbc/mui-applet-devtools": "*",
+  "@smbc/dataview": "*",
+  "@smbc/openapi-msw": "*"
+};
 import prompts from "prompts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Get package versions (now pre-generated at build time)
+// Get package versions
 function getPackageVersions() {
   return SMBC_PACKAGE_VERSIONS;
 }

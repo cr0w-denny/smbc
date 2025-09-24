@@ -74,23 +74,22 @@ async function extractAppletIds(): Promise<string[]> {
     }
   }
 
-  // Fallback to npm package discovery
-  try {
-    const { getInstalledApplets } = await import("./applet-discovery.js");
-    const installedApplets = getInstalledApplets();
-    const appletIds = installedApplets.map((applet) => applet.metadata.id);
-    
-    if (appletIds.length > 0) {
-      console.log(`📋 Found ${appletIds.length} applets via npm: ${appletIds.join(", ")}`);
-      return appletIds;
-    }
-  } catch (error) {
-    console.warn("⚠️  Could not discover via npm:", (error as Error).message);
-  }
+  // Use hardcoded list of known applets
+  const knownApplets = [
+    'hello',
+    'user-management',
+    'product-catalog',
+    'employee-directory',
+    'usage-stats',
+    'reports',
+    'filter-demo',
+    'ewi-obligor',
+    'ewi-events',
+    'ewi-event-details'
+  ];
 
-  console.error("❌ No applets found via config file or npm packages");
-  console.error("💡 Make sure you have applets configured in src/applet.config.ts or installed as packages");
-  process.exit(1);
+  console.log(`📋 Using known applets: ${knownApplets.join(", ")}`);
+  return knownApplets;
 }
 
 /**

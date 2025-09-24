@@ -20,9 +20,13 @@ import {
   Check as CheckIcon,
 } from "@mui/icons-material";
 import type { CurrentAppletInfo } from "../HostAppBar";
-import {
-  CORE_PEER_DEPS,
-} from "@smbc/applet-meta";
+// Core peer dependencies for SMBC applets
+const CORE_PEER_DEPS = {
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "@mui/material": "^7.2.0",
+  "@mui/icons-material": "^7.2.0",
+};
 import { getPackageName } from "../utils/getPackageName";
 import "github-markdown-css/github-markdown-light.css";
 import { MarkdownRenderer } from "./MarkdownRenderer";
@@ -161,7 +165,7 @@ export function InstallationModal({
 
   // Generate installation commands
   const peerDepsCommand = Object.entries(CORE_PEER_DEPS)
-    .map(([pkg, version]) => `${pkg}@${(version as string).replace("^", "")}`)
+    .map(([pkg, version]) => `${pkg}@${version.replace("^", "")}`)
     .join(" ");
 
   const prerequisites = `npm install ${peerDepsCommand}`;

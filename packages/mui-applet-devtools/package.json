@@ -52,8 +52,7 @@
     "@smbc/mui-applet-core": "*",
     "@smbc/applet-core": "*",
     "@smbc/applet-host": "*",
-    "@smbc/mui-components": "*",
-    "@smbc/applet-meta": "*"
+    "@smbc/mui-components": "*"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",
