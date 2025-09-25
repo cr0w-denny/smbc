@@ -1,8 +1,8 @@
 import React from "react";
-import TopNav from "./components/TopNav";
-import { AppShellProps } from "./types";
+import TopNav from "./TopNav";
+import { AppShellProps } from "../types";
 
-export const AppShell: React.FC<AppShellProps> = ({
+export const Layout: React.FC<AppShellProps> = ({
   logo,
   hamburgerMenu,
   navigation,
@@ -50,4 +50,4 @@ export const AppShell: React.FC<AppShellProps> = ({
   );
 };
 
-export default AppShell;
+export default Layout;

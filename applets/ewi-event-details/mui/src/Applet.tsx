@@ -49,14 +49,23 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
     useState<null | HTMLElement>(null);
   const [eventData, setEventData] = useState<EventData | null>(null);
 
-  // Extract event ID from URL parameters
-  const { params } = useHashNavigation({ mountPath });
+  // Extract event ID from URL parameters - only accept id param, ignore others
+  const { params } = useHashNavigation({}, { id: "" }, { mountPath });
   const eventId = params.id;
+
+  // Debug logging
+  useEffect(() => {
+    console.log("EventDetails: params =", params, "eventId =", eventId);
+  }, [params, eventId]);
 
   // Fetch event data at the top level
   useEffect(() => {
     if (eventId) {
-      fetchEventData(eventId).then(setEventData);
+      console.log("EventDetails: Fetching data for event ID:", eventId);
+      fetchEventData(eventId).then((data) => {
+        console.log("EventDetails: Data loaded:", data);
+        setEventData(data);
+      });
     }
   }, [eventId]);
 
@@ -80,7 +89,13 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   };
 
   const renderTabContent = () => {
-    if (!eventData) return null;
+    if (!eventData) {
+      return (
+        <Box sx={{ p: 3 }}>
+          {eventId ? "Loading event data..." : "No event ID provided"}
+        </Box>
+      );
+    }
 
     switch (activeTab) {
       case "event":

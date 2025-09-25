@@ -23,10 +23,7 @@ const isInMonorepo = (() => {
     if (existsSync(packageJsonPath)) {
       const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 
-      // If this is a generated host app, don't skip
-      if (packageJson.smbc?.host) {
-        return false;
-      }
+      // Note: Host app detection removed - rely on workspaces check only
 
       // If this package.json has workspaces, we're in monorepo root
       if (packageJson.workspaces) {

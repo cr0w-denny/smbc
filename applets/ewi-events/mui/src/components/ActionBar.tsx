@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Box, Button, Popover, MenuItem, MenuList, useTheme } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
@@ -35,6 +35,7 @@ interface ActionBarProps {
     workflow?: string;
     priority?: string;
   };
+  appliedParams?: any;
   onValuesChange: (values: any) => void;
   onApply?: (values?: any) => void;
   statusCounts?: {
@@ -54,15 +55,16 @@ interface ActionBarProps {
 
 export const ActionBar: React.FC<ActionBarProps> = ({
   values,
+  appliedParams,
   onValuesChange,
   onApply,
   statusCounts = {},
   workflowActions = [],
   selectedItems = [],
+  gridRef,
 }) => {
   const theme = useTheme();
-  const [workflowAnchor, setWorkflowAnchor] =
-    React.useState<null | HTMLElement>(null);
+  const [workflowAnchor, setWorkflowAnchor] = useState<null | HTMLElement>(null);
 
   // Auto-open workflow dropdown when at least 2 items are selected
   React.useEffect(() => {
@@ -138,11 +140,19 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     },
   ];
 
-  // Handle chip toggle - apply immediately
+  // Handle chip toggle - update URL and apply AG Grid filtering
   const handleChipToggle = (chipValue: string, isActive: boolean) => {
     const chip = filterChips.find((c) => c.value === chipValue);
     if (!chip) return;
 
+    // Update active chips state immediately for visual feedback
+    if (isActive) {
+      setActiveChips(prev => [...prev, chipValue]);
+    } else {
+      setActiveChips(prev => prev.filter(v => v !== chipValue));
+    }
+
+    // Quick filters need to update state AND URL simultaneously
     const newValues = { ...values };
     if (chip.group === "category") {
       newValues.category = isActive ? chipValue : "";
@@ -150,17 +160,55 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       newValues.status = isActive ? chipValue : "";
     }
 
+    // Update auto-applied state (will sync to URL immediately)
     onValuesChange(newValues);
-    // Apply immediately for chips
-    if (onApply) {
-      onApply(newValues);
+
+    // Apply AG Grid filtering if grid is ready
+    if (!gridRef?.current?.api) return;
+
+    const gridApi = gridRef.current.api;
+    const currentFilters = gridApi.getFilterModel() || {};
+
+    if (chip.group === "category") {
+      if (isActive) {
+        // Use the correct filter structure for AG Grid text columns
+        currentFilters.event_category = {
+          type: 'equals',
+          filter: chipValue
+        };
+      } else {
+        delete currentFilters.event_category;
+      }
+    } else {
+      // status group - lifecycle_status field
+      if (isActive) {
+        currentFilters.lifecycle_status = {
+          type: 'equals',
+          filter: chipValue
+        };
+      } else {
+        delete currentFilters.lifecycle_status;
+      }
     }
+
+    gridApi.setFilterModel(currentFilters);
   };
 
-  // Get active chip values
-  const activeChips = [];
-  if (values.status) activeChips.push(values.status);
-  if (values.category) activeChips.push(values.category);
+  // Initialize active chips from current filter values
+  const [activeChips, setActiveChips] = useState<string[]>(() => {
+    const active = [];
+    if (values.status) active.push(values.status);
+    if (values.category) active.push(values.category);
+    return active;
+  });
+
+  // Sync activeChips when values change externally (e.g., from URL)
+  React.useEffect(() => {
+    const active = [];
+    if (values.status) active.push(values.status);
+    if (values.category) active.push(values.category);
+    setActiveChips(active);
+  }, [values.status, values.category]);
 
   return (
     <Box sx={{ pt: 2.5 }}>

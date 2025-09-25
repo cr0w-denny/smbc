@@ -73,7 +73,7 @@ async function findProjectRoot() {
       if (existsSync(packageJsonPath)) {
         const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
         // Look for a package.json with workspaces (indicates project root)
-        if (packageJson.workspaces || packageJson.smbc?.host) {
+        if (packageJson.workspaces) {
           return currentDir;
         }
       }
@@ -317,21 +317,6 @@ async function createMuiPackage(muiDir, name) {
     publishConfig: {
       access: "public",
       registry: "http://localhost:4873"
-    },
-    smbc: {
-      applet: {
-        id: kebabName,
-        name: name,
-        description: `${name} applet for SMBC applications`,
-        framework: "mui",
-        icon: "Dashboard",
-        path: `/${kebabName}`,
-        permissions: [
-          `VIEW_${kebabName.toUpperCase().replace(/-/g, '_')}`,
-          `MANAGE_${kebabName.toUpperCase().replace(/-/g, '_')}`
-        ],
-        exportName: `${kebabName.replace(/-/g, '')}Applet`
-      }
     }
   };
   

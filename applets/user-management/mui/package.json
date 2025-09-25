@@ -62,24 +62,5 @@
   "publishConfig": {
     "registry": "http://localhost:4873",
     "access": "public"
-  },
-  "smbc": {
-    "applet": {
-      "id": "user-management",
-      "name": "User Management",
-      "description": "Comprehensive user management with roles and permissions",
-      "framework": "mui",
-      "icon": "People",
-      "path": "/users",
-      "permissions": [
-        "VIEW_USERS",
-        "CREATE_USERS",
-        "EDIT_USERS",
-        "DELETE_USERS",
-        "MANAGE_ROLES",
-        "VIEW_ANALYTICS"
-      ],
-      "exportName": "userManagementApplet"
-    }
   }
 }

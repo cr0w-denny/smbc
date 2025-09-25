@@ -37,21 +37,5 @@
     "@smbc/employee-directory-api": "*",
     "@smbc/applet-core": "*",
     "@smbc/mui-applet-core": "*"
-  },
-  "smbc": {
-    "applet": {
-      "id": "employee-directory",
-      "name": "Employee Directory",
-      "description": "Employee directory and contact management",
-      "framework": "mui",
-      "icon": "ContactPage",
-      "path": "/employees",
-      "permissions": [
-        "VIEW_EMPLOYEES",
-        "EDIT_EMPLOYEES",
-        "MANAGE_EMPLOYEES"
-      ],
-      "exportName": "employeeDirectoryApplet"
-    }
   }
 }

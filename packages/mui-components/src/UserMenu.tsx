@@ -16,7 +16,7 @@ import Logout from "@mui/icons-material/Logout";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import { size } from "@smbc/ui-core";
-import { DarkModeSwitch } from "../../DarkModeSwitch";
+import { DarkModeSwitch } from "./DarkModeSwitch";
 
 export type UserRole = {
   id: string;

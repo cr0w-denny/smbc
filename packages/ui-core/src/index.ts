@@ -1,5 +1,6 @@
 // Framework-agnostic design tokens for SMBC applications
 export * from "./filter-types";
+export * from "./fieldTransformers";
 
 import { breakpoints } from "./tokens/breakpoints";
 import { color } from "./tokens/color";

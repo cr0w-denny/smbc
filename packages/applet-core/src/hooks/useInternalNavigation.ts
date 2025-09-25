@@ -81,7 +81,10 @@ export function useInternalNavigation({
   routes,
   navigationGroups = [],
 }: UseInternalNavigationOptions) {
-  const { path, navigate } = useHashNavigation({ mountPath });
+  const { path, navigate } = useHashNavigation({
+    defaultParams: {},
+    mountPath,
+  });
   const { hasPermission } = usePermissions();
 
   // Memoize permission checks to avoid unnecessary re-renders

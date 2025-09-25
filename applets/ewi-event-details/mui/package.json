@@ -62,17 +62,5 @@
   },
   "files": [
     "dist/**/*"
-  ],
-  "smbc": {
-    "applet": {
-      "id": "ewi-event-details",
-      "name": "EWI Event Details",
-      "description": "Detailed view and editing for EWI events",
-      "framework": "mui",
-      "icon": "Dashboard",
-      "path": "/event-details",
-      "permissions": [],
-      "exportName": "ewiEventDetailsApplet"
-    }
-  }
+  ]
 }

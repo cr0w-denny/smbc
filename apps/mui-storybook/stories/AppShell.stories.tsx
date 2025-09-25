@@ -3,9 +3,9 @@ import { Paper, Typography } from "@mui/material";
 import { AppShell, Logo } from "@smbc/mui-components";
 import { Box } from "@mui/material";
 
-const meta: Meta<typeof AppShell> = {
+const meta: Meta<typeof AppShell.Layout> = {
   title: "Components/AppShell",
-  component: AppShell,
+  component: AppShell.Layout,
   parameters: {
     layout: "fullscreen",
   },
@@ -13,7 +13,7 @@ const meta: Meta<typeof AppShell> = {
 
 export default meta;
 
-type Story = StoryObj<typeof AppShell>;
+type Story = StoryObj<typeof AppShell.Layout>;
 
 export const Default: Story = {
   args: {

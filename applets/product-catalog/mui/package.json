@@ -59,25 +59,5 @@
   "publishConfig": {
     "registry": "http://localhost:4873",
     "access": "public"
-  },
-  "smbc": {
-    "applet": {
-      "id": "product-catalog",
-      "name": "Product Catalog",
-      "description": "Product catalog management and browsing",
-      "framework": "mui",
-      "icon": "Inventory",
-      "path": "/products",
-      "permissions": [
-        "VIEW_PRODUCTS",
-        "CREATE_PRODUCTS",
-        "EDIT_PRODUCTS",
-        "DELETE_PRODUCTS",
-        "MANAGE_CATEGORIES",
-        "VIEW_INVENTORY",
-        "MANAGE_PRICING"
-      ],
-      "exportName": "productCatalogApplet"
-    }
   }
 }

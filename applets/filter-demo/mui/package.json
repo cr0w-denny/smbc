@@ -29,18 +29,6 @@
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
   },
-  "smbc": {
-    "applet": {
-      "id": "filter-demo",
-      "name": "Filter Demo",
-      "description": "Simple demo applet showcasing Filter component usage",
-      "framework": "mui",
-      "icon": "FilterAlt",
-      "path": "/filter-demo",
-      "permissions": [],
-      "exportName": "filterDemoApplet"
-    }
-  },
   "publishConfig": {
     "registry": "http://localhost:4873"
   }

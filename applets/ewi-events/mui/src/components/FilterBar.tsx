@@ -27,12 +27,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     debounceMs: 0, // Disable debouncing since we have apply button
     fields: [
       {
-        name: "dateFrom",
+        name: "start_date",
         type: "date",
         label: "From",
       },
       {
-        name: "dateTo",
+        name: "end_date",
         type: "date",
         label: "To",
       },

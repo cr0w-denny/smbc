@@ -1,6 +1,6 @@
 import { Theme } from '@mui/material/styles';
 import { ReactNode } from 'react';
-import { UserRole } from './components/UserMenu';
+import { UserRole } from '../UserMenu';
 
 // Tree-style navigation items for dropdowns (framework-agnostic)
 export interface TreeNavigationItem {

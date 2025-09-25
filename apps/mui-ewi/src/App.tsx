@@ -320,7 +320,7 @@ const AppShellContent: React.FC = () => {
   return (
     <ThemeProvider theme={appTheme}>
       <CssBaseline />
-      <AppShell
+      <AppShell.Layout
         logo={
           <img
             src={`${import.meta.env.BASE_URL}logo.svg`}
@@ -349,7 +349,7 @@ const AppShellContent: React.FC = () => {
         maxWidth={maxWidthConfig}
       >
         <AppletRouter defaultComponent={AppRoutes} />
-      </AppShell>
+      </AppShell.Layout>
     </ThemeProvider>
   );
 };

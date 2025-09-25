@@ -4,7 +4,12 @@ import { createFieldTransformer } from "@smbc/ui-core";
 interface UseHashNavigationOptions {
   namespace?: string;
   mountPath?: string;
-  autoApply?: boolean; // true = immediate sync, false = draft + apply pattern
+  autoApply?: boolean; // Legacy - not used in two-stream version
+}
+
+interface UseHashNavigationStoryOptions extends UseHashNavigationOptions {
+  initialUrl?: string;
+  onUrlChange?: (url: string) => void;
 }
 
 /**
@@ -47,13 +52,14 @@ function inferTransformConfig(defaults: Record<string, any>) {
 }
 
 /**
- * Parse current hash into path and params
+ * Parse hash into path and params
  */
 function parseHash(
+  hashUrl: string,
   namespace?: string,
   defaults: Record<string, any> = {}
 ): { path: string; params: Record<string, any> } {
-  const hash = window.location.hash.slice(1) || "/";
+  const hash = hashUrl.slice(1) || "/";
   const [path, queryString] = hash.split("?");
 
   const params: Record<string, any> = { ...defaults };
@@ -86,7 +92,8 @@ function parseHash(
 function updateHash(
   path: string,
   params: Record<string, any>,
-  namespace?: string
+  namespace?: string,
+  onUrlChange?: (url: string) => void
 ) {
   const searchParams = new URLSearchParams();
 
@@ -100,24 +107,27 @@ function updateHash(
   const queryString = searchParams.toString();
   const newHash = queryString ? `${path}?${queryString}` : path;
 
-  if (window.location.hash !== `#${newHash}`) {
-    window.location.hash = newHash;
+  if (onUrlChange) {
+    onUrlChange(`#${newHash}`);
   }
 }
 
 /**
- * Unified hash navigation hook with auto-transformations and dual stream support
- * Supports both auto-applied parameters (immediate URL sync) and draft parameters (apply pattern)
+ * Story version of useHashNavigation that works with mock URLs
+ * Identical behavior to the real hook but doesn't touch window.location
  */
-export function useHashNavigation<
+export function useHashNavigationStory<
   TAutoParams extends Record<string, any> = {},
   TDraftParams extends Record<string, any> = {}
 >(
   autoDefaults: Record<string, any> = {},
   draftDefaults: Record<string, any> = {},
-  options: UseHashNavigationOptions = {}
+  options: UseHashNavigationStoryOptions = {}
 ) {
-  const { namespace, mountPath } = options;
+  const { namespace, mountPath, initialUrl = "#/", onUrlChange } = options;
+
+  // Track current URL in state instead of using window.location
+  const [currentUrl, setCurrentUrl] = useState(initialUrl);
 
   // Combine defaults for transformations and parsing
   const allDefaults = useMemo(() => ({ ...autoDefaults, ...draftDefaults }), [autoDefaults, draftDefaults]);
@@ -128,7 +138,7 @@ export function useHashNavigation<
 
   // Parse initial hash
   const initialState = useMemo(() => {
-    const { path, params: rawParams } = parseHash(namespace, allDefaults);
+    const { path, params: rawParams } = parseHash(currentUrl, namespace, allDefaults);
     const transformedParams = transformer.ui(rawParams);
 
     // Handle scoped navigation for mountPath
@@ -154,7 +164,7 @@ export function useHashNavigation<
       draftParams,
       combinedParams: { ...autoParams, ...draftParams }
     };
-  }, [namespace, allDefaults, transformer, mountPath, autoDefaults, draftDefaults]);
+  }, [currentUrl, namespace, allDefaults, transformer, mountPath, autoDefaults, draftDefaults]);
 
   const [currentPath, setCurrentPath] = useState(initialState.path);
   const [autoParams, setAutoParams] = useState(initialState.autoParams);
@@ -167,6 +177,14 @@ export function useHashNavigation<
     setIsInitialized(true);
   }, []);
 
+  // Custom URL update function
+  const updateUrl = useCallback((newUrl: string) => {
+    setCurrentUrl(newUrl);
+    if (onUrlChange) {
+      onUrlChange(newUrl);
+    }
+  }, [onUrlChange]);
+
   // Navigation function
   const navigate = useCallback((relativePath: string) => {
     setCurrentPath(relativePath);
@@ -175,8 +193,8 @@ export function useHashNavigation<
       ? (relativePath === "/" ? mountPath : `${mountPath}${relativePath}`)
       : relativePath;
     const combinedParams = { ...autoParams, ...appliedDraftParams };
-    updateHash(fullPath, transformer.url(combinedParams), namespace);
-  }, [autoParams, appliedDraftParams, transformer, namespace, mountPath]);
+    updateHash(fullPath, transformer.url(combinedParams), namespace, updateUrl);
+  }, [autoParams, appliedDraftParams, transformer, namespace, mountPath, updateUrl]);
 
   // Set auto params function (immediate URL sync)
   const updateAutoParams = useCallback((newParams: TAutoParams | ((prev: TAutoParams) => TAutoParams)) => {
@@ -191,8 +209,8 @@ export function useHashNavigation<
     const fullPath = mountPath
       ? (currentPath === "/" ? mountPath : `${mountPath}${currentPath}`)
       : currentPath;
-    updateHash(fullPath, transformer.url(combinedParams), namespace);
-  }, [autoParams, appliedDraftParams, currentPath, mountPath, transformer, namespace]);
+    updateHash(fullPath, transformer.url(combinedParams), namespace, updateUrl);
+  }, [autoParams, appliedDraftParams, currentPath, mountPath, transformer, namespace, updateUrl]);
 
   // Set draft params function (no immediate URL sync)
   const updateDraftParams = useCallback((newParams: TDraftParams | ((prev: TDraftParams) => TDraftParams)) => {
@@ -236,8 +254,8 @@ export function useHashNavigation<
     const fullPath = mountPath
       ? (currentPath === "/" ? mountPath : `${mountPath}${currentPath}`)
       : currentPath;
-    updateHash(fullPath, transformer.url(combinedParams), namespace);
-  }, [draftParams, currentPath, transformer, namespace, mountPath, draftDefaults, autoParams]);
+    updateHash(fullPath, transformer.url(combinedParams), namespace, updateUrl);
+  }, [draftParams, currentPath, transformer, namespace, mountPath, draftDefaults, autoParams, updateUrl]);
 
   // Check for changes in draft params
   const hasChanges = useMemo(() => {
@@ -283,45 +301,39 @@ export function useHashNavigation<
     return false;
   }, [draftParams, appliedDraftParams]);
 
-  // Listen for hash changes
+  // Simulate hash changes when currentUrl changes
   useEffect(() => {
-    const handleHashChange = () => {
-      const { path, params: rawParams } = parseHash(namespace, allDefaults);
-      const transformedParams = transformer.ui(rawParams);
+    const { path, params: rawParams } = parseHash(currentUrl, namespace, allDefaults);
+    const transformedParams = transformer.ui(rawParams);
 
-      // Handle scoped navigation for mountPath
-      const scopedPath = mountPath && path.startsWith(mountPath)
-        ? path.slice(mountPath.length) || "/"
-        : path;
+    // Handle scoped navigation for mountPath
+    const scopedPath = mountPath && path.startsWith(mountPath)
+      ? path.slice(mountPath.length) || "/"
+      : path;
 
-      setCurrentPath(scopedPath);
+    setCurrentPath(scopedPath);
 
-      // Separate auto and draft params from URL
-      const newAutoParams: Record<string, any> = {};
-      const newDraftParams: Record<string, any> = {};
+    // Separate auto and draft params from URL
+    const newAutoParams: Record<string, any> = {};
+    const newDraftParams: Record<string, any> = {};
 
-      Object.keys(autoDefaults).forEach(key => {
-        newAutoParams[key] = transformedParams[key] ?? autoDefaults[key];
-      });
+    Object.keys(autoDefaults).forEach(key => {
+      newAutoParams[key] = transformedParams[key] ?? autoDefaults[key];
+    });
 
-      Object.keys(draftDefaults).forEach(key => {
-        newDraftParams[key] = transformedParams[key] ?? draftDefaults[key];
-      });
+    Object.keys(draftDefaults).forEach(key => {
+      newDraftParams[key] = transformedParams[key] ?? draftDefaults[key];
+    });
 
-      setAutoParams(newAutoParams);
+    setAutoParams(newAutoParams);
 
-      // Only update draft params from URL if we haven't initialized yet
-      // After initialization, draft params should only change via setDraftParams or applyDraftParams
-      if (!isInitialized) {
-        setDraftParams(newDraftParams);
-        setAppliedDraftParams(newDraftParams);
-        setIsInitialized(true);
-      }
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [namespace, allDefaults, transformer, mountPath, autoDefaults, draftDefaults]);
+    // Only update draft params from URL if we haven't initialized yet
+    // After initialization, draft params should only change via setDraftParams or applyDraftParams
+    if (!isInitialized) {
+      setDraftParams(newDraftParams);
+      setAppliedDraftParams(newDraftParams);
+    }
+  }, [currentUrl, namespace, allDefaults, transformer, mountPath, autoDefaults, draftDefaults, isInitialized]);
 
   // Return unified interface with both streams
   return {
@@ -339,5 +351,9 @@ export function useHashNavigation<
     // Navigation
     navigate,
     path: currentPath,
+
+    // Story-specific additions
+    currentUrl,
+    setCurrentUrl: updateUrl,
   } as const;
 }

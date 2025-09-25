@@ -6,14 +6,20 @@ import {
   Typography,
   Menu,
   MenuItem,
-  ThemeProvider,
   useTheme,
 } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
-import { AgGridTheme, Card, darkTheme, StatusChip, token } from "@smbc/mui-components";
+import {
+  AgGridTheme,
+  Card,
+  darkTheme,
+  StatusChip,
+  token,
+} from "@smbc/mui-components";
+import { Width } from "@smbc/mui-components";
 import { AppletPage } from "@smbc/mui-applet-core";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
-import { useHashNavigationWithApply } from "@smbc/applet-core";
+import { useHashNavigation } from "@smbc/applet-core";
 import { ui, color, shadow } from "@smbc/ui-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
@@ -37,76 +43,6 @@ import {
   FilterListOff as FilterListOffIcon,
   Clear as ClearIcon,
 } from "@mui/icons-material";
-
-function useEvents(params: Record<string, any>) {
-  const client = useApiClient<paths>("ewi-events");
-
-  // Server-side filters: dates, status (lifecycle_status), types (trigger_type)
-  const serverParams = React.useMemo(() => {
-    const queryParams: Record<string, any> = {};
-    if (params.dateFrom) {
-      queryParams.start_date = params.dateFrom;
-    }
-    if (params.dateTo) {
-      queryParams.end_date = params.dateTo;
-    }
-    if (params.status) {
-      queryParams.status = params.status;
-    }
-    if (
-      params.types &&
-      Array.isArray(params.types) &&
-      params.types.length > 0
-    ) {
-      queryParams.types = params.types.join(",");
-    }
-    return queryParams;
-  }, [params.dateFrom, params.dateTo, params.status, params.types]);
-
-  // Fetch events with server-side filtering
-  const query = useQuery({
-    queryKey: ["events", serverParams],
-    queryFn: async () => {
-      const response = await client.GET("/events", {
-        params: {
-          query: serverParams,
-        },
-      });
-      return response.data || [];
-    },
-  });
-
-  // Apply client-side filters: workflow (workflow_status), category (event_category)
-  const data = React.useMemo(() => {
-    const allEvents = query.data || [];
-    let filteredEvents = allEvents;
-
-    // Workflow filtering (client-side)
-    if (params.workflow) {
-      filteredEvents = filteredEvents.filter(
-        (event: Event) => event.workflow_status === params.workflow,
-      );
-    }
-
-    // Category filtering (client-side) - for discretionary/mandatory filter chips
-    if (params.category) {
-      filteredEvents = filteredEvents.filter(
-        (event: Event) => event.event_category === params.category,
-      );
-    }
-
-    return {
-      events: filteredEvents,
-      allEvents: allEvents,
-    };
-  }, [query.data, params.workflow, params.category]);
-
-  // Return query state with server-filtered data
-  return {
-    ...query,
-    data: data,
-  };
-}
 
 // Detail cell renderer for expandable rows
 const DetailCellRenderer = (params: any) => {
@@ -168,7 +104,7 @@ const StatusCellRenderer = (params: any) => {
       "past-due": "error" as const,
       "needs-attention": "custom" as const,
     };
-    return statusMap[status as keyof typeof statusMap] || "default" as const;
+    return statusMap[status as keyof typeof statusMap] || ("default" as const);
   };
 
   // Handle undefined or null values
@@ -272,8 +208,9 @@ const createActionsCellRenderer =
       console.log(`${action} action for:`, params.data);
 
       if (action === "view" && params.data?.id) {
-        // Navigate to event details applet with event ID as query param
-        navigate(`/events/detail?id=${params.data.id}`);
+        // Navigate to event details applet with only event ID - bypass hook navigation
+        window.location.hash = `/events/detail?id=${params.data.id}`;
+        return;
       }
 
       handleMenuClose();
@@ -352,150 +289,60 @@ const EventsAgGrid: React.FC = () => {
     }
   }, []);
 
-  const {
-    params: filterValues,
-    setParams: setFilterValues,
-    appliedParams: urlParams,
-    applyParams,
-    hasChanges: filtersChanged,
-    navigate,
-  } = useHashNavigationWithApply({
-    defaultParams: {
-      dateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0], // Today - 1 month
-      dateTo: new Date().toISOString().split("T")[0], // Today
-      status: "",
-      workflow: "",
-      types: "",
-      category: "",
-      plo: "",
-      my: "",
-    },
-  });
-
-  // Helper to transform CSV strings to arrays (keep booleans as strings)
-  const transformParams = (params: any) => {
-    const transformed = { ...params };
-    // Convert CSV strings to arrays for internal use
-    ["types", "plo"].forEach((field) => {
-      if (typeof transformed[field] === "string" && transformed[field]) {
-        transformed[field] = transformed[field].split(",");
-      } else if (!transformed[field]) {
-        transformed[field] = [];
-      }
-    });
-    // Keep 'my' as string for consistency
-    return transformed;
+  // Define defaults once to reuse
+  const autoDefaults = {
+    status: "",
+    category: "",
   };
 
-  // Transform filter values for UI (arrays and convert 'my' to boolean for checkbox)
-  const params = React.useMemo(() => {
-    const transformed = transformParams(filterValues);
-    // Convert 'my' to boolean for checkbox display
-    transformed.my = transformed.my === "true" || transformed.my === true;
-    return transformed;
-  }, [filterValues]);
+  const draftDefaults = {
+    start_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    end_date: new Date(),
+    types: [],
+    plo: [],
+    my: false,
+  };
 
-  // Transform applied filters for data fetching (arrays)
-  const appliedParams = React.useMemo(
-    () => transformParams(urlParams),
-    [urlParams],
-  );
-
-  // Update UI filter state (convert boolean back to string)
-  const setParams = React.useCallback(
-    (newParams: any) => {
-      console.log("setParams received:", newParams);
-
-      // Clean the params - remove any non-filter fields
-      const toSet: any = {};
-      const validFields = [
-        "dateFrom",
-        "dateTo",
-        "status",
-        "workflow",
-        "types",
-        "category",
-        "plo",
-        "my",
-      ];
-
-      validFields.forEach((field) => {
-        if (field in newParams) {
-          toSet[field] = newParams[field];
-        }
-      });
-
-      // Convert boolean to string for storage
-      if (typeof toSet.my === "boolean") {
-        toSet.my = toSet.my ? "true" : "";
-      } else if (toSet.my && typeof toSet.my === "object") {
-        // Prevent passing event objects
-        console.error("Received object for my field:", toSet.my);
-        toSet.my = "";
-      }
-
-      setFilterValues(toSet);
-    },
-    [setFilterValues],
-  );
-
-  // Apply filters function - updates URL and triggers data fetch
-  const handleApplyFilters = React.useCallback(
-    (valuesToApply?: any) => {
-      const values = valuesToApply || filterValues;
-      const transformed = { ...values };
-
-      // Validate all values are serializable before sending to URL
-      Object.keys(transformed).forEach((key) => {
-        const val = transformed[key];
-        // Check for non-serializable objects (like DOM events)
-        if (
-          val &&
-          typeof val === "object" &&
-          !Array.isArray(val) &&
-          !(val instanceof Date)
-        ) {
-          console.error(`Warning: Non-serializable value for ${key}:`, val);
-          // Reset to default
-          if (key === "my") {
-            transformed[key] = "";
-          } else {
-            transformed[key] = "";
-          }
-        }
-      });
-
-      // Convert arrays to CSV strings for URL
-      ["types", "plo"].forEach((field) => {
-        if (Array.isArray(transformed[field])) {
-          transformed[field] =
-            transformed[field].length > 0 ? transformed[field].join(",") : "";
-        }
-      });
-
-      // Handle 'my' field - ensure it's a string
-      if (typeof transformed.my === "boolean") {
-        transformed.my = transformed.my ? "true" : "";
-      } else if (transformed.my === "true" || transformed.my === true) {
-        transformed.my = "true";
-      } else if (
-        !transformed.my ||
-        transformed.my === "false" ||
-        transformed.my === false
-      ) {
-        transformed.my = "";
-      }
-
-      applyParams(transformed);
-    },
-    [filterValues, applyParams],
+  const {
+    navigate,
+    autoParams,
+    setAutoParams,
+    params,
+    appliedParams,
+    setParams,
+    applyParams,
+    hasChanges,
+  } = useHashNavigation(
+    autoDefaults, // Filter chips (auto-applied)
+    draftDefaults, // Server filters (draft/apply)
   );
 
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);
 
-  const { data, isLoading, error } = useEvents(appliedParams);
+  const handleApplyFilters = (overrideParams?: any) =>
+    applyParams?.(overrideParams);
+
+  const client = useApiClient<paths>("ewi-events");
+
+  // Create stable query key that only changes when server params change
+  const queryKey = useMemo(() => {
+    return ["events", appliedParams || {}];
+  }, [appliedParams]);
+
+  // Direct React Query - only use server-side parameters
+  const {
+    data: events,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const response = await client.GET("/events", {
+        params: { query: appliedParams || {} },
+      });
+      return response.data || [];
+    },
+  });
 
   const columnDefs: ColDef[] = useMemo(() => {
     const ActionsCellRenderer = createActionsCellRenderer(navigate);
@@ -545,6 +392,7 @@ const EventsAgGrid: React.FC = () => {
         flex: 1,
         sort: "asc",
         sortIndex: 0,
+        filter: "agTextColumnFilter",
       },
       {
         headerName: "Workflow Status",
@@ -598,6 +446,7 @@ const EventsAgGrid: React.FC = () => {
         field: "lifecycle_status",
         cellRenderer: StatusCellRenderer,
         pinned: "right",
+        filter: "agTextColumnFilter",
       },
       {
         field: "actions",
@@ -689,7 +538,7 @@ const EventsAgGrid: React.FC = () => {
 
   // Calculate status counts from filtered dataset
   const statusCounts = React.useMemo(() => {
-    const filteredEvents = data?.events || [];
+    const filteredEvents = events || [];
     return {
       onCourse: filteredEvents.filter(
         (event: Event) => event.lifecycle_status === "on-course",
@@ -707,34 +556,41 @@ const EventsAgGrid: React.FC = () => {
         (event: Event) => event.event_category === "Mandatory",
       ).length,
     };
-  }, [data]);
+  }, [events]);
+
+  const toolbar = (
+    <>
+      <FilterBar
+        values={params}
+        onValuesChange={setParams}
+        onApply={handleApplyFilters}
+        filtersChanged={hasChanges}
+      />
+      <ActionBar
+        values={autoParams}
+        appliedParams={autoParams}
+        onValuesChange={setAutoParams}
+        statusCounts={statusCounts}
+        workflowActions={workflowActions}
+        selectedItems={selectedRows}
+        gridRef={gridRef}
+      />
+    </>
+  );
 
   return (
     <AppletPage
-      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
+      toolbar={toolbar}
       error={error ? new Error(`Error loading events: ${error.message}`) : null}
-      height="100%"
-      bgExtended
       toolbarHeight={175}
-      toolbar={
-        <ThemeProvider theme={darkTheme}>
-          <FilterBar
-            values={params}
-            onValuesChange={setParams}
-            onApply={handleApplyFilters}
-            filtersChanged={filtersChanged}
-          />
-          <ActionBar
-            values={params}
-            onValuesChange={setParams}
-            onApply={handleApplyFilters}
-            statusCounts={statusCounts}
-            workflowActions={workflowActions}
-            selectedItems={selectedRows}
-            gridRef={gridRef}
-          />
-        </ThemeProvider>
-      }
+      maxWidth={{
+        xs: "96%",
+        sm: "96%",
+        md: "88%",
+        lg: "88%",
+        xl: "92%",
+      }}
+      bgExtended={true}
     >
       <Card
         size="large"
@@ -742,7 +598,7 @@ const EventsAgGrid: React.FC = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             Events Workflow
             <Chip
-              label={data?.events?.length || 0}
+              label={events?.length || 0}
               size="small"
               sx={(theme) => ({
                 color: token(theme, ui.color.chip.default.text),
@@ -786,19 +642,12 @@ const EventsAgGrid: React.FC = () => {
             label: "Reset Filters",
             icon: <FilterListOffIcon fontSize="small" />,
             onClick: () => {
-              const resetValues = {
-                dateFrom: "",
-                dateTo: "",
-                status: "",
-                category: "",
-                exRatings: "",
-                workflow: "",
-                priority: "",
-                types: "",
-                plo: "",
-                my: "",
-              };
+              // Reset to applied params if they exist, otherwise use initial defaults
+              const resetValues = Object.keys(appliedParams || {}).length > 0
+                ? appliedParams
+                : draftDefaults;
               setParams(resetValues);
+              setAutoParams(autoDefaults);
               if (gridRef?.current?.api) {
                 gridRef.current.api.setFilterModel(null);
               }
@@ -817,7 +666,7 @@ const EventsAgGrid: React.FC = () => {
             ref={gridRef}
             headerHeight={54}
             popupParent={popupParent}
-            rowData={data?.events || []}
+            rowData={events || []}
             columnDefs={columnDefs}
             rowSelection="multiple"
             onSelectionChanged={onSelectionChanged}
@@ -851,7 +700,10 @@ const EventsAgGrid: React.FC = () => {
               }
               if (params.node.detail) {
                 return {
-                  backgroundColor: token(darkTheme, ui.color.table.row.selected),
+                  backgroundColor: token(
+                    darkTheme,
+                    ui.color.table.row.selected,
+                  ),
                 };
               }
               return undefined;

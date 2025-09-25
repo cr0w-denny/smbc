@@ -15,6 +15,8 @@ export type { EmptyStateProps } from "./EmptyState";
 export { CustomSelect } from "./CustomSelect";
 export type { CustomSelectProps } from "./CustomSelect";
 
+export { Width } from "./Width";
+
 
 
 export { TreeMenu } from "./TreeMenu";
@@ -59,11 +61,17 @@ export const getTheme = (mode: "light" | "dark" = "light") => {
 };
 
 // App Shell
-export { AppShell, UserMenu } from "./AppShell";
+export { AppShell } from "./AppShell";
+
+// User Menu
+export { UserMenu } from "./UserMenu";
+export type { UserMenuProps, UserRole } from "./UserMenu";
 export type {
   AppShellProps,
   NavigationItem,
   TreeNavigationItem,
+  ToolbarProps,
+  PageProps,
 } from "./AppShell";
 
 // AG Grid Theme

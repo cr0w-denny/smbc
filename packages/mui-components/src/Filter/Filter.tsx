@@ -172,13 +172,18 @@ export function Filter({
 
       // Handle date range fields
       if (field.type === "daterange") {
-        return value?.from !== null && value?.from !== undefined || 
+        return value?.from !== null && value?.from !== undefined ||
                value?.to !== null && value?.to !== undefined;
       }
 
       // Handle date fields
       if (["date", "datetime"].includes(field.type)) {
         return value !== null && value !== undefined;
+      }
+
+      // Handle boolean/checkbox fields - only count as active when explicitly true
+      if (["boolean", "checkbox"].includes(field.type)) {
+        return value === true;
       }
 
       return (

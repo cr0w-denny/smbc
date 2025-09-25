@@ -43,23 +43,5 @@
   },
   "publishConfig": {
     "registry": "http://localhost:4873"
-  },
-  "smbc": {
-    "applet": {
-      "id": "usage-stats",
-      "name": "Usage Stats",
-      "description": "Dashboard for tracking usage statistics",
-      "framework": "mui",
-      "icon": "BarChart",
-      "path": "/usage-stats",
-      "permissions": [
-        "VIEW_USAGE_STATS",
-        "VIEW_USER_USAGE",
-        "VIEW_COMPONENT_USAGE",
-        "VIEW_EXCEPTIONS",
-        "EXPORT_USAGE_DATA"
-      ],
-      "exportName": "usageStatsApplet"
-    }
   }
 }

@@ -72,7 +72,7 @@ const PageLayout: React.FC<{
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "calc(100vh)",
+        height: "100%",
         position: "relative",
         "&::before": {
           content: '""',
@@ -154,6 +154,7 @@ const PageLayout: React.FC<{
           const content = (
             <Box
               sx={{
+                height: "100%",
                 width: "100%",
                 paddingBottom: 1,
                 ...(height && { height }),

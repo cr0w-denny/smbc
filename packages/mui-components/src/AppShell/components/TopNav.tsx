@@ -15,7 +15,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
 import { NavigationItem } from "../types";
 import { TreeDropdownMenu } from "./TreeDropdownMenu";
-import { UserMenu, UserRole } from "./UserMenu";
+import { UserMenu, UserRole } from "../../UserMenu";
 import { darkTheme } from "../../theme/dark";
 
 interface TopNavProps {
