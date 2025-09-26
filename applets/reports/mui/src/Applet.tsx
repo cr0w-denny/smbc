@@ -3,8 +3,7 @@ import { Box, GridLegacy as Grid, Paper, Typography, useTheme } from "@mui/mater
 import { AgGridReact } from "ag-grid-react";
 import ReactECharts from "echarts-for-react";
 import type { ColDef } from "ag-grid-community";
-import { AppletPage } from "@smbc/mui-applet-core";
-import { AgGridTheme } from "@smbc/mui-components";
+import { AgGridTheme, AppShell, Width } from "@smbc/mui-components";
 
 export interface AppletProps {
   mountPath: string;
@@ -218,65 +217,72 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
   );
 
   return (
-    <>
-      <Box sx={{ p: 3, pb: 0 }}>
-        <Typography variant="h4" gutterBottom>
-          Reports Dashboard
-        </Typography>
-      </Box>
-      <AppletPage maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}>
-        <Box sx={{ p: 3 }}>
-          <Grid container spacing={3}>
-            {/* Charts Row */}
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, height: 400 }}>
-                <ReactECharts
-                  option={chartOption}
-                  style={{ height: "100%", width: "100%" }}
-                />
-              </Paper>
-            </Grid>
+    <AppShell.Page>
+      <AppShell.Toolbar>
+        <Width>
+          <Box sx={{ p: 3, pb: 0 }}>
+            <Typography variant="h4" gutterBottom>
+              Reports Dashboard
+            </Typography>
+          </Box>
+        </Width>
+      </AppShell.Toolbar>
 
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, height: 400 }}>
-                <ReactECharts
-                  option={barChartOption}
-                  style={{ height: "100%", width: "100%" }}
-                />
-              </Paper>
-            </Grid>
-
-            {/* AG Grid Row */}
-            <Grid item xs={12}>
-              <Paper sx={{ p: 2, height: 400 }}>
-                <AgGridTheme>
-                  <AgGridReact
-                    rowData={mockReportsData}
-                    columnDefs={columnDefs}
-                    pagination={true}
-                    paginationPageSize={pageSize}
-                    paginationPageSizeSelector={[10, 25, 50]}
-                    onPaginationChanged={(event) => {
-                      if (event.api) {
-                        const newPageSize = event.api.paginationGetPageSize();
-                        if (newPageSize !== pageSize) {
-                          setPageSize(newPageSize);
-                        }
-                      }
-                    }}
-                    animateRows={true}
-                    defaultColDef={{
-                      sortable: true,
-                      filter: true,
-                      resizable: true,
-                    }}
+      <AppShell.Content>
+        <Width>
+          <Box sx={{ p: 3 }}>
+            <Grid container spacing={3}>
+              {/* Charts Row */}
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 2, height: 400 }}>
+                  <ReactECharts
+                    option={chartOption}
+                    style={{ height: "100%", width: "100%" }}
                   />
-                </AgGridTheme>
-              </Paper>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 2, height: 400 }}>
+                  <ReactECharts
+                    option={barChartOption}
+                    style={{ height: "100%", width: "100%" }}
+                  />
+                </Paper>
+              </Grid>
+
+              {/* AG Grid Row */}
+              <Grid item xs={12}>
+                <Paper sx={{ p: 2, height: 400 }}>
+                  <AgGridTheme>
+                    <AgGridReact
+                      rowData={mockReportsData}
+                      columnDefs={columnDefs}
+                      pagination={true}
+                      paginationPageSize={pageSize}
+                      paginationPageSizeSelector={[10, 25, 50]}
+                      onPaginationChanged={(event) => {
+                        if (event.api) {
+                          const newPageSize = event.api.paginationGetPageSize();
+                          if (newPageSize !== pageSize) {
+                            setPageSize(newPageSize);
+                          }
+                        }
+                      }}
+                      animateRows={true}
+                      defaultColDef={{
+                        sortable: true,
+                        filter: true,
+                        resizable: true,
+                      }}
+                    />
+                  </AgGridTheme>
+                </Paper>
+              </Grid>
             </Grid>
-          </Grid>
-        </Box>
-      </AppletPage>
-    </>
+          </Box>
+        </Width>
+      </AppShell.Content>
+    </AppShell.Page>
   );
 };

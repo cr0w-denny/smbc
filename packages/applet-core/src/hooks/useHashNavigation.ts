@@ -106,8 +106,18 @@ function updateHash(
 }
 
 /**
- * Unified hash navigation hook with auto-transformations and dual stream support
- * Supports both auto-applied parameters (immediate URL sync) and draft parameters (apply pattern)
+ * Hash navigation hook with automatic type transformations
+ *
+ * @param autoDefaults - Parameters that sync immediately to URL (first param)
+ * @param draftDefaults - Parameters for draft/apply pattern (second param)
+ * @param options - Configuration options
+ *
+ * @example
+ * // Simple usage (auto-sync):
+ * const { autoParams, setAutoParams } = useHashNavigation({ filter: "" }, {})
+ *
+ * // Draft/apply pattern:
+ * const { params, setParams, applyParams } = useHashNavigation({}, { filter: "" })
  */
 export function useHashNavigation<
   TAutoParams extends Record<string, any> = {},

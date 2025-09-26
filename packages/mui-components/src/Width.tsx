@@ -8,7 +8,6 @@ interface WidthProps {
 
 /**
  * Width constraint component that applies consistent responsive width limits.
- * Generic layout utility that can be used across any MUI application.
  */
 export const Width: React.FC<WidthProps> = ({
   children,

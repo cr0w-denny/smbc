@@ -4,8 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef, GridOptions } from "ag-grid-community";
 import "ag-grid-enterprise";
-import { Filter, AgGridTheme } from "@smbc/mui-components";
-import { AppletPage } from "@smbc/mui-applet-core";
+import { Filter, AgGridTheme, AppShell, Width } from "@smbc/mui-components";
 import type { FilterSpec } from "@smbc/mui-components";
 import {
   useHashNavigation,
@@ -325,53 +324,56 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
   );
 
   return (
-    <AppletPage
-      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
-      error={error as Error | null}
-      height="100%"
-      toolbar={
-        <Filter
-          spec={filterSpec}
-          values={filters}
-          onFiltersChange={setFilters}
-        />
-      }
-    >
-      {/* Main Grid */}
-      <Box sx={{ display: "flex", flexDirection: "row", height: "100%" }}>
-        {/* Main Table */}
-        <Box sx={{ flex: 1 }}>
-          <AgGridTheme height="100%" popupParentRef={popupParentRef}>
-            <AgGridReact
-              ref={gridRef}
-              key={`usage-stats-${environment}`}
-              {...gridOptions}
-              loading={isLoading}
-              popupParent={popupParentRef.current || undefined}
-            />
-          </AgGridTheme>
-        </Box>
+    <AppShell.Page>
+      <AppShell.Toolbar>
+        <Width>
+          <Filter
+            spec={filterSpec}
+            values={filters}
+            onFiltersChange={setFilters}
+          />
+        </Width>
+      </AppShell.Toolbar>
 
-        {/* Side Panel for Additional Info */}
-        {filters.group !== "EXCEPTION" && (
-          <Box
-            sx={{
-              width: "75%",
-              borderLeft: 1,
-              borderColor: "divider",
-              bgcolor: "background.paper",
-              p: 3,
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Usage Details
-            </Typography>
-            <Box sx={{ color: "text.secondary" }}>
-              Select a row to view detailed usage information
+      <AppShell.Content error={error as Error | null}>
+        <Width>
+          {/* Main Grid */}
+          <Box sx={{ display: "flex", flexDirection: "row", height: "calc(100vh - 200px)" }}>
+            {/* Main Table */}
+            <Box sx={{ flex: 1 }}>
+              <AgGridTheme height="100%" popupParentRef={popupParentRef}>
+                <AgGridReact
+                  ref={gridRef}
+                  key={`usage-stats-${environment}`}
+                  {...gridOptions}
+                  loading={isLoading}
+                  popupParent={popupParentRef.current || undefined}
+                />
+              </AgGridTheme>
             </Box>
+
+            {/* Side Panel for Additional Info */}
+            {filters.group !== "EXCEPTION" && (
+              <Box
+                sx={{
+                  width: "75%",
+                  borderLeft: 1,
+                  borderColor: "divider",
+                  bgcolor: "background.paper",
+                  p: 3,
+                }}
+              >
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Usage Details
+                </Typography>
+                <Box sx={{ color: "text.secondary" }}>
+                  Select a row to view detailed usage information
+                </Box>
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
-    </AppletPage>
+        </Width>
+      </AppShell.Content>
+    </AppShell.Page>
   );
 };

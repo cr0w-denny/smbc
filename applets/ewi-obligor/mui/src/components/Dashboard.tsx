@@ -1,8 +1,14 @@
 import React, { useMemo } from "react";
 import { Box, Typography, ThemeProvider } from "@mui/material";
-import { Card, Filter, darkTheme, RelatedNews } from "@smbc/mui-components";
+import {
+  Card,
+  Filter,
+  darkTheme,
+  RelatedNews,
+  AppShell,
+  Width,
+} from "@smbc/mui-components";
 import type { NewsItem } from "@smbc/mui-components";
-import { AppletPage } from "@smbc/mui-applet-core";
 import { useHashNavigation } from "@smbc/applet-core";
 import { DetailsCard } from "./DetailsCard";
 import { Grid } from "./Grid";
@@ -56,7 +62,8 @@ const mockKVData = [
 const mockNewsData: NewsItem[] = [
   {
     id: "1",
-    title: "Sandy Tong: S.F.'s first Asian fire chief - and first without fire...",
+    title:
+      "Sandy Tong: S.F.'s first Asian fire chief - and first without fire...",
     date: "06-Sep",
     author: "Yujie Zhou",
     source: "Google: 70.4%",
@@ -96,7 +103,8 @@ const mockNewsData: NewsItem[] = [
   },
   {
     id: "5",
-    title: "San Francisco Harley-Davidson closes abruptly after 110 Years in...",
+    title:
+      "San Francisco Harley-Davidson closes abruptly after 110 Years in...",
     date: "02-Sep",
     author: "Auto Reporter",
     source: "Google: 81.3%",
@@ -106,16 +114,22 @@ const mockNewsData: NewsItem[] = [
   },
 ];
 
+interface ObligorFilters {
+  obligorName: string;
+  sunId: string;
+  fromDate: string;
+  toDate: string;
+}
+
 const Dashboard: React.FC = () => {
-  // Filter state
-  const { params, setParams } = useHashNavigation({
-    defaultParams: {
+  // Filter state - using auto-applied params (immediate URL sync)
+  const { autoParams: params, setAutoParams: setParams } =
+    useHashNavigation<ObligorFilters>({
       obligorName: "",
       sunId: "",
       fromDate: "",
       toDate: "",
-    },
-  });
+    });
 
   // Filter obligors based on search criteria
   const filteredObligors = useMemo(() => {
@@ -159,7 +173,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleFilterChange = (values: FilterValues) => {
-    setParams(values);
+    setParams(values as ObligorFilters);
   };
 
   // Menu items for the AG Grid card
@@ -176,62 +190,69 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <AppletPage
-      bgExtended
-      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
-      toolbar={
-        <ThemeProvider theme={darkTheme}>
-          <Filter
-            spec={filterSpec}
-            values={params}
-            onFiltersChange={handleFilterChange}
-          />
-        </ThemeProvider>
-      }
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 3,
-          height: "100%",
-        }}
-      >
-        {/* First row: DetailsCard and Grid */}
-        <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-          {/* Position 1,1: DetailsCard */}
-          <Box sx={{ flex: "1 1 30%", minWidth: 300, height: 400 }}>
-            <DetailsCard items={mockKVData} />
-          </Box>
+    <AppShell.Page>
+      <AppShell.Toolbar variant="extended">
+        <Width>
+          <ThemeProvider theme={darkTheme}>
+            <Filter
+              spec={filterSpec}
+              values={params}
+              onFiltersChange={handleFilterChange}
+            />
+          </ThemeProvider>
+        </Width>
+      </AppShell.Toolbar>
 
-          {/* Position 1,2: Grid */}
-          <Box sx={{ flex: "2 1 60%", height: 400 }}>
-            <Grid obligors={filteredObligors} menuItems={gridMenuItems} />
-          </Box>
-        </Box>
-
-        {/* Second row: Two dummy cards */}
-        <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-          {/* Position 2,1: Dummy Card 1 */}
-          <Box sx={{ flex: "1 1 45%", minWidth: 400 }}>
-            <Card title="Event Occurrence by Month" menuItems={dummyMenuItems}>
-              <Box sx={{ p: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  INSERT CHART
-                </Typography>
+      <AppShell.Content>
+        <Width>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+              height: "100%",
+            }}
+          >
+            {/* First row: DetailsCard and Grid */}
+            <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+              {/* Position 1,1: DetailsCard */}
+              <Box sx={{ flex: "1 1 30%", minWidth: 300, height: 400 }}>
+                <DetailsCard items={mockKVData} />
               </Box>
-            </Card>
-          </Box>
 
-          {/* Position 2,2: Related News */}
-          <Box sx={{ flex: "1 1 45%", minWidth: 400 }}>
-            <Card title="Related News" menuItems={dummyMenuItems}>
-              <RelatedNews items={mockNewsData} />
-            </Card>
+              {/* Position 1,2: Grid */}
+              <Box sx={{ flex: "2 1 60%", height: 400 }}>
+                <Grid obligors={filteredObligors} menuItems={gridMenuItems} />
+              </Box>
+            </Box>
+
+            {/* Second row: Two dummy cards */}
+            <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+              {/* Position 2,1: Dummy Card 1 */}
+              <Box sx={{ flex: "1 1 45%", minWidth: 400 }}>
+                <Card
+                  title="Event Occurrence by Month"
+                  menuItems={dummyMenuItems}
+                >
+                  <Box sx={{ p: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      INSERT CHART
+                    </Typography>
+                  </Box>
+                </Card>
+              </Box>
+
+              {/* Position 2,2: Related News */}
+              <Box sx={{ flex: "1 1 45%", minWidth: 400 }}>
+                <Card title="Related News" menuItems={dummyMenuItems}>
+                  <RelatedNews items={mockNewsData} />
+                </Card>
+              </Box>
+            </Box>
           </Box>
-        </Box>
-      </Box>
-    </AppletPage>
+        </Width>
+      </AppShell.Content>
+    </AppShell.Page>
   );
 };
 

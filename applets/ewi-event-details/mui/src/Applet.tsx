@@ -16,9 +16,8 @@ import {
   AssignmentAdd as AssignmentAddIcon,
   AssignmentTurnedIn as AssignmentTurnedInIcon,
 } from "@mui/icons-material";
-import { AppletPage } from "@smbc/mui-applet-core";
 import { useHashNavigation } from "@smbc/applet-core";
-import { TabBar } from "@smbc/mui-components";
+import { TabBar, AppShell, Width } from "@smbc/mui-components";
 import { shadow } from "@smbc/ui-core";
 import type { TabBarItem } from "@smbc/mui-components";
 import { EventTab } from "./components/EventTab";
@@ -50,7 +49,11 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   const [eventData, setEventData] = useState<EventData | null>(null);
 
   // Extract event ID from URL parameters - only accept id param, ignore others
-  const { params } = useHashNavigation({}, { id: "" }, { mountPath });
+  const { params } = useHashNavigation<{}, { id: string }>(
+    {},
+    { id: "" },
+    { mountPath },
+  );
   const eventId = params.id;
 
   // Debug logging
@@ -114,137 +117,144 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   };
 
   return (
-    <AppletPage
-      maxWidth={{ xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" }}
-      bgExtended
-      toolbarHeight={78}
-      toolbar={
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
-          {/* Left-aligned tabs */}
-          <TabBar
-            items={tabs}
-            value={activeTab}
-            onChange={setActiveTab}
-            size="medium"
-          />
-
-          {/* Right-aligned buttons */}
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={handleSave}
-            >
-              Save
-            </Button>
-
-            <Button
-              variant="contained"
-              endIcon={
-                Boolean(workflowMenuAnchorEl) ? (
-                  <ExpandLessIcon />
-                ) : (
-                  <ExpandMoreIcon />
-                )
-              }
-              onClick={handleWorkflowMenuOpen}
-            >
-              Workflow
-            </Button>
-
-            <Menu
-              anchorEl={workflowMenuAnchorEl}
-              open={Boolean(workflowMenuAnchorEl)}
-              onClose={handleWorkflowMenuClose}
-              transformOrigin={{ horizontal: "right", vertical: "top" }}
-              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-              sx={{
-                mt: 1,
-                "& .MuiPaper-root": {
-                  boxShadow: shadow.md,
-                },
-              }}
-            >
-              <MenuItem onClick={() => handleWorkflowAction("submit-review")}>
-                <ListItemIcon>
-                  <SendIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Submit for Review</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={() => handleWorkflowAction("revoke-review")}>
-                <ListItemIcon>
-                  <CancelScheduleSendIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Revoke Review Request</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={() => handleWorkflowAction("reassign-owner")}>
-                <ListItemIcon>
-                  <AssignmentAddIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Reassign Event Owner</ListItemText>
-              </MenuItem>
-              <MenuItem
-                onClick={() => handleWorkflowAction("reassign-approvers")}
-              >
-                <ListItemIcon>
-                  <AssignmentTurnedInIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Reassign Event Approvers</ListItemText>
-              </MenuItem>
-            </Menu>
-          </Box>
-        </Box>
-      }
-    >
-      <Box
-        sx={{
-          display: "flex",
-          height: "100%",
-          minHeight: "calc(100vh - 350px)",
-          position: "relative",
-          gap: "30px",
-        }}
-      >
-        {!isEditorMaximized && (
+    <AppShell.Page>
+      <AppShell.Toolbar>
+        <Width>
           <Box
             sx={{
-              flex: { xs: 1.2, sm: 1.2, md: 1, lg: 1, xl: 1 },
-              minWidth: { xs: "400px", sm: "500px", md: "600px" },
-              overflow: "hidden",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
             }}
           >
-            {renderTabContent()}
-          </Box>
-        )}
+            {/* Left-aligned tabs */}
+            <TabBar
+              items={tabs}
+              value={activeTab}
+              onChange={setActiveTab}
+              size="medium"
+            />
 
-        <Box
-          sx={{
-            flex: isEditorMaximized
-              ? 1
-              : { xs: 0.8, sm: 0.8, md: 1, lg: 1, xl: 1 },
-            minWidth: isEditorMaximized
-              ? "100%"
-              : { xs: "280px", sm: "320px", md: "400px" },
-            width: isEditorMaximized ? "100%" : "auto",
-            position: "sticky",
-            top: "184px", // TopNav (104px) + Fixed Toolbar (80px)
-            height: "calc(100vh - 210px)",
-          }}
-        >
-          <EditorPanel
-            isMaximized={isEditorMaximized}
-            onToggleMaximize={() => setIsEditorMaximized(!isEditorMaximized)}
-          />
-        </Box>
-      </Box>
-    </AppletPage>
+            {/* Right-aligned buttons */}
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={handleSave}
+              >
+                Save
+              </Button>
+
+              <Button
+                variant="contained"
+                endIcon={
+                  Boolean(workflowMenuAnchorEl) ? (
+                    <ExpandLessIcon />
+                  ) : (
+                    <ExpandMoreIcon />
+                  )
+                }
+                onClick={handleWorkflowMenuOpen}
+              >
+                Workflow
+              </Button>
+
+              <Menu
+                anchorEl={workflowMenuAnchorEl}
+                open={Boolean(workflowMenuAnchorEl)}
+                onClose={handleWorkflowMenuClose}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                sx={{
+                  mt: 1,
+                  "& .MuiPaper-root": {
+                    boxShadow: shadow.md,
+                  },
+                }}
+              >
+                <MenuItem onClick={() => handleWorkflowAction("submit-review")}>
+                  <ListItemIcon>
+                    <SendIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Submit for Review</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => handleWorkflowAction("revoke-review")}>
+                  <ListItemIcon>
+                    <CancelScheduleSendIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Revoke Review Request</ListItemText>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => handleWorkflowAction("reassign-owner")}
+                >
+                  <ListItemIcon>
+                    <AssignmentAddIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Reassign Event Owner</ListItemText>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => handleWorkflowAction("reassign-approvers")}
+                >
+                  <ListItemIcon>
+                    <AssignmentTurnedInIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Reassign Event Approvers</ListItemText>
+                </MenuItem>
+              </Menu>
+            </Box>
+          </Box>
+        </Width>
+      </AppShell.Toolbar>
+
+      <AppShell.Content>
+        <Width>
+          <Box
+            sx={{
+              display: "flex",
+              minHeight: "100vh",
+              position: "relative",
+              gap: "30px",
+            }}
+          >
+            {!isEditorMaximized && (
+              <Box
+                sx={{
+                  flex: { xs: 1.2, sm: 1.2, md: 1, lg: 1, xl: 1 },
+                  minWidth: { xs: "400px", sm: "500px", md: "600px" },
+                  pb: 2,
+                }}
+              >
+                {renderTabContent()}
+              </Box>
+            )}
+
+            <Box
+              sx={{
+                flex: isEditorMaximized
+                  ? 1
+                  : { xs: 0.8, sm: 0.8, md: 1, lg: 1, xl: 1 },
+                minWidth: isEditorMaximized
+                  ? "100%"
+                  : { xs: "280px", sm: "320px", md: "400px" },
+                width: isEditorMaximized ? "100%" : "auto",
+                position: "sticky",
+                top: "calc(var(--appshell-header-height, 104px) + var(--appshell-toolbar-height, 80px) + 16px)",
+                height:
+                  "calc(100vh - var(--appshell-header-height, 104px) - var(--appshell-toolbar-height, 80px) - 32px)",
+              }}
+            >
+              <EditorPanel
+                isMaximized={isEditorMaximized}
+                onToggleMaximize={() =>
+                  setIsEditorMaximized(!isEditorMaximized)
+                }
+              />
+            </Box>
+          </Box>
+        </Width>
+      </AppShell.Content>
+    </AppShell.Page>
   );
 };
 

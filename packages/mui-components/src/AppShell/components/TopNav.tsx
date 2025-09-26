@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import {
   AppBar,
   Box,
@@ -77,6 +77,15 @@ export const TopNav: React.FC<TopNavProps> = ({
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate and set header height as CSS custom property
+  useLayoutEffect(() => {
+    if (headerRef.current) {
+      const height = headerRef.current.offsetHeight;
+      document.documentElement.style.setProperty('--appshell-header-height', `${height}px`);
+    }
+  });
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -263,6 +272,7 @@ export const TopNav: React.FC<TopNavProps> = ({
 
   return (
     <AppBar
+      ref={headerRef}
       position="fixed"
       sx={{
         /* Avoid popover induced layout shift */

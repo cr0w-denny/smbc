@@ -11,23 +11,22 @@ import {
 import { AgGridReact } from "ag-grid-react";
 import {
   AgGridTheme,
+  AppShell,
   Card,
   darkTheme,
   StatusChip,
   token,
+  Width,
 } from "@smbc/mui-components";
-import { Width } from "@smbc/mui-components";
-import { AppletPage } from "@smbc/mui-applet-core";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
-import { useHashNavigation } from "@smbc/applet-core";
+import { useHashNavigation, useApiClient } from "@smbc/applet-core";
 import { ui, color, shadow } from "@smbc/ui-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
 import type { components, paths } from "@smbc/ewi-events-api/types";
 
-type Event = components["schemas"]["Event"];
-import { useApiClient } from "@smbc/applet-core";
 import { useQuery } from "@tanstack/react-query";
+type Event = components["schemas"]["Event"];
 
 import {
   MoreVert as MoreIcon,
@@ -186,7 +185,7 @@ const StatusCellRenderer = (params: any) => {
 
 // Actions cell renderer - just the menu button
 const createActionsCellRenderer =
-  (navigate: (path: string) => void) => (params: any) => {
+  (_navigate: (path: string) => void) => (params: any) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -276,7 +275,7 @@ const createActionsCellRenderer =
     );
   };
 
-const EventsAgGrid: React.FC = () => {
+export const Events: React.FC = () => {
   const gridRef = React.useRef<AgGridReact>(null);
   const popupParentRef = React.useRef<HTMLDivElement>(null);
 
@@ -289,7 +288,6 @@ const EventsAgGrid: React.FC = () => {
     }
   }, []);
 
-  // Define defaults once to reuse
   const autoDefaults = {
     status: "",
     category: "",
@@ -324,18 +322,12 @@ const EventsAgGrid: React.FC = () => {
 
   const client = useApiClient<paths>("ewi-events");
 
-  // Create stable query key that only changes when server params change
-  const queryKey = useMemo(() => {
-    return ["events", appliedParams || {}];
-  }, [appliedParams]);
-
-  // Direct React Query - only use server-side parameters
   const {
     data: events,
     isLoading,
     error,
   } = useQuery({
-    queryKey,
+    queryKey: ["events", appliedParams || {}],
     queryFn: async () => {
       const response = await client.GET("/events", {
         params: { query: appliedParams || {} },
@@ -481,7 +473,6 @@ const EventsAgGrid: React.FC = () => {
   }, []);
 
   // Event handlers
-
   const onRowGroupOpened = useCallback((event: any) => {
     console.log("Row group opened/closed:", event.node.expanded);
     // Force refresh of row styles
@@ -578,150 +569,161 @@ const EventsAgGrid: React.FC = () => {
     </>
   );
 
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error">
+          Error loading events: {error.message}
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <AppletPage
-      toolbar={toolbar}
-      error={error ? new Error(`Error loading events: ${error.message}`) : null}
-      toolbarHeight={175}
-      maxWidth={{
-        xs: "96%",
-        sm: "96%",
-        md: "88%",
-        lg: "88%",
-        xl: "92%",
-      }}
-      bgExtended={true}
-    >
-      <Card
-        size="large"
-        title={
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            Events Workflow
-            <Chip
-              label={events?.length || 0}
-              size="small"
-              sx={(theme) => ({
-                color: token(theme, ui.color.chip.default.text),
-                backgroundColor: token(theme, ui.color.chip.default.background),
-                fontSize: "14px",
-                "& .MuiChip-label": {
-                  px: 1.5,
-                  fontSize: "14px",
+    <AppShell.Page>
+      <AppShell.Toolbar>
+        <Width>{toolbar}</Width>
+      </AppShell.Toolbar>
+
+      <AppShell.Content>
+        <Width>
+          <Card
+            size="large"
+            title={
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                Events Workflow
+                <Chip
+                  label={events?.length || 0}
+                  size="small"
+                  sx={(theme) => ({
+                    color: token(theme, ui.color.chip.default.text),
+                    backgroundColor: token(
+                      theme,
+                      ui.color.chip.default.background,
+                    ),
+                    fontSize: "14px",
+                    "& .MuiChip-label": {
+                      px: 1.5,
+                      fontSize: "14px",
+                    },
+                  })}
+                />
+              </Box>
+            }
+            menuItems={[
+              {
+                label: "Export Data",
+                icon: <FileDownloadIcon fontSize="small" />,
+                onClick: () => {
+                  // TODO: Implement export functionality
+                  console.log("Export data");
                 },
-              })}
-            />
-          </Box>
-        }
-        menuItems={[
-          {
-            label: "Export Data",
-            icon: <FileDownloadIcon fontSize="small" />,
-            onClick: () => {
-              // TODO: Implement export functionality
-              console.log("Export data");
-            },
-          },
-          {
-            label: "Print Report",
-            icon: <PrintIcon fontSize="small" />,
-            onClick: () => {
-              // TODO: Implement print functionality
-              console.log("Print report");
-            },
-          },
-          {
-            label: "Column Settings",
-            icon: <ViewColumnIcon fontSize="small" />,
-            onClick: () => {
-              if (gridRef?.current?.api) {
-                gridRef.current.api.showColumnChooser();
-              }
-            },
-          },
-          {
-            label: "Reset Filters",
-            icon: <FilterListOffIcon fontSize="small" />,
-            onClick: () => {
-              // Reset to applied params if they exist, otherwise use initial defaults
-              const resetValues = Object.keys(appliedParams || {}).length > 0
-                ? appliedParams
-                : draftDefaults;
-              setParams(resetValues);
-              setAutoParams(autoDefaults);
-              if (gridRef?.current?.api) {
-                gridRef.current.api.setFilterModel(null);
-              }
-            },
-            divider: true,
-          },
-        ]}
-        sx={{ height: "100%" }}
-      >
-        <AgGridTheme
-          height="92%"
-          wrapHeaders={true}
-          popupParentRef={popupParentRef}
-        >
-          <AgGridReact
-            ref={gridRef}
-            headerHeight={54}
-            popupParent={popupParent}
-            rowData={events || []}
-            columnDefs={columnDefs}
-            rowSelection="multiple"
-            onSelectionChanged={onSelectionChanged}
-            onRowGroupOpened={onRowGroupOpened}
-            loading={isLoading}
-            animateRows
-            suppressCellFocus
-            suppressRowClickSelection
-            cellSelection={false}
-            suppressHorizontalScroll={false}
-            alwaysShowHorizontalScroll={false}
-            masterDetail
-            detailCellRenderer={DetailCellRenderer}
-            detailRowHeight={200}
-            isRowMaster={(dataItem) => {
-              // All rows can be expanded
-              console.log("isRowMaster called for:", dataItem);
-              return true;
-            }}
-            getRowStyle={(params) => {
-              console.log("getRowStyle called:", {
-                id: params.data?.id,
-                expanded: params.node.expanded,
-                nodeLevel: params.node.level,
-                detail: params.node.detail,
-              });
-              if (params.node.expanded) {
-                return {
-                  backgroundColor: token(darkTheme, ui.color.table.row.hover),
-                };
-              }
-              if (params.node.detail) {
-                return {
-                  backgroundColor: token(
-                    darkTheme,
-                    ui.color.table.row.selected,
-                  ),
-                };
-              }
-              return undefined;
-            }}
-            defaultColDef={{
-              filter: true,
-              sortable: true,
-              resizable: true,
-              menuTabs: ["filterMenuTab", "columnsMenuTab"],
-            }}
-            sortingOrder={["asc", "desc"]}
-            multiSortKey={"ctrl"}
-            columnMenu="legacy"
-          />
-        </AgGridTheme>
-      </Card>
-    </AppletPage>
+              },
+              {
+                label: "Print Report",
+                icon: <PrintIcon fontSize="small" />,
+                onClick: () => {
+                  // TODO: Implement print functionality
+                  console.log("Print report");
+                },
+              },
+              {
+                label: "Column Settings",
+                icon: <ViewColumnIcon fontSize="small" />,
+                onClick: () => {
+                  if (gridRef?.current?.api) {
+                    gridRef.current.api.showColumnChooser();
+                  }
+                },
+              },
+              {
+                label: "Reset Filters",
+                icon: <FilterListOffIcon fontSize="small" />,
+                onClick: () => {
+                  // Reset to applied params if they exist, otherwise use initial defaults
+                  const resetValues =
+                    Object.keys(appliedParams || {}).length > 0
+                      ? appliedParams
+                      : draftDefaults;
+                  setParams(resetValues);
+                  setAutoParams(autoDefaults);
+                  if (gridRef?.current?.api) {
+                    gridRef.current.api.setFilterModel(null);
+                  }
+                },
+                divider: true,
+              },
+            ]}
+            sx={{ height: "100%" }}
+          >
+            <AgGridTheme
+              height="92%"
+              wrapHeaders={true}
+              popupParentRef={popupParentRef}
+            >
+              <AgGridReact
+                ref={gridRef}
+                headerHeight={54}
+                popupParent={popupParent}
+                rowData={events || []}
+                columnDefs={columnDefs}
+                rowSelection="multiple"
+                onSelectionChanged={onSelectionChanged}
+                onRowGroupOpened={onRowGroupOpened}
+                loading={isLoading}
+                animateRows
+                suppressCellFocus
+                suppressRowClickSelection
+                cellSelection={false}
+                suppressHorizontalScroll={false}
+                alwaysShowHorizontalScroll={false}
+                masterDetail
+                detailCellRenderer={DetailCellRenderer}
+                detailRowHeight={200}
+                isRowMaster={(dataItem) => {
+                  // All rows can be expanded
+                  console.log("isRowMaster called for:", dataItem);
+                  return true;
+                }}
+                getRowStyle={(params) => {
+                  console.log("getRowStyle called:", {
+                    id: params.data?.id,
+                    expanded: params.node.expanded,
+                    nodeLevel: params.node.level,
+                    detail: params.node.detail,
+                  });
+                  if (params.node.expanded) {
+                    return {
+                      backgroundColor: token(
+                        darkTheme,
+                        ui.color.table.row.hover,
+                      ),
+                    };
+                  }
+                  if (params.node.detail) {
+                    return {
+                      backgroundColor: token(
+                        darkTheme,
+                        ui.color.table.row.selected,
+                      ),
+                    };
+                  }
+                  return undefined;
+                }}
+                defaultColDef={{
+                  filter: true,
+                  sortable: true,
+                  resizable: true,
+                  menuTabs: ["filterMenuTab", "columnsMenuTab"],
+                }}
+                sortingOrder={["asc", "desc"]}
+                multiSortKey={"ctrl"}
+                columnMenu="legacy"
+              />
+            </AgGridTheme>
+          </Card>
+        </Width>
+      </AppShell.Content>
+    </AppShell.Page>
   );
 };
-
-export default EventsAgGrid;
