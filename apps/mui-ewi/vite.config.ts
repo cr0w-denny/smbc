@@ -1,6 +1,7 @@
 import { defineConfig, mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import fs from "fs";
 import { suppressUseClientWarnings, createAppConfig } from "@smbc/vite-config";
 import { createDebugPlugin } from "@smbc/mui-applet-devtools/vite";
 
@@ -49,8 +50,6 @@ export default defineConfig(({ mode }) => {
             writeBundle() {
               if (isProduction) {
                 // Copy index.prod.html to index.html for preview server
-                const fs = require('fs');
-                const path = require('path');
                 const distDir = path.resolve(__dirname, 'dist');
                 const prodHtml = path.join(distDir, 'index.prod.html');
                 const indexHtml = path.join(distDir, 'index.html');
