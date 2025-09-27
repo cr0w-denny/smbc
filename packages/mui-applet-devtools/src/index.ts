@@ -23,6 +23,19 @@ export { MarkdownRenderer } from './InstallationModal/MarkdownRenderer';
 
 // Utilities
 export { getPackageName } from './utils/getPackageName';
+export { getAvailableServersWithOverrides, getApiOverrides, isOverrideServer } from './utils/apiOverrides';
+export type { ServerInfo } from './utils/apiOverrides';
+
+// Debug utilities
+export { debug, debugLogger, debugComponent, createSessionId } from './utils/debug';
+export type { DebugEntry } from './utils/debug';
+
+// Dev Console
+export { DevConsole } from './DevConsole';
+
+// Development tools components
+export { DevConsoleToggle } from './DevConsoleToggle';
+export type { DevConsoleToggleProps } from './DevConsoleToggle';
 
 // Role management dev tools
 export {

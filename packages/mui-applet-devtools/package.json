@@ -10,10 +10,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./vite": {
+      "import": "./src/vite/index.js"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src/vite"
   ],
   "scripts": {
     "build": "vite build",

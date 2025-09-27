@@ -6,9 +6,12 @@ import {
   Box,
   CircularProgress,
   SelectChangeEvent,
+  Tooltip,
+  Typography,
 } from "@mui/material";
-import { useFeatureFlag, useFeatureFlags, getAvailableServers, useAppletCore, type Environment } from "@smbc/applet-core";
+import { useFeatureFlag, useFeatureFlags, useAppletCore, type Environment } from "@smbc/applet-core";
 import type { CurrentAppletInfo } from "./HostAppBar";
+import { getAvailableServersWithOverrides } from "./utils/apiOverrides";
 
 /**
  * Props for the ServerSelector component
@@ -20,6 +23,8 @@ export interface ServerSelectorProps {
   isMswInitializing?: boolean;
   /** Whether to show server status indicator */
   showStatus?: boolean;
+  /** Whether to show tooltip on status hover */
+  showTooltip?: boolean;
 }
 
 /**
@@ -32,19 +37,23 @@ export function ServerSelector({
   currentAppletInfo,
   isMswInitializing = false,
   showStatus = false,
+  showTooltip = true,
 }: ServerSelectorProps) {
   const environment = useFeatureFlag<Environment>("environment") || "development";
   const { setFlag } = useFeatureFlags();
   const { state } = useAppletCore();
   const [serverStatus, setServerStatus] = React.useState<ServerStatus>('unknown');
   
-  // Get available servers from the current applet's API spec
+  // Get available servers from the current applet's API spec with overrides
   const availableServers = React.useMemo(() => {
     if (!currentAppletInfo?.apiSpec) {
       return [];
     }
-    
-    const servers = getAvailableServers(currentAppletInfo.apiSpec);
+
+    const servers = getAvailableServersWithOverrides(
+      currentAppletInfo.apiSpec,
+      currentAppletInfo.id
+    );
     console.log(`🔍 Available servers for ${currentAppletInfo.id}:`, servers);
     
     // Sort servers in standard order: mock, local, dev, qa, prod
@@ -110,8 +119,8 @@ export function ServerSelector({
       // Initial check
       checkMswStatus();
       
-      // Set up less frequent periodic check to reduce flickering
-      const mockCheckInterval = setInterval(checkMswStatus, 5000);
+      // Set up more frequent periodic check when switching to mock
+      const mockCheckInterval = setInterval(checkMswStatus, 2000);
       
       return () => clearInterval(mockCheckInterval);
     }
@@ -156,17 +165,9 @@ export function ServerSelector({
     
     setFlag("environment", selectedDescription as Environment);
     
-    // Reset status when changing servers and trigger immediate recheck
+    // Reset status when changing servers
     if (showStatus) {
-      if (selectedDescription === 'mock') {
-        setServerStatus('mock-initializing');
-        // Trigger a delayed recheck for mock status
-        setTimeout(() => {
-          setServerStatus('unknown');
-        }, 100);
-      } else {
-        setServerStatus('unknown');
-      }
+      setServerStatus('unknown');
     }
   };
 
@@ -188,16 +189,32 @@ export function ServerSelector({
       }
     };
 
-    if (serverStatus === 'mock-initializing') {
-      return (
-        <CircularProgress 
-          size={12} 
-          sx={{ color: getStatusColor() }}
-        />
-      );
-    }
-    
-    return (
+    const getStatusText = () => {
+      switch (serverStatus) {
+        case 'online':
+          return 'Online';
+        case 'mock-ready':
+          return 'Mock Ready';
+        case 'offline':
+          return 'Offline';
+        case 'mock-initializing':
+          return 'Initializing...';
+        default:
+          return 'Unknown';
+      }
+    };
+
+    const currentServer = availableServers.find(s => s.description === environment);
+    const tooltipContent = currentServer ?
+      `${currentServer.description.toUpperCase()}\n${currentServer.url}` :
+      getStatusText();
+
+    const statusElement = serverStatus === 'mock-initializing' ? (
+      <CircularProgress
+        size={12}
+        sx={{ color: getStatusColor() }}
+      />
+    ) : (
       <Box
         sx={{
           width: 12,
@@ -207,6 +224,26 @@ export function ServerSelector({
         }}
       />
     );
+
+    return showTooltip ? (
+      <Tooltip
+        title={tooltipContent}
+        arrow
+        placement="left"
+        componentsProps={{
+          tooltip: {
+            sx: {
+              py: 0.5,
+              px: 1,
+              fontSize: '0.6rem',
+              maxWidth: 'none',
+            }
+          }
+        }}
+      >
+        {statusElement}
+      </Tooltip>
+    ) : statusElement;
   };
 
   // Don't render if no applet or no API spec
@@ -215,48 +252,71 @@ export function ServerSelector({
   }
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1 }}>
       {renderStatusIndicator()}
-      <FormControl 
-        size="small" 
-        sx={{ 
-          minWidth: 80,
-          "& .MuiOutlinedInput-root": {
-            color: "inherit",
-            "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: "rgba(255, 255, 255, 0.3)",
-            },
-            "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: "rgba(255, 255, 255, 0.5)",
-            },
-            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              borderColor: "rgba(255, 255, 255, 0.7)",
-            },
-          },
-          "& .MuiSelect-icon": {
-            color: "inherit",
-          },
-        }}
-      >
-        <Select
-          value={availableServers.find(s => s.description === environment)?.description || availableServers[0]?.description || ''}
-          onChange={handleServerChange}
-          displayEmpty
+      <FormControl
+          size="small"
           sx={{
-            fontSize: "0.875rem",
-            "& .MuiSelect-select": {
-              py: 0.5,
-              px: 1,
+            minWidth: 80,
+            "& .MuiOutlinedInput-root": {
+              color: "inherit",
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "rgba(255, 255, 255, 0.5)",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "rgba(255, 255, 255, 0.7)",
+              },
+            },
+            "& .MuiSelect-icon": {
+              color: "inherit",
             },
           }}
         >
-          {availableServers.map((server) => (
-            <MenuItem key={server.url} value={server.description}>
-              {server.description}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          <Select
+            value={availableServers.find(s => s.description === environment)?.description || availableServers[0]?.description || ''}
+            onChange={handleServerChange}
+            displayEmpty
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 200, // Limit dropdown height
+                },
+              },
+            }}
+            sx={{
+              fontSize: "0.875rem",
+              "& .MuiSelect-select": {
+                py: 1,
+                px: 1.5,
+              },
+            }}
+          >
+            {availableServers.map((server) => (
+              <MenuItem key={server.url} value={server.description}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                  <Typography variant="body2" sx={{ flex: 1 }}>
+                    {server.description}
+                  </Typography>
+                  {server.isOverride && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'primary.main',
+                        fontWeight: 'bold',
+                        fontSize: '0.7rem'
+                      }}
+                    >
+                      ENV
+                    </Typography>
+                  )}
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
     </Box>
   );
 }
