@@ -111,10 +111,14 @@ describe("MuiDataViewApplet", () => {
     // Mock useHashNavigation with default behavior
     mockUseHashNavigation.mockReturnValue({
       path: "/test",
+      autoParams: {},
       params: {},
-      navigate: vi.fn(),
+      appliedParams: {},
+      setAutoParams: vi.fn(),
       setParams: vi.fn(),
-      setHash: vi.fn(),
+      applyParams: vi.fn(),
+      hasChanges: false,
+      navigate: vi.fn(),
     });
 
     // Mock MuiDataViewManager to render a placeholder
@@ -329,10 +333,14 @@ describe("MuiDataViewApplet", () => {
       const mockSetParams = vi.fn();
       mockUseHashNavigation.mockReturnValue({
         path: "/test",
+        autoParams: {},
         params: { status: "inactive", page: 1 },
-        navigate: vi.fn(),
+        appliedParams: { status: "inactive", page: 1 },
+        setAutoParams: vi.fn(),
         setParams: mockSetParams,
-        setHash: vi.fn(),
+        applyParams: vi.fn(),
+        hasChanges: false,
+        navigate: vi.fn(),
       });
 
       render(
@@ -394,7 +402,11 @@ describe("MuiDataViewApplet", () => {
         params: {},
         navigate: vi.fn(),
         setParams: mockSetParams,
-        setHash: vi.fn(),
+        autoParams: {},
+        appliedParams: {},
+        setAutoParams: vi.fn(),
+        applyParams: vi.fn(),
+        hasChanges: false,
       });
 
       render(
@@ -422,7 +434,11 @@ describe("MuiDataViewApplet", () => {
         params: {},
         navigate: vi.fn(),
         setParams: mockSetParams,
-        setHash: vi.fn(),
+        autoParams: {},
+        appliedParams: {},
+        setAutoParams: vi.fn(),
+        applyParams: vi.fn(),
+        hasChanges: false,
       });
 
       render(
@@ -506,7 +522,11 @@ describe("MuiDataViewApplet", () => {
         },
         navigate: vi.fn(),
         setParams: vi.fn(),
-        setHash: vi.fn(),
+        autoParams: {},
+        appliedParams: {},
+        setAutoParams: vi.fn(),
+        applyParams: vi.fn(),
+        hasChanges: false,
       });
 
       render(
@@ -535,7 +555,11 @@ describe("MuiDataViewApplet", () => {
         params: {},
         navigate: vi.fn(),
         setParams: vi.fn(),
-        setHash: vi.fn(),
+        autoParams: {},
+        appliedParams: {},
+        setAutoParams: vi.fn(),
+        applyParams: vi.fn(),
+        hasChanges: false,
       });
 
       render(

@@ -20,7 +20,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({
 
   const checkAuth = async () => {
     if (isChecking) return; // Prevent overlapping checks
-    
+
     setIsChecking(true);
     try {
       const response = await fetch(authCheckUrl, {
@@ -104,7 +104,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({
   }
 
   // If authenticated, render children
-  return <>{children}</>;
+  return children;
 };
 
 export default AuthGate;

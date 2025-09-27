@@ -12,8 +12,7 @@ interface AgGridThemeProps {
   height?: string | number;
   mx?: number;
   wrapHeaders?: boolean;
-  children: React.ReactNode;
-  popupParentRef?: React.MutableRefObject<HTMLDivElement | null>;
+  children: React.ReactNode | ((popupParent: HTMLElement | null) => React.ReactNode);
 }
 
 export const AgGridTheme: React.FC<AgGridThemeProps> = ({
@@ -21,13 +20,23 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
   mx = 0,
   wrapHeaders = false,
   children,
-  popupParentRef,
 }) => {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
   const agGridThemeClass = isDarkMode
     ? "ag-theme-quartz-dark"
     : "ag-theme-quartz";
+
+  // Internal popup parent management
+  const popupParentRef = React.useRef<HTMLDivElement>(null);
+  const [popupParent, setPopupParent] = React.useState<HTMLElement | null>(null);
+
+  // Set popup parent after component mounts
+  React.useEffect(() => {
+    if (popupParentRef.current) {
+      setPopupParent(popupParentRef.current);
+    }
+  }, []);
 
   const headerWrapStyles = wrapHeaders
     ? {
@@ -110,7 +119,7 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
         className={agGridThemeClass}
         style={{ height: "100%", width: "100%", position: "relative" }}
       >
-        {children}
+        {typeof children === 'function' ? children(popupParent) : children}
         {/* Popup container that inherits the theme */}
         <div
           ref={popupParentRef}

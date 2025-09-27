@@ -178,15 +178,69 @@ export function useHashNavigation<
   }, []);
 
   // Navigation function
-  const navigate = useCallback((relativePath: string) => {
+  const navigate = useCallback((relativePath: string, options?: { clearParams?: boolean }) => {
     setCurrentPath(relativePath);
-    // Handle scoped navigation for mountPath
+
+    // Separate path from query parameters
+    const [pathOnly] = relativePath.split('?');
+
+    // Handle scoped navigation for mountPath (using path only, no query)
     const fullPath = mountPath
-      ? (relativePath === "/" ? mountPath : `${mountPath}${relativePath}`)
-      : relativePath;
-    const combinedParams = { ...autoParams, ...appliedDraftParams };
+      ? (pathOnly === "/" ? mountPath : `${mountPath}${pathOnly}`)
+      : pathOnly;
+
+    // Detect cross-route navigation by comparing full paths (without query)
+    const currentRoutePath = currentPath.split('?')[0];
+    const newRoutePath = pathOnly;
+    const isCrossRoute = currentRoutePath !== newRoutePath;
+
+    // Debug logging for development
+    if (process.env.NODE_ENV === 'development') {
+      const debugEntry = {
+        id: `${Date.now()}-navigation`,
+        timestamp: new Date().toISOString(),
+        component: 'Navigation',
+        event: 'navigate-called',
+        data: {
+          relativePath,
+          pathOnly,
+          fullPath,
+          currentRoutePath,
+          newRoutePath,
+          isCrossRoute,
+          mountPath,
+          options,
+          namespace
+        }
+      };
+
+      // Add to global debug logs if available
+      if ((window as any).__debugLogs) {
+        (window as any).__debugLogs.push(debugEntry);
+      } else {
+        (window as any).__debugLogs = [debugEntry];
+      }
+
+      console.log(`🐛 Navigation:navigate-called [${debugEntry.id}]`, debugEntry.data);
+    }
+
+    // Parse any parameters from the target path
+    const [, targetQuery] = relativePath.split('?');
+    const targetParams: Record<string, any> = {};
+    if (targetQuery) {
+      const urlParams = new URLSearchParams(targetQuery);
+      for (const [key, value] of urlParams.entries()) {
+        targetParams[key] = value;
+      }
+    }
+
+    // For cross-route navigation, only use target params, otherwise combine with existing
+    const combinedParams = options?.clearParams || isCrossRoute
+      ? targetParams
+      : { ...autoParams, ...appliedDraftParams, ...targetParams };
+
     updateHash(fullPath, transformer.url(combinedParams), namespace);
-  }, [autoParams, appliedDraftParams, transformer, namespace, mountPath]);
+  }, [currentPath, autoParams, appliedDraftParams, transformer, namespace, mountPath]);
 
   // Set auto params function (immediate URL sync)
   const updateAutoParams = useCallback((newParams: TAutoParams | ((prev: TAutoParams) => TAutoParams)) => {

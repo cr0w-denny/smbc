@@ -207,8 +207,8 @@ const createActionsCellRenderer =
       console.log(`${action} action for:`, params.data);
 
       if (action === "view" && params.data?.id) {
-        // Navigate to event details applet with only event ID - bypass hook navigation
-        window.location.hash = `/events/detail?id=${params.data.id}`;
+        // Navigate to event details applet with only event ID using proper hook navigation
+        _navigate(`/events/detail?id=${params.data.id}`);
         return;
       }
 
@@ -275,18 +275,12 @@ const createActionsCellRenderer =
     );
   };
 
-export const Events: React.FC = () => {
+interface EventsProps {
+  requestHeaders?: Record<string, string>;
+}
+
+export const Events: React.FC<EventsProps> = ({ requestHeaders }) => {
   const gridRef = React.useRef<AgGridReact>(null);
-  const popupParentRef = React.useRef<HTMLDivElement>(null);
-
-  const [popupParent, setPopupParent] = useState<HTMLElement | null>(null);
-
-  // Set popup parent after component mounts
-  React.useEffect(() => {
-    if (popupParentRef.current) {
-      setPopupParent(popupParentRef.current);
-    }
-  }, []);
 
   const autoDefaults = {
     status: "",
@@ -659,14 +653,14 @@ export const Events: React.FC = () => {
             <AgGridTheme
               height="92%"
               wrapHeaders={true}
-              popupParentRef={popupParentRef}
             >
-              <AgGridReact
-                ref={gridRef}
-                headerHeight={54}
-                popupParent={popupParent}
-                rowData={events || []}
-                columnDefs={columnDefs}
+              {(popupParent) => (
+                <AgGridReact
+                  ref={gridRef}
+                  headerHeight={54}
+                  popupParent={popupParent}
+                  rowData={events || []}
+                  columnDefs={columnDefs}
                 rowSelection="multiple"
                 onSelectionChanged={onSelectionChanged}
                 onRowGroupOpened={onRowGroupOpened}
@@ -719,7 +713,8 @@ export const Events: React.FC = () => {
                 sortingOrder={["asc", "desc"]}
                 multiSortKey={"ctrl"}
                 columnMenu="legacy"
-              />
+                />
+              )}
             </AgGridTheme>
           </Card>
         </Width>

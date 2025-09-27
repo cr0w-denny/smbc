@@ -11,7 +11,8 @@ export interface ApiClientConfig {
 // Import type only to avoid circular dependencies
 import type { AppletMount, Environment } from './types';
 import { useFeatureFlag } from './FeatureFlagProvider';
-import { useMemo } from 'react';
+
+
 
 // Registry of applet configurations set by the host
 let appletRegistry = new Map<string, AppletMount>();
@@ -185,29 +186,57 @@ export function getAppletApiUrl(appletId: string, environment: Environment = 'de
  * React hook that creates an API client for a specific applet using the current environment from feature flags
  * @throws Error if applet is not configured or has no apiSpec
  */
+/**
+ * React hook that creates an API client with optional custom headers
+ * This is the base implementation - use useApiClient for a simpler interface
+ */
+export function useApiClientBase<T extends Record<string, any> = Record<string, any>>(
+  appletId: string
+): ReturnType<typeof createClientDefault<T>> {
+  const environment = useFeatureFlag<Environment>('development') || 'development';
+
+  const cacheKey = `${appletId}-${environment}`;
+
+  // Check if we already have a client for this applet + environment combination
+  if (apiClientRegistry.has(cacheKey)) {
+    return apiClientRegistry.get(cacheKey);
+  }
+
+  const baseUrl = getAppletApiUrl(appletId, environment);
+
+  // Create custom fetch function that reads headers dynamically from global
+  const customFetch: typeof fetch = async (input, init) => {
+    const headers = new Headers(init?.headers);
+
+    // Read impersonation email from global variable set by DevContext
+    const impersonateEmail = (window as any).__devImpersonateEmail;
+    if (impersonateEmail) {
+      headers.set('X-Impersonate', impersonateEmail);
+    }
+
+    return fetch(input, {
+      ...init,
+      headers,
+    });
+  };
+
+  const client = createClientDefault<T>({
+    baseUrl,
+    fetch: customFetch
+  });
+
+  // Cache the client
+  apiClientRegistry.set(cacheKey, client);
+
+  return client;
+}
+
+/**
+ * React hook that creates an API client for a specific applet
+ * @param appletId - The ID of the applet
+ */
 export function useApiClient<T extends Record<string, any> = Record<string, any>>(
   appletId: string
 ): ReturnType<typeof createClientDefault<T>> {
-  const environment = useFeatureFlag<Environment>('environment') || 'development';
-  
-  return useMemo(() => {
-    const cacheKey = `${appletId}-${environment}`;
-    console.log(`🔗 useApiClient getting client for ${cacheKey}`);
-    
-    // Check if we already have a client for this applet + environment combination
-    if (apiClientRegistry.has(cacheKey)) {
-      console.log(`🔗 useApiClient reusing existing client for ${cacheKey}`);
-      return apiClientRegistry.get(cacheKey);
-    }
-    
-    console.log(`🔗 useApiClient creating new client for ${cacheKey}`);
-    const baseUrl = getAppletApiUrl(appletId, environment);
-    const client = createClientDefault<T>({ baseUrl });
-    console.log(`🔗 useApiClient caching client for ${cacheKey} with baseUrl:`, baseUrl);
-    
-    // Cache the client with environment-specific key
-    apiClientRegistry.set(cacheKey, client);
-    
-    return client;
-  }, [appletId, environment]);
+  return useApiClientBase<T>(appletId);
 }

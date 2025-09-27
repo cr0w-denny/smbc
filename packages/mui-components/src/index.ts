@@ -77,6 +77,10 @@ export type {
 // AG Grid Theme
 export { AgGridTheme } from "./AgGridTheme";
 
+// Console
+export { Console } from "./Console";
+export type { ConsoleProps } from "./Console";
+
 // Export icons for tree-shaking
 export * from "./icons";
 

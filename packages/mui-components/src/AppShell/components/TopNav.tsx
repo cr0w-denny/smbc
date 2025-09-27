@@ -17,6 +17,7 @@ import { NavigationItem } from "../types";
 import { TreeDropdownMenu } from "./TreeDropdownMenu";
 import { UserMenu, UserRole } from "../../UserMenu";
 import { darkTheme } from "../../theme/dark";
+import { color } from "@smbc/ui-core";
 
 interface TopNavProps {
   logo?: React.ReactNode;
@@ -51,6 +52,8 @@ interface TopNavProps {
   onSettings?: () => void;
   onQuickGuide?: () => void;
   onLogout?: () => void;
+  /** Whether user is currently impersonating (dev mode) */
+  isImpersonating?: boolean;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -71,6 +74,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   onSettings,
   onQuickGuide,
   onLogout,
+  isImpersonating,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -336,18 +340,40 @@ export const TopNav: React.FC<TopNavProps> = ({
               onClick={(e) => setUserMenuAnchor(e.currentTarget)}
               sx={{
                 color: "inherit",
+                padding: "8px",
                 "&:hover": {
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 },
+                ...(isImpersonating && {
+                  border: `2px solid ${color.brand.primary.freshGreen}`,
+                  borderRadius: "50%",
+                  padding: "6px", // Reduced to account for 2px border
+                }),
               }}
               aria-controls={userMenuAnchor ? "user-menu" : undefined}
               aria-haspopup="true"
               aria-expanded={userMenuAnchor ? "true" : undefined}
             >
               {avatarUrl ? (
-                <Avatar src={avatarUrl} sx={{ width: 32, height: 32 }} />
+                <Avatar
+                  src={avatarUrl}
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    ...(isImpersonating && {
+                      border: `2px solid ${color.brand.primary.freshGreen}`,
+                    }),
+                  }}
+                />
               ) : (
-                <AccountCircleOutlined sx={{ fontSize: 32 }} />
+                <AccountCircleOutlined
+                  sx={{
+                    fontSize: 32,
+                    ...(isImpersonating && {
+                      color: color.brand.primary.freshGreen,
+                    }),
+                  }}
+                />
               )}
             </IconButton>
             <UserMenu

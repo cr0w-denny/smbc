@@ -22,6 +22,7 @@ export const Layout: React.FC<AppShellProps> = ({
   onSettings,
   onQuickGuide,
   onLogout,
+  isImpersonating,
 }) => {
   return (
     <>
@@ -44,6 +45,7 @@ export const Layout: React.FC<AppShellProps> = ({
         onSettings={onSettings}
         onQuickGuide={onQuickGuide}
         onLogout={onLogout}
+        isImpersonating={isImpersonating}
       />
       {children}
     </>

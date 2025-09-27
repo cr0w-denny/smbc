@@ -59,4 +59,6 @@ export interface AppShellProps {
   onSettings?: () => void;
   onQuickGuide?: () => void;
   onLogout?: () => void;
+  /** Whether user is currently impersonating (dev mode) */
+  isImpersonating?: boolean;
 }

@@ -133,22 +133,20 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   }, [enableUrlSync, defaultFilters, defaultPagination]);
 
   // Get initial state from URL on mount only
-  const urlState = useHashNavigation({
-    defaultParams: stableDefaultParams,
-  });
+  const urlState = useHashNavigation({}, stableDefaultParams);
 
   // Initialize local state from URL params or defaults (mount only)
   const [localFilters, setLocalFilters] = React.useState(() => {
     if (!enableUrlSync) return defaultFilters;
-    const { page, pageSize, ...urlFilters } = urlState.params;
+    const { page, pageSize, ...urlFilters } = urlState.params as any;
     return { ...defaultFilters, ...urlFilters };
   });
 
   const [localPagination, setLocalPagination] = React.useState(() => {
     if (!enableUrlSync) return defaultPagination;
     return { 
-      page: urlState.params.page || defaultPagination.page, 
-      pageSize: urlState.params.pageSize || defaultPagination.pageSize 
+      page: (urlState.params as any).page || defaultPagination.page,
+      pageSize: (urlState.params as any).pageSize || defaultPagination.pageSize 
     };
   });
 

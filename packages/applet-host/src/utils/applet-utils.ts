@@ -17,13 +17,20 @@ export function getCurrentApplet(
   path: string,
   applets: AppletMount[],
 ) {
-  // Check if path matches any route in any applet
+  // Collect all matching routes with their applets
+  const matches: { applet: AppletMount; route: any }[] = [];
+
   for (const hostApplet of applets) {
     for (const route of hostApplet.routes) {
       if (path.startsWith(route.path)) {
-        return hostApplet;
+        matches.push({ applet: hostApplet, route });
       }
     }
   }
-  return null;
+
+  // Sort by path length (longest first) to prefer more specific matches
+  matches.sort((a, b) => b.route.path.length - a.route.path.length);
+
+  // Return the most specific match
+  return matches[0]?.applet || null;
 }

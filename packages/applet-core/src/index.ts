@@ -21,6 +21,7 @@ export {
   getApiClient,
   getAppletApiUrl,
   useApiClient,
+  useApiClientBase,
   getAvailableServers,
   getServerUrlFromSpec,
   _setAppletRegistry,
