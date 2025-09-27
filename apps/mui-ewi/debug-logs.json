@@ -323,7 +323,186 @@
           "willUnminimize": false
         }
       }
+    ],
+    "00:28:20-applet-detection": [
+      {
+        "timestamp": "2025-09-27T04:28:20.401Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-09-27T04:28:20.401Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "00:28:21-console-open": [
+      {
+        "timestamp": "2025-09-27T04:28:21.796Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
+        }
+      }
+    ],
+    "00:28:44-dark-mode-toggle": [
+      {
+        "timestamp": "2025-09-27T04:28:45.243Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": false,
+          "previousMode": true
+        }
+      },
+      {
+        "timestamp": "2025-09-27T04:28:45.244Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": false,
+          "previousMode": true
+        }
+      }
+    ],
+    "00:28:50-dark-mode-toggle": [
+      {
+        "timestamp": "2025-09-27T04:28:50.433Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": true,
+          "previousMode": false
+        }
+      },
+      {
+        "timestamp": "2025-09-27T04:28:50.434Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": true,
+          "previousMode": false
+        }
+      }
+    ],
+    "00:28:54-impersonation-change": [
+      {
+        "timestamp": "2025-09-27T04:28:54.670Z",
+        "component": "DevContext",
+        "event": "impersonation-changed",
+        "data": {
+          "email": "denny.webdev@gmail.com",
+          "isImpersonating": true
+        }
+      }
+    ],
+    "00:28:59-console-open": [
+      {
+        "timestamp": "2025-09-27T04:28:59.748Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
+        }
+      }
+    ],
+    "Console-1758947381054": [
+      {
+        "timestamp": "2025-09-27T04:29:41.067Z",
+        "component": "Console",
+        "event": "drag-start",
+        "data": {
+          "isMinimized": true,
+          "currentHeight": 81,
+          "minimizedHeight": 81,
+          "actualDOMHeight": 81,
+          "startHeight": 81,
+          "startY": 929,
+          "paperRefExists": true
+        }
+      }
+    ],
+    "Console-1758947381169": [
+      {
+        "timestamp": "2025-09-27T04:29:41.180Z",
+        "component": "Console",
+        "event": "drag-first-move",
+        "data": {
+          "deltaY": 1,
+          "newHeight": 82,
+          "startHeight": 81,
+          "wasMinimized": true,
+          "willUnminimize": true
+        }
+      }
     ]
   },
-  "lastUpdate": "2025-09-27T04:21:12.323Z"
+  "lastUpdate": "2025-09-27T04:29:41.180Z"
 }

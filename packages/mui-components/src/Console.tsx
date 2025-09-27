@@ -168,9 +168,6 @@ export const Console: React.FC<ConsoleProps> = ({
         firstMove = false;
       }
 
-      // Check if we've hit a limit BEFORE clamping
-      const hitLimit = newHeight <= minimizedHeight || newHeight >= effectiveMaxHeight;
-
       // Clamp the height within valid bounds - this prevents going below minimizedHeight
       const clampedHeight = Math.min(effectiveMaxHeight, Math.max(minimizedHeight, newHeight));
       setCurrentHeight(clampedHeight);
