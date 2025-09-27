@@ -27,6 +27,9 @@ export {
   _setAppletRegistry,
 } from "./query-client";
 
+// URL mapping utilities
+export { applyUrlMappingsToSpec } from "./utils/url-mapping";
+
 
 // Navigation utilities
 export {

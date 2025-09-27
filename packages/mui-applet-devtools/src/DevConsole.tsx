@@ -24,6 +24,7 @@ import { ServerSelector } from './ServerSelector';
 import { getAvailableServersWithOverrides } from './utils/apiOverrides';
 import { useFeatureFlag, type Environment } from '@smbc/applet-core';
 import { TextField } from '@mui/material';
+import { RoleManager, type RoleManagerProps, type User, type PermissionGroup, type Permission } from './RoleManager';
 interface DevConsoleProps {
   open: boolean;
   onClose: () => void;
@@ -80,6 +81,61 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
     minutes: 5,
   });
   const [activeTab, setActiveTab] = useState('debug');
+
+  // Role manager state
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(['Analyst']);
+
+  // Mock data for role manager
+  const availableRoles = ['Guest', 'Analyst', 'Staff', 'Manager', 'Admin'];
+  const mockUser: User = {
+    id: '1',
+    name: 'Development User',
+    email: 'dev@example.com',
+    roles: selectedRoles,
+  };
+
+  // Helper to compute permissions with access based on selected roles
+  const computePermissions = (rawPermissions: any[]): Permission[] => {
+    return rawPermissions.map(perm => ({
+      key: perm.id,
+      label: perm.name,
+      hasAccess: selectedRoles.some(role => perm.requiredRoles.includes(role))
+    }));
+  };
+
+  const rawPermissionData = [
+    {
+      id: 'ewi-events',
+      label: 'EWI Events',
+      permissions: [
+        { id: 'VIEW_EVENTS', name: 'View Events', requiredRoles: ['Analyst', 'Staff', 'Manager', 'Admin'] },
+        { id: 'CREATE_EVENTS', name: 'Create Events', requiredRoles: ['Staff', 'Manager', 'Admin'] },
+        { id: 'DELETE_EVENTS', name: 'Delete Events', requiredRoles: ['Manager', 'Admin'] },
+      ]
+    },
+    {
+      id: 'ewi-obligor',
+      label: 'Obligor Management',
+      permissions: [
+        { id: 'VIEW_OBLIGOR', name: 'View Obligor Data', requiredRoles: ['Analyst', 'Staff', 'Manager', 'Admin'] },
+        { id: 'EDIT_OBLIGOR', name: 'Edit Obligor Data', requiredRoles: ['Staff', 'Manager', 'Admin'] },
+      ]
+    }
+  ];
+
+  const mockPermissions: PermissionGroup[] = rawPermissionData.map(group => ({
+    id: group.id,
+    label: group.label,
+    permissions: computePermissions(group.permissions)
+  }));
+
+  const handleRoleToggle = (role: string) => {
+    setSelectedRoles(prev =>
+      prev.includes(role)
+        ? prev.filter(r => r !== role)
+        : [...prev, role]
+    );
+  };
 
   const refreshLogs = () => {
     const allLogs = (window as any).__debugLogs || [];
@@ -391,6 +447,23 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
                       </Box>
                     )}
 
+                    <Divider sx={{ my: 3 }} />
+
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Impersonate User
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="user@smbcgroup.com"
+                        value={impersonationEmail}
+                        onChange={(e) => handleImpersonateEmailChange(e.target.value)}
+                        helperText="API requests will include X-Impersonate header with this email"
+                        sx={{ mt: 1 }}
+                      />
+                    </Box>
+
                   </Box>
                 );
               } else if (currentAppletInfo) {
@@ -421,22 +494,18 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
         )}
 
         {activeTab === 'permissions' && (
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Impersonate User
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="user@smbcgroup.com"
-                value={impersonationEmail}
-                onChange={(e) => handleImpersonateEmailChange(e.target.value)}
-                helperText="API requests will include X-Impersonate header with this email"
-                sx={{ mt: 1 }}
-              />
-            </Box>
-
+          <Box sx={{ height: '100%', overflow: 'auto' }}>
+            <RoleManager
+              user={mockUser}
+              availableRoles={availableRoles}
+              selectedRoles={selectedRoles}
+              onRoleToggle={handleRoleToggle}
+              appletPermissions={mockPermissions}
+              title="Development Roles & Permissions"
+              showUserInfo={true}
+              persistRoles={true}
+              localStorageKey="dev-console-roles"
+            />
           </Box>
         )}
 

@@ -12,7 +12,7 @@ export function configureApplets(applets: AppletMount[]): void {
   applets.forEach(applet => {
     hostAppletRegistry.set(applet.id, applet);
   });
-  
+
   // Also configure the applet-core registry for API client usage
   _setAppletRegistry(applets);
 }

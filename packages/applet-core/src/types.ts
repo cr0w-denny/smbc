@@ -180,6 +180,16 @@ export interface HostAppletRoute {
   requiredPermissions?: string[];
 }
 
+// API URL mapping configuration
+export interface ApiUrlMapping {
+  /** Pattern to match against server URLs (supports wildcards) */
+  pattern: string;
+  /** Environment variable name to use as replacement */
+  envVar: string;
+  /** Optional: Only apply in specific environments */
+  environments?: Array<'development' | 'production' | 'test'>;
+}
+
 export interface AppletMount {
   id: string;
   label: string;
@@ -190,6 +200,7 @@ export interface AppletMount {
     spec: any;
   };
   apiBaseUrl?: string; // Optional API base URL for this applet
+  apiUrlMappings?: ApiUrlMapping[]; // Optional API URL mappings for environment-based overrides
   version?: string; // Optional version number for the applet
   packageName: string | false; // Package name (e.g., "@smbc/user-management-mui") or false for demo/in-app applets
   filterable?: boolean; // Whether this applet participates in search/filtering (default: true)

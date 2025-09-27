@@ -7,4 +7,5 @@ storybook-static
 *.tsbuildinfo
 coverage
 *storybook.log
+*debug-logs.json
 local-deploy

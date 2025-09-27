@@ -9,8 +9,10 @@ export interface ApiClientConfig {
 }
 
 // Import type only to avoid circular dependencies
-import type { AppletMount, Environment } from './types';
+import type { AppletMount, Environment, ApiUrlMapping } from './types';
 import { useFeatureFlag } from './FeatureFlagProvider';
+import { getBestServerUrl } from './utils/url-mapping';
+import { useMemo } from 'react';
 
 
 
@@ -24,6 +26,7 @@ let appletRegistry = new Map<string, AppletMount>();
 export function _setAppletRegistry(applets: AppletMount[]): void {
   appletRegistry.clear();
   applets.forEach(applet => {
+    // Applet registered: ${applet.id}
     appletRegistry.set(applet.id, applet);
   });
 }
@@ -93,71 +96,28 @@ export function getAvailableServers(apiSpec: any): Array<{url: string, descripti
 
 /**
  * Get server URL from OpenAPI spec based on environment
+ * Now supports URL mappings for environment-based overrides
  */
 export function getServerUrlFromSpec(
   apiSpec: any,
-  environment: Environment = 'development'
+  environment: Environment = 'development',
+  urlMappings?: ApiUrlMapping[]
 ): string {
   const servers = getAvailableServers(apiSpec);
-  
+
   if (servers.length === 0) {
     throw new Error('No servers found in API spec');
   }
-  
+
   console.log(`🔍 getServerUrlFromSpec: Looking for environment '${environment}' in servers:`, servers);
-  
-  // Map environment names to server description aliases
-  const environmentAliases: Record<Environment, string[]> = {
-    'mock': ['mock'],
-    'local': ['local'],
-    'development': ['development', 'dev'],
-    'qa': ['qa', 'staging'],
-    'production': ['production', 'prod']
-  };
-  
-  // First try exact match with description or aliases
-  const aliases = environmentAliases[environment] || [environment];
-  for (const alias of aliases) {
-    for (const server of servers) {
-      if (server.description === alias) {
-        return server.url;
-      }
-    }
-  }
-  
-  // Try to find server by description matching environment (case-insensitive)
-  for (const server of servers) {
-    const desc = server.description?.toLowerCase() || '';
-    if (desc.includes(environment)) {
-      return server.url;
-    }
-  }
-  
-  // Special case: Look for "mock" in description when environment is "mock"
-  if (environment === 'mock') {
-    for (const server of servers) {
-      const desc = server.description?.toLowerCase() || '';
-      if (desc.includes('mock')) {
-        return server.url;
-      }
-    }
-  }
-  
-  // Fallback logic based on environment
-  if (environment === 'development' || environment === 'mock' || environment === 'local') {
-    // For dev/mock/local, prefer first server (usually local/dev)
-    return servers[0].url;
-  } else if (environment === 'production') {
-    // For prod, prefer last server (usually production)
-    return servers[servers.length - 1].url;
-  }
-  
-  // Default to first server
-  return servers[0].url;
+
+  // Use the new getBestServerUrl function that handles both mappings and fallback logic
+  return getBestServerUrl(servers, urlMappings, environment);
 }
 
 /**
  * Get the API base URL for an applet (resolves from apiSpec dynamically)
+ * Now supports URL mappings for environment-based overrides
  * @throws Error if applet is not configured or has no apiSpec
  */
 export function getAppletApiUrl(appletId: string, environment: Environment = 'development'): string {
@@ -165,20 +125,19 @@ export function getAppletApiUrl(appletId: string, environment: Environment = 'de
   if (!applet) {
     throw new Error(`Applet '${appletId}' is not configured. Make sure configureApplets() was called with this applet.`);
   }
-  
+
   // If apiBaseUrl is explicitly set, use it (for backwards compatibility)
   if (applet.apiBaseUrl) {
     return applet.apiBaseUrl;
   }
-  
+
   // Otherwise, resolve from apiSpec
   if (!applet.apiSpec) {
     throw new Error(`Applet '${appletId}' has no apiSpec configured.`);
   }
-  
-  console.log('About to call getServerUrlFromSpec with:', { appletId, apiSpec: applet.apiSpec, environment });
-  const serverUrl = getServerUrlFromSpec(applet.apiSpec, environment);
-  console.log(`🔗 ${appletId} resolved to server URL: ${serverUrl} (environment: ${environment})`);
+
+  // Pass URL mappings if configured
+  const serverUrl = getServerUrlFromSpec(applet.apiSpec, environment, applet.apiUrlMappings);
   return serverUrl;
 }
 
@@ -195,40 +154,42 @@ export function useApiClientBase<T extends Record<string, any> = Record<string, 
 ): ReturnType<typeof createClientDefault<T>> {
   const environment = useFeatureFlag<Environment>('development') || 'development';
 
-  const cacheKey = `${appletId}-${environment}`;
+  return useMemo(() => {
+    const cacheKey = `${appletId}-${environment}`;
 
-  // Check if we already have a client for this applet + environment combination
-  if (apiClientRegistry.has(cacheKey)) {
-    return apiClientRegistry.get(cacheKey);
-  }
-
-  const baseUrl = getAppletApiUrl(appletId, environment);
-
-  // Create custom fetch function that reads headers dynamically from global
-  const customFetch: typeof fetch = async (input, init) => {
-    const headers = new Headers(init?.headers);
-
-    // Read impersonation email from global variable set by DevContext
-    const impersonateEmail = (window as any).__devImpersonateEmail;
-    if (impersonateEmail) {
-      headers.set('X-Impersonate', impersonateEmail);
+    // Check if we already have a client for this applet + environment combination
+    if (apiClientRegistry.has(cacheKey)) {
+      return apiClientRegistry.get(cacheKey);
     }
 
-    return fetch(input, {
-      ...init,
-      headers,
+    const baseUrl = getAppletApiUrl(appletId, environment);
+
+    // Create custom fetch function that reads headers dynamically from global
+    const customFetch: typeof fetch = async (input, init) => {
+      const headers = new Headers(init?.headers);
+
+      // Read impersonation email from global variable set by DevContext
+      const impersonateEmail = (window as any).__devImpersonateEmail;
+      if (impersonateEmail) {
+        headers.set('X-Impersonate', impersonateEmail);
+      }
+
+      return fetch(input, {
+        ...init,
+        headers,
+      });
+    };
+
+    const client = createClientDefault<T>({
+      baseUrl,
+      fetch: customFetch
     });
-  };
 
-  const client = createClientDefault<T>({
-    baseUrl,
-    fetch: customFetch
-  });
+    // Cache the client
+    apiClientRegistry.set(cacheKey, client);
 
-  // Cache the client
-  apiClientRegistry.set(cacheKey, client);
-
-  return client;
+    return client;
+  }, [appletId, environment]);
 }
 
 /**

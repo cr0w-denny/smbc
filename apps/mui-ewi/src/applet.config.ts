@@ -5,10 +5,9 @@ import {
   generatePermissionMappings,
   createMinRole,
 } from "@smbc/applet-core";
-import { mountApplet } from "@smbc/applet-host";
+import { mountApplet, createapiOverrides } from "@smbc/applet-host";
 import { BarChart, Dashboard } from "@smbc/mui-components";
 
-// Import applets from built packages for consistent production builds
 import ewiEventsApplet from "@smbc/ewi-events-mui";
 import ewiEventDetailsApplet from "@smbc/ewi-event-details-mui";
 import ewiObligorApplet from "@smbc/ewi-obligor-mui";
@@ -63,34 +62,62 @@ export const ROLE_CONFIG: RoleConfig = {
 // APPLET DEFINITIONS
 // =============================================================================
 
-export const APPLETS: AppletMount[] = [
-  // More specific paths must come first for proper routing
-  mountApplet(ewiEventDetailsApplet, {
-    id: "ewi-event-details",
-    label: "Event Details", 
-    path: "/events/detail",
-    icon: Dashboard,
-    permissions: [],
-  }),
-  mountApplet(ewiEventsApplet, {
-    id: "ewi-events",
-    label: "EWI Events",
-    path: "/events",
-    icon: Dashboard,
-    permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
-  }),
-  mountApplet(ewiObligorApplet, {
-    id: "ewi-obligor",
-    label: "Obligor Dashboard",
-    path: "/obligor-dashboard",
-    icon: Dashboard,
-    permissions: [],
-  }),
-  mountApplet(usageStatsApplet, {
-    id: "usage-stats",
-    label: "Usage Stats",
-    path: "/usage-stats",
-    icon: BarChart,
-    permissions: [],
-  }),
+// Configure api override mappings
+const apiOverrides = createapiOverrides([
+  {
+    pattern: "*/api/*",
+    envVar: "VITE_API_BASE",
+  },
+]);
+
+// Applet definitions
+const appletDefinitions = [
+  {
+    applet: ewiEventDetailsApplet,
+    config: {
+      id: "ewi-event-details",
+      label: "Event Details",
+      path: "/events/detail",
+      icon: Dashboard,
+      permissions: [],
+    },
+  },
+  {
+    applet: ewiEventsApplet,
+    config: {
+      id: "ewi-events",
+      label: "EWI Events",
+      path: "/events",
+      icon: Dashboard,
+      permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
+    },
+  },
+  {
+    applet: ewiObligorApplet,
+    config: {
+      id: "ewi-obligor",
+      label: "Obligor Dashboard",
+      path: "/obligor-dashboard",
+      icon: Dashboard,
+      permissions: [],
+    },
+  },
+  {
+    applet: usageStatsApplet,
+    config: {
+      id: "usage-stats",
+      label: "Usage Stats",
+      path: "/usage-stats",
+      icon: BarChart,
+      permissions: [],
+    },
+  },
 ];
+
+export const APPLETS: AppletMount[] = appletDefinitions.map((def) =>
+  mountApplet(
+    def.applet,
+    def.config,
+    apiOverrides((def.applet as any).apiSpec?.spec?.servers || []),
+  ),
+);

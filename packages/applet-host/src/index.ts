@@ -29,3 +29,4 @@ export { getAllRoutes, getCurrentApplet } from "./utils/applet-utils";
 export { mountApplet, mountApplets } from "./utils/mounting";
 export { configureApplets, getAppletConfig, getAllApplets } from "./utils/applet-registry";
 export { getPackageVersion } from "./utils/get-package-version";
+export { createapiOverrides, type ServerOverrideMapping, type ServerOverrideFunction } from "./utils/createServerOverrideFunction";
