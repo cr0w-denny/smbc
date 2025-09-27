@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Paper,
-  Typography,
   IconButton,
   Portal,
   useTheme,
@@ -51,7 +50,6 @@ export const Console: React.FC<ConsoleProps> = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [minimizedHeight] = useState(81); // Actual visual height when minimized (from logs)
-  const [isAtLimit, setIsAtLimit] = useState(false);
   const paperRef = useRef<HTMLDivElement>(null);
 
   // Calculate effective max height
@@ -172,7 +170,6 @@ export const Console: React.FC<ConsoleProps> = ({
 
       // Check if we've hit a limit BEFORE clamping
       const hitLimit = newHeight <= minimizedHeight || newHeight >= effectiveMaxHeight;
-      setIsAtLimit(hitLimit);
 
       // Clamp the height within valid bounds - this prevents going below minimizedHeight
       const clampedHeight = Math.min(effectiveMaxHeight, Math.max(minimizedHeight, newHeight));
@@ -199,7 +196,6 @@ export const Console: React.FC<ConsoleProps> = ({
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      setIsAtLimit(false);
       // If user manually resized while maximized, exit maximized state
       if (isMaximized && currentHeight !== effectiveMaxHeight) {
         setIsMaximized(false);

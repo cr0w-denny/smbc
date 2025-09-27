@@ -341,7 +341,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
           <Box sx={{ display: "flex", flexDirection: "row", height: "calc(100vh - 200px)" }}>
             {/* Main Table */}
             <Box sx={{ flex: 1 }}>
-              <AgGridTheme height="100%" popupParentRef={popupParentRef}>
+              <AgGridTheme height="100%">
                 <AgGridReact
                   ref={gridRef}
                   key={`usage-stats-${environment}`}
