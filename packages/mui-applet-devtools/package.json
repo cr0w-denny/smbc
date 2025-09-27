@@ -39,7 +39,6 @@
     "@smbc/applet-core": "*",
     "@smbc/applet-host": "*",
     "@smbc/mui-components": "*",
-    "@smbc/applet-meta": "*",
     "@smbc/mui-applet-core": "*",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
