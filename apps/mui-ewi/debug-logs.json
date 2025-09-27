@@ -75,7 +75,255 @@
           ]
         }
       }
+    ],
+    "00:17:05-console-open": [
+      {
+        "timestamp": "2025-09-27T04:17:06.037Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
+        }
+      }
+    ],
+    "00:20:42-applet-detection": [
+      {
+        "timestamp": "2025-09-27T04:20:42.385Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-09-27T04:20:42.389Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "00:20:44-console-open": [
+      {
+        "timestamp": "2025-09-27T04:20:44.259Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
+        }
+      }
+    ],
+    "Console-1758946846571": [
+      {
+        "timestamp": "2025-09-27T04:20:46.582Z",
+        "component": "Console",
+        "event": "drag-start",
+        "data": {
+          "isMinimized": false,
+          "currentHeight": 200,
+          "minimizedHeight": 81,
+          "actualDOMHeight": 200,
+          "startHeight": 200,
+          "startY": 808,
+          "paperRefExists": true
+        }
+      }
+    ],
+    "Console-1758946846738": [
+      {
+        "timestamp": "2025-09-27T04:20:46.747Z",
+        "component": "Console",
+        "event": "drag-first-move",
+        "data": {
+          "deltaY": -1,
+          "newHeight": 199,
+          "startHeight": 200,
+          "wasMinimized": false,
+          "willUnminimize": false
+        }
+      }
+    ],
+    "Console-1758946850908": [
+      {
+        "timestamp": "2025-09-27T04:20:50.915Z",
+        "component": "Console",
+        "event": "drag-start",
+        "data": {
+          "isMinimized": true,
+          "currentHeight": 81,
+          "minimizedHeight": 81,
+          "actualDOMHeight": 81,
+          "startHeight": 81,
+          "startY": 931,
+          "paperRefExists": true
+        }
+      }
+    ],
+    "Console-1758946851042": [
+      {
+        "timestamp": "2025-09-27T04:20:51.050Z",
+        "component": "Console",
+        "event": "drag-first-move",
+        "data": {
+          "deltaY": 0,
+          "newHeight": 81,
+          "startHeight": 81,
+          "wasMinimized": true,
+          "willUnminimize": false
+        }
+      }
+    ],
+    "Console-1758946853319": [
+      {
+        "timestamp": "2025-09-27T04:20:53.333Z",
+        "component": "Console",
+        "event": "drag-start",
+        "data": {
+          "isMinimized": false,
+          "currentHeight": 510,
+          "minimizedHeight": 81,
+          "actualDOMHeight": 510,
+          "startHeight": 510,
+          "startY": 500,
+          "paperRefExists": true
+        }
+      }
+    ],
+    "Console-1758946853568": [
+      {
+        "timestamp": "2025-09-27T04:20:53.575Z",
+        "component": "Console",
+        "event": "drag-first-move",
+        "data": {
+          "deltaY": 1,
+          "newHeight": 511,
+          "startHeight": 510,
+          "wasMinimized": false,
+          "willUnminimize": false
+        }
+      }
+    ],
+    "Console-1758946866044": [
+      {
+        "timestamp": "2025-09-27T04:21:06.069Z",
+        "component": "Console",
+        "event": "drag-start",
+        "data": {
+          "isMinimized": true,
+          "currentHeight": 81,
+          "minimizedHeight": 81,
+          "actualDOMHeight": 81,
+          "startHeight": 81,
+          "startY": 929,
+          "paperRefExists": true
+        }
+      }
+    ],
+    "Console-1758946866062": [
+      {
+        "timestamp": "2025-09-27T04:21:06.070Z",
+        "component": "Console",
+        "event": "drag-first-move",
+        "data": {
+          "deltaY": 0,
+          "newHeight": 81,
+          "startHeight": 81,
+          "wasMinimized": true,
+          "willUnminimize": false
+        }
+      }
+    ],
+    "Console-1758946872202": [
+      {
+        "timestamp": "2025-09-27T04:21:12.209Z",
+        "component": "Console",
+        "event": "drag-start",
+        "data": {
+          "isMinimized": false,
+          "currentHeight": 398,
+          "minimizedHeight": 81,
+          "actualDOMHeight": 398,
+          "startHeight": 398,
+          "startY": 616,
+          "paperRefExists": true
+        }
+      }
+    ],
+    "Console-1758946872317": [
+      {
+        "timestamp": "2025-09-27T04:21:12.323Z",
+        "component": "Console",
+        "event": "drag-first-move",
+        "data": {
+          "deltaY": 1,
+          "newHeight": 399,
+          "startHeight": 398,
+          "wasMinimized": false,
+          "willUnminimize": false
+        }
+      }
     ]
   },
-  "lastUpdate": "2025-09-27T04:09:15.532Z"
+  "lastUpdate": "2025-09-27T04:21:12.323Z"
 }
