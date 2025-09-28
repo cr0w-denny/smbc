@@ -14,10 +14,10 @@ import {
 } from "@smbc/applet-core";
 import { DataViewProvider } from "@smbc/dataview";
 import { configureApplets, AppletRouter } from "@smbc/applet-host";
-import { APPLETS } from "./applet.config";
+import { APPLETS, ROLE_CONFIG, HOST_ROLES } from "./applet.config";
 import { createTheme } from "@smbc/mui-components";
 import { navigation } from "./menu";
-import { useDebug, useDevTools } from "./context/DevContext";
+import { useDebug, useDevTools, DevProvider } from "./context/DevContext";
 
 // Enhanced fetch function that adds X-Impersonate header
 const createFetchWithHeaders = (getImpersonationEmail: () => string) =>
@@ -276,7 +276,8 @@ const AppShellContent: React.FC = () => {
             <img
               src={`${import.meta.env.BASE_URL}logo.svg`}
               alt="EWI Logo"
-              style={{ height: 60 }}
+              style={{ height: 60, cursor: 'pointer' }}
+              onClick={() => navigate('/')}
             />
           }
           navigation={navigation}
@@ -315,8 +316,20 @@ const AppShellContent: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
+  // Create demo user with Analyst role
+  const initialUser = {
+    id: "1",
+    email: "analyst@example.com",
+    name: "Development User",
+    roles: ["Analyst"],
+  };
+
   return (
-    <AppletProvider applets={APPLETS}>
+    <AppletProvider
+      applets={APPLETS}
+      initialRoleConfig={ROLE_CONFIG}
+      initialUser={initialUser}
+    >
       <FeatureFlagProvider
         configs={[
           {
@@ -326,7 +339,9 @@ const AppContent: React.FC = () => {
         ]}
       >
         <DataViewProvider>
-          <AppShellContent />
+          <DevProvider>
+            <AppShellContent />
+          </DevProvider>
         </DataViewProvider>
       </FeatureFlagProvider>
     </AppletProvider>

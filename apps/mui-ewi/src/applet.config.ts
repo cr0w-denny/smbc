@@ -5,7 +5,7 @@ import {
   generatePermissionMappings,
   createMinRole,
 } from "@smbc/applet-core";
-import { mountApplet, createapiOverrides } from "@smbc/applet-host";
+import { mountApplet, createApiOverrides } from "@smbc/applet-host";
 import { BarChart, Dashboard } from "@smbc/mui-components";
 
 import ewiEventsApplet from "@smbc/ewi-events-mui";
@@ -46,6 +46,14 @@ const minRole = createMinRole(HOST_ROLES);
 const permissionRequirements = createPermissionRequirements({
   "ewi-events": minRole(ewiEventsApplet, {
     VIEW_EVENTS: "Analyst",
+    EDIT_OWN_EVENTS: "Staff",
+    EDIT_ALL_EVENTS: "Manager",
+  }),
+  "ewi-event-details": minRole(ewiEventDetailsApplet, {
+    VIEW_EVENT_DETAILS: "Analyst",
+  }),
+  "ewi-obligor": minRole(ewiObligorApplet, {
+    VIEW_OBLIGORS: "Analyst",
   }),
 });
 
@@ -63,7 +71,7 @@ export const ROLE_CONFIG: RoleConfig = {
 // =============================================================================
 
 // Configure api override mappings
-const apiOverrides = createapiOverrides([
+const apiOverrides = createApiOverrides([
   {
     pattern: "*/api/*",
     envVar: "VITE_API_BASE",
@@ -73,23 +81,23 @@ const apiOverrides = createapiOverrides([
 // Applet definitions
 const appletDefinitions = [
   {
+    applet: ewiEventsApplet,
+    config: {
+      id: "ewi-events",
+      label: "Events",
+      path: "/events",
+      icon: Dashboard,
+      permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
+    },
+  },
+  {
     applet: ewiEventDetailsApplet,
     config: {
       id: "ewi-event-details",
       label: "Event Details",
       path: "/events/detail",
       icon: Dashboard,
-      permissions: [],
-    },
-  },
-  {
-    applet: ewiEventsApplet,
-    config: {
-      id: "ewi-events",
-      label: "EWI Events",
-      path: "/events",
-      icon: Dashboard,
-      permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
+      permissions: [ewiEventDetailsApplet.permissions.VIEW_EVENT_DETAILS],
     },
   },
   {
@@ -99,7 +107,7 @@ const appletDefinitions = [
       label: "Obligor Dashboard",
       path: "/obligor-dashboard",
       icon: Dashboard,
-      permissions: [],
+      permissions: [ewiObligorApplet.permissions.VIEW_OBLIGORS],
     },
   },
   {

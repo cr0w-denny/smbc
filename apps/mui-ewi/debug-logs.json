@@ -1,26 +1,26 @@
 {
   "sessions": {
-    "15:36:52-applet-detection": [
+    "19:59:23-applet-detection": [
       {
-        "timestamp": "2025-09-27T19:36:52.248Z",
+        "timestamp": "2025-09-27T23:59:23.124Z",
         "component": "DevToolsMenu",
         "event": "path-changed",
         "data": {
-          "hookPath": "/events",
-          "actualPath": "/events",
-          "pathWithoutQuery": "/events",
-          "foundApplet": "ewi-events",
+          "hookPath": "/events/detail",
+          "actualPath": "/events/detail?id=55",
+          "pathWithoutQuery": "/events/detail",
+          "foundApplet": "ewi-event-details",
           "allApplets": [
-            {
-              "id": "ewi-event-details",
-              "routes": [
-                "/events/detail"
-              ]
-            },
             {
               "id": "ewi-events",
               "routes": [
                 "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
               ]
             },
             {
@@ -39,25 +39,25 @@
         }
       },
       {
-        "timestamp": "2025-09-27T19:36:52.249Z",
+        "timestamp": "2025-09-27T23:59:23.126Z",
         "component": "DevToolsMenu",
         "event": "path-changed",
         "data": {
-          "hookPath": "/events",
-          "actualPath": "/events",
-          "pathWithoutQuery": "/events",
-          "foundApplet": "ewi-events",
+          "hookPath": "/events/detail",
+          "actualPath": "/events/detail?id=55",
+          "pathWithoutQuery": "/events/detail",
+          "foundApplet": "ewi-event-details",
           "allApplets": [
-            {
-              "id": "ewi-event-details",
-              "routes": [
-                "/events/detail"
-              ]
-            },
             {
               "id": "ewi-events",
               "routes": [
                 "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
               ]
             },
             {
@@ -76,9 +76,87 @@
         }
       }
     ],
-    "15:36:54-console-open": [
+    "19:59:33-applet-detection": [
       {
-        "timestamp": "2025-09-27T19:36:54.899Z",
+        "timestamp": "2025-09-27T23:59:33.718Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/obligor-dashboard",
+          "actualPath": "/obligor-dashboard",
+          "pathWithoutQuery": "/obligor-dashboard",
+          "foundApplet": "ewi-obligor",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "19:59:35-applet-detection": [
+      {
+        "timestamp": "2025-09-27T23:59:35.700Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "19:59:38-console-open": [
+      {
+        "timestamp": "2025-09-27T23:59:38.284Z",
         "component": "DevToolsMenu",
         "event": "console-opened",
         "data": {
@@ -87,69 +165,178 @@
         }
       }
     ],
-    "Console-1759001821390": [
+    "Console-1759017692523": [
       {
-        "timestamp": "2025-09-27T19:37:01.405Z",
+        "timestamp": "2025-09-28T00:01:32.533Z",
         "component": "Console",
         "event": "drag-start",
         "data": {
           "isMinimized": false,
-          "currentHeight": 534,
+          "currentHeight": 529,
           "minimizedHeight": 81,
-          "actualDOMHeight": 534,
-          "startHeight": 534,
-          "startY": 478,
+          "actualDOMHeight": 529,
+          "startHeight": 529,
+          "startY": 482,
           "paperRefExists": true
         }
       }
     ],
-    "Console-1759001821488": [
+    "Console-1759017692688": [
       {
-        "timestamp": "2025-09-27T19:37:01.496Z",
+        "timestamp": "2025-09-28T00:01:32.694Z",
         "component": "Console",
         "event": "drag-first-move",
         "data": {
           "deltaY": 0,
-          "newHeight": 534,
-          "startHeight": 534,
+          "newHeight": 529,
+          "startHeight": 529,
           "wasMinimized": false,
           "willUnminimize": false
         }
       }
     ],
-    "Console-1759001824559": [
+    "Console-1759017699238": [
       {
-        "timestamp": "2025-09-27T19:37:04.568Z",
+        "timestamp": "2025-09-28T00:01:39.262Z",
         "component": "Console",
         "event": "drag-start",
         "data": {
           "isMinimized": false,
-          "currentHeight": 534.6,
+          "currentHeight": 662,
           "minimizedHeight": 81,
-          "actualDOMHeight": 535,
-          "startHeight": 535,
-          "startY": 480,
+          "actualDOMHeight": 662,
+          "startHeight": 662,
+          "startY": 352,
           "paperRefExists": true
         }
       }
     ],
-    "Console-1759001824698": [
+    "Console-1759017699404": [
       {
-        "timestamp": "2025-09-27T19:37:04.711Z",
+        "timestamp": "2025-09-28T00:01:39.409Z",
         "component": "Console",
         "event": "drag-first-move",
         "data": {
           "deltaY": 0,
-          "newHeight": 535,
-          "startHeight": 535,
+          "newHeight": 662,
+          "startHeight": 662,
           "wasMinimized": false,
           "willUnminimize": false
         }
       }
     ],
-    "15:38:40-applet-detection": [
+    "Console-1759017706322": [
       {
-        "timestamp": "2025-09-27T19:38:40.539Z",
+        "timestamp": "2025-09-28T00:01:46.330Z",
+        "component": "Console",
+        "event": "drag-start",
+        "data": {
+          "isMinimized": false,
+          "currentHeight": 777,
+          "minimizedHeight": 81,
+          "actualDOMHeight": 777,
+          "startHeight": 777,
+          "startY": 235,
+          "paperRefExists": true
+        }
+      }
+    ],
+    "Console-1759017706473": [
+      {
+        "timestamp": "2025-09-28T00:01:46.482Z",
+        "component": "Console",
+        "event": "drag-first-move",
+        "data": {
+          "deltaY": -1,
+          "newHeight": 776,
+          "startHeight": 777,
+          "wasMinimized": false,
+          "willUnminimize": false
+        }
+      }
+    ],
+    "20:06:19-dark-mode-toggle": [
+      {
+        "timestamp": "2025-09-28T00:06:20.057Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": false,
+          "previousMode": true
+        }
+      },
+      {
+        "timestamp": "2025-09-28T00:06:20.059Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": false,
+          "previousMode": true
+        }
+      }
+    ],
+    "20:06:27-dark-mode-toggle": [
+      {
+        "timestamp": "2025-09-28T00:06:27.654Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": true,
+          "previousMode": false
+        }
+      },
+      {
+        "timestamp": "2025-09-28T00:06:27.655Z",
+        "component": "UserActions",
+        "event": "dark-mode-changed",
+        "data": {
+          "enabled": true,
+          "previousMode": false
+        }
+      }
+    ],
+    "20:14:36-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:14:36.893Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events/detail",
+          "actualPath": "/events/detail?id=231",
+          "pathWithoutQuery": "/events/detail",
+          "foundApplet": "ewi-event-details",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:14:38-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:14:39.094Z",
         "component": "DevToolsMenu",
         "event": "path-changed",
         "data": {
@@ -159,15 +346,15 @@
           "foundApplet": "ewi-obligor",
           "allApplets": [
             {
-              "id": "ewi-event-details",
-              "routes": [
-                "/events/detail"
-              ]
-            },
-            {
               "id": "ewi-events",
               "routes": [
                 "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
               ]
             },
             {
@@ -186,27 +373,27 @@
         }
       }
     ],
-    "15:38:41-applet-detection": [
+    "20:15:09-applet-detection": [
       {
-        "timestamp": "2025-09-27T19:38:41.987Z",
+        "timestamp": "2025-09-28T00:15:09.313Z",
         "component": "DevToolsMenu",
         "event": "path-changed",
         "data": {
-          "hookPath": "/events",
-          "actualPath": "/events",
-          "pathWithoutQuery": "/events",
-          "foundApplet": "ewi-events",
+          "hookPath": "/events/detail",
+          "actualPath": "/events/detail?id=231",
+          "pathWithoutQuery": "/events/detail",
+          "foundApplet": "ewi-event-details",
           "allApplets": [
-            {
-              "id": "ewi-event-details",
-              "routes": [
-                "/events/detail"
-              ]
-            },
             {
               "id": "ewi-events",
               "routes": [
                 "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
               ]
             },
             {
@@ -225,9 +412,20 @@
         }
       }
     ],
-    "15:38:44-applet-detection": [
+    "20:15:17-console-open": [
       {
-        "timestamp": "2025-09-27T19:38:45.231Z",
+        "timestamp": "2025-09-28T00:15:18.158Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-event-details",
+          "hasApiSpec": false
+        }
+      }
+    ],
+    "20:15:28-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:15:28.559Z",
         "component": "DevToolsMenu",
         "event": "path-changed",
         "data": {
@@ -237,15 +435,15 @@
           "foundApplet": "ewi-obligor",
           "allApplets": [
             {
-              "id": "ewi-event-details",
-              "routes": [
-                "/events/detail"
-              ]
-            },
-            {
               "id": "ewi-events",
               "routes": [
                 "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
               ]
             },
             {
@@ -262,63 +460,9 @@
             }
           ]
         }
-      }
-    ],
-    "15:38:46-console-open": [
+      },
       {
-        "timestamp": "2025-09-27T19:38:46.248Z",
-        "component": "DevToolsMenu",
-        "event": "console-opened",
-        "data": {
-          "currentApplet": "ewi-obligor",
-          "hasApiSpec": false
-        }
-      }
-    ],
-    "Console-1759002003901": [
-      {
-        "timestamp": "2025-09-27T19:40:03.915Z",
-        "component": "Console",
-        "event": "drag-start",
-        "data": {
-          "isMinimized": true,
-          "currentHeight": 81,
-          "minimizedHeight": 81,
-          "actualDOMHeight": 81,
-          "startHeight": 81,
-          "startY": 933,
-          "paperRefExists": true
-        }
-      }
-    ],
-    "Console-1759002004033": [
-      {
-        "timestamp": "2025-09-27T19:40:04.040Z",
-        "component": "Console",
-        "event": "drag-first-move",
-        "data": {
-          "deltaY": 0,
-          "newHeight": 81,
-          "startHeight": 81,
-          "wasMinimized": true,
-          "willUnminimize": false
-        }
-      }
-    ],
-    "15:40:24-console-open": [
-      {
-        "timestamp": "2025-09-27T19:40:25.099Z",
-        "component": "DevToolsMenu",
-        "event": "console-opened",
-        "data": {
-          "currentApplet": "ewi-obligor",
-          "hasApiSpec": false
-        }
-      }
-    ],
-    "15:40:49-applet-detection": [
-      {
-        "timestamp": "2025-09-27T19:40:50.038Z",
+        "timestamp": "2025-09-28T00:15:29.180Z",
         "component": "DevToolsMenu",
         "event": "path-changed",
         "data": {
@@ -328,15 +472,15 @@
           "foundApplet": "ewi-events",
           "allApplets": [
             {
-              "id": "ewi-event-details",
-              "routes": [
-                "/events/detail"
-              ]
-            },
-            {
               "id": "ewi-events",
               "routes": [
                 "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
               ]
             },
             {
@@ -352,9 +496,688 @@
               ]
             }
           ]
+        }
+      }
+    ],
+    "20:15:32-console-open": [
+      {
+        "timestamp": "2025-09-28T00:15:32.753Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
+        }
+      }
+    ],
+    "20:15:34-console-close": [
+      {
+        "timestamp": "2025-09-28T00:15:34.390Z",
+        "component": "DevToolsMenu",
+        "event": "console-closed",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
+        }
+      }
+    ],
+    "20:16:07-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:16:07.984Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events/detail",
+          "actualPath": "/events/detail?id=231",
+          "pathWithoutQuery": "/events/detail",
+          "foundApplet": "ewi-event-details",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:16:26-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:16:26.581Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/",
+          "actualPath": "/",
+          "pathWithoutQuery": "/",
+          "foundApplet": null,
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:16:27-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:16:27.820Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:16:28-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:16:28.633Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/subscription-managers",
+          "actualPath": "/subscription-managers",
+          "pathWithoutQuery": "/subscription-managers",
+          "foundApplet": null,
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:16:30-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:16:30.291Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:16:31-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:16:32.086Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/subscription-managers",
+          "actualPath": "/subscription-managers",
+          "pathWithoutQuery": "/subscription-managers",
+          "foundApplet": null,
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:16:32-console-open": [
+      {
+        "timestamp": "2025-09-28T00:16:32.902Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "none",
+          "hasApiSpec": false
+        }
+      }
+    ],
+    "20:18:40-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:18:40.843Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:20:43-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:20:43.436Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/",
+          "actualPath": "/",
+          "pathWithoutQuery": "/",
+          "foundApplet": null,
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:20:47-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:20:47.397Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/subscription-managers",
+          "actualPath": "/subscription-managers",
+          "pathWithoutQuery": "/subscription-managers",
+          "foundApplet": null,
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:20:49-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:20:50.136Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:24:13-console-open": [
+      {
+        "timestamp": "2025-09-28T00:24:13.934Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
+        }
+      }
+    ],
+    "20:29:47-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:29:48.005Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events/detail",
+          "actualPath": "/events/detail?id=52",
+          "pathWithoutQuery": "/events/detail",
+          "foundApplet": "ewi-event-details",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:29:54-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:29:54.299Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/obligor-dashboard",
+          "actualPath": "/obligor-dashboard",
+          "pathWithoutQuery": "/obligor-dashboard",
+          "foundApplet": "ewi-obligor",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:29:55-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:29:55.152Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/subscription-managers",
+          "actualPath": "/subscription-managers",
+          "pathWithoutQuery": "/subscription-managers",
+          "foundApplet": null,
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:29:56-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:29:56.996Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/usage-stats",
+          "actualPath": "/usage-stats",
+          "pathWithoutQuery": "/usage-stats",
+          "foundApplet": "usage-stats",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:29:58-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:29:58.663Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/",
+          "actualPath": "/",
+          "pathWithoutQuery": "/",
+          "foundApplet": null,
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:29:59-applet-detection": [
+      {
+        "timestamp": "2025-09-28T00:29:59.866Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligor-dashboard"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "20:30:01-console-open": [
+      {
+        "timestamp": "2025-09-28T00:30:02.039Z",
+        "component": "DevToolsMenu",
+        "event": "console-opened",
+        "data": {
+          "currentApplet": "ewi-events",
+          "hasApiSpec": true
         }
       }
     ]
   },
-  "lastUpdate": "2025-09-27T19:40:50.038Z"
+  "lastUpdate": "2025-09-28T00:30:02.039Z"
 }

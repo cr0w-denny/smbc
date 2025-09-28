@@ -27,8 +27,8 @@ export interface UsePersistedRolesReturn {
 }
 
 /**
- * A hook that manages role selection with localStorage persistence
- * and automatic synchronization with user roles.
+ * A hook that manages role selection with localStorage persistence.
+ * Simplified to avoid loops - just manages local state and persistence.
  *
  * @example
  * ```tsx
@@ -46,48 +46,78 @@ export function usePersistedRoles({
   storageKey = "selectedRoles",
   onRolesChange,
 }: UsePersistedRolesProps): UsePersistedRolesReturn {
-  // State for managing selected roles (allowing multiple selection)
-  // Initialize from localStorage or default to current userRoles
+  const isInternalUpdate = React.useRef(false);
+
+  // Initialize from localStorage or userRoles
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>(() => {
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsedRoles = JSON.parse(saved) as string[];
-        // Validate that saved roles are still valid
         const validRoles = parsedRoles.filter((role) =>
           availableRoles.includes(role),
         );
         if (validRoles.length > 0) {
-          // Ensure current userRoles are included in the saved selection
-          const allCurrentRoles = [...userRoles];
-          const missingRoles = allCurrentRoles.filter(
-            (role) => !validRoles.includes(role),
-          );
-          return missingRoles.length > 0
-            ? [...validRoles, ...missingRoles]
-            : validRoles;
+          return validRoles;
         }
       }
     } catch (error) {}
     return [...userRoles];
   });
 
-  // Sync selectedRoles when userRoles changes
+  // Save to localStorage when selectedRoles changes (but only if not internal update)
   React.useEffect(() => {
-    const missingRoles = userRoles.filter(
-      (role) => !selectedRoles.includes(role),
-    );
-    if (missingRoles.length > 0) {
-      setSelectedRoles((prev) => [...prev, ...missingRoles]);
+    if (!isInternalUpdate.current) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(selectedRoles));
+        // Fire custom event for same-tab communication
+        window.dispatchEvent(new CustomEvent(`roles-changed-${storageKey}`, {
+          detail: { roles: selectedRoles }
+        }));
+      } catch (error) {}
     }
-  }, [userRoles, selectedRoles]);
-
-  // Save selected roles to localStorage whenever they change
-  React.useEffect(() => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(selectedRoles));
-    } catch (error) {}
+    isInternalUpdate.current = false;
   }, [selectedRoles, storageKey]);
+
+  // Listen for role changes from other instances (both storage events and custom events)
+  React.useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === storageKey && e.newValue) {
+        try {
+          const newRoles = JSON.parse(e.newValue) as string[];
+          const validRoles = newRoles.filter((role) =>
+            availableRoles.includes(role),
+          );
+          if (JSON.stringify(validRoles) !== JSON.stringify(selectedRoles)) {
+            isInternalUpdate.current = true;
+            setSelectedRoles(validRoles);
+            onRolesChange(validRoles);
+          }
+        } catch (error) {}
+      }
+    };
+
+    const handleCustomEvent = (e: CustomEvent) => {
+      const newRoles = e.detail.roles as string[];
+      const validRoles = newRoles.filter((role) =>
+        availableRoles.includes(role),
+      );
+      if (JSON.stringify(validRoles) !== JSON.stringify(selectedRoles)) {
+        isInternalUpdate.current = true;
+        setSelectedRoles(validRoles);
+        onRolesChange(validRoles);
+      }
+    };
+
+    // Listen for both storage events (cross-tab) and custom events (same-tab)
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener(`roles-changed-${storageKey}`, handleCustomEvent as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener(`roles-changed-${storageKey}`, handleCustomEvent as EventListener);
+    };
+  }, [storageKey, availableRoles, selectedRoles, onRolesChange]);
 
   const toggleRole = React.useCallback(
     (role: string) => {

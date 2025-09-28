@@ -22,7 +22,7 @@ import type { DebugEntry } from './utils/debug';
 import type { CurrentAppletInfo } from './HostAppBar';
 import { ServerSelector } from './ServerSelector';
 import { getAvailableServersWithOverrides } from './utils/apiOverrides';
-import { useFeatureFlag, type Environment } from '@smbc/applet-core';
+import { useFeatureFlag, useAppletCore, useUser, usePersistedRoles, useAppletPermissions, type Environment } from '@smbc/applet-core';
 import { TextField } from '@mui/material';
 import { RoleManager, type RoleManagerProps, type User, type PermissionGroup, type Permission } from './RoleManager';
 interface DevConsoleProps {
@@ -80,62 +80,41 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
     components: [] as string[],
     minutes: 5,
   });
-  const [activeTab, setActiveTab] = useState('debug');
+  const [activeTab, setActiveTab] = useState('settings');
 
-  // Role manager state
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(['Analyst']);
+  // Real applet integration
+  const { user, setRoles, availableRoles } = useUser();
+  const { roleUtils, applets, roleConfig } = useAppletCore();
 
-  // Mock data for role manager
-  const availableRoles = ['Guest', 'Analyst', 'Staff', 'Manager', 'Admin'];
-  const mockUser: User = {
-    id: '1',
-    name: 'Development User',
-    email: 'dev@example.com',
-    roles: selectedRoles,
-  };
+  // Use mounted applets from context
+  const mountedApplets = applets;
 
-  // Helper to compute permissions with access based on selected roles
-  const computePermissions = (rawPermissions: any[]): Permission[] => {
-    return rawPermissions.map(perm => ({
-      key: perm.id,
-      label: perm.name,
-      hasAccess: selectedRoles.some(role => perm.requiredRoles.includes(role))
-    }));
-  };
+  // Use the fixed usePersistedRoles hook
+  const { selectedRoles, toggleRole } = usePersistedRoles({
+    userRoles: user?.roles || ['Analyst'],
+    availableRoles,
+    storageKey: "dev-console-roles",
+    onRolesChange: setRoles,
+  });
 
-  const rawPermissionData = [
-    {
-      id: 'ewi-events',
-      label: 'EWI Events',
-      permissions: [
-        { id: 'VIEW_EVENTS', name: 'View Events', requiredRoles: ['Analyst', 'Staff', 'Manager', 'Admin'] },
-        { id: 'CREATE_EVENTS', name: 'Create Events', requiredRoles: ['Staff', 'Manager', 'Admin'] },
-        { id: 'DELETE_EVENTS', name: 'Delete Events', requiredRoles: ['Manager', 'Admin'] },
-      ]
-    },
-    {
-      id: 'ewi-obligor',
-      label: 'Obligor Management',
-      permissions: [
-        { id: 'VIEW_OBLIGOR', name: 'View Obligor Data', requiredRoles: ['Analyst', 'Staff', 'Manager', 'Admin'] },
-        { id: 'EDIT_OBLIGOR', name: 'Edit Obligor Data', requiredRoles: ['Staff', 'Manager', 'Admin'] },
-      ]
-    }
-  ];
+  // Debug logging
+  console.log('DevConsole Debug:', {
+    mountedApplets: mountedApplets.map(a => ({ id: a.id, label: a.label })),
+    roleConfig,
+    permissionMappings: roleConfig?.permissionMappings,
+    selectedRoles,
+    availableRoles,
+  });
 
-  const mockPermissions: PermissionGroup[] = rawPermissionData.map(group => ({
-    id: group.id,
-    label: group.label,
-    permissions: computePermissions(group.permissions)
-  }));
+  // Use real permission calculation
+  const appletPermissions = useAppletPermissions({
+    hostApplets: mountedApplets,
+    roleConfig,
+    selectedRoles,
+    hasPermission: roleUtils.hasPermission,
+  });
 
-  const handleRoleToggle = (role: string) => {
-    setSelectedRoles(prev =>
-      prev.includes(role)
-        ? prev.filter(r => r !== role)
-        : [...prev, role]
-    );
-  };
+  console.log('DevConsole appletPermissions result:', appletPermissions);
 
   const refreshLogs = () => {
     const allLogs = (window as any).__debugLogs || [];
@@ -190,7 +169,7 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
 
   // Filter logs based on filter values
   const filteredLogs = useMemo(() => {
-    return logs.filter(log => {
+    const filtered = logs.filter(log => {
       // Skip any malformed entries
       if (!log || !log.timestamp || !log.component || !log.event) {
         console.warn('Skipping malformed log entry:', log);
@@ -208,6 +187,14 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
 
       return componentMatch && timeMatch;
     });
+
+    // Dedupe by session ID, keeping the last occurrence
+    const seenIds = new Set();
+    return filtered.reverse().filter(log => {
+      if (seenIds.has(log.id)) return false;
+      seenIds.add(log.id);
+      return true;
+    }).reverse();
   }, [logs, filterValues]);
 
   // The impersonation context already manages the global variable
@@ -291,10 +278,10 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
 
   // Tab configuration
   const tabs: TabBarItem[] = [
-    { value: 'debug', label: 'Debug' },
+    { value: 'settings', label: 'Settings' },
     { value: 'api', label: 'API' },
     { value: 'permissions', label: 'Permissions' },
-    { value: 'settings', label: 'Settings' },
+    { value: 'debug', label: 'Debug' },
   ];
 
   return (
@@ -401,10 +388,6 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
 
         {activeTab === 'api' && (
           <Box sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              API Configuration
-            </Typography>
-
             {(() => {
               const hasApiSpec = !!currentAppletInfo?.apiSpec?.spec;
 
@@ -496,13 +479,13 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
         {activeTab === 'permissions' && (
           <Box sx={{ height: '100%', overflow: 'auto' }}>
             <RoleManager
-              user={mockUser}
+              user={user}
               availableRoles={availableRoles}
               selectedRoles={selectedRoles}
-              onRoleToggle={handleRoleToggle}
-              appletPermissions={mockPermissions}
-              title="Development Roles & Permissions"
-              showUserInfo={true}
+              onRoleToggle={toggleRole}
+              appletPermissions={appletPermissions}
+              title=""
+              showUserInfo={false}
               persistRoles={true}
               localStorageKey="dev-console-roles"
             />
@@ -511,9 +494,6 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
 
         {activeTab === 'settings' && (
           <Box sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Settings
-            </Typography>
             <Typography variant="body2" color="text.secondary">
               Theme toggle and preferences coming soon
             </Typography>

@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from "react";
+import { useUser, usePersistedRoles } from "@smbc/applet-core";
 import { HOST_ROLES } from "../applet.config";
 
 interface DevContextType {
@@ -33,18 +34,17 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [devToolsImports, setDevToolsImports] = React.useState<any>(null);
 
-  // Role selection state (dev-time only)
-  const [selectedRoleIds, setSelectedRoleIds] = React.useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("ewi-user-roles");
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (error) {
-      console.error("Failed to load user roles from localStorage:", error);
-    }
-    return ["Analyst"]; // Default role
+  // Use the fixed usePersistedRoles hook - same as DevConsole
+  const { user, setRoles, availableRoles } = useUser();
+  const { selectedRoles, toggleRole } = usePersistedRoles({
+    userRoles: user?.roles || ['Analyst'],
+    availableRoles,
+    storageKey: "dev-console-roles", // Same key as DevConsole for sync
+    onRolesChange: setRoles,
   });
+
+  // Convert to selectedRoleIds for compatibility
+  const selectedRoleIds = selectedRoles;
 
   // Impersonation state (dev-time only)
   const [impersonateEmail, setImpersonateEmail] = React.useState<string>(() => {
@@ -73,18 +73,10 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleRoleToggle = React.useCallback(
     (roleId: string, enabled: boolean) => {
-      setSelectedRoleIds((prev) => {
-        const newRoles = enabled
-          ? [...prev, roleId]
-          : prev.filter((id) => id !== roleId);
-
-        console.log(`Role ${roleId} toggled to:`, enabled);
-        console.log("Active roles:", newRoles);
-
-        return newRoles;
-      });
+      console.log(`Role ${roleId} toggled to:`, enabled);
+      toggleRole(roleId);
     },
-    [],
+    [toggleRole],
   );
 
   const handleImpersonateEmailChange = React.useCallback((email: string) => {
@@ -107,14 +99,6 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [devToolsImports]);
 
-  // Persist role changes
-  React.useEffect(() => {
-    try {
-      localStorage.setItem("ewi-user-roles", JSON.stringify(selectedRoleIds));
-    } catch (error) {
-      console.error("Failed to save user roles to localStorage:", error);
-    }
-  }, [selectedRoleIds]);
 
   // Initialize global impersonate email
   React.useEffect(() => {
@@ -139,7 +123,6 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
   const roleSelection = React.useMemo(
     () => ({
       selectedRoleIds,
-      setSelectedRoleIds,
       userRoles,
       handleRoleToggle,
     }),

@@ -42,7 +42,8 @@ export function applyUrlMapping(
     // Check if the URL matches the pattern
     if (matchesUrlPattern(url, mapping.pattern)) {
       // Get the environment variable value
-      const envValue = import.meta.env?.[mapping.envVar] || process?.env?.[mapping.envVar];
+      const envValue = (import.meta as any).env?.[mapping.envVar] ||
+                       (typeof process !== 'undefined' ? process?.env?.[mapping.envVar] : undefined);
 
       if (envValue) {
         return envValue;

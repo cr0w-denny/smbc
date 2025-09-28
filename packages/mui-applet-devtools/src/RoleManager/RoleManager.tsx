@@ -21,6 +21,8 @@ export interface RoleManagerProps {
   appletPermissions: PermissionGroup[];
   /** Optional title for the dashboard */
   title?: string;
+  /** Whether to show the dashboard header */
+  showHeader?: boolean;
   /** Whether to show the current user info section */
   showUserInfo?: boolean;
   /** Whether to persist selected roles to localStorage */
@@ -48,6 +50,7 @@ export function RoleManager({
   onRoleToggle,
   appletPermissions,
   title = "Role & Permissions",
+  showHeader = true,
   showUserInfo = true,
   persistRoles = true,
   localStorageKey = "roleManagement-selectedRoles",
@@ -60,12 +63,14 @@ export function RoleManager({
 
   return (
     <Box sx={{ p: 3 }}>
-      <DashboardHeader
-        title={title}
-        availableRoles={availableRoles}
-        selectedRoles={selectedRoles}
-        onRoleToggle={onRoleToggle}
-      />
+      {showHeader && (
+        <DashboardHeader
+          title={title}
+          availableRoles={availableRoles}
+          selectedRoles={selectedRoles}
+          onRoleToggle={onRoleToggle}
+        />
+      )}
 
       {user && (
         <CurrentUserInfo

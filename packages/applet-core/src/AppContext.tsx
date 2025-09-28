@@ -18,6 +18,7 @@ import {
 interface AppContextValue {
   state: AppState;
   roleUtils: ReturnType<typeof createRoleUtilities>;
+  roleConfig: RoleConfig;
   applets: AppletMount[];
   actions: {
     setUser: (user: User | null) => void;
@@ -98,6 +99,7 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
   const contextValue: AppContextValue = {
     state,
     roleUtils,
+    roleConfig,
     applets,
     actions: {
       setUser,

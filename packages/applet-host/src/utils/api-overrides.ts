@@ -1,7 +1,7 @@
 /**
- * Pattern-based server override configuration
+ * Pattern-based API URL mapping configuration
  */
-export interface ServerOverrideMapping {
+export interface ApiUrlMapping {
   /** URL pattern to match (supports wildcards) */
   pattern: string;
   /** Environment variable name to use as replacement */
@@ -9,9 +9,9 @@ export interface ServerOverrideMapping {
 }
 
 /**
- * Function that generates server overrides based on an applet's API spec
+ * Function that generates API URL overrides based on an applet's API spec
  */
-export type ServerOverrideFunction = (
+export type ApiOverrideFunction = (
   servers: Array<{ url: string; description?: string }>
 ) => Array<{ url: string; description?: string }> | undefined;
 
@@ -30,15 +30,15 @@ function matchesPattern(url: string, pattern: string): boolean {
  * Get environment variable value
  */
 function getEnvVar(envVar: string): string | undefined {
-  return import.meta.env?.[envVar] || (typeof process !== 'undefined' ? process?.env?.[envVar] : undefined);
+  return (import.meta as any).env?.[envVar] || (typeof process !== 'undefined' ? process?.env?.[envVar] : undefined);
 }
 
 /**
- * Create a server override function based on pattern mappings
+ * Create an API override function based on pattern mappings
  */
-export function createapiOverrides(
-  mappings: ServerOverrideMapping[]
-): ServerOverrideFunction {
+export function createApiOverrides(
+  mappings: ApiUrlMapping[]
+): ApiOverrideFunction {
   // Check if any env vars are set - if not, return a function that always returns undefined
   const hasAnyEnvVars = mappings.some(mapping => getEnvVar(mapping.envVar));
   if (!hasAnyEnvVars) {

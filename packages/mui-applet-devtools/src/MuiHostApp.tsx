@@ -120,7 +120,7 @@ function AppWithEnvironment({
   disableMSW = false,
   showAppletHeading = false,
   logo,
-}: Omit<MuiHostAppProps, 'toolbarOffset'>) {
+}: Omit<MuiHostAppProps, "toolbarOffset">) {
   const environment = useFeatureFlag<Environment>("environment") || "mock";
   const isMockEnvironment = environment === "mock";
   const [mswReady, setMswReady] = React.useState(!isMockEnvironment);
@@ -189,9 +189,9 @@ function AppWithEnvironment({
         }
 
         try {
-          await setupMSW(mswHandlers, { 
+          await setupMSW(mswHandlers, {
             verbose: true,
-            baseUrl: (import.meta as any).env?.BASE_URL || '/'
+            baseUrl: (import.meta as any).env?.BASE_URL || "/",
           });
           console.log("✅ MSW worker started successfully");
           setMswReady(true);
@@ -392,7 +392,6 @@ function AppWithThemeProvider(props: MuiHostAppProps) {
         <AppletProvider
           initialRoleConfig={props.roleConfig}
           initialUser={userWithPermissions}
-          toolbarOffset={props.toolbarOffset}
         >
           <AppWithEnvironment {...props} />
         </AppletProvider>

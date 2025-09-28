@@ -18,15 +18,17 @@ export function DashboardHeader({
     <Box
       sx={{
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: title ? "space-between" : "flex-start",
         alignItems: "center",
         mb: 3,
       }}
     >
-      <Typography variant="h4">
-        <SecurityIcon sx={{ mr: 1, verticalAlign: "middle" }} />
-        {title}
-      </Typography>
+      {title && (
+        <Typography variant="h4">
+          <SecurityIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+          {title}
+        </Typography>
+      )}
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <Typography variant="h6">Roles:</Typography>

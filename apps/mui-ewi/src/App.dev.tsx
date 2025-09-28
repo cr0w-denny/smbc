@@ -1,14 +1,9 @@
 import React from 'react';
 import App from './App';
-import { DevProvider } from './context/DevContext';
 
-// Development version - just wraps the main App with debug context
+// Development version - DevProvider is now inside AppletProvider in App.tsx
 const DevApp: React.FC = () => {
-  return (
-    <DevProvider>
-      <App />
-    </DevProvider>
-  );
+  return <App />;
 };
 
 export default DevApp;
