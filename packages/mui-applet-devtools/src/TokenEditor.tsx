@@ -57,8 +57,8 @@ const setNestedValue = (draft: any, path: string, value: any): void => {
 
 // Helper function to get original token value without overrides
 const getOriginalTokenValue = (path: string): any => {
-  const pathParts = path.split('.').slice(1); // Remove 'ui' prefix
-  let current = ui;
+  const pathParts = path.split('.');
+  let current = tokens; // Start from root tokens object
 
   // Temporarily clear overrides to get original value
   const originalOverrides = (window as any).__tokenOverrides;
@@ -76,7 +76,7 @@ const getOriginalTokenValue = (path: string): any => {
 };
 
 // Helper function to compare imported structure with current tokens and create minimal overrides
-const createMinimalOverrides = (importedTokens: any, path: string = 'ui'): Record<string, any> => {
+const createMinimalOverrides = (importedTokens: any, path: string = ''): Record<string, any> => {
   const overrides: Record<string, any> = {};
 
   const traverse = (imported: any, currentPath: string) => {
@@ -84,14 +84,31 @@ const createMinimalOverrides = (importedTokens: any, path: string = 'ui'): Recor
       // Compare leaf value with original
       const originalValue = getOriginalTokenValue(currentPath);
       if (imported !== originalValue) {
-        overrides[currentPath] = imported;
+        console.log(`Override detected: ${currentPath}`, { imported, originalValue });
+
+        // Check if this is a theme token (ends with .light or .dark)
+        if (currentPath.endsWith('.light') || currentPath.endsWith('.dark')) {
+          const basePath = currentPath.replace(/\.(light|dark)$/, '');
+          const mode = currentPath.endsWith('.light') ? 'light' : 'dark';
+
+          // Create or update theme token object
+          if (!overrides[basePath]) {
+            overrides[basePath] = {};
+          }
+          if (typeof overrides[basePath] === 'object') {
+            overrides[basePath][mode] = imported;
+          }
+        } else {
+          overrides[currentPath] = imported;
+        }
       }
       return;
     }
 
     // Recursively check nested objects
     for (const [key, value] of Object.entries(imported)) {
-      traverse(value, `${currentPath}.${key}`);
+      const nextPath = currentPath ? `${currentPath}.${key}` : key;
+      traverse(value, nextPath);
     }
   };
 
@@ -262,6 +279,7 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
               width: 80,
               "& .MuiInputBase-input": {
                 padding: "4px",
+                cursor: "pointer",
                 minHeight: 0,
               },
             }}
@@ -274,13 +292,15 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
             sx={{ flexGrow: 1, maxWidth: 200 }}
           />
         )}
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ minWidth: 60 }}
-        >
-          {currentValue}
-        </Typography>
+        {propertyType === "color" && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ minWidth: 60 }}
+          >
+            {typeof currentValue === 'object' ? (isDarkMode ? currentValue.dark : currentValue.light) : currentValue}
+          </Typography>
+        )}
         {isModified && (
           <IconButton
             size="small"
