@@ -101,7 +101,7 @@ const PageLayout: React.FC<{
               left: 0,
               right: 0,
               height: `${toolbarHeight + 100}px`, // Extend 20px below toolbar content
-              backgroundColor: ui.color.navigation.background.light,
+              backgroundColor: ui.navigation.base.default.background.light,
               zIndex: 1000, // Behind content and toolbar
               display: isLightMode && bgExtended ? "block" : "none",
             }}
@@ -117,7 +117,7 @@ const PageLayout: React.FC<{
               py: 2,
               background: isLightMode
                 ? bgExtended
-                  ? ui.color.navigation.background.light
+                  ? ui.navigation.base.default.background.light
                   : ""
                 : gradient,
             }}

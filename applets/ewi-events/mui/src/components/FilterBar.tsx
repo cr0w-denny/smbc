@@ -54,6 +54,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         type: "select",
         label: "Types",
         multiple: true,
+        minWidth: 170,
         placeholder: "All Types",
         options: [
           { label: "ExRatings", value: "ExRatings" },
@@ -68,6 +69,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         type: "select",
         label: "PLO",
         multiple: true,
+        minWidth: 170,
         placeholder: "All PLOs",
         options: [
           { label: "NYC001", value: "NYC001" },

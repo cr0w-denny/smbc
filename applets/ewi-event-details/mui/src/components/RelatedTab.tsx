@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box } from "@mui/material";
 import {
   Card,
@@ -145,16 +145,6 @@ const StatusCellRenderer = (params: any) => {
 
 export const RelatedTab: React.FC = () => {
   const gridRef = React.useRef<AgGridReact>(null);
-  const popupParentRef = React.useRef<HTMLDivElement>(null);
-
-  const [popupParent, setPopupParent] = useState<HTMLElement | null>(null);
-
-  // Set popup parent after component mounts
-  React.useEffect(() => {
-    if (popupParentRef.current) {
-      setPopupParent(popupParentRef.current);
-    }
-  }, []);
 
   // Abbreviated column definitions for related events
   const columnDefs: ColDef[] = [
@@ -194,7 +184,6 @@ export const RelatedTab: React.FC = () => {
 
   return (
     <Box
-      ref={popupParentRef}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -207,30 +196,32 @@ export const RelatedTab: React.FC = () => {
     >
       <Card title="Related Events">
         <Box sx={{ height: 300 }}>
-          <AgGridTheme popupParentRef={popupParentRef}>
-            <AgGridReact
-              ref={gridRef}
-              rowData={mockEventsData}
-              columnDefs={columnDefs}
-              domLayout="normal"
-              suppressRowClickSelection={true}
-              animateRows={true}
-              enableCellTextSelection={true}
-              suppressCellFocus={true}
-              suppressRowHoverHighlight={false}
-              headerHeight={40}
-              rowHeight={56}
-              popupParent={popupParent}
-              defaultColDef={{
-                filter: true,
-                sortable: true,
-                resizable: true,
-                menuTabs: ["filterMenuTab", "columnsMenuTab"],
-              }}
-              sortingOrder={["asc", "desc"]}
-              multiSortKey={"ctrl"}
-              columnMenu="legacy"
-            />
+          <AgGridTheme>
+            {(popupParent) => (
+              <AgGridReact
+                ref={gridRef}
+                popupParent={popupParent}
+                rowData={mockEventsData}
+                columnDefs={columnDefs}
+                domLayout="normal"
+                suppressRowClickSelection={true}
+                animateRows={true}
+                enableCellTextSelection={true}
+                suppressCellFocus={true}
+                suppressRowHoverHighlight={false}
+                headerHeight={40}
+                rowHeight={56}
+                defaultColDef={{
+                  filter: true,
+                  sortable: true,
+                  resizable: true,
+                  menuTabs: ["filterMenuTab", "columnsMenuTab"],
+                }}
+                sortingOrder={["asc", "desc"]}
+                multiSortKey={"ctrl"}
+                columnMenu="legacy"
+              />
+            )}
           </AgGridTheme>
         </Box>
       </Card>

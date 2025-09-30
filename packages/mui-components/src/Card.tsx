@@ -25,12 +25,11 @@ export interface CardMenuItem {
 }
 
 export interface CardProps {
-  title: string | React.ReactNode;
+  title?: string | React.ReactNode;
   subtitle?: string;
   menuItems?: CardMenuItem[];
   children: React.ReactNode;
   elevation?: number;
-  size?: "medium" | "large";
   sx?: any;
   headerSx?: any;
   contentSx?: any;
@@ -38,6 +37,7 @@ export interface CardProps {
   onMenuOpen?: () => void;
   onMenuClose?: () => void;
   toolbar?: React.ReactNode;
+  header?: React.ReactNode; // Full custom header - overrides title/subtitle/toolbar/menu
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -46,7 +46,6 @@ export const Card: React.FC<CardProps> = ({
   menuItems = [],
   children,
   elevation = 1,
-  size = "medium",
   sx,
   headerSx,
   contentSx,
@@ -54,6 +53,7 @@ export const Card: React.FC<CardProps> = ({
   onMenuOpen,
   onMenuClose,
   toolbar,
+  header,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const theme = useTheme();
@@ -75,19 +75,19 @@ export const Card: React.FC<CardProps> = ({
   };
 
   // Get the padding value based on size
-  const headerPadding = size === "large" ? ui.color.card.header.padding.large : ui.color.card.header.padding.medium;
+  const headerPadding = ui.cardHeader.base.default.padding;
 
   return (
     <MuiCard
       elevation={elevation}
       sx={{
         backgroundImage: "none !important",
-        backgroundColor: token(isDark, ui.color.card.background),
-        border: `1px solid ${token(isDark, ui.color.card.border)}`,
-        borderRadius: ui.color.card.borderRadius.dark,
+        backgroundColor: token(isDark, ui.card.base.default.background),
+        border: `1px solid ${token(isDark, ui.card.base.default.borderColor)}`,
+        borderRadius: ui.card.base.default.borderRadius,
         "&:hover": {
           boxShadow: elevation,
-          backgroundColor: token(isDark, ui.color.card.background),
+          backgroundColor: token(isDark, ui.card.base.default.background),
           backgroundImage: "none !important",
           transform: "none",
         },
@@ -95,63 +95,77 @@ export const Card: React.FC<CardProps> = ({
         ...sx,
       }}
     >
-      {/* Header section with title, toolbar, and menu */}
-      <Box sx={{
-        px: 3,
-        pt: headerPadding,
-        ...headerSx
-      }}>
-        {/* Top row: title, toolbar, and menu */}
+      {/* Custom header - render directly without wrapper */}
+      {header ? (
+        header
+      ) : (
+        /* Default header layout - only render if there's content */
+        (title || subtitle || toolbar || (showMenu && menuItems.length > 0)) && (
         <Box sx={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          mb: subtitle ? 0.5 : 0
+          px: 3,
+          pt: headerPadding,
+          ...headerSx
         }}>
-          {/* Title */}
-          <Typography
-            component="div"
-            sx={{
-              fontSize: size === "large" ? ui.color.card.header.fontSize.large : ui.color.card.header.fontSize.medium,
-              fontWeight: token(isDark, ui.color.card.header.fontWeight),
-              fontFamily: token(isDark, ui.color.card.header.fontFamily),
-              color: token(isDark, ui.color.card.header.text),
-              lineHeight: 1.2
-            }}
-          >
-            {title}
-          </Typography>
+          {/* Top row: title, toolbar, and menu */}
+          <Box sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            mb: subtitle ? 0.5 : 0
+          }}>
+            {/* Title - only render if provided */}
+            {title && (
+              <Typography
+                component="div"
+                sx={{
+                  fontSize: ui.cardHeader.base.default.fontSize,
+                  fontWeight: ui.cardHeader.base.default.fontWeight,
+                  fontFamily: ui.cardHeader.base.default.fontFamily,
+                  color: token(isDark, ui.cardHeader.base.default.color),
+                  lineHeight: 1.2
+                }}
+              >
+                {title}
+              </Typography>
+            )}
 
-          {/* Toolbar in the middle */}
-          {toolbar && (
-            <Box sx={{ mt: -1, display: "flex", alignItems: "center" }}>
-              {toolbar}
-            </Box>
-          )}
+            {/* Toolbar - expands to fill space when no title */}
+            {toolbar && (
+              <Box sx={{
+                mt: -1,
+                display: "flex",
+                alignItems: "center",
+                flex: title ? 'initial' : 1,
+                mr: (showMenu && menuItems.length > 0) ? 1 : 0
+              }}>
+                {toolbar}
+              </Box>
+            )}
 
-          {/* Menu button on the right */}
-          {showMenu && menuItems.length > 0 && (
-            <IconButton
-              size="small"
-              onClick={handleMenuClick}
-              aria-label="more options"
-              sx={{ mr: "-8px", mt: -0.5 }}
+            {/* Menu button on the right */}
+            {showMenu && menuItems.length > 0 && (
+              <IconButton
+                size="small"
+                onClick={handleMenuClick}
+                aria-label="more options"
+                sx={{ mr: "-8px", mt: -0.5 }}
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Box>
+
+          {/* Subtitle */}
+          {subtitle && (
+            <Typography
+              variant="body2"
+              color="text.secondary"
             >
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
+              {subtitle}
+            </Typography>
           )}
         </Box>
-
-        {/* Subtitle */}
-        {subtitle && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-          >
-            {subtitle}
-          </Typography>
-        )}
-      </Box>
+      ))}
       {showMenu && menuItems.length > 0 && (
         <Menu
           anchorEl={anchorEl}

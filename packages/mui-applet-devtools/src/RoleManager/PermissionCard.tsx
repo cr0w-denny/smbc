@@ -16,7 +16,6 @@ export function PermissionCard({ applet }: PermissionCardProps) {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        minHeight: 280,
       }}
     >
       <CardContent

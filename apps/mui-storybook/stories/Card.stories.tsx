@@ -84,7 +84,7 @@ export const LargeSize: Story = {
           label="142"
           size="small"
           sx={{
-            color: ui.color.card.header.text.dark || "#98A4B9",
+            color: ui.card.header.text.dark || "#98A4B9",
             backgroundColor: "#0E131D", // Custom dark chip background
             fontSize: "14px",
             "& .MuiChip-label": {

@@ -7,6 +7,17 @@
  * etc.
  */
 
+// Extend ImportMeta interface to include env
+declare global {
+  interface ImportMetaEnv {
+    [key: string]: string | undefined;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+}
+
 export interface ServerInfo {
   url: string;
   description: string;
@@ -42,7 +53,7 @@ export function getAvailableServersWithOverrides(
 
     envSuffixes.forEach(suffix => {
       const envVar = `${appletPrefix}${suffix}`;
-      const url = (import.meta.env as any)[envVar];
+      const url = import.meta.env[envVar];
 
       if (url) {
         overrideServers.push({
@@ -54,7 +65,7 @@ export function getAvailableServersWithOverrides(
     });
 
     // Also check for generic override
-    const genericOverride = (import.meta.env as any)[`${appletPrefix}URL`];
+    const genericOverride = import.meta.env[`${appletPrefix}URL`];
     if (genericOverride) {
       overrideServers.push({
         url: genericOverride,
@@ -75,7 +86,7 @@ export function getApiOverrides(): Record<string, string> {
   const overrides: Record<string, string> = {};
 
   // Get all environment variables that start with VITE_API_
-  Object.entries(import.meta.env as any).forEach(([key, value]) => {
+  Object.entries(import.meta.env).forEach(([key, value]) => {
     if (key.startsWith('VITE_API_') && typeof value === 'string') {
       overrides[key] = value;
     }
@@ -95,6 +106,6 @@ export function isOverrideServer(url: string, appletId?: string): boolean {
 
   return envSuffixes.some(suffix => {
     const envVar = `${appletPrefix}${suffix}`;
-    return (import.meta.env as any)[envVar] === url;
+    return import.meta.env[envVar] === url;
   });
 }

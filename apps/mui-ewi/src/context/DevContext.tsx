@@ -57,18 +57,15 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
     return "";
   });
 
-  // Use HOST_ROLES for role selection
-  const hostRoles = [...HOST_ROLES]; // Convert readonly array to mutable array
-
   // Convert HOST_ROLES to UserRole format (memoized to prevent render loops)
   const userRoles = React.useMemo(
     () =>
-      hostRoles.map((role) => ({
+      HOST_ROLES.map((role) => ({
         id: role,
         label: role,
         enabled: selectedRoleIds.includes(role),
       })),
-    [hostRoles, selectedRoleIds],
+    [selectedRoleIds],
   );
 
   const handleRoleToggle = React.useCallback(
@@ -123,10 +120,11 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
   const roleSelection = React.useMemo(
     () => ({
       selectedRoleIds,
+      setSelectedRoleIds: setRoles,
       userRoles,
       handleRoleToggle,
     }),
-    [selectedRoleIds, userRoles, handleRoleToggle],
+    [selectedRoleIds, setRoles, userRoles, handleRoleToggle],
   );
 
   // Memoize impersonation object

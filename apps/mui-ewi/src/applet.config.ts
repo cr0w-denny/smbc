@@ -14,15 +14,6 @@ import ewiObligorApplet from "@smbc/ewi-obligor-mui";
 import usageStatsApplet from "@smbc/usage-stats-mui";
 
 // =============================================================================
-// HOST CONSTANTS
-// =============================================================================
-
-export const HOST = {
-  drawerWidth: 320,
-  appName: "EWI Dashboard",
-} as const;
-
-// =============================================================================
 // HOST APPLICATION ROLES
 // =============================================================================
 

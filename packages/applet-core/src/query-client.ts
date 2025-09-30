@@ -152,20 +152,11 @@ export function getAppletApiUrl(appletId: string, environment: Environment = 'de
 export function useApiClientBase<T extends Record<string, any> = Record<string, any>>(
   appletId: string
 ): ReturnType<typeof createClientDefault<T>> {
-  const environment = useFeatureFlag<Environment>('development') || 'development';
+  const environment = useFeatureFlag<Environment>('environment') || 'development';
 
-  return useMemo(() => {
-    const cacheKey = `${appletId}-${environment}`;
-
-    // Check if we already have a client for this applet + environment combination
-    if (apiClientRegistry.has(cacheKey)) {
-      return apiClientRegistry.get(cacheKey);
-    }
-
-    const baseUrl = getAppletApiUrl(appletId, environment);
-
-    // Create custom fetch function that reads headers dynamically from global
-    const customFetch: typeof fetch = async (input, init) => {
+  // Memoize the custom fetch function to prevent render loops
+  const customFetch = useMemo(() => {
+    const fetchFn: typeof fetch = async (input, init) => {
       const headers = new Headers(init?.headers);
 
       // Read impersonation email from global variable set by DevContext
@@ -179,6 +170,18 @@ export function useApiClientBase<T extends Record<string, any> = Record<string, 
         headers,
       });
     };
+    return fetchFn;
+  }, []); // No dependencies since it reads from global
+
+  return useMemo(() => {
+    const cacheKey = `${appletId}-${environment}`;
+
+    // Check if we already have a client for this applet + environment combination
+    if (apiClientRegistry.has(cacheKey)) {
+      return apiClientRegistry.get(cacheKey);
+    }
+
+    const baseUrl = getAppletApiUrl(appletId, environment);
 
     const client = createClientDefault<T>({
       baseUrl,

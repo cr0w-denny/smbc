@@ -1,5 +1,12 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { Box, Button, Popover, MenuItem, MenuList, useTheme } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Popover,
+  MenuItem,
+  MenuList,
+  useTheme,
+} from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
@@ -10,10 +17,11 @@ import {
   PsychologyAlt as DiscretionaryIcon,
   Gavel as MandatoryIcon,
   ChipToggleGroup,
+  ActionMenu,
 } from "@smbc/mui-components";
 import { ui, color, shadow } from "@smbc/ui-core";
 import { token } from "@smbc/mui-components";
-import type { ChipToggleItem } from "@smbc/mui-components";
+import type { ChipToggleItem, ActionMenuItem } from "@smbc/mui-components";
 interface BulkAction {
   type: "bulk";
   key: string;
@@ -51,20 +59,23 @@ interface ActionBarProps {
   selectedItems?: any[];
   /** Reference to AG Grid instance */
   gridRef?: React.RefObject<any>;
+  /** Menu items for the action menu (vertical dots) */
+  actionMenuItems?: ActionMenuItem[];
 }
 
 export const ActionBar: React.FC<ActionBarProps> = ({
   values,
-  appliedParams,
   onValuesChange,
-  onApply,
   statusCounts = {},
   workflowActions = [],
   selectedItems = [],
   gridRef,
+  actionMenuItems = [],
 }) => {
   const theme = useTheme();
-  const [workflowAnchor, setWorkflowAnchor] = useState<null | HTMLElement>(null);
+  const [workflowAnchor, setWorkflowAnchor] = useState<null | HTMLElement>(
+    null,
+  );
 
   // Auto-open workflow dropdown when at least 2 items are selected
   React.useEffect(() => {
@@ -147,9 +158,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
     // Update active chips state immediately for visual feedback
     if (isActive) {
-      setActiveChips(prev => [...prev, chipValue]);
+      setActiveChips((prev) => [...prev, chipValue]);
     } else {
-      setActiveChips(prev => prev.filter(v => v !== chipValue));
+      setActiveChips((prev) => prev.filter((v) => v !== chipValue));
     }
 
     // Quick filters need to update state AND URL simultaneously
@@ -173,8 +184,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       if (isActive) {
         // Use the correct filter structure for AG Grid text columns
         currentFilters.event_category = {
-          type: 'equals',
-          filter: chipValue
+          type: "equals",
+          filter: chipValue,
         };
       } else {
         delete currentFilters.event_category;
@@ -183,8 +194,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       // status group - lifecycle_status field
       if (isActive) {
         currentFilters.lifecycle_status = {
-          type: 'equals',
-          filter: chipValue
+          type: "equals",
+          filter: chipValue,
         };
       } else {
         delete currentFilters.lifecycle_status;
@@ -211,7 +222,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   }, [values.status, values.category]);
 
   return (
-    <Box sx={{ pt: 2.5 }}>
+    <Box sx={{ p: 2, pb: 0 }}>
       {/* Status Chips */}
       <Box
         sx={{
@@ -253,13 +264,19 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               minWidth: 120,
               "&.Mui-disabled": {
                 backgroundColor: "transparent !important",
-                border: `1px solid ${token(theme, ui.color.border.secondary)} !important`,
+                border: `1px solid ${token(
+                  theme,
+                  ui.color.border.secondary,
+                )} !important`,
                 color: `${token(theme, ui.color.action.disabled)} !important`,
               },
             })}
           >
             Workflow
           </Button>
+
+          {/* Action Menu */}
+          <ActionMenu menuItems={actionMenuItems} />
         </Box>
       </Box>
 

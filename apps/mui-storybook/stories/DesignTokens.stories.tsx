@@ -7,6 +7,7 @@ import {
   Chip,
 } from "@mui/material";
 import { color, size, shadow, zIndex } from "@smbc/ui-core";
+import { t } from "@smbc/mui-components";
 
 const meta: Meta = {
   title: "Foundations/Tokens",
@@ -35,7 +36,7 @@ const SpacingExample = ({ size, value }: { size: string; value: string }) => (
     <Box
       sx={{
         height: "16px",
-        backgroundColor: color.brand.primary.tradGreen,
+        backgroundColor: t(color.brand.primary.tradGreen),
         width: `${Math.min(parseInt(value), 200)}px`,
       }}
     />
@@ -125,7 +126,7 @@ export const Tokens: Story = {
                 sx={{
                   width: "60px",
                   height: "60px",
-                  backgroundColor: color.brand.primary.tradGreen,
+                  backgroundColor: t(color.brand.primary.tradGreen),
                   borderRadius: `${value}px`,
                   mx: "auto",
                   mb: 1,
@@ -211,7 +212,7 @@ export const Tokens: Story = {
 
 // Use in MUI sx prop
 <Button sx={{
-  backgroundColor: color.brand.primary.tradGreen,
+  backgroundColor: t(color.brand.primary.tradGreen),
   color: '#ffffff',
   padding: \`\${size.spacing['3']}px \${size.spacing['4']}px\`,
   borderRadius: \`\${size.borderRadius.base}px\`,

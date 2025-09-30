@@ -15,6 +15,9 @@ export type { EmptyStateProps } from "./EmptyState";
 export { CustomSelect } from "./CustomSelect";
 export type { CustomSelectProps } from "./CustomSelect";
 
+export { ActionMenu } from "./ActionMenu";
+export type { ActionMenuProps, ActionMenuItem } from "./ActionMenu";
+
 export { Width } from "./Width";
 
 

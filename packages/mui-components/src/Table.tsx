@@ -40,7 +40,7 @@ export function Table<T>({
               key={i}
               align={c.align ?? "left"}
               sx={{
-                bgcolor: token(isDarkMode, ui.color.table.header.background),
+                bgcolor: token(isDarkMode, ui.tableHeader.base.default.background),
                 fontWeight: 600,
                 width: c.width,
                 borderBottom: "none",

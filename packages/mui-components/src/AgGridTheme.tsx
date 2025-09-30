@@ -12,7 +12,9 @@ interface AgGridThemeProps {
   height?: string | number;
   mx?: number;
   wrapHeaders?: boolean;
-  children: React.ReactNode | ((popupParent: HTMLElement | null) => React.ReactNode);
+  children:
+    | React.ReactNode
+    | ((popupParent: HTMLElement | null) => React.ReactNode);
 }
 
 export const AgGridTheme: React.FC<AgGridThemeProps> = ({
@@ -29,7 +31,9 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
 
   // Internal popup parent management
   const popupParentRef = React.useRef<HTMLDivElement>(null);
-  const [popupParent, setPopupParent] = React.useState<HTMLElement | null>(null);
+  const [popupParent, setPopupParent] = React.useState<HTMLElement | null>(
+    null,
+  );
 
   // Set popup parent after component mounts
   React.useEffect(() => {
@@ -64,22 +68,58 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
             borderRadius: "0px !important",
             border: "none !important",
           },
-          "--ag-background-color": token(theme, ui.color.table.row.background),
-          "--ag-odd-row-background-color": token(theme, ui.color.table.row.backgroundAlt),
+          "--ag-background-color": token(
+            theme,
+            ui.tableRow.base.default.background,
+          ),
+          "--ag-odd-row-background-color": token(
+            theme,
+            ui.tableRow.base.default.background,
+          ),
           "--ag-foreground-color": theme.palette.text.primary,
-          "--ag-header-background-color": token(theme, ui.color.table.header.background),
-          "--ag-header-foreground-color": token(theme, ui.color.table.header.text),
-          "--ag-border-color": token(theme, ui.color.table.border),
-          "--ag-row-hover-color": token(theme, ui.color.table.row.hover),
-          "--ag-selected-row-background-color": token(theme, ui.color.table.row.selected),
+          "--ag-header-background-color": token(
+            theme,
+            ui.tableHeader.base.default.background,
+          ),
+          "--ag-header-foreground-color": token(
+            theme,
+            ui.tableHeader.base.default.color,
+          ),
+          "--ag-border-color": token(
+            theme,
+            ui.tableRow.base.default.borderColor,
+          ),
+          "--ag-row-hover-color": token(
+            theme,
+            ui.tableRow.base.hover.background,
+          ),
+          "--ag-selected-row-background-color": token(
+            theme,
+            ui.tableRow.base.selected.background,
+          ),
           "--ag-header-row-border-style": "none",
           "--ag-borders-critical": "none",
           // Additional AG Grid theme variables
-          "--ag-input-border-color": token(theme, ui.color.input.border),
-          "--ag-input-background-color": token(theme, ui.color.input.background),
-          "--ag-input-focus-border-color": token(theme, ui.color.input.active),
-          "--ag-input-disabled-background-color": token(theme, ui.color.input.disabled),
-          "--ag-chip-background-color": token(theme, ui.color.chip.default.background),
+          "--ag-input-border-color": token(
+            theme,
+            ui.input.base.default.borderColor,
+          ),
+          "--ag-input-background-color": token(
+            theme,
+            ui.input.base.default.background,
+          ),
+          "--ag-input-focus-border-color": token(
+            theme,
+            ui.input.base.focus.borderColor,
+          ),
+          "--ag-input-disabled-background-color": token(
+            theme,
+            ui.input.base.disabled.background,
+          ),
+          "--ag-chip-background-color": token(
+            theme,
+            ui.chip.default.default.background,
+          ),
           "--ag-modal-overlay-background-color": "rgba(0, 0, 0, 0.4)",
           // Row heights
           "--ag-header-height": "42px",
@@ -119,7 +159,7 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
         className={agGridThemeClass}
         style={{ height: "100%", width: "100%", position: "relative" }}
       >
-        {typeof children === 'function' ? children(popupParent) : children}
+        {typeof children === "function" ? children(popupParent) : children}
         {/* Popup container that inherits the theme */}
         <div
           ref={popupParentRef}

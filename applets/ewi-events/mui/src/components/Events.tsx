@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import {
   Box,
-  Chip,
   IconButton,
   Typography,
   Menu,
@@ -279,7 +278,7 @@ interface EventsProps {
   requestHeaders?: Record<string, string>;
 }
 
-export const Events: React.FC<EventsProps> = ({ requestHeaders }) => {
+export const Events: React.FC<EventsProps> = () => {
   const gridRef = React.useRef<AgGridReact>(null);
 
   const autoDefaults = {
@@ -551,15 +550,6 @@ export const Events: React.FC<EventsProps> = ({ requestHeaders }) => {
         onApply={handleApplyFilters}
         filtersChanged={hasChanges}
       />
-      <ActionBar
-        values={autoParams}
-        appliedParams={autoParams}
-        onValuesChange={setAutoParams}
-        statusCounts={statusCounts}
-        workflowActions={workflowActions}
-        selectedItems={selectedRows}
-        gridRef={gridRef}
-      />
     </>
   );
 
@@ -582,78 +572,64 @@ export const Events: React.FC<EventsProps> = ({ requestHeaders }) => {
       <AppShell.Content>
         <Width>
           <Card
-            size="large"
-            title={
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                Events Workflow
-                <Chip
-                  label={events?.length || 0}
-                  size="small"
-                  sx={(theme) => ({
-                    color: token(theme, ui.color.chip.default.text),
-                    backgroundColor: token(
-                      theme,
-                      ui.color.chip.default.background,
-                    ),
-                    fontSize: "14px",
-                    "& .MuiChip-label": {
-                      px: 1.5,
-                      fontSize: "14px",
+            header={
+              <ActionBar
+                values={autoParams}
+                appliedParams={autoParams}
+                onValuesChange={setAutoParams}
+                statusCounts={statusCounts}
+                workflowActions={workflowActions}
+                selectedItems={selectedRows}
+                gridRef={gridRef}
+                actionMenuItems={[
+                  {
+                    label: "Export Data",
+                    icon: <FileDownloadIcon fontSize="small" />,
+                    onClick: () => {
+                      // TODO: Implement export functionality
+                      console.log("Export data");
                     },
-                  })}
-                />
-              </Box>
+                  },
+                  {
+                    label: "Print Report",
+                    icon: <PrintIcon fontSize="small" />,
+                    onClick: () => {
+                      // TODO: Implement print functionality
+                      console.log("Print report");
+                    },
+                  },
+                  {
+                    label: "Column Settings",
+                    icon: <ViewColumnIcon fontSize="small" />,
+                    onClick: () => {
+                      if (gridRef?.current?.api) {
+                        gridRef.current.api.showColumnChooser();
+                      }
+                    },
+                  },
+                  {
+                    label: "Reset Filters",
+                    icon: <FilterListOffIcon fontSize="small" />,
+                    onClick: () => {
+                      // Reset to applied params if they exist, otherwise use initial defaults
+                      const resetValues =
+                        Object.keys(appliedParams || {}).length > 0
+                          ? appliedParams
+                          : draftDefaults;
+                      setParams(resetValues);
+                      setAutoParams(autoDefaults);
+                      if (gridRef?.current?.api) {
+                        gridRef.current.api.setFilterModel(null);
+                      }
+                    },
+                    divider: true,
+                  },
+                ]}
+              />
             }
-            menuItems={[
-              {
-                label: "Export Data",
-                icon: <FileDownloadIcon fontSize="small" />,
-                onClick: () => {
-                  // TODO: Implement export functionality
-                  console.log("Export data");
-                },
-              },
-              {
-                label: "Print Report",
-                icon: <PrintIcon fontSize="small" />,
-                onClick: () => {
-                  // TODO: Implement print functionality
-                  console.log("Print report");
-                },
-              },
-              {
-                label: "Column Settings",
-                icon: <ViewColumnIcon fontSize="small" />,
-                onClick: () => {
-                  if (gridRef?.current?.api) {
-                    gridRef.current.api.showColumnChooser();
-                  }
-                },
-              },
-              {
-                label: "Reset Filters",
-                icon: <FilterListOffIcon fontSize="small" />,
-                onClick: () => {
-                  // Reset to applied params if they exist, otherwise use initial defaults
-                  const resetValues =
-                    Object.keys(appliedParams || {}).length > 0
-                      ? appliedParams
-                      : draftDefaults;
-                  setParams(resetValues);
-                  setAutoParams(autoDefaults);
-                  if (gridRef?.current?.api) {
-                    gridRef.current.api.setFilterModel(null);
-                  }
-                },
-                divider: true,
-              },
-            ]}
             sx={{ height: "100%" }}
           >
-            <AgGridTheme
-              height="92%"
-              wrapHeaders={true}
-            >
+            <AgGridTheme height="92%" wrapHeaders={true}>
               {(popupParent) => (
                 <AgGridReact
                   ref={gridRef}
@@ -661,58 +637,51 @@ export const Events: React.FC<EventsProps> = ({ requestHeaders }) => {
                   popupParent={popupParent}
                   rowData={events || []}
                   columnDefs={columnDefs}
-                rowSelection="multiple"
-                onSelectionChanged={onSelectionChanged}
-                onRowGroupOpened={onRowGroupOpened}
-                loading={isLoading}
-                animateRows
-                suppressCellFocus
-                suppressRowClickSelection
-                cellSelection={false}
-                suppressHorizontalScroll={false}
-                alwaysShowHorizontalScroll={false}
-                masterDetail
-                detailCellRenderer={DetailCellRenderer}
-                detailRowHeight={200}
-                isRowMaster={(dataItem) => {
-                  // All rows can be expanded
-                  console.log("isRowMaster called for:", dataItem);
-                  return true;
-                }}
-                getRowStyle={(params) => {
-                  console.log("getRowStyle called:", {
-                    id: params.data?.id,
-                    expanded: params.node.expanded,
-                    nodeLevel: params.node.level,
-                    detail: params.node.detail,
-                  });
-                  if (params.node.expanded) {
-                    return {
-                      backgroundColor: token(
-                        darkTheme,
-                        ui.color.table.row.hover,
-                      ),
-                    };
-                  }
-                  if (params.node.detail) {
-                    return {
-                      backgroundColor: token(
-                        darkTheme,
-                        ui.color.table.row.selected,
-                      ),
-                    };
-                  }
-                  return undefined;
-                }}
-                defaultColDef={{
-                  filter: true,
-                  sortable: true,
-                  resizable: true,
-                  menuTabs: ["filterMenuTab", "columnsMenuTab"],
-                }}
-                sortingOrder={["asc", "desc"]}
-                multiSortKey={"ctrl"}
-                columnMenu="legacy"
+                  rowSelection="multiple"
+                  onSelectionChanged={onSelectionChanged}
+                  onRowGroupOpened={onRowGroupOpened}
+                  loading={isLoading}
+                  animateRows
+                  suppressCellFocus
+                  suppressRowClickSelection
+                  cellSelection={false}
+                  suppressHorizontalScroll={false}
+                  alwaysShowHorizontalScroll={false}
+                  masterDetail
+                  detailCellRenderer={DetailCellRenderer}
+                  detailRowHeight={200}
+                  isRowMaster={(_dataItem) => {
+                    // All rows can be expanded
+                    return true;
+                  }}
+                  getRowStyle={(params) => {
+                    if (params.node.expanded) {
+                      return {
+                        backgroundColor: token(
+                          darkTheme,
+                          ui.tableRow.base.hover.background,
+                        ),
+                      };
+                    }
+                    if (params.node.detail) {
+                      return {
+                        backgroundColor: token(
+                          darkTheme,
+                          ui.tableRow.base.selected.background,
+                        ),
+                      };
+                    }
+                    return undefined;
+                  }}
+                  defaultColDef={{
+                    filter: true,
+                    sortable: true,
+                    resizable: true,
+                    menuTabs: ["filterMenuTab", "columnsMenuTab"],
+                  }}
+                  sortingOrder={["asc", "desc"]}
+                  multiSortKey={"ctrl"}
+                  columnMenu="legacy"
                 />
               )}
             </AgGridTheme>

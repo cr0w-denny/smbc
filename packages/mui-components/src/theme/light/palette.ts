@@ -1,54 +1,55 @@
 import { PaletteOptions } from "@mui/material/styles";
 import { ui, color } from "@smbc/ui-core";
+import { token } from "../../utils/tokens";
 
-export const lightPalette: PaletteOptions = {
+export const createLightPalette = (): PaletteOptions => ({
   mode: "light",
   primary: {
-    main: ui.color.brand.primary.light,
+    main: token(false, ui.color.brand.primary),
     light: color.secondary.jadeGreen75,
     dark: color.brand.primary.tradGreen,
-    contrastText: ui.color.brand.primaryContrast.light,
+    contrastText: token(false, ui.color.brand.primaryContrast),
   },
   secondary: {
-    main: ui.color.brand.secondary.light,
+    main: token(false, ui.color.brand.secondary),
     light: color.secondary.jadeGreen50,
     dark: color.secondary.jadeGreen100,
-    contrastText: ui.color.brand.secondaryContrast.light,
+    contrastText: token(false, ui.color.brand.secondaryContrast),
   },
   success: {
-    main: ui.color.status.success.light,
+    main: token(false, ui.color.status.success),
     light: color.status.success100,
     dark: color.status.success700,
     contrastText: "#ffffff",
   },
   error: {
-    main: ui.color.status.error.light,
+    main: token(false, ui.color.status.error),
     light: color.status.error100,
     dark: color.status.error700,
     contrastText: "#ffffff",
   },
   warning: {
-    main: ui.color.status.warning.light,
+    main: token(false, ui.color.status.warning),
     light: color.status.warning100,
     dark: color.status.warning700,
     contrastText: "#000000",
   },
   info: {
-    main: ui.color.status.info.light,
+    main: token(false, ui.color.status.info),
     light: color.status.info100,
     dark: color.status.info700,
     contrastText: "#ffffff",
   },
   background: {
-    default: ui.color.background.primary.light,
-    paper: ui.color.background.secondary.light,
+    default: token(false, ui.color.background.primary),
+    paper: token(false, ui.color.background.secondary),
   },
   text: {
-    primary: ui.color.text.primary.light,
-    secondary: ui.color.text.secondary.light,
-    disabled: ui.color.text.disabled.light,
+    primary: token(false, ui.color.text.primary),
+    secondary: token(false, ui.color.text.secondary),
+    disabled: token(false, ui.color.text.disabled),
   },
-  divider: ui.color.border.primary.light,
+  divider: token(false, ui.color.border.primary),
   grey: {
     50: color.gray50,
     100: color.gray100,
@@ -63,9 +64,9 @@ export const lightPalette: PaletteOptions = {
   },
   action: {
     active: color.brand.primary.tradGreen,
-    hover: ui.color.action.hover.light,
-    selected: ui.color.action.selected.light,
-    disabled: ui.color.action.disabled.light,
-    disabledBackground: ui.color.action.disabledBackground.light,
+    hover: token(false, ui.color.action.hover),
+    selected: token(false, ui.color.action.selected),
+    disabled: token(false, ui.color.action.disabled),
+    disabledBackground: token(false, ui.color.action.disabledBackground),
   },
-};
+});

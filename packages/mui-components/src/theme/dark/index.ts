@@ -1,11 +1,11 @@
 import { createTheme, TypographyVariantsOptions } from "@mui/material/styles";
-import { darkPalette } from "./palette";
+import { createDarkPalette } from "./palette";
 import { baseTypography, baseSpacing, createBaseComponents } from "../base";
 import { shadow, breakpoints } from "@smbc/ui-core";
 
 // Create the base theme with dark palette
 const baseTheme = createTheme({
-  palette: darkPalette,
+  palette: createDarkPalette(),
   typography: baseTypography as TypographyVariantsOptions,
   spacing: baseSpacing,
   breakpoints: {

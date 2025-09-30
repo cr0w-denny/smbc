@@ -18,6 +18,7 @@ import { TreeDropdownMenu } from "./TreeDropdownMenu";
 import { UserMenu, UserRole } from "../../UserMenu";
 import { darkTheme } from "../../theme/dark";
 import { color } from "@smbc/ui-core";
+import { token } from "../../utils/tokens";
 
 interface TopNavProps {
   logo?: React.ReactNode;
@@ -32,7 +33,7 @@ interface TopNavProps {
   /** Callback when dark mode toggle changes */
   onDarkModeToggle?: (enabled: boolean) => void;
   /** User display name */
-  username?: string;
+  username?: string | React.ReactNode;
   /** User avatar URL */
   avatarUrl?: string;
   /** Additional components to render before the user menu */
@@ -87,7 +88,10 @@ export const TopNav: React.FC<TopNavProps> = ({
   useLayoutEffect(() => {
     if (headerRef.current) {
       const height = headerRef.current.offsetHeight;
-      document.documentElement.style.setProperty('--appshell-header-height', `${height}px`);
+      document.documentElement.style.setProperty(
+        "--appshell-header-height",
+        `${height}px`,
+      );
     }
   });
 
@@ -345,7 +349,10 @@ export const TopNav: React.FC<TopNavProps> = ({
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 },
                 ...(isImpersonating && {
-                  border: `2px solid ${color.brand.primary.freshGreen}`,
+                  border: `2px solid ${token(
+                    false,
+                    color.brand.primary.freshGreen,
+                  )}`,
                   borderRadius: "50%",
                   padding: "6px", // Reduced to account for 2px border
                 }),
@@ -361,7 +368,10 @@ export const TopNav: React.FC<TopNavProps> = ({
                     width: 32,
                     height: 32,
                     ...(isImpersonating && {
-                      border: `2px solid ${color.brand.primary.freshGreen}`,
+                      border: `2px solid ${token(
+                        false,
+                        color.brand.primary.freshGreen,
+                      )}`,
                     }),
                   }}
                 />
@@ -370,7 +380,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                   sx={{
                     fontSize: 32,
                     ...(isImpersonating && {
-                      color: color.brand.primary.freshGreen,
+                      color: token(false, color.brand.primary.freshGreen),
                     }),
                   }}
                 />

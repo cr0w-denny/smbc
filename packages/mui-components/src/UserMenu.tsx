@@ -30,7 +30,7 @@ export type UserMenuProps = {
   onClose: () => void;
 
   /** Top header */
-  name: string;
+  name: string | React.ReactNode;
   avatarUrl?: string;
 
   /** Handlers */
@@ -103,13 +103,13 @@ export function UserMenu({
     >
       {/* Header */}
       <Box sx={{ pb: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar src={avatarUrl} alt={name} sx={{ width: 44, height: 44, mb: 1.5 }} />
+        <Avatar src={avatarUrl} alt={typeof name === 'string' ? name : 'User'} sx={{ width: 44, height: 44, mb: 1.5 }} />
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 700, letterSpacing: 1.2, textAlign: 'center', fontSize: '13px' }}
           noWrap
         >
-          {name?.toUpperCase()}
+          {typeof name === 'string' ? name.toUpperCase() : name}
         </Typography>
       </Box>
 

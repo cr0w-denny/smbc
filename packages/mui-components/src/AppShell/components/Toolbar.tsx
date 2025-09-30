@@ -19,8 +19,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const theme = useTheme();
   const isLightMode = theme.palette.mode === "light";
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const gradient =
-    "linear-gradient(116.47deg, rgba(13, 21, 36, 0.905882) -3.25%, #0B1220 30.67%, #070F1A 61.84%, #040B13 105.6%)";
 
   // Calculate and set toolbar height as CSS custom property
   useLayoutEffect(() => {
@@ -44,8 +42,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             left: 0,
             right: 0,
             height: "200px", // Extend below toolbar
-            backgroundColor: ui.color.navigation.background.light,
-            zIndex: 1000, // Behind toolbar content
+            backgroundColor: ui.navigation.base.default.background.light,
+            zIndex: -1, // Behind everything else
           }}
         />
       )}
@@ -63,9 +61,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           py: 2,
           background: isLightMode
             ? variant === "extended"
-              ? ui.color.navigation.background.light
+              ? ui.navigation.base.default.background.light
               : "transparent"
-            : gradient,
+            : "linear-gradient(to bottom right, red, white)",
+          // Clip to show only toolbar portion of gradient (assuming ~80px toolbar height in ~100vh viewport)
+          ...(isLightMode ? {} : {
+            backgroundSize: "100vw 100vh",
+            backgroundAttachment: "fixed",
+            backgroundPosition: "0 0",
+          }),
         }}
       >
         {children}

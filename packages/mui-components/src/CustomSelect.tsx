@@ -24,7 +24,7 @@ const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
         height: 24,
         borderRadius: 12,
         border: "2px solid",
-        borderColor: t(ui.color.input.active),
+        borderColor: t(ui.input.base.focus.borderColor),
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -33,11 +33,11 @@ const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
     >
       {open ? (
         <ExpandLess
-          sx={{ color: t(ui.color.input.active), fontSize: 20 }}
+          sx={{ color: t(ui.input.base.focus.borderColor), fontSize: 20 }}
         />
       ) : (
         <ExpandMore
-          sx={{ color: t(ui.color.input.active), fontSize: 20 }}
+          sx={{ color: t(ui.input.base.focus.borderColor), fontSize: 20 }}
         />
       )}
     </Box>
@@ -80,7 +80,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             left: "20px",
             fontSize: "12px !important",
             color: (theme) =>
-              `${t(ui.color.input.active)(theme)} !important`,
+              `${t(ui.input.base.focus.borderColor)(theme)} !important`,
             zIndex: 2,
             pointerEvents: "none",
             transform: "none",
@@ -98,7 +98,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         sx={{
           ...selectProps.sx,
           height: "57px",
-          backgroundColor: t(ui.color.input.background),
+          backgroundColor: t(ui.input.base.default.background),
           "& .MuiSelect-select": {
             padding: "26px 20px 10px 12px",
             paddingRight: "50px !important",
@@ -110,19 +110,19 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "flex-start",
-            color: t(ui.color.input.value),
+            color: t(ui.input.base.default.color),
           },
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: t(ui.color.input.border),
+            borderColor: t(ui.input.base.default.borderColor),
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: t(ui.color.input.active),
+            borderColor: t(ui.input.base.hover.borderColor),
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: t(ui.color.input.active),
+            borderColor: t(ui.input.base.focus.borderColor),
           },
           "&.Mui-focused": {
-            backgroundColor: t(ui.color.input.hover),
+            backgroundColor: t(ui.input.base.focus.background),
           },
         }}
         label={undefined}

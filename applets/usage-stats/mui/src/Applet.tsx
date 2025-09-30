@@ -34,31 +34,20 @@ export interface AppletProps {
 }
 
 export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
-  const hashState = useHashNavigation({
-    defaultParams: {
-      start_date: "2025-01-01",
-      end_date: "2025-01-01",
-      group: "UI" as "UI" | "USER" | "EXCEPTION",
-      show_sub: false,
-    },
+  const {
+    autoParams: filters,
+    setAutoParams: setFilters,
+  } = useHashNavigation<UsageFilters>({
+    start_date: "2025-01-01",
+    end_date: "2025-01-01",
+    group: "UI" as "UI" | "USER" | "EXCEPTION",
+    show_sub: false,
   });
-
-  const filters = hashState.params as UsageFilters;
-  const setFilters = (
-    updates: Partial<UsageFilters> | ((prev: UsageFilters) => UsageFilters),
-  ) => {
-    if (typeof updates === "function") {
-      hashState.setParams((prev) => updates(prev as UsageFilters));
-    } else {
-      hashState.setParams(updates);
-    }
-  };
 
   // Get current environment to force remount when it changes
   const environment = useFeatureFlag<Environment>("environment") || "mock";
   const gridRef = useRef<AgGridReact>(null);
   const gridApiRef = useRef<any>(null);
-  const popupParentRef = useRef<HTMLDivElement>(null);
 
   const filterSpec: FilterSpec = {
     fields: [
@@ -208,17 +197,18 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     enabled: !!endpoint,
   });
 
-  // Extract records from response - clear data when environment changes
+  // Extract records from response
   const data = useMemo(() => {
+    const records = (response as UsageStatsResponse | undefined)?.records || [];
     console.log("🔍 Data computation:", {
       environment,
       hasResponse: !!response,
-      recordCount:
-        (response as UsageStatsResponse | undefined)?.records?.length || 0,
+      recordCount: records.length,
+      firstRecord: records[0],
       queryKey: ["usage-stats", endpoint, queryParams],
     });
-    return (response as UsageStatsResponse | undefined)?.records || [];
-  }, [response, environment]);
+    return records;
+  }, [response]);
 
   // Handle grid ready
   const handleGridReady = (params: any) => {
@@ -330,7 +320,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
           <Filter
             spec={filterSpec}
             values={filters}
-            onFiltersChange={setFilters}
+            onFiltersChange={(newFilters) => setFilters(newFilters as UsageFilters)}
           />
         </Width>
       </AppShell.Toolbar>
@@ -342,13 +332,15 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
             {/* Main Table */}
             <Box sx={{ flex: 1 }}>
               <AgGridTheme height="100%">
-                <AgGridReact
-                  ref={gridRef}
-                  key={`usage-stats-${environment}`}
-                  {...gridOptions}
-                  loading={isLoading}
-                  popupParent={popupParentRef.current || undefined}
-                />
+                {(popupParent) => (
+                  <AgGridReact
+                    ref={gridRef}
+                    key={`usage-stats-${environment}`}
+                    {...gridOptions}
+                    loading={isLoading}
+                    popupParent={popupParent}
+                  />
+                )}
               </AgGridTheme>
             </Box>
 

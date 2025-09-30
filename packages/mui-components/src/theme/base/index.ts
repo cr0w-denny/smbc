@@ -3,8 +3,8 @@ import {
   TypographyVariantsOptions,
   ThemeOptions,
 } from "@mui/material/styles";
-import { lightPalette } from "../light/palette";
-import { darkPalette } from "../dark/palette";
+import { createLightPalette } from "../light/palette";
+import { createDarkPalette } from "../dark/palette";
 import { shadow, breakpoints } from "@smbc/ui-core";
 import { baseTypography } from "./typography";
 import { baseSpacing } from "./spacing";
@@ -24,7 +24,7 @@ export const createTheme = (
   isDarkMode: boolean = false,
   appOverrides: ThemeOptions = {},
 ) => {
-  const palette = isDarkMode ? darkPalette : lightPalette;
+  const palette = isDarkMode ? createDarkPalette() : createLightPalette();
 
   // Create base theme with palette
   const baseTheme = muiCreateTheme({

@@ -11,7 +11,7 @@ import { useHashNavigation } from "@smbc/applet-core";
 import { getCurrentApplet } from "@smbc/applet-host";
 import { DevConsole } from "./DevConsole";
 import { debug, createSessionId } from "./utils/debug";
-import { color, ui } from "@smbc/ui-core";
+import { ui } from "@smbc/ui-core";
 
 export interface DevConsoleToggleProps {
   /** Array of applet configurations */
@@ -89,7 +89,7 @@ export const DevConsoleToggle: React.FC<DevConsoleToggleProps> = ({
   // Determine icon color based on state
   const getIconColor = () => {
     if (devConsoleOpen) {
-      return ui.color.input.active.dark;
+      return ui.color.brand.primary.dark;
     }
     return "inherit"; // Default color
   };

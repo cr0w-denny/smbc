@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { Box, useTheme } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import {
@@ -34,8 +34,6 @@ interface GridProps {
 export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
   const theme = useTheme();
   const gridRef = useRef<AgGridReact>(null);
-  const popupParentRef = useRef<HTMLDivElement>(null);
-  const [popupParent, setPopupParent] = useState<HTMLElement | null>(null);
   const [activeChips, setActiveChips] = useState<string[]>([]);
 
   const testChips: ChipToggleItem[] = [
@@ -74,12 +72,6 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
     }
   };
 
-  // Set popup parent after component mounts
-  useEffect(() => {
-    if (popupParentRef.current) {
-      setPopupParent(popupParentRef.current);
-    }
-  }, []);
 
   const columnDefs: ColDef[] = useMemo(
     () => [
@@ -202,29 +194,31 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
           },
         }}
       >
-        <AgGridTheme wrapHeaders={true} popupParentRef={popupParentRef}>
-          <AgGridReact
-            ref={gridRef}
-            popupParent={popupParent}
-            headerHeight={50}
-            rowData={obligors}
-            columnDefs={columnDefs}
-            rowSelection="multiple"
-            suppressCellFocus
-            suppressRowClickSelection
-            animateRows={true}
-            cellSelection={false}
-            pagination={false}
-            suppressHorizontalScroll={false}
-            alwaysShowHorizontalScroll={false}
-            columnMenu="legacy"
-            defaultColDef={{
-              filter: true,
-              sortable: true,
-              resizable: true,
-              menuTabs: ["filterMenuTab", "columnsMenuTab"],
-            }}
-          />
+        <AgGridTheme wrapHeaders={true}>
+          {(popupParent) => (
+            <AgGridReact
+              ref={gridRef}
+              popupParent={popupParent}
+              headerHeight={50}
+              rowData={obligors}
+              columnDefs={columnDefs}
+              rowSelection="multiple"
+              suppressCellFocus
+              suppressRowClickSelection
+              animateRows={true}
+              cellSelection={false}
+              pagination={false}
+              suppressHorizontalScroll={false}
+              alwaysShowHorizontalScroll={false}
+              columnMenu="legacy"
+              defaultColDef={{
+                filter: true,
+                sortable: true,
+                resizable: true,
+                menuTabs: ["filterMenuTab", "columnsMenuTab"],
+              }}
+            />
+          )}
         </AgGridTheme>
       </Box>
     </Card>

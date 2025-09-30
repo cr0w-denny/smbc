@@ -41,7 +41,7 @@ export interface AppShellProps {
   /** Callback when dark mode toggle changes */
   onDarkModeToggle?: (enabled: boolean) => void;
   /** User display name */
-  username?: string;
+  username?: string | ReactNode;
   /** User avatar URL */
   avatarUrl?: string;
   /** Additional components to render in the top nav before the user menu */

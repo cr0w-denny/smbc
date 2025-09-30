@@ -65,40 +65,43 @@ export const createBaseComponents = (
           "& .MuiOutlinedInput-root": {
             borderRadius: theme.spacing(3),
             fontSize: "0.875rem",
-            backgroundColor: token(theme, ui.color.input.background),
+            backgroundColor: token(theme, ui.input.base.default.background),
             "& fieldset": {
-              borderColor: token(theme, ui.color.input.border),
+              borderColor: token(theme, ui.input.base.default.borderColor),
               ...(theme.palette.mode === "dark" && {
                 borderRadius: theme.spacing(3),
               }),
             },
             "&:hover fieldset": {
-              borderColor: token(theme, ui.color.input.active),
+              borderColor: token(theme, ui.input.base.hover.borderColor),
             },
             "&.Mui-focused fieldset": {
-              borderColor: token(theme, ui.color.input.active),
+              borderColor: token(theme, ui.input.base.focus.borderColor),
               borderWidth: 2,
             },
             "&.Mui-focused": {
-              backgroundColor: token(theme, ui.color.input.hover),
+              backgroundColor: token(theme, ui.input.base.focus.background),
             },
             "& .MuiSvgIcon-root": {
-              color: token(theme, ui.color.input.active),
+              color: token(theme, ui.input.base.focus.borderColor),
             },
           },
           "& .MuiInputBase-input": {
             padding: "9px 12px",
-            color: token(theme, ui.color.input.value),
+            color: token(theme, ui.input.base.default.color),
             "&::placeholder": {
-              color: token(theme, ui.color.input.value),
+              color: token(theme, ui.input.base.default.placeholder),
               opacity: 1,
               fontSize: "1rem",
             },
           },
           "& .MuiInputLabel-root": {
-            color: token(theme, ui.color.input.value),
+            color: token(theme, ui.input.base.default.color),
             "&.Mui-focused": {
-              color: `${token(theme, ui.color.input.active)} !important`,
+              color: `${token(
+                theme,
+                ui.input.base.focus.borderColor,
+              )} !important`,
             },
           },
         },
@@ -107,24 +110,24 @@ export const createBaseComponents = (
     MuiSelect: {
       styleOverrides: {
         root: {
-          backgroundColor: token(theme, ui.color.input.background),
+          backgroundColor: token(theme, ui.input.base.default.background),
           borderRadius: theme.spacing(3),
           "& .MuiOutlinedInput-notchedOutline": {
             borderRadius: theme.spacing(3),
-            borderColor: token(theme, ui.color.input.border),
+            borderColor: token(theme, ui.input.base.default.borderColor),
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: token(theme, ui.color.input.active),
+            borderColor: token(theme, ui.input.base.hover.borderColor),
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: token(theme, ui.color.input.active),
+            borderColor: token(theme, ui.input.base.focus.borderColor),
             borderWidth: 2,
           },
           "&.Mui-focused": {
-            backgroundColor: token(theme, ui.color.input.hover),
+            backgroundColor: token(theme, ui.input.base.focus.background),
           },
           "& .MuiSvgIcon-root": {
-            color: token(theme, ui.color.input.active),
+            color: token(theme, ui.input.base.focus.borderColor),
           },
         },
       },
@@ -135,9 +138,12 @@ export const createBaseComponents = (
           borderRadius: "16px",
           backgroundColor: `${token(
             theme,
-            ui.color.card.background,
+            ui.card.base.default.background,
           )} !important`,
-          border: `1px solid ${token(theme, ui.color.card.border)}`,
+          border: `1px solid ${token(
+            theme,
+            ui.card.base.default.borderColor,
+          )}`,
           boxShadow: shadow.base,
         },
       },
@@ -168,12 +174,12 @@ export const createBaseComponents = (
           borderRadius: theme.spacing(3),
           fontSize: "0.75rem",
           height: 24,
-          backgroundColor: token(theme, ui.color.chip.default.background),
-          color: token(theme, ui.color.chip.default.text),
+          backgroundColor: token(theme, ui.chip.default.default.background),
+          color: token(theme, ui.chip.default.default.color),
         },
         colorPrimary: {
-          backgroundColor: token(theme, ui.color.chip.primary.background),
-          color: token(theme, ui.color.chip.primary.text),
+          backgroundColor: token(theme, ui.chip.primary.default.background),
+          color: token(theme, ui.chip.primary.default.color),
         },
       },
     },
@@ -182,9 +188,9 @@ export const createBaseComponents = (
         root: {
           backgroundColor: `${token(
             theme,
-            ui.color.navigation.background,
+            ui.navigation.base.default.background,
           )} !important`,
-          color: `${token(theme, ui.color.navigation.text)} !important`,
+          color: `${token(theme, ui.navigation.base.default.color)} !important`,
           boxShadow: shadow.base,
           borderRadius: 0,
           borderBottom: "3px solid #02080b",
@@ -214,8 +220,8 @@ export const createBaseComponents = (
       styleOverrides: {
         root: {
           minHeight: 70,
-          backgroundColor: token(theme, ui.color.navigation.background),
-          color: token(theme, ui.color.navigation.text),
+          backgroundColor: token(theme, ui.navigation.base.default.background),
+          color: token(theme, ui.navigation.base.default.color),
         },
       },
     },
@@ -225,7 +231,7 @@ export const createBaseComponents = (
           backgroundColor: theme.palette.mode === "dark" ? "#222" : "#f5f5f5",
         },
         indicator: {
-          backgroundColor: token(theme, ui.color.input.active),
+          backgroundColor: token(theme, ui.input.base.focus.borderColor),
         },
       },
     },
@@ -234,7 +240,7 @@ export const createBaseComponents = (
         root: {
           color: token(theme, ui.color.text.secondary),
           "&.Mui-selected": {
-            color: token(theme, ui.color.input.active),
+            color: token(theme, ui.input.base.focus.borderColor),
             backgroundColor: token(theme, ui.color.action.selected),
           },
         },
@@ -249,15 +255,13 @@ export const createBaseComponents = (
     },
     MuiTable: {
       styleOverrides: {
-        root: {
-          backgroundColor: token(theme, ui.color.table.row.background),
-        },
+        root: {},
       },
     },
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: token(theme, ui.color.table.header.background),
+          backgroundColor: token(theme, ui.tableHeader.base.default.background),
         },
       },
     },
@@ -265,12 +269,15 @@ export const createBaseComponents = (
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: token(theme, ui.color.table.row.hover),
+            backgroundColor: token(theme, ui.tableRow.base.hover.background),
           },
           "&.Mui-selected": {
-            backgroundColor: token(theme, ui.color.table.row.selected),
+            backgroundColor: token(theme, ui.tableRow.base.selected.background),
             "&:hover": {
-              backgroundColor: token(theme, ui.color.table.row.selected),
+              backgroundColor: token(
+                theme,
+                ui.tableRow.base.selected.background,
+              ),
             },
           },
         },
@@ -327,12 +334,12 @@ export const createBaseComponents = (
         root: {
           padding: "8px 16px",
           fontSize: "0.875rem",
-          borderColor: token(theme, ui.color.table.border),
+          borderColor: token(theme, ui.tableRow.base.default.borderColor),
         },
         head: {
           fontWeight: 600,
-          backgroundColor: token(theme, ui.color.table.header.background),
-          color: token(theme, ui.color.table.header.text),
+          backgroundColor: token(theme, ui.tableHeader.base.default.background),
+          color: token(theme, ui.tableHeader.base.default.color),
         },
       },
     },
@@ -350,9 +357,12 @@ export const createBaseComponents = (
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: token(theme, ui.color.input.value),
+          color: token(theme, ui.input.base.default.color),
           "&.Mui-focused": {
-            color: `${token(theme, ui.color.input.active)} !important`,
+            color: `${token(
+              theme,
+              ui.input.base.focus.borderColor,
+            )} !important`,
           },
         },
       },
@@ -381,7 +391,7 @@ export const createBaseComponents = (
     MuiInputBase: {
       styleOverrides: {
         root: {
-          backgroundColor: token(theme, ui.color.input.background),
+          backgroundColor: token(theme, ui.input.base.default.background),
           borderRadius: theme.spacing(3),
         },
       },
@@ -391,27 +401,27 @@ export const createBaseComponents = (
         root: {
           "&.MuiPickersTextField-root": {
             "& .MuiInputBase-root, & .MuiOutlinedInput-root": {
-              backgroundColor: token(theme, ui.color.input.background),
+              backgroundColor: token(theme, ui.input.base.default.background),
               borderRadius: theme.spacing(3),
               "& fieldset": {
                 borderColor:
                   mode === "dark"
-                    ? token(theme, ui.color.input.border)
-                    : token(theme, ui.color.input.border),
+                    ? token(theme, ui.input.base.default.borderColor)
+                    : token(theme, ui.input.base.default.borderColor),
               },
               "&:hover fieldset": {
-                borderColor: token(theme, ui.color.input.active),
+                borderColor: token(theme, ui.input.base.hover.borderColor),
               },
               "&.Mui-focused fieldset": {
-                borderColor: token(theme, ui.color.input.active),
+                borderColor: token(theme, ui.input.base.focus.borderColor),
                 borderWidth: 2,
               },
               "&.Mui-focused": {
-                backgroundColor: token(theme, ui.color.input.hover),
+                backgroundColor: token(theme, ui.input.base.focus.background),
               },
             },
             "& .MuiIconButton-root": {
-              color: token(theme, ui.color.input.active),
+              color: token(theme, ui.input.base.focus.borderColor),
             },
           },
         },
@@ -423,32 +433,41 @@ export const createBaseComponents = (
       styleOverrides: {
         root: {
           padding: "5px 0",
-          backgroundColor: token(theme, ui.color.input.background),
+          backgroundColor: token(theme, ui.input.base.default.background),
           borderRadius: theme.spacing(3),
           "&.MuiPickersOutlinedInput-root": {
-            backgroundColor: token(theme, ui.color.input.background),
+            backgroundColor: token(theme, ui.input.base.default.background),
             borderRadius: theme.spacing(3),
             "& fieldset": {
-              borderColor: `${token(theme, ui.color.input.border)} !important`,
+              borderColor: `${token(
+                theme,
+                ui.input.base.default.borderColor,
+              )} !important`,
             },
             "&:hover fieldset": {
-              borderColor: `${token(theme, ui.color.input.active)} !important`,
+              borderColor: `${token(
+                theme,
+                ui.input.base.hover.borderColor,
+              )} !important`,
             },
             "&.Mui-focused fieldset": {
-              borderColor: `${token(theme, ui.color.input.active)} !important`,
+              borderColor: `${token(
+                theme,
+                ui.input.base.focus.borderColor,
+              )} !important`,
               borderWidth: 2,
             },
             "&.Mui-focused": {
-              backgroundColor: token(theme, ui.color.input.hover),
+              backgroundColor: token(theme, ui.input.base.focus.background),
             },
           },
           "& .MuiIconButton-root": {
-            color: token(theme, ui.color.input.active),
+            color: token(theme, ui.input.base.focus.borderColor),
           },
           "& .MuiInputBase-input": {
-            color: token(theme, ui.color.input.value),
+            color: token(theme, ui.input.base.default.color),
             "&::placeholder": {
-              color: token(theme, ui.color.input.value),
+              color: token(theme, ui.input.base.default.placeholder),
               opacity: 1,
               fontSize: "1rem",
             },
@@ -463,13 +482,13 @@ export const createBaseComponents = (
           "&.Mui-selected": {
             backgroundColor: `${token(
               theme,
-              ui.color.input.active,
+              ui.input.base.focus.borderColor,
             )} !important`,
             color: mode === "dark" ? "#000000" : "#ffffff",
             "&:hover": {
               backgroundColor: `${token(
                 theme,
-                ui.color.input.active,
+                ui.input.base.focus.borderColor,
               )} !important`,
             },
           },
@@ -513,7 +532,10 @@ export const createBaseComponents = (
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: token(theme, ui.color.surface.body),
+          backgroundColor:
+            mode === "light"
+              ? token(theme, ui.color.surface.body)
+              : "transparent",
           color: token(theme, ui.color.text.primary),
         },
         // Global scrollbar styling for both light and dark modes

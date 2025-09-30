@@ -8,10 +8,9 @@
   },
   "include": [
     "main.tsp",
-    "generated/**/*"
+    "dist/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+    "node_modules"
   ]
 }

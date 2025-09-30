@@ -77,7 +77,7 @@ export const Comparison: Story = {
           Light Theme
         </Typography>
         <Typography variant="caption" display="block" gutterBottom sx={{ color: 'text.secondary' }}>
-          Track: ui.color.scrollbar.track.light • Thumb: ui.color.scrollbar.thumb.light
+          Track: ui.scrollbar.track.light • Thumb: ui.scrollbar.thumb.light
         </Typography>
         <ThemeProvider theme={lightTheme}>
           <ScrollableContainer variant="light">
@@ -90,7 +90,7 @@ export const Comparison: Story = {
           Dark Theme
         </Typography>
         <Typography variant="caption" display="block" gutterBottom sx={{ color: 'text.secondary' }}>
-          Track: ui.color.scrollbar.track.dark • Thumb: ui.color.scrollbar.thumb.dark
+          Track: ui.scrollbar.track.dark • Thumb: ui.scrollbar.thumb.dark
         </Typography>
         <ThemeProvider theme={darkTheme}>
           <ScrollableContainer variant="dark">
