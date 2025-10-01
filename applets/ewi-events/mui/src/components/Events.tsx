@@ -683,12 +683,12 @@ export const Events: React.FC<EventsProps> = () => {
                   getRowStyle={(params) => {
                     if (params.node.expanded) {
                       return {
-                        backgroundColor: ui.tableRow.base.hover.background,
+                        backgroundColor: ui.tableRow.on.hover.background,
                       };
                     }
                     if (params.node.detail) {
                       return {
-                        backgroundColor: ui.tableRow.base.selected.background,
+                        backgroundColor: ui.tableRow.on.selected.background,
                       };
                     }
                     return undefined;

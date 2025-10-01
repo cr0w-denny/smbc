@@ -324,27 +324,27 @@ export const tokens = {
   },
   ui: {
     input: {
-      base: {
-        default: {
-          background: {
-            light: "#ffffff",
-            dark: "#1D273A",
-          },
-          borderColor: {
-            light: "var(--color-neutral-gray300)",
-            dark: "#12244A",
-          },
-          borderWidth: "1px",
-          borderStyle: "solid",
-          color: {
-            light: "var(--color-neutral-gray900)",
-            dark: "#E2E6EC",
-          },
-          placeholder: {
-            light: "var(--color-neutral-gray600)",
-            dark: "rgba(255, 255, 255, 0.6)",
-          },
-        },
+      // Direct properties (immediate children)
+      background: {
+        light: "#ffffff",
+        dark: "#1D273A",
+      },
+      borderColor: {
+        light: "var(--color-neutral-gray300)",
+        dark: "#12244A",
+      },
+      borderWidth: "1px",
+      borderStyle: "solid",
+      padding: "8px",
+      color: {
+        light: "var(--color-neutral-gray900)",
+        dark: "#E2E6EC",
+      },
+      placeholder: {
+        light: "var(--color-neutral-gray600)",
+        dark: "rgba(255, 255, 255, 0.6)",
+      },
+      on: {
         hover: {
           background: {
             light: "var(--color-neutral-gray50)",
@@ -412,42 +412,27 @@ export const tokens = {
       },
     },
     button: {
-      base: {
-        default: {
-          borderRadius: "4px",
-          fontSize: "14px",
-          fontWeight: "500",
-          padding: "8px 16px",
-        },
+      borderRadius: "4px",
+      fontSize: "14px",
+      fontWeight: "500",
+      padding: "8px 16px",
+      background: {
+        light: "var(--color-brand-tradGreen)",
+        dark: "var(--color-brand-freshGreen)",
+      },
+      color: {
+        light: "#ffffff",
+        dark: "#000000",
+      },
+      borderColor: {
+        light: "var(--color-brand-tradGreen)",
+        dark: "var(--color-brand-freshGreen)",
+      },
+      borderWidth: "1px",
+      borderStyle: "solid",
+      on: {
         hover: {
           cursor: "pointer",
-        },
-        active: {
-          transform: "translateY(1px)",
-        },
-        disabled: {
-          cursor: "not-allowed",
-          opacity: "0.6",
-        },
-      },
-      primary: {
-        default: {
-          background: {
-            light: "var(--color-brand-tradGreen)",
-            dark: "var(--color-brand-freshGreen)",
-          },
-          color: {
-            light: "#ffffff",
-            dark: "#000000",
-          },
-          borderColor: {
-            light: "var(--color-brand-tradGreen)",
-            dark: "var(--color-brand-freshGreen)",
-          },
-          borderWidth: "1px",
-          borderStyle: "solid",
-        },
-        hover: {
           background: {
             light: "#003d28",
             dark: "var(--color-brand-tradGreen)",
@@ -458,12 +443,15 @@ export const tokens = {
           },
         },
         active: {
+          transform: "translateY(1px)",
           background: {
             light: "#002e1e",
             dark: "#003d28",
           },
         },
         disabled: {
+          cursor: "not-allowed",
+          opacity: "0.6",
           background: {
             light: "var(--color-neutral-gray200)",
             dark: "rgba(255, 255, 255, 0.12)",
@@ -474,8 +462,8 @@ export const tokens = {
           },
         },
       },
-      secondary: {
-        default: {
+      classes: {
+        secondary: {
           background: {
             light: "transparent",
             dark: "transparent",
@@ -488,42 +476,40 @@ export const tokens = {
             light: "var(--color-neutral-gray300)",
             dark: "rgba(255, 255, 255, 0.23)",
           },
-          borderWidth: "1px",
-          borderStyle: "solid",
+          on: {
+            hover: {
+              background: {
+                light: "var(--color-neutral-gray50)",
+                dark: "rgba(255, 255, 255, 0.08)",
+              },
+              borderColor: {
+                light: "var(--color-neutral-gray400)",
+                dark: "rgba(255, 255, 255, 0.35)",
+              },
+            },
+            active: {
+              background: {
+                light: "var(--color-neutral-gray100)",
+                dark: "rgba(255, 255, 255, 0.12)",
+              },
+            },
+            disabled: {
+              background: {
+                light: "transparent",
+                dark: "transparent",
+              },
+              color: {
+                light: "var(--color-neutral-gray400)",
+                dark: "rgba(255, 255, 255, 0.38)",
+              },
+              borderColor: {
+                light: "var(--color-neutral-gray200)",
+                dark: "rgba(255, 255, 255, 0.12)",
+              },
+            },
+          },
         },
-        hover: {
-          background: {
-            light: "var(--color-neutral-gray50)",
-            dark: "rgba(255, 255, 255, 0.08)",
-          },
-          borderColor: {
-            light: "var(--color-neutral-gray400)",
-            dark: "rgba(255, 255, 255, 0.35)",
-          },
-        },
-        active: {
-          background: {
-            light: "var(--color-neutral-gray100)",
-            dark: "rgba(255, 255, 255, 0.12)",
-          },
-        },
-        disabled: {
-          background: {
-            light: "transparent",
-            dark: "transparent",
-          },
-          color: {
-            light: "var(--color-neutral-gray400)",
-            dark: "rgba(255, 255, 255, 0.38)",
-          },
-          borderColor: {
-            light: "var(--color-neutral-gray200)",
-            dark: "rgba(255, 255, 255, 0.12)",
-          },
-        },
-      },
-      ghost: {
-        default: {
+        ghost: {
           background: {
             light: "transparent",
             dark: "transparent",
@@ -536,65 +522,57 @@ export const tokens = {
             light: "transparent",
             dark: "transparent",
           },
-        },
-        hover: {
-          background: {
-            light: "rgba(0, 72, 49, 0.08)",
-            dark: "rgba(196, 215, 0, 0.08)",
-          },
-        },
-        active: {
-          background: {
-            light: "rgba(0, 72, 49, 0.12)",
-            dark: "rgba(196, 215, 0, 0.12)",
-          },
-        },
-        disabled: {
-          color: {
-            light: "var(--color-neutral-gray400)",
-            dark: "rgba(255, 255, 255, 0.38)",
+          on: {
+            hover: {
+              background: {
+                light: "rgba(0, 72, 49, 0.08)",
+                dark: "rgba(196, 215, 0, 0.08)",
+              },
+            },
+            active: {
+              background: {
+                light: "rgba(0, 72, 49, 0.12)",
+                dark: "rgba(196, 215, 0, 0.12)",
+              },
+            },
+            disabled: {
+              color: {
+                light: "var(--color-neutral-gray400)",
+                dark: "rgba(255, 255, 255, 0.38)",
+              },
+            },
           },
         },
       },
     },
     table: {
-      base: {
-        default: {
-          borderCollapse: "collapse",
-          width: "100%",
-        },
-      },
+      borderCollapse: "collapse",
+      width: "100%",
     },
     tableHeader: {
-      base: {
-        default: {
-          background: {
-            light: "var(--color-neutral-gray100)",
-            dark: "#0E131D",
-          },
-          color: {
-            light: "var(--color-neutral-gray700)",
-            dark: "rgba(255, 255, 255, 0.87)",
-          },
-          fontWeight: "600",
-          padding: "12px",
-        },
+      background: {
+        light: "var(--color-neutral-gray100)",
+        dark: "#0E131D",
       },
+      color: {
+        light: "var(--color-neutral-gray700)",
+        dark: "rgba(255, 255, 255, 0.87)",
+      },
+      fontWeight: "600",
+      padding: "12px",
     },
     tableRow: {
-      base: {
-        default: {
-          background: {
-            light: "#ffffff",
-            dark: "#121B2C",
-          },
-          borderColor: {
-            light: "var(--color-neutral-gray200)",
-            dark: "#1F3359",
-          },
-          borderWidth: "1px",
-          borderStyle: "solid",
-        },
+      background: {
+        light: "#ffffff",
+        dark: "#121B2C",
+      },
+      borderColor: {
+        light: "var(--color-neutral-gray200)",
+        dark: "#1F3359",
+      },
+      borderWidth: "1px",
+      borderStyle: "solid",
+      on: {
         hover: {
           background: {
             light: "var(--color-neutral-gray100)",
@@ -610,14 +588,18 @@ export const tokens = {
       },
     },
     chip: {
-      base: {
-        default: {
-          borderRadius: "16px",
-          fontSize: "12px",
-          padding: "4px 12px",
-        },
+      borderRadius: "16px",
+      fontSize: "12px",
+      padding: "4px 12px",
+      background: {
+        light: "var(--color-brand-tradGreen)",
+        dark: "var(--color-brand-freshGreen)",
       },
-      default: {
+      color: {
+        light: "#ffffff",
+        dark: "#000000",
+      },
+      classes: {
         default: {
           background: {
             light: "var(--color-neutral-gray200)",
@@ -629,31 +611,17 @@ export const tokens = {
           },
         },
       },
-      primary: {
-        default: {
-          background: {
-            light: "var(--color-brand-tradGreen)",
-            dark: "var(--color-brand-freshGreen)",
-          },
-          color: {
-            light: "#ffffff",
-            dark: "#000000",
-          },
-        },
-      },
     },
     navigation: {
-      base: {
-        default: {
-          background: {
-            light: "#141B1D",
-            dark: "#0C121E",
-          },
-          color: {
-            light: "#ffffff",
-            dark: "rgba(255, 255, 255, 0.87)",
-          },
-        },
+      background: {
+        light: "#141B1D",
+        dark: "#0C121E",
+      },
+      color: {
+        light: "#ffffff",
+        dark: "rgba(255, 255, 255, 0.87)",
+      },
+      on: {
         hover: {
           background: {
             light: "rgba(255, 255, 255, 0.08)",
@@ -669,180 +637,124 @@ export const tokens = {
       },
     },
     card: {
-      base: {
-        default: {
-          background: {
-            light: "#ffffff",
-            dark: "#121B2C",
-          },
-          borderColor: {
-            light: "var(--color-neutral-gray200)",
-            dark: "#24324C",
-          },
-          borderWidth: "1px",
-          borderStyle: "solid",
-          borderRadius: {
-            light: "16px",
-            dark: "16px",
-          },
-          padding: {
-            light: "24px",
-            dark: "24px",
-          },
-        },
+      background: {
+        light: "#ffffff",
+        dark: "#121B2C",
       },
+      borderColor: {
+        light: "var(--color-neutral-gray200)",
+        dark: "#24324C",
+      },
+      borderWidth: "1px",
+      borderStyle: "solid",
+      borderRadius: "16px",
+      padding: "24px",
     },
     cardHeader: {
-      base: {
-        default: {
-          color: {
-            light: "#486C94",
-            dark: "#98A4B9",
-          },
-          fontSize: "18px",
-          fontFamily: {
-            light: "Roboto, sans-serif",
-            dark: "Montserrat, sans-serif",
-          },
-          fontWeight: {
-            light: "400",
-            dark: "500",
-          },
-          padding: "0 0 16px 0",
-        },
+      color: {
+        light: "#486C94",
+        dark: "#98A4B9",
       },
+      fontSize: "18px",
+      fontFamily: {
+        light: "Roboto, sans-serif",
+        dark: "Montserrat, sans-serif",
+      },
+      fontWeight: {
+        light: "400",
+        dark: "500",
+      },
+      padding: "0 0 16px 0",
     },
     scrollbar: {
-      base: {
-        default: {
-          width: "8px",
-        },
-      },
+      width: "8px",
     },
     scrollbarTrack: {
-      base: {
-        default: {
-          background: {
-            light: "var(--color-neutral-gray100)",
-            dark: "#121b2c",
-          },
-        },
+      background: {
+        light: "var(--color-neutral-gray100)",
+        dark: "#121b2c",
       },
     },
     scrollbarThumb: {
-      base: {
-        default: {
-          background: {
-            light: "var(--color-neutral-gray400)",
-            dark: "#1F3359",
-          },
-          borderRadius: "4px",
+      background: {
+        light: "var(--color-neutral-gray400)",
+        dark: "#1F3359",
+      },
+      borderRadius: "4px",
+      hover: {
+        background: {
+          light: "var(--color-neutral-gray500)",
+          dark: "#2a4272",
         },
-        hover: {
-          background: {
-            light: "var(--color-neutral-gray500)",
-            dark: "#2a4272",
-          },
-        },
-        active: {
-          background: {
-            light: "var(--color-neutral-gray600)",
-            dark: "#35528b",
-          },
+      },
+      active: {
+        background: {
+          light: "var(--color-neutral-gray600)",
+          dark: "#35528b",
         },
       },
     },
     tooltip: {
-      base: {
-        default: {
-          background: {
-            light: "var(--color-neutral-gray800)",
-            dark: "var(--color-neutral-gray200)",
-          },
-          color: {
-            light: "#ffffff",
-            dark: "var(--color-neutral-gray900)",
-          },
-          borderRadius: "4px",
-          padding: "8px 12px",
-          fontSize: "12px",
-          fontWeight: "400",
-          maxWidth: "200px",
-          boxShadow: {
-            light: "0 2px 8px rgba(0, 0, 0, 0.15)",
-            dark: "0 2px 8px rgba(0, 0, 0, 0.3)",
-          },
-        },
+      background: {
+        light: "var(--color-neutral-gray800)",
+        dark: "var(--color-neutral-gray200)",
+      },
+      color: {
+        light: "#ffffff",
+        dark: "var(--color-neutral-gray900)",
+      },
+      borderRadius: "4px",
+      padding: "8px 12px",
+      fontSize: "12px",
+      fontWeight: "400",
+      maxWidth: "200px",
+      boxShadow: {
+        light: "0 2px 8px rgba(0, 0, 0, 0.15)",
+        dark: "0 2px 8px rgba(0, 0, 0, 0.3)",
       },
     },
     switch: {
-      base: {
-        default: {
-          width: "44px",
-          height: "24px",
-          borderRadius: "12px",
-          background: {
-            light: "var(--color-neutral-gray300)",
-            dark: "rgba(255, 255, 255, 0.38)",
-          },
-          padding: "2px",
-          transition: {
-            light: "all 0.2s ease-in-out",
-            dark: "all 0.2s ease-in-out",
-          },
+      width: "44px",
+      height: "24px",
+      borderRadius: "12px",
+      background: {
+        light: "var(--color-neutral-gray300)",
+        dark: "rgba(255, 255, 255, 0.38)",
+      },
+      padding: "2px",
+      transition: "all 0.2s ease-in-out",
+      checked: {
+        background: {
+          light: "var(--color-brand-tradGreen)",
+          dark: "var(--color-brand-freshGreen)",
         },
-        checked: {
-          background: {
-            light: "var(--color-brand-tradGreen)",
-            dark: "var(--color-brand-freshGreen)",
-          },
+      },
+      disabled: {
+        background: {
+          light: "var(--color-neutral-gray200)",
+          dark: "rgba(255, 255, 255, 0.12)",
         },
-        disabled: {
-          background: {
-            light: "var(--color-neutral-gray200)",
-            dark: "rgba(255, 255, 255, 0.12)",
-          },
-          opacity: {
-            light: "0.6",
-            dark: "0.6",
-          },
-        },
+        opacity: "0.6",
       },
     },
     switchThumb: {
-      base: {
-        default: {
-          width: "20px",
-          height: "20px",
-          borderRadius: "50%",
-          background: {
-            light: "#ffffff",
-            dark: "#ffffff",
-          },
-          boxShadow: {
-            light: "0 2px 4px rgba(0, 0, 0, 0.2)",
-            dark: "0 2px 4px rgba(0, 0, 0, 0.3)",
-          },
-          transform: {
-            light: "translateX(0px)",
-            dark: "translateX(0px)",
-          },
-          transition: {
-            light: "transform 0.2s ease-in-out",
-            dark: "transform 0.2s ease-in-out",
-          },
-        },
-        checked: {
-          transform: {
-            light: "translateX(20px)",
-            dark: "translateX(20px)",
-          },
-        },
-        disabled: {
-          background: {
-            light: "var(--color-neutral-gray400)",
-            dark: "rgba(255, 255, 255, 0.38)",
-          },
+      width: "20px",
+      height: "20px",
+      borderRadius: "50%",
+      background: "#ffffff",
+      boxShadow: {
+        light: "0 2px 4px rgba(0, 0, 0, 0.2)",
+        dark: "0 2px 4px rgba(0, 0, 0, 0.3)",
+      },
+      transform: "translateX(0px)",
+      transition: "transform 0.2s ease-in-out",
+      checked: {
+        transform: "translateX(20px)",
+      },
+      disabled: {
+        background: {
+          light: "var(--color-neutral-gray400)",
+          dark: "rgba(255, 255, 255, 0.38)",
         },
       },
     },
@@ -987,19 +899,50 @@ export const tokens = {
       },
     },
     popover: {
-      base: {
-        default: {
-          background: {
-            light: "var(--ui-color-background-primary)",
-            dark: "#0A111B",
+      background: {
+        light: "var(--ui-color-background-primary)",
+        dark: "#0A111B",
+      },
+      borderColor: {
+        light: "var(--shadow-lg)",
+        dark: "#24324C",
+      },
+      borderRadius: "8px",
+    },
+  },
+
+  // Scope-specific overrides for cascade demonstration
+  modal: {
+    input: {
+      // Override padding in modal context
+      padding: "12px",
+      secondary: {
+        // Modal-specific secondary input style
+        borderColor: {
+          light: "#000000",
+          dark: "#ffffff",
+        },
+        on: {
+          hover: {
+            borderColor: {
+              light: "#333333",
+              dark: "#cccccc",
+            },
           },
-          borderColor: {
-            light: "var(--shadow-lg)",
-            dark: "#24324C",
-          },
-          borderRadius: "8px",
         },
       },
+    },
+    button: {
+      // Override button border radius in modals
+      borderRadius: "8px",
+    },
+  },
+
+  card: {
+    input: {
+      // Card context has smaller inputs
+      padding: "6px 8px",
+      fontSize: "12px",
     },
   },
 } as const;

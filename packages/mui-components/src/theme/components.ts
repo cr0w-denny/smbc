@@ -60,38 +60,38 @@ export const createCssVarComponents = (
             borderRadius: theme.spacing(3),
             fontSize: "0.875rem",
             "& fieldset": {
-              borderColor: `${ui.input.base.default.borderColor}`,
+              borderColor: `${ui.input.borderColor}`,
             },
             "&:hover": {
-              backgroundColor: `${ui.input.base.hover.background}`,
+              backgroundColor: `${ui.input.on.hover.background}`,
             },
             "&:hover fieldset": {
-              borderColor: `${ui.input.base.hover.borderColor}`,
+              borderColor: `${ui.input.on.hover.borderColor}`,
             },
             "&.Mui-focused fieldset": {
-              borderColor: `${ui.input.base.focus.borderColor}`,
+              borderColor: `${ui.input.on.focus.borderColor}`,
               borderWidth: 2,
             },
             "&.Mui-focused": {
-              backgroundColor: `${ui.input.base.focus.background}`,
+              backgroundColor: `${ui.input.on.focus.background}`,
             },
             "& .MuiSvgIcon-root": {
-              color: `${ui.input.base.focus.borderColor}`,
+              color: `${ui.input.on.focus.borderColor}`,
             },
           },
           "& .MuiInputBase-input": {
             padding: "9px 12px",
-            color: `${ui.input.base.default.color}`,
+            color: `${ui.input.color}`,
             "&::placeholder": {
-              color: `${ui.input.base.default.placeholder}`,
+              color: `${ui.input.placeholder}`,
               opacity: 1,
               fontSize: "1rem",
             },
           },
           "& .MuiInputLabel-root": {
-            color: ui.input.base.default.color,
+            color: ui.input.color,
             "&.Mui-focused": {
-              color: `${ui.input.base.focus.borderColor} !important`,
+              color: `${ui.input.on.focus.borderColor} !important`,
             },
           },
         },
@@ -103,20 +103,20 @@ export const createCssVarComponents = (
           borderRadius: theme.spacing(3),
           "& .MuiOutlinedInput-notchedOutline": {
             borderRadius: theme.spacing(3),
-            borderColor: ui.input.base.default.borderColor,
+            borderColor: ui.input.borderColor,
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: ui.input.base.hover.borderColor,
+            borderColor: ui.input.on.hover.borderColor,
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: ui.input.base.focus.borderColor,
+            borderColor: ui.input.on.focus.borderColor,
             borderWidth: 2,
           },
           "&.Mui-focused": {
-            backgroundColor: ui.input.base.focus.background,
+            backgroundColor: ui.input.on.focus.background,
           },
           "& .MuiSvgIcon-root": {
-            color: ui.input.base.focus.borderColor,
+            color: ui.input.on.focus.borderColor,
           },
         },
       },
@@ -125,8 +125,8 @@ export const createCssVarComponents = (
       styleOverrides: {
         root: {
           borderRadius: "16px",
-          backgroundColor: `${ui.card.base.default.background} !important`,
-          border: `1px solid ${ui.card.base.default.borderColor}`,
+          backgroundColor: `${ui.card.background} !important`,
+          border: `1px solid ${ui.card.borderColor}`,
           boxShadow: shadow.base,
         },
       },
@@ -136,8 +136,8 @@ export const createCssVarComponents = (
         root: {
           borderRadius: 8,
           "&.MuiMenu-paper, &.MuiPopover-paper": {
-            backgroundColor: ui.popover.base.default.background,
-            borderColor: ui.popover.base.default.borderColor,
+            backgroundColor: ui.popover.background,
+            borderColor: ui.popover.borderColor,
           },
         },
         elevation1: {
@@ -157,20 +157,20 @@ export const createCssVarComponents = (
           borderRadius: theme.spacing(3),
           fontSize: "0.75rem",
           height: 24,
-          // backgroundColor: ui.chip.default.default.background,
-          color: ui.chip.default.default.color,
+          // backgroundColor: ui.chip.default.background,
+          color: ui.chip.classes.default.color,
         },
         colorPrimary: {
-          // backgroundColor: ui.chip.primary.default.background,
-          color: ui.chip.primary.default.color,
+          // backgroundColor: ui.chip.background,
+          color: ui.chip.color,
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: `${ui.navigation.base.default.background} !important`,
-          color: `${ui.navigation.base.default.color} !important`,
+          backgroundColor: `${ui.navigation.background} !important`,
+          color: `${ui.navigation.color} !important`,
           boxShadow: shadow.base,
           borderRadius: 0,
           borderBottom: "3px solid #02080b",
@@ -196,18 +196,18 @@ export const createCssVarComponents = (
       styleOverrides: {
         root: {
           minHeight: 70,
-          backgroundColor: ui.navigation.base.default.background,
-          color: ui.navigation.base.default.color,
+          backgroundColor: ui.navigation.background,
+          color: ui.navigation.color,
         },
       },
     },
     MuiTabs: {
       styleOverrides: {
         root: {
-          backgroundColor: ui.navigation.base.hover.background,
+          backgroundColor: ui.navigation.on.hover.background,
         },
         indicator: {
-          backgroundColor: ui.input.base.focus.borderColor,
+          backgroundColor: ui.input.on.focus.borderColor,
         },
       },
     },
@@ -216,7 +216,7 @@ export const createCssVarComponents = (
         root: {
           color: ui.color.text.secondary,
           "&.Mui-selected": {
-            color: ui.input.base.focus.borderColor,
+            color: ui.input.on.focus.borderColor,
             backgroundColor: ui.color.action.selected,
           },
         },
@@ -237,7 +237,7 @@ export const createCssVarComponents = (
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: ui.tableHeader.base.default.background,
+          backgroundColor: ui.tableHeader.background,
         },
       },
     },
@@ -245,12 +245,12 @@ export const createCssVarComponents = (
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: ui.tableRow.base.hover.background,
+            backgroundColor: ui.tableRow.on.hover.background,
           },
           "&.Mui-selected": {
-            backgroundColor: ui.tableRow.base.selected.background,
+            backgroundColor: ui.tableRow.on.selected.background,
             "&:hover": {
-              backgroundColor: ui.tableRow.base.selected.background,
+              backgroundColor: ui.tableRow.on.selected.background,
             },
           },
         },
@@ -301,12 +301,12 @@ export const createCssVarComponents = (
         root: {
           padding: "8px 16px",
           fontSize: "0.875rem",
-          borderColor: ui.tableRow.base.default.borderColor,
+          borderColor: ui.tableRow.borderColor,
         },
         head: {
           fontWeight: 600,
-          backgroundColor: ui.tableHeader.base.default.background,
-          color: ui.tableHeader.base.default.color,
+          backgroundColor: ui.tableHeader.background,
+          color: ui.tableHeader.color,
         },
       },
     },
@@ -324,9 +324,9 @@ export const createCssVarComponents = (
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: ui.input.base.default.color,
+          color: ui.input.color,
           "&.Mui-focused": {
-            color: `${ui.input.base.focus.borderColor} !important`,
+            color: `${ui.input.on.focus.borderColor} !important`,
           },
         },
       },
@@ -334,11 +334,11 @@ export const createCssVarComponents = (
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: ui.tooltip.base.default.background,
-          color: ui.tooltip.base.default.color,
+          backgroundColor: ui.tooltip.background,
+          color: ui.tooltip.color,
           fontSize: "0.75rem",
           borderRadius: 6,
-          boxShadow: ui.tooltip.base.default.boxShadow,
+          boxShadow: ui.tooltip.boxShadow,
         },
       },
     },
@@ -352,13 +352,13 @@ export const createCssVarComponents = (
     MuiInputBase: {
       styleOverrides: {
         root: {
-          backgroundColor: ui.input.base.default.background,
+          backgroundColor: ui.input.background,
           borderRadius: theme.spacing(3),
           "&:hover": {
-            backgroundColor: ui.input.base.hover.background,
+            backgroundColor: ui.input.on.hover.background,
           },
           "&.Mui-focused": {
-            backgroundColor: ui.input.base.focus.background,
+            backgroundColor: ui.input.on.focus.background,
           },
         },
       },
@@ -370,21 +370,21 @@ export const createCssVarComponents = (
             "& .MuiInputBase-root, & .MuiOutlinedInput-root": {
               borderRadius: theme.spacing(3),
               "& fieldset": {
-                borderColor: ui.input.base.default.borderColor,
+                borderColor: ui.input.borderColor,
               },
               "&:hover": {
-                backgroundColor: ui.input.base.hover.background,
+                backgroundColor: ui.input.on.hover.background,
               },
               "&:hover fieldset": {
-                borderColor: ui.input.base.hover.borderColor,
+                borderColor: ui.input.on.hover.borderColor,
               },
               "&.Mui-focused fieldset": {
-                borderColor: ui.input.base.focus.borderColor,
+                borderColor: ui.input.on.focus.borderColor,
                 borderWidth: 2,
               },
             },
             "& .MuiIconButton-root": {
-              color: ui.input.base.focus.borderColor,
+              color: ui.input.on.focus.borderColor,
             },
           },
         },
@@ -401,9 +401,9 @@ export const createCssVarComponents = (
     MuiPickersInputBase: {
       styleOverrides: {
         root: {
-          backgroundColor: ui.input.base.default.background,
+          backgroundColor: ui.input.background,
           "&.Mui-focused": {
-            backgroundColor: ui.input.base.focus.background,
+            backgroundColor: ui.input.on.focus.background,
           },
         },
       },
@@ -411,9 +411,9 @@ export const createCssVarComponents = (
     MuiPickersOutlinedInput: {
       styleOverrides: {
         root: {
-          backgroundColor: ui.input.base.default.background,
+          backgroundColor: ui.input.background,
           "&.Mui-focused": {
-            backgroundColor: ui.input.base.focus.background,
+            backgroundColor: ui.input.on.focus.background,
           },
         },
       },
@@ -431,11 +431,11 @@ export const createCssVarComponents = (
             },
           },
           "& .MuiSwitch-thumb": {
-            backgroundColor: ui.switchThumb.base.default.background,
-            boxShadow: ui.switchThumb.base.default.boxShadow,
+            backgroundColor: ui.switchThumb.background,
+            boxShadow: ui.switchThumb.boxShadow,
           },
           "& .MuiSwitch-track": {
-            backgroundColor: ui.switchThumb.base.default.background,
+            backgroundColor: ui.switchThumb.background,
           },
         },
       },

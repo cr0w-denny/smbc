@@ -25,9 +25,10 @@ export const Layout: React.FC<AppShellProps> = ({
   isImpersonating,
 }) => {
   return (
-    <>
-      <TopNav
-        logo={logo}
+    <div id="app" style={{ height: '100%' }}>
+      <div id="app-header">
+        <TopNav
+          logo={logo}
         hamburgerMenu={hamburgerMenu}
         navigation={navigation}
         onNavigate={onNavigate}
@@ -46,9 +47,12 @@ export const Layout: React.FC<AppShellProps> = ({
         onQuickGuide={onQuickGuide}
         onLogout={onLogout}
         isImpersonating={isImpersonating}
-      />
-      {children}
-    </>
+        />
+      </div>
+      <div id="app-content" style={{ height: '100%' }}>
+        {children}
+      </div>
+    </div>
   );
 };
 

@@ -11,3 +11,6 @@ export { tokens };
 
 // Export ALL top-level token nodes as proxies (following test-vars pattern)
 export { ui, color, shadow, zIndex, typography, breakpoints, size, layout } from "./proxy.js";
+
+// Export scope-aware proxies for cascade resolution
+export { modal, appbar, sidebar, card } from "./proxy.js";

@@ -102,9 +102,9 @@ const AppShellContent: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppShell.Layout
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AppShell.Layout
           logo={
             <img
               src={`${import.meta.env.BASE_URL}logo.svg`}

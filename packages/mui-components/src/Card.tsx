@@ -71,19 +71,19 @@ export const Card: React.FC<CardProps> = ({
   };
 
   // Get the padding value based on size
-  const headerPadding = ui.cardHeader.base.default.padding;
+  const headerPadding = ui.cardHeader.padding;
 
   return (
     <MuiCard
       elevation={elevation}
       sx={{
         backgroundImage: "none !important",
-        backgroundColor: ui.card.base.default.background,
-        border: `1px solid ${ui.card.base.default.borderColor}`,
-        borderRadius: ui.card.base.default.borderRadius,
+        backgroundColor: ui.card.background,
+        border: `1px solid ${ui.card.borderColor}`,
+        borderRadius: ui.card.borderRadius,
         "&:hover": {
           boxShadow: elevation,
-          backgroundColor: ui.card.base.default.background,
+          backgroundColor: ui.card.background,
           backgroundImage: "none !important",
           transform: "none",
         },
@@ -114,10 +114,10 @@ export const Card: React.FC<CardProps> = ({
               <Typography
                 component="div"
                 sx={{
-                  fontSize: ui.cardHeader.base.default.fontSize,
-                  fontWeight: ui.cardHeader.base.default.fontWeight,
-                  fontFamily: ui.cardHeader.base.default.fontFamily,
-                  color: ui.cardHeader.base.default.color,
+                  fontSize: ui.cardHeader.fontSize,
+                  fontWeight: ui.cardHeader.fontWeight,
+                  fontFamily: ui.cardHeader.fontFamily,
+                  color: ui.cardHeader.color,
                   lineHeight: 1.2
                 }}
               >

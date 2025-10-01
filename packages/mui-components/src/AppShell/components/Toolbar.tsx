@@ -42,7 +42,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             left: 0,
             right: 0,
             height: "200px", // Extend below toolbar
-            backgroundColor: ui.navigation.base.default.background(darkMode),
+            backgroundColor: ui.navigation.background,
             zIndex: -1, // Behind everything else
           }}
         />
@@ -67,7 +67,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             : {
                 background:
                   variant === "extended"
-                    ? ui.navigation.base.default.background(darkMode)
+                    ? ui.navigation.background
                     : "transparent",
               }),
         }}
