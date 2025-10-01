@@ -371,7 +371,7 @@ function Navigation({
 
 // Component with theme provider
 function AppWithThemeProvider(props: MuiHostAppProps) {
-  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
+  useFeatureFlag<boolean>("darkMode");
   const theme = cssVarTheme; // CSS variables handle dark mode automatically
 
   // Create user with calculated permissions

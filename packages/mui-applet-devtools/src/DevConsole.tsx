@@ -29,8 +29,8 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
   currentAppletInfo,
   impersonationEmail = '',
   onImpersonationEmailChange,
-  theme,
-  setTheme
+  theme: _theme,
+  setTheme: _setTheme
 }) => {
   const environment = useFeatureFlag<Environment>("environment") || "development";
 
@@ -78,13 +78,14 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
   ];
 
   return (
-    <Console
-      open={open}
-      onClose={onClose}
-      defaultHeight={500}
-      minHeight={200}
-      maxHeight={window.innerHeight * 0.9}
-      storageKey="dev-console"
+    <div id="devconsole">
+      <Console
+        open={open}
+        onClose={onClose}
+        defaultHeight={500}
+        minHeight={200}
+        maxHeight={window.innerHeight * 0.9}
+        storageKey="dev-console"
       header={
         <TabBar
           items={tabs}
@@ -210,7 +211,8 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
         )}
 
       </Box>
-    </Console>
+      </Console>
+    </div>
   );
 };
 

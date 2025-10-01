@@ -95,7 +95,7 @@ export const DevConsoleToggle: React.FC<DevConsoleToggleProps> = ({
   // Determine icon color based on state
   const getIconColor = () => {
     if (devConsoleOpen) {
-      return ui.color.brand.primary.dark;
+      return ui.color.brand.primary({ theme: 'dark' });
     }
     return "inherit"; // Default color
   };
