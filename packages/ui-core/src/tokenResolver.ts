@@ -55,14 +55,7 @@ export function resolveTokenReference(
       tokenPath = tokenMatch[1];
     }
 
-    // Check for global overrides first
-    const globalOverrides = (typeof window !== 'undefined' ? (window as any)?.__tokenOverrides : undefined);
-    if (globalOverrides && tokenPath in globalOverrides) {
-      const overrideValue = globalOverrides[tokenPath];
-      // Cache the override value
-      resolvedCache.set(cacheKey, overrideValue);
-      return overrideValue;
-    }
+    // Global overrides removed - now handled via CSS variables
 
     const pathParts = tokenPath.split('.');
 

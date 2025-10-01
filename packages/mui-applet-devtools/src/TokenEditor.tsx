@@ -10,6 +10,8 @@ import {
   Tab,
   Chip,
   Stack,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -53,19 +55,10 @@ const getOriginalTokenValue = (path: string): any => {
   const pathParts = path.split(".");
   let current = tokens;
 
-  // Temporarily clear overrides to get original value
-  const originalOverrides = (window as any).__tokenOverrides;
-  (window as any).__tokenOverrides = {};
-
-  try {
-    for (const part of pathParts) {
-      current = (current as any)?.[part];
-    }
-    return current;
-  } finally {
-    // Restore overrides
-    (window as any).__tokenOverrides = originalOverrides;
+  for (const part of pathParts) {
+    current = (current as any)?.[part];
   }
+  return current;
 };
 
 // Helper function to compare imported structure with current tokens
@@ -176,8 +169,8 @@ interface ComponentPropertiesGridProps {
   selectedVariant: string;
   selectedState: string;
   tokenOverrides: Record<string, any>;
-  onTokenChange: (path: string, value: any) => void;
-  onTokenClear: (path: string) => void;
+  onTokenChange: (path: string, value: any, context?: string) => void;
+  onTokenClear: (path: string, context?: string) => void;
 }
 
 const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
@@ -190,6 +183,43 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
   onTokenClear,
 }) => {
   const isDarkMode = useFeatureFlagEnabled("darkMode");
+
+  // Available contexts for styling
+  const availableContexts = [
+    { id: "global", label: "Global", description: "Default styles" },
+    { id: "appbar", label: "AppBar", description: "Within top navigation" },
+    { id: "sidebar", label: "Sidebar", description: "Within side navigation" },
+    { id: "modal", label: "Modal", description: "Within modal dialogs" },
+    { id: "card", label: "Card", description: "Within card components" },
+  ];
+
+  // Group overrides by context for current component
+  const getOverridesByContext = useMemo(() => {
+    const result: Record<string, Record<string, any>> = {};
+
+    Object.entries(tokenOverrides).forEach(([key, value]) => {
+      const fullPath = `ui.${componentName}.${selectedVariant}.${selectedState}.`;
+
+      if (key.includes(":")) {
+        // Context-specific override (e.g., "appbar:ui.input.borderColor")
+        const [context, path] = key.split(":", 2);
+        if (path.startsWith(fullPath)) {
+          const relativePath = path.substring(fullPath.length);
+          if (!result[context]) result[context] = {};
+          result[context][relativePath] = value;
+        }
+      } else {
+        // Global override
+        if (key.startsWith(fullPath)) {
+          const relativePath = key.substring(fullPath.length);
+          if (!result["global"]) result["global"] = {};
+          result["global"][relativePath] = value;
+        }
+      }
+    });
+
+    return result;
+  }, [tokenOverrides, componentName, selectedVariant, selectedState]);
 
   // Apply overrides to get current token values
   const getCurrentTokens = useMemo(() => {
@@ -223,19 +253,37 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
     propPath: string,
     propName: string,
     value: any,
+    context: string = "global",
   ) => {
     const fullPath = `ui.${componentName}.${selectedVariant}.${selectedState}.${propPath}`;
     const propertyType = detectPropertyType(propName);
-    const overrideValue = tokenOverrides[fullPath];
-    const effectiveValue = overrideValue !== undefined ? overrideValue : value;
+
+    // For context-specific renders, use the exact override value
+    // For global renders, check both global and context-specific overrides
+    let overrideValue, effectiveValue, isModified, hasContextOverride;
+
+    if (context === "global") {
+      // In global section, show base value unless there's a global override
+      overrideValue = tokenOverrides[fullPath];
+      effectiveValue = overrideValue !== undefined ? overrideValue : value;
+      isModified = overrideValue !== undefined;
+
+      // Check if this property has any context-specific overrides
+      hasContextOverride = Object.keys(tokenOverrides).some(key =>
+        key.includes(':') && key.endsWith(fullPath)
+      );
+    } else {
+      // In context section, we're showing a context-specific override
+      effectiveValue = value;
+      isModified = true; // Always true since this is an override section
+      hasContextOverride = false;
+    }
 
     const currentValue = isThemeToken(effectiveValue)
       ? isDarkMode
         ? effectiveValue.dark
         : effectiveValue.light
       : effectiveValue;
-
-    const isModified = tokenOverrides.hasOwnProperty(fullPath);
 
     const handleChange = (newValue: string) => {
       if (isThemeToken(value)) {
@@ -246,23 +294,37 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
         } else {
           updatedValue.light = newValue;
         }
-        onTokenChange(fullPath, updatedValue);
+        onTokenChange(fullPath, updatedValue, context);
       } else {
         // For non-theme tokens, just update the value
-        onTokenChange(fullPath, newValue);
+        onTokenChange(fullPath, newValue, context);
       }
     };
 
     const handleClear = () => {
-      onTokenClear(fullPath);
+      onTokenClear(fullPath, context);
     };
 
     return (
       <Box
         key={propPath}
-        sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          mb: 1,
+          opacity: hasContextOverride ? 0.6 : 1,
+          textDecoration: hasContextOverride ? 'line-through' : 'none'
+        }}
       >
-        <Typography variant="body2" sx={{ minWidth: 120, fontSize: 12 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            minWidth: 120,
+            fontSize: 12,
+            color: hasContextOverride ? 'text.secondary' : 'text.primary'
+          }}
+        >
           {propName}
         </Typography>
         {propertyType === "color" ? (
@@ -301,6 +363,29 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
               : currentValue}
           </Typography>
         )}
+        {context === "global" && (
+          <Select
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                // Create context-specific override
+                onTokenChange(fullPath, currentValue, e.target.value as string);
+              }
+            }}
+            size="small"
+            displayEmpty
+            sx={{ minWidth: 80, fontSize: 12 }}
+          >
+            <MenuItem value="" disabled>
+              <Typography variant="caption">+ Context</Typography>
+            </MenuItem>
+            {availableContexts.slice(1).map((ctx) => (
+              <MenuItem key={ctx.id} value={ctx.id}>
+                <Typography variant="caption">{ctx.label}</Typography>
+              </MenuItem>
+            ))}
+          </Select>
+        )}
         {isModified && (
           <IconButton size="small" onClick={handleClear}>
             <ClearIcon fontSize="small" />
@@ -338,17 +423,100 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
     });
   };
 
+  // Create DevTools-style cascade sections
+  const renderCascadeSections = () => {
+    const sections = [];
+
+    // 1. Context-specific overrides (show first, like DevTools)
+    Object.entries(getOverridesByContext).forEach(([context, overrides]) => {
+      if (context !== 'global' && Object.keys(overrides).length > 0) {
+        sections.push(
+          <Box key={context} sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                bgcolor: 'action.hover',
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
+                mb: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                {availableContexts.find(c => c.id === context)?.label || context}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {Object.keys(overrides).length} override{Object.keys(overrides).length !== 1 ? 's' : ''}
+              </Typography>
+            </Box>
+            <Box sx={{ pl: 1, borderLeft: 2, borderColor: 'primary.main', borderRadius: 0 }}>
+              {Object.entries(overrides).map(([path, value]) =>
+                renderPropertyInput(path, path.split('.').pop() || path, value, context)
+              )}
+            </Box>
+          </Box>
+        );
+      }
+    });
+
+    // 2. Global properties (show last, like DevTools defaults)
+    sections.push(
+      <Box key="global">
+        <Box
+          sx={{
+            bgcolor: 'background.default',
+            px: 1.5,
+            py: 0.5,
+            borderRadius: 1,
+            mb: 1,
+            border: 1,
+            borderColor: 'divider'
+          }}
+        >
+          <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.primary' }}>
+            Global Styles
+          </Typography>
+        </Box>
+        <Box sx={{ pl: 1 }}>
+          {renderTokenGroup(currentTokens)}
+        </Box>
+      </Box>
+    );
+
+    return sections;
+  };
+
   return (
     <Box sx={{ p: 2, overflowY: "auto", height: "100%" }}>
-      {renderTokenGroup(currentTokens)}
+      {renderCascadeSections()}
     </Box>
   );
+};
+
+// Context-to-CSS selector mapping
+const getContextSelector = (context: string): string => {
+  switch (context) {
+    case "appbar":
+      return ".MuiAppBar-root";
+    case "sidebar":
+      return ".sidebar, [data-context='sidebar']";
+    case "modal":
+      return ".MuiDialog-root, .MuiModal-root";
+    case "card":
+      return ".MuiCard-root, .MuiPaper-root.card";
+    case "global":
+    default:
+      return ":root";
+  }
 };
 
 // Helper to inject CSS variables for token overrides
 const injectTokenCssVars = (
   overrides: Record<string, any>,
   isDark: boolean,
+  context: string = "global",
 ) => {
   let styleElement = document.getElementById("token-overrides-css");
   if (!styleElement) {
@@ -357,8 +525,9 @@ const injectTokenCssVars = (
     document.head.appendChild(styleElement);
   }
 
-  // Build CSS text with overrides
-  let cssText = ":root {\n";
+  // Build CSS text with context-aware overrides
+  const selector = getContextSelector(context);
+  let cssText = `${selector} {\n`;
 
   for (const [tokenPath, tokenValue] of Object.entries(overrides)) {
     const cssVar = `--${tokenPath.replace(/\./g, "-")}`;
@@ -367,16 +536,20 @@ const injectTokenCssVars = (
     if (typeof tokenValue === "object" && tokenValue.light && tokenValue.dark) {
       // Use the appropriate value based on current mode
       const value = isDark ? tokenValue.dark : tokenValue.light;
-      cssText += `  ${cssVar}: ${value};\n`;
+      cssText += `  ${cssVar}: ${value}${
+        context !== "global" ? " !important" : ""
+      };\n`;
     } else {
       // Direct value
-      cssText += `  ${cssVar}: ${tokenValue};\n`;
+      cssText += `  ${cssVar}: ${tokenValue}${
+        context !== "global" ? " !important" : ""
+      };\n`;
     }
   }
 
   cssText += "}";
   styleElement.textContent = cssText;
-  console.log("Injected CSS variables:", cssText);
+  console.log("Injected CSS variables for context:", context, cssText);
 };
 
 // Helper to apply token overrides as CSS variables
@@ -386,11 +559,32 @@ const applyTokenOverrides = (
 ) => {
   console.log("Applying token overrides:", overrides);
 
-  // Set the global overrides for persistence
-  (window as any).__tokenOverrides = overrides;
+  // Group overrides by context
+  const overridesByContext: Record<string, Record<string, any>> = {};
 
-  // Inject CSS variables for the overridden tokens
-  injectTokenCssVars(overrides, isDark);
+  for (const [key, value] of Object.entries(overrides)) {
+    if (key.includes(":")) {
+      // Context-specific override (e.g., "appbar:ui.input.borderColor")
+      const [context, path] = key.split(":", 2);
+      if (!overridesByContext[context]) {
+        overridesByContext[context] = {};
+      }
+      overridesByContext[context][path] = value;
+    } else {
+      // Global override
+      if (!overridesByContext["global"]) {
+        overridesByContext["global"] = {};
+      }
+      overridesByContext["global"][key] = value;
+    }
+  }
+
+  // Apply each context's overrides
+  for (const [context, contextOverrides] of Object.entries(
+    overridesByContext,
+  )) {
+    injectTokenCssVars(contextOverrides, isDark, context);
+  }
 
   console.log("CSS variables updated");
 };
@@ -399,11 +593,20 @@ const TokenEditor: React.FC = () => {
   const isDarkMode = useFeatureFlagEnabled("darkMode");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedComponent, setSelectedComponent] = useState("button");
-  const [selectedVariant, setSelectedVariant] = useState("contained");
+  const [selectedVariant, setSelectedVariant] = useState("base");
   const [selectedState, setSelectedState] = useState("default");
   const [tokenOverrides, setTokenOverrides] = useState<Record<string, any>>({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Available contexts for styling
+  const availableContexts = [
+    { id: "global", label: "Global", description: "Default styles" },
+    { id: "appbar", label: "AppBar", description: "Within top navigation" },
+    { id: "sidebar", label: "Sidebar", description: "Within side navigation" },
+    { id: "modal", label: "Modal", description: "Within modal dialogs" },
+    { id: "card", label: "Card", description: "Within card components" },
+  ];
 
   // Get available component names from ui namespace
   const availableComponents = useMemo(() => {
@@ -460,19 +663,26 @@ const TokenEditor: React.FC = () => {
     }
   }, [availableStates, selectedState]);
 
-  const handleTokenChange = (path: string, value: any) => {
-    // Update local state
-    const newOverrides = { ...tokenOverrides, [path]: value };
+  const handleTokenChange = (
+    path: string,
+    value: any,
+    context: string = "global",
+  ) => {
+    // Update local state - store with context metadata
+    const newOverrides = { ...tokenOverrides };
+    const tokenKey = context === "global" ? path : `${context}:${path}`;
+    newOverrides[tokenKey] = value;
     setTokenOverrides(newOverrides);
 
     // Apply CSS variable updates
     applyTokenOverrides(newOverrides, isDarkMode);
   };
 
-  const handleTokenClear = (path: string) => {
+  const handleTokenClear = (path: string, context: string = "global") => {
     // Update local state
     const newOverrides = { ...tokenOverrides };
-    delete newOverrides[path];
+    const tokenKey = context === "global" ? path : `${context}:${path}`;
+    delete newOverrides[tokenKey];
     setTokenOverrides(newOverrides);
 
     // Apply CSS variable updates
@@ -540,150 +750,187 @@ const TokenEditor: React.FC = () => {
     <Box
       sx={{
         display: "flex",
+        flexDirection: "column",
         height: "100%",
       }}
     >
-      {/* Component Sidebar */}
+      {/* Main Content Area */}
       <Box
         sx={{
-          width: 250,
-          borderRight: 1,
-          borderColor: "divider",
           display: "flex",
-          flexDirection: "column",
+          height: "100%",
+          flex: 1,
         }}
       >
-        {/* Controls */}
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-            <IconButton size="small" onClick={handleExport} title="Export">
-              <DownloadIcon fontSize="small" />
-            </IconButton>
-            <IconButton size="small" onClick={handleImport} title="Import">
-              <UploadIcon fontSize="small" />
-            </IconButton>
-            <IconButton size="small" onClick={handleClearAll} title="Clear All">
-              <ClearIcon fontSize="small" />
-            </IconButton>
-          </Stack>
-
-          <TextField
-            fullWidth
-            size="small"
-            placeholder="Search components..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          {Object.keys(tokenOverrides).length > 0 && (
-            <Chip
-              label={`${Object.keys(tokenOverrides).length} overrides`}
+        {/* Component Sidebar */}
+        <Box
+          sx={{
+            width: 250,
+            borderRight: 1,
+            borderColor: "divider",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Search */}
+          <Box sx={{ p: 1, borderBottom: 1, borderColor: "divider" }}>
+            <TextField
+              fullWidth
               size="small"
-              color="primary"
-              sx={{ mt: 1 }}
+              placeholder="Search tokens..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
             />
+          </Box>
+
+          {/* Component List */}
+          <Box sx={{ flexGrow: 1, overflowY: "auto", p: 1 }}>
+            {filteredComponents.map((comp) => (
+              <Box
+                key={comp}
+                onClick={() => setSelectedComponent(comp)}
+                sx={{
+                  p: 1,
+                  cursor: "pointer",
+                  borderRadius: 1,
+                  bgcolor:
+                    selectedComponent === comp
+                      ? "action.selected"
+                      : "transparent",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
+                }}
+              >
+                <Typography variant="body2">{comp}</Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+        {/* Main Content Area */}
+        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+          {/* Variant Tabs and Actions */}
+          {currentComponentTokens && (
+            <>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Tabs
+                  value={selectedVariant}
+                  onChange={(_, newValue) => setSelectedVariant(newValue)}
+                >
+                  {availableVariants.map((variant) => (
+                    <Tab key={variant} label={variant} value={variant} />
+                  ))}
+                </Tabs>
+
+                {/* Overrides Count and Action Buttons */}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ pr: 2 }}
+                >
+                  {Object.keys(tokenOverrides).length > 0 && (
+                    <Chip
+                      label={`${Object.keys(tokenOverrides).length} overrides`}
+                      size="small"
+                      color="primary"
+                    />
+                  )}
+                  <IconButton
+                    size="small"
+                    onClick={handleExport}
+                    title="Export"
+                  >
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={handleImport}
+                    title="Import"
+                  >
+                    <UploadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={handleClearAll}
+                    title="Clear All"
+                  >
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Box>
+
+              {availableStates.length > 0 && (
+                <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    States
+                  </Typography>
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    {availableStates.map((state) => (
+                      <Chip
+                        key={state}
+                        label={state.charAt(0).toUpperCase() + state.slice(1)}
+                        onClick={() => setSelectedState(state)}
+                        variant={
+                          selectedState === state ? "filled" : "outlined"
+                        }
+                        color={selectedState === state ? "primary" : "default"}
+                        size="small"
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+            </>
+          )}
+
+          {/* Properties Grid */}
+          {currentComponentTokens &&
+          currentComponentTokens[selectedVariant] &&
+          currentComponentTokens[selectedVariant][selectedState] ? (
+            <ComponentPropertiesGrid
+              componentTokens={
+                currentComponentTokens[selectedVariant][selectedState]
+              }
+              componentName={selectedComponent}
+              selectedVariant={selectedVariant}
+              selectedState={selectedState}
+              tokenOverrides={tokenOverrides}
+              onTokenChange={handleTokenChange}
+              onTokenClear={handleTokenClear}
+            />
+          ) : (
+            <Box sx={{ p: 3 }}>
+              <Typography color="text.secondary">
+                No tokens available for this selection
+              </Typography>
+            </Box>
           )}
         </Box>
 
-        {/* Component List */}
-        <Box sx={{ flexGrow: 1, overflowY: "auto", p: 1 }}>
-          {filteredComponents.map((comp) => (
-            <Box
-              key={comp}
-              onClick={() => setSelectedComponent(comp)}
-              sx={{
-                p: 1,
-                cursor: "pointer",
-                borderRadius: 1,
-                bgcolor:
-                  selectedComponent === comp
-                    ? "action.selected"
-                    : "transparent",
-                "&:hover": {
-                  bgcolor: "action.hover",
-                },
-              }}
-            >
-              <Typography variant="body2">{comp}</Typography>
-            </Box>
-          ))}
-        </Box>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={2000}
+          onClose={() => setSnackbarOpen(false)}
+          message={snackbarMessage}
+        />
       </Box>
-
-      {/* Main Content Area */}
-      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-        {/* Variant and State Tabs */}
-        {currentComponentTokens && (
-          <>
-            <Tabs
-              value={selectedVariant}
-              onChange={(_, newValue) => setSelectedVariant(newValue)}
-              sx={{ borderBottom: 1, borderColor: "divider" }}
-            >
-              {availableVariants.map((variant) => (
-                <Tab key={variant} label={variant} value={variant} />
-              ))}
-            </Tabs>
-
-            {availableStates.length > 0 && (
-              <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  States
-                </Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {availableStates.map((state) => (
-                    <Chip
-                      key={state}
-                      label={state.charAt(0).toUpperCase() + state.slice(1)}
-                      onClick={() => setSelectedState(state)}
-                      variant={selectedState === state ? "filled" : "outlined"}
-                      color={selectedState === state ? "primary" : "default"}
-                      size="small"
-                    />
-                  ))}
-                </Stack>
-              </Box>
-            )}
-          </>
-        )}
-
-        {/* Properties Grid */}
-        {currentComponentTokens &&
-        currentComponentTokens[selectedVariant] &&
-        currentComponentTokens[selectedVariant][selectedState] ? (
-          <ComponentPropertiesGrid
-            componentTokens={
-              currentComponentTokens[selectedVariant][selectedState]
-            }
-            componentName={selectedComponent}
-            selectedVariant={selectedVariant}
-            selectedState={selectedState}
-            tokenOverrides={tokenOverrides}
-            onTokenChange={handleTokenChange}
-            onTokenClear={handleTokenClear}
-          />
-        ) : (
-          <Box sx={{ p: 3 }}>
-            <Typography color="text.secondary">
-              No tokens available for this selection
-            </Typography>
-          </Box>
-        )}
-      </Box>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={2000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
     </Box>
   );
 };
