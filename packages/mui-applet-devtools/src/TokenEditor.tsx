@@ -13,6 +13,9 @@ import {
   Menu,
   Checkbox,
   FormControlLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -20,9 +23,11 @@ import {
   Upload as UploadIcon,
   Clear as ClearIcon,
   Add as AddIcon,
+  ExpandMore as ExpandMoreIcon,
 } from "@mui/icons-material";
 import { tokens } from "@smbc/ui-core";
 import { useFeatureFlagEnabled } from "@smbc/applet-core";
+import { ContextEditor } from "./ContextEditor";
 
 // Helper function to build complete token structure with overrides applied
 const buildCompleteTokenStructure = (overrides: Record<string, any>): any => {
@@ -878,6 +883,56 @@ const TokenEditor: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [appliedCss, setAppliedCss] = useState("");
   const [showBaseTokens, setShowBaseTokens] = useState(false);
+  const [activeView, setActiveView] = useState<"tokens" | "context-editor">("tokens");
+  const [selectedContext, setSelectedContext] = useState<string | null>(null);
+
+  // Section expansion states
+  const [expandedSections, setExpandedSections] = useState({
+    tokens: true,
+    contexts: false,
+    palettes: false,
+  });
+
+  // Get color tokens from ui-core
+  const colorTokens = useMemo(() => {
+    const colors: Array<{ name: string; value: string; path: string }> = [];
+
+    const extractColors = (obj: any, path: string = "") => {
+      for (const [key, value] of Object.entries(obj)) {
+        const currentPath = path ? `${path}.${key}` : key;
+        if (typeof value === "string" && value.startsWith("#")) {
+          colors.push({
+            name: key,
+            value,
+            path: currentPath,
+          });
+        } else if (typeof value === "object" && value !== null) {
+          extractColors(value, currentPath);
+        }
+      }
+    };
+
+    if (tokens.color) {
+      extractColors(tokens.color, "color");
+    }
+
+    return colors;
+  }, []);
+
+  // Dummy context data
+  const dummyContexts = [
+    { name: "default", description: "Base context" },
+    { name: "hdModal", description: "Header + Modal" },
+    { name: "cardDrawer", description: "Card + Drawer" },
+    { name: "modalTip", description: "Modal + Tooltip" },
+  ];
+
+  const handleSectionToggle = (section: keyof typeof expandedSections) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
   // Get available component names from ui namespace
   const availableComponents = useMemo(() => {
@@ -893,6 +948,23 @@ const TokenEditor: React.FC = () => {
       comp.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [availableComponents, searchTerm]);
+
+  // Filter contexts based on search
+  const filteredContexts = useMemo(() => {
+    return dummyContexts.filter((context) =>
+      context.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      context.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
+
+  // Filter colors based on search
+  const filteredColors = useMemo(() => {
+    return colorTokens.filter((color) =>
+      color.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      color.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      color.path.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [colorTokens, searchTerm]);
 
   // Get current component tokens
   const currentComponentTokens = useMemo(() => {
@@ -1056,7 +1128,12 @@ const TokenEditor: React.FC = () => {
     setTokenOverrides(newOverrides);
 
     // Apply CSS variable updates
-    applyTokenOverrides(newOverrides, isDarkMode, showBaseTokens, setAppliedCss);
+    applyTokenOverrides(
+      newOverrides,
+      isDarkMode,
+      showBaseTokens,
+      setAppliedCss,
+    );
   };
 
   const handleTokenClear = (path: string, context: string = "global") => {
@@ -1067,7 +1144,12 @@ const TokenEditor: React.FC = () => {
     setTokenOverrides(newOverrides);
 
     // Apply CSS variable updates
-    applyTokenOverrides(newOverrides, isDarkMode, showBaseTokens, setAppliedCss);
+    applyTokenOverrides(
+      newOverrides,
+      isDarkMode,
+      showBaseTokens,
+      setAppliedCss,
+    );
   };
 
   const handleClearAll = () => {
@@ -1148,14 +1230,16 @@ const TokenEditor: React.FC = () => {
           flex: 1,
         }}
       >
-        {/* Component Sidebar */}
+        {/* Three-Section Sidebar */}
         <Box
           sx={{
-            width: 250,
+            width: 280,
             borderRight: 1,
             borderColor: "divider",
             display: "flex",
             flexDirection: "column",
+            overflow: "hidden",
+            bgcolor: "rgba(0, 0, 0, 0.15)",
           }}
         >
           {/* Search */}
@@ -1163,7 +1247,7 @@ const TokenEditor: React.FC = () => {
             <TextField
               fullWidth
               size="small"
-              placeholder="Search tokens..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -1176,33 +1260,249 @@ const TokenEditor: React.FC = () => {
             />
           </Box>
 
-          {/* Component List */}
-          <Box sx={{ flexGrow: 1, overflowY: "auto", p: 1 }}>
-            {filteredComponents.map((comp) => (
-              <Box
-                key={comp}
-                onClick={() => setSelectedComponent(comp)}
+          {/* Collapsible Sections */}
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              minHeight: 0,
+            }}
+          >
+            {/* Tokens Section */}
+            {filteredComponents.length > 0 && (
+            <Accordion
+              expanded={expandedSections.tokens}
+              onChange={() => handleSectionToggle("tokens")}
+              disableGutters
+              elevation={0}
+              TransitionProps={{ timeout: 0 }}
+              sx={{
+                "&:before": { display: "none" },
+                flex: expandedSections.tokens ? 1 : "none",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                "& .MuiCollapse-root": {
+                  overflowY: "scroll",
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
                 sx={{
-                  p: 1,
-                  cursor: "pointer",
-                  borderRadius: 1,
-                  bgcolor:
-                    selectedComponent === comp
-                      ? "action.selected"
-                      : "transparent",
+                  px: 2,
+                  py: 1,
+                  flexShrink: 0,
+                  bgcolor: "background.paper",
+                  borderTop: 1,
+                  borderColor: "divider",
                   "&:hover": {
                     bgcolor: "action.hover",
                   },
                 }}
               >
-                <Typography variant="body2">{comp}</Typography>
-              </Box>
-            ))}
+                <Typography variant="body2" fontWeight="medium">
+                  Tokens
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
+                <Box sx={{ px: 1, py: 0.5 }}>
+                  {filteredComponents.map((comp) => (
+                    <Box
+                      key={comp}
+                      onClick={() => {
+                        setSelectedComponent(comp);
+                        setActiveView("tokens");
+                      }}
+                      sx={{
+                        p: 1,
+                        cursor: "pointer",
+                        borderRadius: 1,
+                        bgcolor:
+                          selectedComponent === comp
+                            ? "action.selected"
+                            : "transparent",
+                        "&:hover": {
+                          bgcolor: "action.hover",
+                        },
+                      }}
+                    >
+                      <Typography variant="body2">{comp}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
+            {/* Contexts Section */}
+            {filteredContexts.length > 0 && (
+            <Accordion
+              expanded={expandedSections.contexts}
+              onChange={() => handleSectionToggle("contexts")}
+              disableGutters
+              elevation={0}
+              TransitionProps={{ timeout: 0 }}
+              sx={{
+                "&:before": { display: "none" },
+                flex: expandedSections.contexts ? 1 : "none",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                "& .MuiCollapse-root": {
+                  overflowY: "scroll",
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{
+                  px: 2,
+                  py: 1,
+                  flexShrink: 0,
+                  bgcolor: "background.paper",
+                  borderTop: 1,
+                  borderColor: "divider",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
+                }}
+              >
+                <Typography variant="body2" fontWeight="medium">
+                  Contexts
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
+                <Box sx={{ px: 1, py: 0.5 }}>
+                  {filteredContexts.map((context) => (
+                    <Box
+                      key={context.name}
+                      onClick={() => {
+                        setSelectedContext(context.name);
+                        setActiveView("context-editor");
+                      }}
+                      sx={{
+                        p: 1,
+                        cursor: "pointer",
+                        borderRadius: 1,
+                        bgcolor: selectedContext === context.name && activeView === "context-editor" ? "action.selected" : "transparent",
+                        "&:hover": {
+                          bgcolor: "action.hover",
+                        },
+                      }}
+                    >
+                      <Typography variant="body2" fontWeight="medium">
+                        {context.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {context.description}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
+            {/* Palettes Section */}
+            {filteredColors.length > 0 && (
+            <Accordion
+              expanded={expandedSections.palettes}
+              onChange={() => handleSectionToggle("palettes")}
+              disableGutters
+              elevation={0}
+              TransitionProps={{ timeout: 0 }}
+              sx={{
+                "&:before": { display: "none" },
+                flex: expandedSections.palettes ? 1 : "none",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                "& .MuiCollapse-root": {
+                  overflowY: "scroll",
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{
+                  px: 2,
+                  py: 1,
+                  flexShrink: 0,
+                  bgcolor: "background.paper",
+                  borderTop: 1,
+                  borderColor: "divider",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
+                }}
+              >
+                <Typography variant="body2" fontWeight="medium">
+                  Palettes
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
+                <Box sx={{ px: 1, py: 0.5 }}>
+                  {filteredColors.map((color) => (
+                    <Box
+                      key={color.path}
+                      onClick={() => {
+                        navigator.clipboard?.writeText(`ui.${color.path}`);
+                        setSnackbarMessage(`Copied: ui.${color.path}`);
+                        setSnackbarOpen(true);
+                      }}
+                      sx={{
+                        p: 1,
+                        cursor: "pointer",
+                        borderRadius: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        "&:hover": {
+                          bgcolor: "action.hover",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 16,
+                          height: 16,
+                          backgroundColor: color.value,
+                          borderRadius: "50%",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="body2" noWrap>
+                          {color.name}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          noWrap
+                        >
+                          {color.value}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+            )}
           </Box>
         </Box>
 
-        {/* DevTools-style Cascade View */}
+        {/* Content Area - Conditional View */}
         <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+          {activeView === "context-editor" ? (
+            <ContextEditor />
+          ) : (
+            <>
           {/* States filter and action buttons */}
           {currentComponentTokens && (
             <Box
@@ -1382,6 +1682,8 @@ const TokenEditor: React.FC = () => {
                 </Box>
               )}
             </Box>
+          )}
+            </>
           )}
         </Box>
 
