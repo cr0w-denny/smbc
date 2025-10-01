@@ -29,13 +29,106 @@ import { tokens } from "@smbc/ui-core";
 import { useFeatureFlagEnabled } from "@smbc/applet-core";
 import { ContextEditor } from "./ContextEditor";
 
+
+// Interface for saved contexts
+interface SavedContext {
+  id: string;
+  name: string;
+  shortName: string;
+  cssSelector: string;
+  isBaseContext: boolean;
+}
+
+// Get token usage for a context by checking immediate children of shortName in tokens
+const getTokenUsage = (shortName: string): number => {
+  // Check if tokens[shortName] exists (e.g., tokens.modal, tokens.card)
+  if ((tokens as any)[shortName]) {
+    const contextTokens = (tokens as any)[shortName];
+
+    // Count the number of defined token paths
+    let count = 0;
+    const walkTokens = (obj: any) => {
+      for (const [, value] of Object.entries(obj)) {
+        if (typeof value === "object" && value !== null && !("light" in value && "dark" in value)) {
+          // Continue walking if it's a nested object (but not a theme token)
+          walkTokens(value);
+        } else {
+          // This is a leaf value (either a string or theme token)
+          count++;
+        }
+      }
+    };
+
+    walkTokens(contextTokens);
+    return count;
+  }
+
+  return 0;
+};
+
+// Helper function to extract existing contexts from tokens
+const extractExistingContexts = (): SavedContext[] => {
+  const contexts: SavedContext[] = [
+    {
+      id: "default",
+      name: "Root",
+      shortName: "ui",
+      cssSelector: ":root",
+      isBaseContext: true,
+    },
+  ];
+
+  // Read contexts from tokens.contexts property
+  if ((tokens as any).contexts) {
+    Object.entries((tokens as any).contexts).forEach(([key, contextData]: [string, any]) => {
+      contexts.push({
+        id: contextData.id,
+        name: contextData.name,
+        shortName: key, // Use the key as shortName (camelCase)
+        cssSelector: contextData.cssSelector,
+        isBaseContext: false, // These are generated contexts
+      });
+    });
+  }
+
+  // Sort contexts alphabetically by name (keeping Root first)
+  const rootContext = contexts.find(ctx => ctx.id === "default");
+  const otherContexts = contexts.filter(ctx => ctx.id !== "default").sort((a, b) => a.name.localeCompare(b.name));
+
+  return rootContext ? [rootContext, ...otherContexts] : otherContexts;
+};
+
 // Helper function to build complete token structure with overrides applied
-const buildCompleteTokenStructure = (overrides: Record<string, any>): any => {
+const buildCompleteTokenStructure = (
+  overrides: Record<string, any>,
+  savedContexts: SavedContext[] = []
+): any => {
   const result = JSON.parse(JSON.stringify(tokens)); // Deep clone
 
   // Apply any overrides
   for (const [path, value] of Object.entries(overrides)) {
-    setNestedValue(result, path, value);
+    if (path.includes(":")) {
+      // Handle context-specific overrides (e.g., "appAppHeader:ui.card.background")
+      const [context, tokenPath] = path.split(":", 2);
+      setNestedValue(result, `${context}.${tokenPath}`, value);
+    } else {
+      // Handle global overrides
+      setNestedValue(result, path, value);
+    }
+  }
+
+  // Add contexts property - exclude only the root context
+  const contextsToExport = savedContexts.filter(context => context.id !== "default");
+
+  if (contextsToExport.length > 0) {
+    result.contexts = contextsToExport.reduce((acc, context) => {
+      acc[context.shortName] = {
+        id: context.id,
+        name: context.name,
+        cssSelector: context.cssSelector,
+      };
+      return acc;
+    }, {} as Record<string, any>);
   }
 
   return result;
@@ -180,6 +273,7 @@ interface ComponentPropertiesGridProps {
   onTokenClear: (path: string, context?: string) => void;
   onVariantChange: (variant: string) => void;
   onStateChange: (state: string) => void;
+  savedContexts: SavedContext[];
 }
 
 const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
@@ -190,6 +284,7 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
   tokenOverrides,
   onTokenChange,
   onTokenClear,
+  savedContexts,
 }) => {
   const [collapsedSections, setCollapsedSections] = React.useState<Set<string>>(
     new Set(),
@@ -210,28 +305,25 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
   };
   const isDarkMode = useFeatureFlagEnabled("darkMode");
 
-  // Available contexts for styling
-  const availableContexts = [
-    { id: "global", label: "Global", description: "Default styles" },
-    { id: "app", label: "App", description: "Within main application" },
-    {
-      id: "appheader",
-      label: "App Header",
-      description: "Within app header/navigation",
-    },
-    {
-      id: "apptoolbar",
-      label: "App Toolbar",
-      description: "Within app toolbar",
-    },
-    {
-      id: "appcontent",
-      label: "App Content",
-      description: "Within app content area",
-    },
-    { id: "modal", label: "Modal", description: "Within modal dialogs" },
-    { id: "card", label: "Card", description: "Within card components" },
-  ];
+  // Convert saved contexts to the format needed for the context menu
+  const availableContexts = React.useMemo(() => {
+    const contexts = [
+      { id: "global", label: "Global", description: "Default styles" }
+    ];
+
+    // Add non-root contexts from savedContexts
+    savedContexts
+      .filter(ctx => ctx.id !== "default") // Exclude root context
+      .forEach(ctx => {
+        contexts.push({
+          id: ctx.shortName,
+          label: ctx.name,
+          description: `Within ${ctx.name.toLowerCase()}`
+        });
+      });
+
+    return contexts;
+  }, [savedContexts]);
 
   // Helper function to build token path based on new structure
   const buildTokenPath = (
@@ -884,13 +976,16 @@ const TokenEditor: React.FC = () => {
   const [appliedCss, setAppliedCss] = useState("");
   const [showBaseTokens, setShowBaseTokens] = useState(false);
   const [activeView, setActiveView] = useState<"tokens" | "context-editor">("tokens");
-  const [selectedContext, setSelectedContext] = useState<string | null>(null);
+  const [selectedContext, setSelectedContext] = useState<SavedContext | null>(null);
+  const [savedContexts, setSavedContexts] = useState<SavedContext[]>(() =>
+    extractExistingContexts()
+  );
 
   // Section expansion states
   const [expandedSections, setExpandedSections] = useState({
     tokens: true,
-    contexts: false,
-    palettes: false,
+    contexts: true,
+    palettes: true,
   });
 
   // Get color tokens from ui-core
@@ -919,13 +1014,6 @@ const TokenEditor: React.FC = () => {
     return colors;
   }, []);
 
-  // Dummy context data
-  const dummyContexts = [
-    { name: "default", description: "Base context" },
-    { name: "hdModal", description: "Header + Modal" },
-    { name: "cardDrawer", description: "Card + Drawer" },
-    { name: "modalTip", description: "Modal + Tooltip" },
-  ];
 
   const handleSectionToggle = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -951,11 +1039,11 @@ const TokenEditor: React.FC = () => {
 
   // Filter contexts based on search
   const filteredContexts = useMemo(() => {
-    return dummyContexts.filter((context) =>
+    return savedContexts.filter((context) =>
       context.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      context.description.toLowerCase().includes(searchTerm.toLowerCase())
+      context.shortName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [savedContexts, searchTerm]);
 
   // Filter colors based on search
   const filteredColors = useMemo(() => {
@@ -1162,9 +1250,37 @@ const TokenEditor: React.FC = () => {
     setSnackbarOpen(true);
   };
 
+  // Context management functions
+  const handleGenerateContext = (name: string, shortName: string, cssSelector: string) => {
+    const id = `context-${Date.now()}`;
+    const newContext: SavedContext = {
+      id,
+      name,
+      shortName,
+      cssSelector,
+      isBaseContext: false, // Generated contexts are not base contexts
+    };
+
+    setSavedContexts((prev) => {
+      const updatedContexts = [...prev, newContext];
+      // Re-sort alphabetically, keeping Root first
+      const rootContext = updatedContexts.find(ctx => ctx.id === "default");
+      const otherContexts = updatedContexts.filter(ctx => ctx.id !== "default").sort((a, b) => a.name.localeCompare(b.name));
+      return rootContext ? [rootContext, ...otherContexts] : otherContexts;
+    });
+    setSnackbarMessage(`Context "${name}" generated`);
+    setSnackbarOpen(true);
+  };
+
+  const handleDeleteContext = (contextId: string) => {
+    setSavedContexts((prev) => prev.filter(ctx => ctx.id !== contextId));
+    setSnackbarMessage("Context deleted");
+    setSnackbarOpen(true);
+  };
+
   const handleExport = () => {
-    // Build complete token structure with overrides applied
-    const completeTokens = buildCompleteTokenStructure(tokenOverrides);
+    // Build complete token structure with overrides and contexts applied
+    const completeTokens = buildCompleteTokenStructure(tokenOverrides, savedContexts);
     const dataStr = JSON.stringify(completeTokens, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
@@ -1379,26 +1495,61 @@ const TokenEditor: React.FC = () => {
                   {filteredContexts.map((context) => (
                     <Box
                       key={context.name}
-                      onClick={() => {
-                        setSelectedContext(context.name);
-                        setActiveView("context-editor");
-                      }}
                       sx={{
                         p: 1,
-                        cursor: "pointer",
                         borderRadius: 1,
-                        bgcolor: selectedContext === context.name && activeView === "context-editor" ? "action.selected" : "transparent",
+                        bgcolor: selectedContext?.id === context.id && activeView === "context-editor" ? "action.selected" : "transparent",
                         "&:hover": {
                           bgcolor: "action.hover",
                         },
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
                       }}
                     >
-                      <Typography variant="body2" fontWeight="medium">
-                        {context.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {context.description}
-                      </Typography>
+                      <Box
+                        onClick={() => {
+                          setSelectedContext(context);
+                          setActiveView("context-editor");
+                        }}
+                        sx={{
+                          flexGrow: 1,
+                          cursor: "pointer",
+                          minWidth: 0,
+                        }}
+                      >
+                        <Typography variant="body2" fontWeight="medium">
+                          {context.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {context.shortName}
+                        </Typography>
+                      </Box>
+                      {context.id !== "default" && (() => {
+                        const usage = getTokenUsage(context.shortName);
+                        const hasUsage = usage > 0;
+
+                        return (
+                          <IconButton
+                            size="small"
+                            disabled={hasUsage}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!hasUsage) {
+                                handleDeleteContext(context.id);
+                              }
+                            }}
+                            sx={{
+                              ml: 1,
+                              flexShrink: 0,
+                              opacity: hasUsage ? 0.5 : 1,
+                            }}
+                            title={hasUsage ? `Cannot delete: ${usage} token override${usage !== 1 ? "s" : ""} using this context` : "Delete context"}
+                          >
+                            <ClearIcon fontSize="small" />
+                          </IconButton>
+                        );
+                      })()}
                     </Box>
                   ))}
                 </Box>
@@ -1406,7 +1557,7 @@ const TokenEditor: React.FC = () => {
             </Accordion>
             )}
 
-            {/* Palettes Section */}
+            {/* Colors Section */}
             {filteredColors.length > 0 && (
             <Accordion
               expanded={expandedSections.palettes}
@@ -1440,7 +1591,7 @@ const TokenEditor: React.FC = () => {
                 }}
               >
                 <Typography variant="body2" fontWeight="medium">
-                  Palettes
+                  Colors
                 </Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
@@ -1500,7 +1651,15 @@ const TokenEditor: React.FC = () => {
         {/* Content Area - Conditional View */}
         <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
           {activeView === "context-editor" ? (
-            <ContextEditor />
+            <ContextEditor
+              onContextGenerated={handleGenerateContext}
+              existingContexts={savedContexts.map(ctx => ({
+                name: ctx.name,
+                shortName: ctx.shortName,
+                cssSelector: ctx.cssSelector
+              }))}
+              selectedContext={selectedContext}
+            />
           ) : (
             <>
           {/* States filter and action buttons */}
@@ -1604,6 +1763,7 @@ const TokenEditor: React.FC = () => {
                   onTokenClear={handleTokenClear}
                   onVariantChange={setSelectedVariant}
                   onStateChange={setSelectedState}
+                  savedContexts={savedContexts}
                 />
               </Box>
 

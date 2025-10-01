@@ -911,7 +911,41 @@ export const tokens = {
     },
   },
 
-  // Scope-specific overrides for cascade demonstration
+  // Context definitions for the UI
+  contexts: {
+    app: {
+      id: "app",
+      name: "App",
+      cssSelector: ".app",
+    },
+    appHeader: {
+      id: "appHeader",
+      name: "App Header",
+      cssSelector: "#app-header",
+    },
+    appToolbar: {
+      id: "appToolbar",
+      name: "App Toolbar",
+      cssSelector: ".AppShell-toolbar",
+    },
+    appContent: {
+      id: "appContent",
+      name: "App Content",
+      cssSelector: "#app-content",
+    },
+    modal: {
+      id: "modal",
+      name: "Modal",
+      cssSelector: ".modal",
+    },
+    card: {
+      id: "card",
+      name: "Card",
+      cssSelector: ".card",
+    },
+  },
+
+  // Context-specific token overrides (written as contextId.token.prop paths)
   modal: {
     input: {
       // Override padding in modal context
