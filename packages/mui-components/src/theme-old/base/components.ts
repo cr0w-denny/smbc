@@ -1,7 +1,7 @@
 import { Components, Theme } from "@mui/material/styles";
 import { ui, shadow } from "@smbc/ui-core";
 import { getScrollbarStyles } from "../dark/scrollbar";
-import { token } from "../../utils/tokens";
+import { token, cssVar } from "../../utils/tokens";
 
 export const createBaseComponents = (
   theme: Theme,
@@ -65,7 +65,7 @@ export const createBaseComponents = (
           "& .MuiOutlinedInput-root": {
             borderRadius: theme.spacing(3),
             fontSize: "0.875rem",
-            backgroundColor: token(theme, ui.input.base.default.background),
+            backgroundColor: 'var(--ui-input-base-default-background)',
             "& fieldset": {
               borderColor: token(theme, ui.input.base.default.borderColor),
               ...(theme.palette.mode === "dark" && {
@@ -110,7 +110,7 @@ export const createBaseComponents = (
     MuiSelect: {
       styleOverrides: {
         root: {
-          backgroundColor: token(theme, ui.input.base.default.background),
+          backgroundColor: cssVar(theme).ui.input.base.default.background(),
           borderRadius: theme.spacing(3),
           "& .MuiOutlinedInput-notchedOutline": {
             borderRadius: theme.spacing(3),

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Box, Typography, CssBaseline } from "@mui/material";
 import { color } from "@smbc/ui-core";
@@ -11,12 +11,14 @@ import {
   useHashNavigation,
   AppletProvider,
   FeatureFlagProvider,
+  useFeatureFlag,
+  useFeatureFlagToggle,
 } from "@smbc/applet-core";
 import { DataViewProvider } from "@smbc/dataview";
 import { AuthGate } from "./components/AuthGate";
 import { configureApplets, AppletRouter } from "@smbc/applet-host";
 import { APPLETS, ROLE_CONFIG } from "./applet.config";
-import { createTheme } from "@smbc/mui-components";
+import { cssVarTheme } from "@smbc/mui-components";
 import { navigation } from "./menu";
 import { useDebug, useDevTools, DevProvider } from "./context/DevContext";
 import { DevConsoleToggle } from "@smbc/mui-applet-devtools";
@@ -91,41 +93,40 @@ const createQueryClient = (getImpersonationEmail: () => string) => {
 };
 
 // Setup global fetch interceptor with context access
-const setupGlobalFetchInterceptor = (debug: any, createSessionId: any) => {
+const setupGlobalFetchInterceptor = () => {
   console.log("🔧 setupGlobalFetchInterceptor called");
-  debug.log(
-    createSessionId("interceptor-setup"),
-    "GlobalFetchInterceptor",
-    "interceptor-setup",
-    {
-      originalFetchExists: typeof window.fetch === "function",
-    },
-  );
+  // debug.log(
+  //   createSessionId("interceptor-setup"),
+  //   "GlobalFetchInterceptor",
+  //   "interceptor-setup",
+  //   {
+  //     originalFetchExists: typeof window.fetch === "function",
+  //   },
+  // );
 
   const originalFetch = window.fetch;
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     // Read impersonation email from global variable (same as useApiClient)
     const impersonateEmail = (window as any).__devImpersonateEmail;
-    const url = typeof input === "string" ? input : input.toString();
 
-    console.log("🌐 Fetch interceptor called for:", url);
+    // console.log("🌐 Fetch interceptor called for:", url);
 
     // Log all outgoing requests
-    debug.log(
-      createSessionId("fetch-request"),
-      "GlobalFetchInterceptor",
-      "request-made",
-      {
-        url,
-        method: init?.method || "GET",
-        hasImpersonationEmail: Boolean(impersonateEmail),
-        impersonationEmail: impersonateEmail || null,
-        originalHeaders: init?.headers
-          ? Object.fromEntries(new Headers(init.headers))
-          : {},
-        timestamp: new Date().toISOString(),
-      },
-    );
+    // debug.log(
+    //   createSessionId("fetch-request"),
+    //   "GlobalFetchInterceptor",
+    //   "request-made",
+    //   {
+    //     url,
+    //     method: init?.method || "GET",
+    //     hasImpersonationEmail: Boolean(impersonateEmail),
+    //     impersonationEmail: impersonateEmail || null,
+    //     originalHeaders: init?.headers
+    //       ? Object.fromEntries(new Headers(init.headers))
+    //       : {},
+    //     timestamp: new Date().toISOString(),
+    //   },
+    // );
 
     if (impersonateEmail) {
       // Clone and modify headers
@@ -141,17 +142,17 @@ const setupGlobalFetchInterceptor = (debug: any, createSessionId: any) => {
         Object.fromEntries(headers),
       );
 
-      debug.log(
-        createSessionId("impersonate-header"),
-        "GlobalFetchInterceptor",
-        "header-added",
-        {
-          url,
-          impersonationEmail: impersonateEmail,
-          finalHeaders: Object.fromEntries(headers),
-          timestamp: new Date().toISOString(),
-        },
-      );
+      // debug.log(
+      //   createSessionId("impersonate-header"),
+      //   "GlobalFetchInterceptor",
+      //   "header-added",
+      //   {
+      //     url,
+      //     impersonationEmail: impersonateEmail,
+      //     finalHeaders: Object.fromEntries(headers),
+      //     timestamp: new Date().toISOString(),
+      //   },
+      // );
 
       // Call original fetch with modified headers
       return originalFetch(input, {
@@ -162,16 +163,16 @@ const setupGlobalFetchInterceptor = (debug: any, createSessionId: any) => {
       console.log(
         "🔍 No impersonation email, calling original fetch unchanged",
       );
-      debug.log(
-        createSessionId("no-impersonate"),
-        "GlobalFetchInterceptor",
-        "no-impersonation",
-        {
-          url,
-          reason: "No impersonation email set",
-          timestamp: new Date().toISOString(),
-        },
-      );
+      // debug.log(
+      //   createSessionId("no-impersonate"),
+      //   "GlobalFetchInterceptor",
+      //   "no-impersonation",
+      //   {
+      //     url,
+      //     reason: "No impersonation email set",
+      //     timestamp: new Date().toISOString(),
+      //   },
+      // );
     }
 
     // Call original fetch unchanged
@@ -179,15 +180,15 @@ const setupGlobalFetchInterceptor = (debug: any, createSessionId: any) => {
   };
 
   console.log("🔧 Global fetch interceptor installed successfully");
-  debug.log(
-    createSessionId("interceptor-ready"),
-    "GlobalFetchInterceptor",
-    "interceptor-ready",
-    {
-      message: "Global fetch interceptor is now active",
-      timestamp: new Date().toISOString(),
-    },
-  );
+  // debug.log(
+  //   createSessionId("interceptor-ready"),
+  //   "GlobalFetchInterceptor",
+  //   "interceptor-ready",
+  //   {
+  //     message: "Global fetch interceptor is now active",
+  //     timestamp: new Date().toISOString(),
+  //   },
+  // );
 };
 
 configureApplets(APPLETS);
@@ -195,8 +196,20 @@ console.log("🔄 Configured applets for mock environment");
 
 const AppShellContent: React.FC = () => {
   const { path, navigate } = useHashNavigation();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
+  const toggleDarkMode = useFeatureFlagToggle("darkMode");
   const { debug, createSessionId } = useDebug();
+
+  // Use static CSS variable theme - dark mode handled by data attribute
+  const appTheme = cssVarTheme;
+
+  // Set data-theme attribute on document for CSS variable switching
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      isDarkMode ? "dark" : "light",
+    );
+  }, [isDarkMode]);
   const {
     DevConsoleToggle: _,
     roleSelection,
@@ -217,31 +230,48 @@ const AppShellContent: React.FC = () => {
     // Only setup once if dev tools are loaded and not already setup
     if (!interceptorSetup && impersonation.setEmail.toString() !== "() => {}") {
       console.log("🔧 Setting up fetch interceptor");
-      setupGlobalFetchInterceptor(debug, createSessionId);
+      setupGlobalFetchInterceptor();
       setInterceptorSetup(true);
     }
-  }, [interceptorSetup, impersonation.setEmail, debug, createSessionId]); // Minimal dependencies
-
-  // Load dark mode preference from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("ewi-dark-mode");
-    if (saved) {
-      setIsDarkMode(JSON.parse(saved));
-    }
-  }, []);
+  }, [interceptorSetup, impersonation.setEmail, debug, createSessionId]);
 
   const handleDarkModeToggle = (enabled: boolean) => {
-    debug.log(
-      createSessionId("dark-mode-toggle"),
-      "UserActions",
-      "dark-mode-changed",
-      {
-        enabled,
-        previousMode: isDarkMode,
-      },
-    );
-    setIsDarkMode(enabled);
-    localStorage.setItem("ewi-dark-mode", JSON.stringify(enabled));
+    // debug.log(
+    //   createSessionId("dark-mode-toggle"),
+    //   "UserActions",
+    //   "dark-mode-changed",
+    //   {
+    //     enabled,
+    //     previousMode: isDarkMode,
+    //   },
+    // );
+    toggleDarkMode();
+
+    // CSS variables handle the theme automatically
+
+    // Update CSS variables for the new mode if overrides exist
+    const globalOverrides = (window as any).__tokenOverrides;
+    if (globalOverrides) {
+      // Need to import resolveTokenReference
+      import("@smbc/ui-core").then(({ resolveTokenReference }) => {
+        // Re-inject CSS variables with the new mode
+        let cssText = ":root {\n";
+        for (const [tokenPath, tokenValue] of Object.entries(
+          globalOverrides as Record<string, { light: string; dark: string }>,
+        )) {
+          const cssVar = `--${tokenPath.replace(/\./g, "-")}`;
+          const rawValue = enabled ? tokenValue.dark : tokenValue.light;
+          const resolvedValue = resolveTokenReference(rawValue);
+          cssText += `  ${cssVar}: ${resolvedValue};\n`;
+        }
+        cssText += "}";
+
+        const styleElement = document.getElementById("token-overrides");
+        if (styleElement) {
+          styleElement.textContent = cssText;
+        }
+      });
+    }
   };
 
   const handleProfile = () => {
@@ -265,23 +295,20 @@ const AppShellContent: React.FC = () => {
     alert("Logout functionality would be implemented here");
   };
 
-  const appTheme = React.useMemo(() => createTheme(isDarkMode), [isDarkMode]);
-
   // Default component for unmatched routes
   const AppRoutes = () => {
     switch (path) {
-      case "/subscription-managers":
+      case "/approvals":
         return (
           <Box sx={{ p: 3, mt: 14, ml: 11 }}>
             <Typography variant="h4" gutterBottom>
-              Subscription Managers
+              Event Workflow Approvals
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Subscription management functionality coming soon...
+              Event eorkflow approval functionality coming soon...
             </Typography>
           </Box>
         );
-
       case "/custom-reports":
         return (
           <Box sx={{ p: 3 }}>
@@ -336,14 +363,13 @@ const AppShellContent: React.FC = () => {
           onDarkModeToggle={handleDarkModeToggle}
           username={
             impersonation.email ? (
-              <span style={{ color: color.brand.primary.freshGreen }}>
+              <span style={{ color: color.brand.freshGreen }}>
                 {impersonation.email}
               </span>
             ) : (
               "John Doe"
             )
           }
-          theme={appTheme}
           userRoles={userRoles}
           onToggleRole={handleRoleToggle}
           onProfile={handleProfile}
@@ -383,7 +409,6 @@ const AppShellContent: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
-  // Create demo user with Analyst role
   const initialUser = {
     id: "1",
     email: "analyst@example.com",
@@ -402,6 +427,16 @@ const AppContent: React.FC = () => {
           {
             key: "environment",
             defaultValue: "mock",
+          },
+          {
+            key: "darkMode",
+            defaultValue: false,
+            initializer: () => {
+              // Check data-theme attribute on document element
+              const dataTheme =
+                document.documentElement.getAttribute("data-theme");
+              return dataTheme === "dark";
+            },
           },
         ]}
       >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Box, Typography, CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
@@ -11,11 +11,13 @@ import {
   useHashNavigation,
   AppletProvider,
   FeatureFlagProvider,
+  useFeatureFlag,
+  useFeatureFlagToggle,
 } from "@smbc/applet-core";
 import { DataViewProvider } from "@smbc/dataview";
 import { configureApplets, AppletRouter } from "@smbc/applet-host";
 import { APPLETS, ROLE_CONFIG } from "./applet.config";
-import { createTheme } from "@smbc/mui-components";
+import { cssVarTheme } from "@smbc/mui-components";
 import { navigation } from "./menu";
 
 // Simple production query client
@@ -32,19 +34,11 @@ configureApplets(APPLETS);
 
 const AppShellContent: React.FC = () => {
   const { path, navigate } = useHashNavigation();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
+  const toggleDarkMode = useFeatureFlagToggle("darkMode");
 
-  // Load dark mode preference from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("ewi-dark-mode");
-    if (saved) {
-      setIsDarkMode(JSON.parse(saved));
-    }
-  }, []);
-
-  const handleDarkModeToggle = (enabled: boolean) => {
-    setIsDarkMode(enabled);
-    localStorage.setItem("ewi-dark-mode", JSON.stringify(enabled));
+  const handleDarkModeToggle = () => {
+    toggleDarkMode();
   };
 
   const handleProfile = () => {
@@ -64,23 +58,31 @@ const AppShellContent: React.FC = () => {
     alert("Logout functionality would be implemented here");
   };
 
-  const appTheme = React.useMemo(() => createTheme(isDarkMode), [isDarkMode]);
+  // Use static CSS variable theme - dark mode handled by data attribute
+  const appTheme = cssVarTheme;
+
+  // Set data-theme attribute on document for CSS variable switching
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      isDarkMode ? "dark" : "light",
+    );
+  }, [isDarkMode]);
 
   // Default component for unmatched routes
   const AppRoutes = () => {
     switch (path) {
-      case "/subscription-managers":
+      case "/approvals":
         return (
           <Box sx={{ p: 3, mt: 14, ml: 11 }}>
             <Typography variant="h4" gutterBottom>
-              Subscription Managers
+              Event Workflow Approvals
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Subscription management functionality coming soon...
+              Event eorkflow approval functionality coming soon...
             </Typography>
           </Box>
         );
-
       case "/custom-reports":
         return (
           <Box sx={{ p: 3 }}>
@@ -134,7 +136,6 @@ const AppShellContent: React.FC = () => {
           isDarkMode={isDarkMode}
           onDarkModeToggle={handleDarkModeToggle}
           username="John Doe"
-          theme={appTheme}
           onProfile={handleProfile}
           onSettings={handleSettings}
           onQuickGuide={handleQuickGuide}
@@ -182,6 +183,16 @@ const AppContent: React.FC = () => {
           {
             key: "environment",
             defaultValue: "production",
+          },
+          {
+            key: "darkMode",
+            defaultValue: false,
+            initializer: () => {
+              // Check data-theme attribute on document element
+              const dataTheme =
+                document.documentElement.getAttribute("data-theme");
+              return dataTheme === "dark";
+            },
           },
         ]}
       >

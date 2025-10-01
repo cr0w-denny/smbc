@@ -152,6 +152,7 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
     return Object.keys(headers).length > 0 ? headers : {};
   }, [impersonateEmail]);
 
+
   // Load dev tools once
   React.useEffect(() => {
     import("@smbc/mui-applet-devtools").then((imports) => {
@@ -159,7 +160,7 @@ export const DevProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  // Memoize the final context value to prevent recreating on every render
+  // Memoize the context value with theme in dependencies
   const contextValue = React.useMemo(() => {
     if (!devToolsImports) return null;
 

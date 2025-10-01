@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from "react";
-import { useImmer } from "use-immer";
 import {
   Box,
   TextField,
@@ -9,7 +8,6 @@ import {
   Snackbar,
   Tabs,
   Tab,
-  useTheme,
   Chip,
   Stack,
 } from "@mui/material";
@@ -19,18 +17,14 @@ import {
   Upload as UploadIcon,
   Clear as ClearIcon,
 } from "@mui/icons-material";
-import { ui, tokens, clearTokenCache } from "@smbc/ui-core";
-
-// Global storage for token overrides (no event listeners, just direct access)
-(window as any).__tokenOverrides = (window as any).__tokenOverrides || {};
+import { tokens } from "@smbc/ui-core";
+import { useFeatureFlagEnabled } from "@smbc/applet-core";
 
 // Helper function to build complete token structure with overrides applied
-const buildCompleteTokenStructure = (): any => {
-  // Use the consolidated tokens structure instead of just ui
+const buildCompleteTokenStructure = (overrides: Record<string, any>): any => {
   const result = JSON.parse(JSON.stringify(tokens)); // Deep clone
 
   // Apply any overrides
-  const overrides = (window as any).__tokenOverrides || {};
   for (const [path, value] of Object.entries(overrides)) {
     setNestedValue(result, path, value);
   }
@@ -38,14 +32,14 @@ const buildCompleteTokenStructure = (): any => {
   return result;
 };
 
-// Helper to set a nested value in an immer draft using dot notation
-const setNestedValue = (draft: any, path: string, value: any): void => {
-  const keys = path.split('.');
-  let current = draft;
+// Helper to set a nested value using dot notation
+const setNestedValue = (obj: any, path: string, value: any): void => {
+  const keys = path.split(".");
+  let current = obj;
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
-    if (!(key in current) || typeof current[key] !== 'object') {
+    if (!(key in current) || typeof current[key] !== "object") {
       current[key] = {};
     }
     current = current[key];
@@ -54,11 +48,10 @@ const setNestedValue = (draft: any, path: string, value: any): void => {
   current[keys[keys.length - 1]] = value;
 };
 
-
 // Helper function to get original token value without overrides
 const getOriginalTokenValue = (path: string): any => {
-  const pathParts = path.split('.');
-  let current = tokens; // Start from root tokens object
+  const pathParts = path.split(".");
+  let current = tokens;
 
   // Temporarily clear overrides to get original value
   const originalOverrides = (window as any).__tokenOverrides;
@@ -75,48 +68,48 @@ const getOriginalTokenValue = (path: string): any => {
   }
 };
 
-// Helper function to compare imported structure with current tokens and create minimal overrides
-const createMinimalOverrides = (importedTokens: any, path: string = ''): Record<string, any> => {
+// Helper function to compare imported structure with current tokens
+const createMinimalOverrides = (importedTokens: any): Record<string, any> => {
   const overrides: Record<string, any> = {};
 
   const traverse = (imported: any, currentPath: string) => {
-    if (typeof imported !== 'object' || imported === null) {
+    if (typeof imported !== "object" || imported === null) {
       // Compare leaf value with original
       const originalValue = getOriginalTokenValue(currentPath);
       if (imported !== originalValue) {
-        console.log(`Override detected: ${currentPath}`, { imported, originalValue });
+        console.log(`Override detected: ${currentPath}`, {
+          imported,
+          originalValue,
+        });
 
-        // Check if this is a theme token (ends with .light or .dark)
-        if (currentPath.endsWith('.light') || currentPath.endsWith('.dark')) {
-          const basePath = currentPath.replace(/\.(light|dark)$/, '');
-          const mode = currentPath.endsWith('.light') ? 'light' : 'dark';
+        // Check if this is a theme token (has light/dark structure)
+        if (currentPath.endsWith(".light") || currentPath.endsWith(".dark")) {
+          const basePath = currentPath.replace(/\.(light|dark)$/, "");
+          const mode = currentPath.endsWith(".light") ? "light" : "dark";
 
-          // Create or update theme token object
           if (!overrides[basePath]) {
             overrides[basePath] = {};
           }
-          if (typeof overrides[basePath] === 'object') {
+          if (typeof overrides[basePath] === "object") {
             overrides[basePath][mode] = imported;
           }
         } else {
           overrides[currentPath] = imported;
         }
       }
-      return;
-    }
-
-    // Recursively check nested objects
-    for (const [key, value] of Object.entries(imported)) {
-      const nextPath = currentPath ? `${currentPath}.${key}` : key;
-      traverse(value, nextPath);
+    } else {
+      for (const [key, value] of Object.entries(imported)) {
+        const newPath = currentPath ? `${currentPath}.${key}` : key;
+        traverse(value, newPath);
+      }
     }
   };
 
-  traverse(importedTokens, path);
+  traverse(importedTokens, "");
   return overrides;
 };
 
-// Helper to detect property type for appropriate input control
+// Helper to detect property type from name
 const detectPropertyType = (
   propertyName: string,
 ):
@@ -167,7 +160,7 @@ const detectPropertyType = (
   return "text";
 };
 
-// Helper to check if a value is a theme-aware token (has light/dark)
+// Helper to check if a value is a theme-aware token
 const isThemeToken = (value: any): value is { light: string; dark: string } => {
   return (
     typeof value === "object" &&
@@ -176,7 +169,6 @@ const isThemeToken = (value: any): value is { light: string; dark: string } => {
     "dark" in value
   );
 };
-
 
 interface ComponentPropertiesGridProps {
   componentTokens: any;
@@ -197,9 +189,9 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
   onTokenChange,
   onTokenClear,
 }) => {
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === "dark";
-  // Apply overrides to get current token values with immer
+  const isDarkMode = useFeatureFlagEnabled("darkMode");
+
+  // Apply overrides to get current token values
   const getCurrentTokens = useMemo(() => {
     let result = { ...componentTokens };
     Object.entries(tokenOverrides).forEach(([path, value]) => {
@@ -211,13 +203,18 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
         const relativePath = path.substring(
           `ui.${componentName}.${selectedVariant}.${selectedState}.`.length,
         );
-        // Create a deep clone and apply the override
         result = JSON.parse(JSON.stringify(result));
         setNestedValue(result, relativePath, value);
       }
     });
     return result;
-  }, [componentTokens, tokenOverrides, componentName, selectedVariant, selectedState]);
+  }, [
+    componentTokens,
+    tokenOverrides,
+    componentName,
+    selectedVariant,
+    selectedState,
+  ]);
 
   const currentTokens = getCurrentTokens;
 
@@ -229,7 +226,6 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
   ) => {
     const fullPath = `ui.${componentName}.${selectedVariant}.${selectedState}.${propPath}`;
     const propertyType = detectPropertyType(propName);
-    // Check if there's an override for this specific path
     const overrideValue = tokenOverrides[fullPath];
     const effectiveValue = overrideValue !== undefined ? overrideValue : value;
 
@@ -298,121 +294,127 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
             color="text.secondary"
             sx={{ minWidth: 60 }}
           >
-            {typeof currentValue === 'object' ? (isDarkMode ? currentValue.dark : currentValue.light) : currentValue}
+            {typeof currentValue === "object"
+              ? isDarkMode
+                ? currentValue.dark
+                : currentValue.light
+              : currentValue}
           </Typography>
         )}
         {isModified && (
-          <IconButton
-            size="small"
-            onClick={handleClear}
-            title="Reset to default"
-          >
-            <ClearIcon fontSize="inherit" />
+          <IconButton size="small" onClick={handleClear}>
+            <ClearIcon fontSize="small" />
           </IconButton>
         )}
       </Box>
     );
   };
 
-  // Flatten and collect all properties from nested object
-  const collectAllProperties = (
-    obj: any,
-    basePath: string = "",
-  ): Array<{ path: string, name: string, value: any }> => {
-    const properties: Array<{ path: string, name: string, value: any }> = [];
+  // Recursively render token properties
+  const renderTokenGroup = (tokens: any, path: string = "") => {
+    if (!tokens || typeof tokens !== "object") return null;
 
-    Object.entries(obj).forEach(([key, value]) => {
-      const currentPath = basePath ? `${basePath}.${key}` : key;
+    return Object.entries(tokens).map(([key, value]) => {
+      const currentPath = path ? `${path}.${key}` : key;
 
-      if (isThemeToken(value) || typeof value === "string") {
-        // This is a property - use the full path as display name
-        properties.push({ path: currentPath, name: currentPath, value });
-      } else if (typeof value === "object" && value !== null) {
-        // This is a nested object - recurse
-        properties.push(...collectAllProperties(value, currentPath));
+      if (isThemeToken(value)) {
+        return renderPropertyInput(currentPath, key, value);
+      } else if (typeof value === "string") {
+        return renderPropertyInput(currentPath, key, value);
+      } else if (typeof value === "object") {
+        return (
+          <Box key={currentPath}>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: 600, color: "text.secondary", mt: 1 }}
+            >
+              {key}
+            </Typography>
+            {renderTokenGroup(value, currentPath)}
+          </Box>
+        );
       }
+      return null;
     });
-
-    return properties;
   };
-
-  // Render all properties in alphabetical order
-  const renderAllProperties = (stateObj: any) => {
-    if (!stateObj || typeof stateObj !== "object") return null;
-
-    const allProperties = collectAllProperties(stateObj);
-
-    // Sort alphabetically by property name
-    allProperties.sort((a, b) => a.name.localeCompare(b.name));
-
-    if (allProperties.length === 0) return null;
-
-    return (
-      <Box sx={{ mb: 2 }}>
-        {allProperties.map((prop) =>
-          renderPropertyInput(prop.path, prop.name, prop.value)
-        )}
-      </Box>
-    );
-  };
-
-  if (!currentTokens || typeof currentTokens !== "object") {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        No properties found for {componentName}
-      </Typography>
-    );
-  }
-
-  // Get selected variant and state
-  const variantData = currentTokens[selectedVariant];
-  const selectedStateData = variantData?.[selectedState];
 
   return (
-    <Box sx={{ p: 2 }}>
-      {selectedStateData ? (
-        renderAllProperties(selectedStateData)
-      ) : (
-        <Typography variant="body2" color="text.secondary">
-          No properties found for {selectedState} state of {componentName}.
-          {selectedVariant}
-        </Typography>
-      )}
+    <Box sx={{ p: 2, overflowY: "auto", height: "100%" }}>
+      {renderTokenGroup(currentTokens)}
     </Box>
   );
 };
 
-interface TokenEditorProps {
-  onClose?: () => void;
-}
+// Helper to inject CSS variables for token overrides
+const injectTokenCssVars = (
+  overrides: Record<string, any>,
+  isDark: boolean,
+) => {
+  let styleElement = document.getElementById("token-overrides-css");
+  if (!styleElement) {
+    styleElement = document.createElement("style");
+    styleElement.id = "token-overrides-css";
+    document.head.appendChild(styleElement);
+  }
 
-export const TokenEditor: React.FC<TokenEditorProps> = () => {
-  const [selectedComponent, setSelectedComponent] = useState<string>("input");
-  const [selectedVariant, setSelectedVariant] = useState<string>("base");
-  const [selectedState, setSelectedState] = useState<string>("default");
+  // Build CSS text with overrides
+  let cssText = ":root {\n";
+
+  for (const [tokenPath, tokenValue] of Object.entries(overrides)) {
+    const cssVar = `--${tokenPath.replace(/\./g, "-")}`;
+
+    // Handle theme tokens (light/dark)
+    if (typeof tokenValue === "object" && tokenValue.light && tokenValue.dark) {
+      // Use the appropriate value based on current mode
+      const value = isDark ? tokenValue.dark : tokenValue.light;
+      cssText += `  ${cssVar}: ${value};\n`;
+    } else {
+      // Direct value
+      cssText += `  ${cssVar}: ${tokenValue};\n`;
+    }
+  }
+
+  cssText += "}";
+  styleElement.textContent = cssText;
+  console.log("Injected CSS variables:", cssText);
+};
+
+// Helper to apply token overrides as CSS variables
+const applyTokenOverrides = (
+  overrides: Record<string, any>,
+  isDark: boolean = false,
+) => {
+  console.log("Applying token overrides:", overrides);
+
+  // Set the global overrides for persistence
+  (window as any).__tokenOverrides = overrides;
+
+  // Inject CSS variables for the overridden tokens
+  injectTokenCssVars(overrides, isDark);
+
+  console.log("CSS variables updated");
+};
+
+const TokenEditor: React.FC = () => {
+  const isDarkMode = useFeatureFlagEnabled("darkMode");
   const [searchTerm, setSearchTerm] = useState("");
-  // Initialize with existing global overrides using immer
-  const [tokenOverrides, updateTokenOverrides] = useImmer<Record<string, any>>(
-    (window as any).__tokenOverrides || {}
-  );
+  const [selectedComponent, setSelectedComponent] = useState("button");
+  const [selectedVariant, setSelectedVariant] = useState("contained");
+  const [selectedState, setSelectedState] = useState("default");
+  const [tokenOverrides, setTokenOverrides] = useState<Record<string, any>>({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // Detect available components from ui tokens
+  // Get available component names from ui namespace
   const availableComponents = useMemo(() => {
-    if (!ui || typeof ui !== "object") return [];
-
-    return Object.keys(ui)
-      .filter((key) => {
-        const value = (ui as any)[key];
-        return value && typeof value === "object";
-      })
+    if (!tokens.ui) return [];
+    return Object.keys(tokens.ui)
+      .filter((key) => typeof (tokens.ui as any)[key] === "object")
       .sort();
   }, []);
 
   // Filter components based on search
   const filteredComponents = useMemo(() => {
-    if (!searchTerm.trim()) return availableComponents;
     return availableComponents.filter((comp) =>
       comp.toLowerCase().includes(searchTerm.toLowerCase()),
     );
@@ -420,8 +422,8 @@ export const TokenEditor: React.FC<TokenEditorProps> = () => {
 
   // Get current component tokens
   const currentComponentTokens = useMemo(() => {
-    if (!ui || !selectedComponent) return null;
-    return (ui as any)[selectedComponent];
+    if (!tokens.ui || !selectedComponent) return null;
+    return (tokens.ui as any)[selectedComponent];
   }, [selectedComponent]);
 
   // Get available variants for the selected component
@@ -460,61 +462,36 @@ export const TokenEditor: React.FC<TokenEditorProps> = () => {
 
   const handleTokenChange = (path: string, value: any) => {
     // Update local state
-    updateTokenOverrides(draft => {
-      draft[path] = value;
-    });
+    const newOverrides = { ...tokenOverrides, [path]: value };
+    setTokenOverrides(newOverrides);
 
-    // Update global overrides for token resolution
-    (window as any).__tokenOverrides = {
-      ...(window as any).__tokenOverrides,
-      [path]: value,
-    };
-
-    console.log('🎨 Token changed:', path, '=', value);
-    console.log('🎨 All overrides:', (window as any).__tokenOverrides);
-
-    // Clear token resolution cache so new overrides are picked up
-    clearTokenCache();
-
-    // Trigger theme re-render by dispatching the tokenApply event
-    window.dispatchEvent(new Event('tokenApply'));
-    console.log('🎨 Dispatched tokenApply event');
+    // Apply CSS variable updates
+    applyTokenOverrides(newOverrides, isDarkMode);
   };
 
   const handleTokenClear = (path: string) => {
     // Update local state
-    updateTokenOverrides(draft => {
-      delete draft[path];
-    });
+    const newOverrides = { ...tokenOverrides };
+    delete newOverrides[path];
+    setTokenOverrides(newOverrides);
 
-    // Update global overrides
-    const globalOverrides = { ...(window as any).__tokenOverrides };
-    delete globalOverrides[path];
-    (window as any).__tokenOverrides = globalOverrides;
-
-    // Clear token resolution cache so changes are picked up
-    clearTokenCache();
-
-    // Trigger theme re-render by dispatching the tokenApply event
-    window.dispatchEvent(new Event('tokenApply'));
+    // Apply CSS variable updates
+    applyTokenOverrides(newOverrides, isDarkMode);
   };
 
   const handleClearAll = () => {
-    updateTokenOverrides(() => ({}));
-    (window as any).__tokenOverrides = {};
+    setTokenOverrides({});
 
-    // Clear token resolution cache so changes are picked up
-    clearTokenCache();
+    // Clear CSS variables
+    applyTokenOverrides({}, isDarkMode);
 
     setSnackbarMessage("All overrides cleared");
     setSnackbarOpen(true);
-    // Trigger theme re-render by dispatching the tokenApply event
-    window.dispatchEvent(new Event('tokenApply'));
   };
 
   const handleExport = () => {
     // Build complete token structure with overrides applied
-    const completeTokens = buildCompleteTokenStructure();
+    const completeTokens = buildCompleteTokenStructure(tokenOverrides);
     const dataStr = JSON.stringify(completeTokens, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
@@ -540,14 +517,14 @@ export const TokenEditor: React.FC<TokenEditorProps> = () => {
             const imported = JSON.parse(e.target?.result as string);
             // Create minimal overrides by comparing with original values
             const minimalOverrides = createMinimalOverrides(imported);
-            updateTokenOverrides(() => minimalOverrides);
-            // Update global overrides
-            (window as any).__tokenOverrides = minimalOverrides;
+            setTokenOverrides(minimalOverrides);
+
+            // Apply imported overrides
+            applyTokenOverrides(minimalOverrides, isDarkMode);
+
             const overrideCount = Object.keys(minimalOverrides).length;
             setSnackbarMessage(`Imported ${overrideCount} token overrides`);
             setSnackbarOpen(true);
-            // Trigger theme re-render by dispatching the tokenApply event
-            window.dispatchEvent(new Event('tokenApply'));
           } catch (error) {
             setSnackbarMessage("Failed to import tokens");
             setSnackbarOpen(true);
@@ -560,7 +537,12 @@ export const TokenEditor: React.FC<TokenEditorProps> = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100%", bgcolor: "background.paper" }}>
+    <Box
+      sx={{
+        display: "flex",
+        height: "100%",
+      }}
+    >
       {/* Component Sidebar */}
       <Box
         sx={{
@@ -573,152 +555,132 @@ export const TokenEditor: React.FC<TokenEditorProps> = () => {
       >
         {/* Controls */}
         <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <IconButton size="small" onClick={handleClearAll} title="Clear All">
-              <ClearIcon fontSize="inherit" />
-            </IconButton>
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
             <IconButton size="small" onClick={handleExport} title="Export">
-              <DownloadIcon fontSize="inherit" />
+              <DownloadIcon fontSize="small" />
             </IconButton>
             <IconButton size="small" onClick={handleImport} title="Import">
-              <UploadIcon fontSize="inherit" />
+              <UploadIcon fontSize="small" />
             </IconButton>
-          </Box>
-        </Box>
+            <IconButton size="small" onClick={handleClearAll} title="Clear All">
+              <ClearIcon fontSize="small" />
+            </IconButton>
+          </Stack>
 
-        {/* Search */}
-        <Box sx={{ p: 2 }}>
           <TextField
             fullWidth
             size="small"
             placeholder="Search components..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
-              },
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
             }}
           />
+
+          {Object.keys(tokenOverrides).length > 0 && (
+            <Chip
+              label={`${Object.keys(tokenOverrides).length} overrides`}
+              size="small"
+              color="primary"
+              sx={{ mt: 1 }}
+            />
+          )}
         </Box>
 
         {/* Component List */}
-        <Box sx={{ flexGrow: 1, overflow: "auto" }}>
-          {filteredComponents.map((component) => (
+        <Box sx={{ flexGrow: 1, overflowY: "auto", p: 1 }}>
+          {filteredComponents.map((comp) => (
             <Box
-              key={component}
-              onClick={() => setSelectedComponent(component)}
+              key={comp}
+              onClick={() => setSelectedComponent(comp)}
               sx={{
-                p: 1.5,
-                mx: 1,
-                mb: 0.5,
-                borderRadius: 1,
+                p: 1,
                 cursor: "pointer",
-                backgroundColor:
-                  selectedComponent === component
+                borderRadius: 1,
+                bgcolor:
+                  selectedComponent === comp
                     ? "action.selected"
                     : "transparent",
                 "&:hover": {
-                  backgroundColor:
-                    selectedComponent === component
-                      ? "action.selected"
-                      : "action.hover",
+                  bgcolor: "action.hover",
                 },
               }}
             >
-              <Typography variant="body2">
-                {component.charAt(0).toUpperCase() + component.slice(1)}
-              </Typography>
+              <Typography variant="body2">{comp}</Typography>
             </Box>
           ))}
         </Box>
       </Box>
 
-      {/* Properties Grid */}
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
-        {currentComponentTokens ? (
+      {/* Main Content Area */}
+      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+        {/* Variant and State Tabs */}
+        {currentComponentTokens && (
           <>
-            {/* Variant Tabs */}
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <Tabs
-                value={selectedVariant}
-                onChange={(_, newValue) => setSelectedVariant(newValue)}
-                variant="scrollable"
-                scrollButtons="auto"
-                sx={{ minHeight: 48 }}
-              >
-                {availableVariants.map((variant) => (
-                  <Tab
-                    key={variant}
-                    label={variant.charAt(0).toUpperCase() + variant.slice(1)}
-                    value={variant}
-                    sx={{ minWidth: 80, textTransform: "none" }}
-                  />
-                ))}
-              </Tabs>
-            </Box>
+            <Tabs
+              value={selectedVariant}
+              onChange={(_, newValue) => setSelectedVariant(newValue)}
+              sx={{ borderBottom: 1, borderColor: "divider" }}
+            >
+              {availableVariants.map((variant) => (
+                <Tab key={variant} label={variant} value={variant} />
+              ))}
+            </Tabs>
 
-            {/* State Pills */}
-            <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mb: 1, display: "block" }}
-              >
-                States:
-              </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {availableStates.map((state) => (
-                  <Chip
-                    key={state}
-                    label={state.charAt(0).toUpperCase() + state.slice(1)}
-                    onClick={() => setSelectedState(state)}
-                    variant={selectedState === state ? "filled" : "outlined"}
-                    color={selectedState === state ? "primary" : "default"}
-                    size="small"
-                    sx={{ textTransform: "none" }}
-                  />
-                ))}
-              </Stack>
-            </Box>
-
-            {/* Properties for selected state */}
-            <Box sx={{ flexGrow: 1, overflow: "auto" }}>
-              <ComponentPropertiesGrid
-                componentTokens={currentComponentTokens}
-                componentName={selectedComponent}
-                selectedVariant={selectedVariant}
-                selectedState={selectedState}
-                tokenOverrides={tokenOverrides}
-                onTokenChange={handleTokenChange}
-                onTokenClear={handleTokenClear}
-              />
-            </Box>
+            {availableStates.length > 0 && (
+              <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  States
+                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {availableStates.map((state) => (
+                    <Chip
+                      key={state}
+                      label={state.charAt(0).toUpperCase() + state.slice(1)}
+                      onClick={() => setSelectedState(state)}
+                      variant={selectedState === state ? "filled" : "outlined"}
+                      color={selectedState === state ? "primary" : "default"}
+                      size="small"
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            )}
           </>
+        )}
+
+        {/* Properties Grid */}
+        {currentComponentTokens &&
+        currentComponentTokens[selectedVariant] &&
+        currentComponentTokens[selectedVariant][selectedState] ? (
+          <ComponentPropertiesGrid
+            componentTokens={
+              currentComponentTokens[selectedVariant][selectedState]
+            }
+            componentName={selectedComponent}
+            selectedVariant={selectedVariant}
+            selectedState={selectedState}
+            tokenOverrides={tokenOverrides}
+            onTokenChange={handleTokenChange}
+            onTokenClear={handleTokenClear}
+          />
         ) : (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              Select a component to edit its properties
+          <Box sx={{ p: 3 }}>
+            <Typography color="text.secondary">
+              No tokens available for this selection
             </Typography>
           </Box>
         )}
       </Box>
 
-      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={2000}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
@@ -726,4 +688,4 @@ export const TokenEditor: React.FC<TokenEditorProps> = () => {
   );
 };
 
-export default TokenEditor;
+export { TokenEditor };

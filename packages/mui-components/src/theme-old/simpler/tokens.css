@@ -1,0 +1,143 @@
+/* Enhanced CSS custom properties for design tokens */
+:root {
+  /* UI Input tokens */
+  --ui-input-base-default-background: #ffffff;
+  --ui-input-base-default-borderColor: #e0e0e0;
+  --ui-input-base-default-color: #212121;
+  --ui-input-base-default-placeholder: #757575;
+  --ui-input-base-focus-background: #f5f5f5;
+  --ui-input-base-focus-borderColor: #2196f3;
+  --ui-input-base-hover-background: #f8f8f8;
+  --ui-input-base-hover-borderColor: #bdbdbd;
+
+  /* UI Color tokens */
+  --ui-color-text-primary: #212121;
+  --ui-color-text-secondary: #757575;
+  --ui-color-text-disabled: rgba(0, 0, 0, 0.26);
+  --ui-color-action-hover: rgba(0, 0, 0, 0.04);
+  --ui-color-action-selected: rgba(0, 0, 0, 0.08);
+  --ui-color-action-disabled: rgba(0, 0, 0, 0.26);
+  --ui-color-action-disabledBackground: rgba(0, 0, 0, 0.12);
+  --ui-color-action-active: #1976d2;
+  --ui-color-border-primary: rgba(0, 0, 0, 0.12);
+  --ui-color-border-secondary: rgba(0, 0, 0, 0.08);
+  --ui-color-background-primary: #ffffff;
+  --ui-color-background-secondary: #fafafa;
+  --ui-color-surface-body: #ffffff;
+
+  /* UI Brand colors */
+  --ui-color-brand-primary: #1976d2;
+  --ui-color-brand-primaryContrast: #ffffff;
+  --ui-color-brand-secondary: #dc004e;
+  --ui-color-brand-secondaryContrast: #ffffff;
+
+  /* UI Status colors */
+  --ui-color-status-success: #2e7d32;
+  --ui-color-status-error: #d32f2f;
+  --ui-color-status-warning: #ed6c02;
+  --ui-color-status-info: #0288d1;
+
+  /* UI Navigation tokens */
+  --ui-navigation-base-default-background: #ffffff;
+  --ui-navigation-base-default-color: #212121;
+  --ui-navigation-base-hover-background: #f5f5f5;
+
+  /* UI Chip tokens */
+  --ui-chip-default-default-background: #e0e0e0;
+  --ui-chip-default-default-color: #212121;
+  --ui-chip-primary-default-background: #2196f3;
+  --ui-chip-primary-default-color: #ffffff;
+
+  /* UI Card tokens */
+  --ui-card-base-default-background: #ffffff;
+  --ui-card-base-default-borderColor: #e0e0e0;
+
+  /* UI Table tokens */
+  --ui-tableHeader-base-default-background: #fafafa;
+  --ui-tableHeader-base-default-color: #212121;
+  --ui-tableRow-base-hover-background: #f5f5f5;
+  --ui-tableRow-base-selected-background: #e3f2fd;
+  --ui-tableRow-base-default-borderColor: rgba(0, 0, 0, 0.12);
+
+  /* UI Tooltip tokens */
+  --ui-tooltip-background: #424242;
+  --ui-tooltip-color: #ffffff;
+  --ui-tooltip-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+
+  /* UI Switch tokens */
+  --ui-switch-thumb-background: #fafafa;
+  --ui-switch-thumb-shadow: 0 2px 4px 0 rgba(0,0,0,0.3);
+  --ui-switch-track-background: #9e9e9e;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] {
+  /* UI Input tokens */
+  --ui-input-base-default-background: #1e1e1e;
+  --ui-input-base-default-borderColor: #424242;
+  --ui-input-base-default-color: #ffffff;
+  --ui-input-base-default-placeholder: #b0b0b0;
+  --ui-input-base-focus-background: #2a2a2a;
+  --ui-input-base-focus-borderColor: #90caf9;
+  --ui-input-base-hover-background: #262626;
+  --ui-input-base-hover-borderColor: #616161;
+
+  /* UI Color tokens */
+  --ui-color-text-primary: #ffffff;
+  --ui-color-text-secondary: #b0b0b0;
+  --ui-color-text-disabled: rgba(255, 255, 255, 0.3);
+  --ui-color-action-hover: rgba(255, 255, 255, 0.08);
+  --ui-color-action-selected: rgba(255, 255, 255, 0.12);
+  --ui-color-action-disabled: rgba(255, 255, 255, 0.3);
+  --ui-color-action-disabledBackground: rgba(255, 255, 255, 0.12);
+  --ui-color-action-active: rgba(255, 255, 255, 0.54);
+  --ui-color-border-primary: rgba(255, 255, 255, 0.12);
+  --ui-color-border-secondary: rgba(255, 255, 255, 0.08);
+  --ui-color-background-primary: #121212;
+  --ui-color-background-secondary: #1e1e1e;
+  --ui-color-surface-body: #121212;
+
+  /* UI Brand colors - adjusted for dark mode */
+  --ui-color-brand-primary: #90caf9;
+  --ui-color-brand-primaryContrast: #000000;
+  --ui-color-brand-secondary: #f48fb1;
+  --ui-color-brand-secondaryContrast: #000000;
+
+  /* UI Status colors - adjusted for dark mode */
+  --ui-color-status-success: #66bb6a;
+  --ui-color-status-error: #f44336;
+  --ui-color-status-warning: #ff9800;
+  --ui-color-status-info: #29b6f6;
+
+  /* UI Navigation tokens */
+  --ui-navigation-base-default-background: #1e1e1e;
+  --ui-navigation-base-default-color: #ffffff;
+  --ui-navigation-base-hover-background: #2a2a2a;
+
+  /* UI Chip tokens */
+  --ui-chip-default-default-background: #424242;
+  --ui-chip-default-default-color: #ffffff;
+  --ui-chip-primary-default-background: #1976d2;
+  --ui-chip-primary-default-color: #ffffff;
+
+  /* UI Card tokens */
+  --ui-card-base-default-background: #1e1e1e;
+  --ui-card-base-default-borderColor: #424242;
+
+  /* UI Table tokens */
+  --ui-tableHeader-base-default-background: #2a2a2a;
+  --ui-tableHeader-base-default-color: #ffffff;
+  --ui-tableRow-base-hover-background: #2a2a2a;
+  --ui-tableRow-base-selected-background: #1e3a8a;
+  --ui-tableRow-base-default-borderColor: rgba(255, 255, 255, 0.12);
+
+  /* UI Tooltip tokens */
+  --ui-tooltip-background: #ffffff;
+  --ui-tooltip-color: #000000;
+  --ui-tooltip-shadow: 0px 2px 8px rgba(0,0,0,0.3);
+
+  /* UI Switch tokens */
+  --ui-switch-thumb-background: #1976d2;
+  --ui-switch-thumb-shadow: none;
+  --ui-switch-track-background: #114377;
+}

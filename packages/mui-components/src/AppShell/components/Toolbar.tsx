@@ -1,23 +1,23 @@
 import React, { useRef, useLayoutEffect } from "react";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { ui } from "@smbc/ui-core";
 
 export interface ToolbarProps {
   children: React.ReactNode;
   variant?: "default" | "extended";
+  darkMode?: boolean;
 }
 
 /**
- * Fixed positioned toolbar for AppShell-based applications.
- * Positioned relative to AppShell's header and handles theming appropriately.
- * Automatically communicates its height to following Content elements via CSS custom property.
+ * Fixed positioned toolbar for AppShell-based applications
+ * Positioned relative to AppShell's header
+ * Automatically communicates its height to following Content elements via CSS custom property
  */
 export const Toolbar: React.FC<ToolbarProps> = ({
   children,
   variant = "default",
+  darkMode = false,
 }) => {
-  const theme = useTheme();
-  const isLightMode = theme.palette.mode === "light";
   const toolbarRef = useRef<HTMLDivElement>(null);
 
   // Calculate and set toolbar height as CSS custom property
@@ -34,7 +34,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   return (
     <>
       {/* Background extension for light mode */}
-      {variant === "extended" && isLightMode && (
+      {variant === "extended" && !darkMode && (
         <Box
           sx={{
             position: "fixed",
@@ -42,7 +42,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             left: 0,
             right: 0,
             height: "200px", // Extend below toolbar
-            backgroundColor: ui.navigation.base.default.background.light,
+            backgroundColor: ui.navigation.base.default.background(darkMode),
             zIndex: -1, // Behind everything else
           }}
         />
@@ -59,17 +59,17 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           right: 0,
           zIndex: 1002, // Above background
           py: 2,
-          background: isLightMode
-            ? variant === "extended"
-              ? ui.navigation.base.default.background.light
-              : "transparent"
-            : "linear-gradient(to bottom right, red, white)",
-          // Clip to show only toolbar portion of gradient (assuming ~80px toolbar height in ~100vh viewport)
-          ...(isLightMode ? {} : {
-            backgroundSize: "100vw 100vh",
-            backgroundAttachment: "fixed",
-            backgroundPosition: "0 0",
-          }),
+          ...(darkMode
+            ? {
+                background: "var(--color-gradient-darkBlue)",
+                backgroundAttachment: "fixed",
+              }
+            : {
+                background:
+                  variant === "extended"
+                    ? ui.navigation.base.default.background(darkMode)
+                    : "transparent",
+              }),
         }}
       >
         {children}

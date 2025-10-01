@@ -1,0 +1,14 @@
+{
+  "name": "test-cssvars",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "node dist/index.js",
+    "generate-types": "tsc src/generate-types.ts --outDir dist --module esnext --target es2022 && node dist/generate-types.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

@@ -1,9 +1,8 @@
 import React, { useMemo } from "react";
-import { Box, Typography, ThemeProvider } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import {
   Card,
   Filter,
-  darkTheme,
   RelatedNews,
   AppShell,
   Width,
@@ -193,13 +192,11 @@ const Dashboard: React.FC = () => {
     <AppShell.Page>
       <AppShell.Toolbar variant="extended">
         <Width>
-          <ThemeProvider theme={darkTheme}>
-            <Filter
-              spec={filterSpec}
-              values={params}
-              onFiltersChange={handleFilterChange}
-            />
-          </ThemeProvider>
+          <Filter
+            spec={filterSpec}
+            values={params}
+            onFiltersChange={handleFilterChange}
+          />
         </Width>
       </AppShell.Toolbar>
 

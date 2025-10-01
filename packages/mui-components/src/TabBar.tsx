@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { Box, Typography, styled, alpha } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { ui } from "@smbc/ui-core";
-import { token } from "./utils/tokens";
 
 export interface TabBarItem {
   value: string;
@@ -43,8 +42,8 @@ const TabItem = styled(Box, {
     color: isDisabled
       ? theme.palette.text.disabled
       : isActive
-      ? token(theme, ui.color.brand.primaryContrast)
-      : ui.color.text.primary.dark,
+      ? ui.color.brand.primaryContrast
+      : ui.color.text.secondary,
     opacity: isDisabled
       ? 0.5
       : isActive

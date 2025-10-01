@@ -18,6 +18,8 @@ interface DevConsoleProps {
   currentAppletInfo?: CurrentAppletInfo | null;
   impersonationEmail?: string;
   onImpersonationEmailChange?: (email: string) => void;
+  theme?: any;
+  setTheme?: (theme: any) => void;
 }
 
 
@@ -26,12 +28,13 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
   onClose,
   currentAppletInfo,
   impersonationEmail = '',
-  onImpersonationEmailChange
+  onImpersonationEmailChange,
+  theme,
+  setTheme
 }) => {
   const environment = useFeatureFlag<Environment>("environment") || "development";
 
   const handleImpersonateEmailChange = (email: string) => {
-    console.log('🔄 DevConsole setting impersonation email:', email);
     onImpersonationEmailChange?.(email);
   };
 
@@ -52,15 +55,6 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
     onRolesChange: setRoles,
   });
 
-  // Debug logging
-  console.log('DevConsole Debug:', {
-    mountedApplets: mountedApplets.map(a => ({ id: a.id, label: a.label })),
-    roleConfig,
-    permissionMappings: roleConfig?.permissionMappings,
-    selectedRoles,
-    availableRoles,
-  });
-
   // Use real permission calculation
   const appletPermissions = useAppletPermissions({
     hostApplets: mountedApplets,
@@ -68,8 +62,6 @@ export const DevConsole: React.FC<DevConsoleProps> = ({
     selectedRoles,
     hasPermission: roleUtils.hasPermission,
   });
-
-  console.log('DevConsole appletPermissions result:', appletPermissions);
 
 
   // Use context setEmail function directly - no need for local handler

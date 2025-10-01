@@ -1,7 +1,6 @@
 import React from "react";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { ui } from "@smbc/ui-core";
-import { token } from "./utils/tokens";
 
 // Import AG Grid styles
 import "ag-grid-community/styles/ag-grid.css";
@@ -12,6 +11,7 @@ interface AgGridThemeProps {
   height?: string | number;
   mx?: number;
   wrapHeaders?: boolean;
+  darkMode?: boolean;
   children:
     | React.ReactNode
     | ((popupParent: HTMLElement | null) => React.ReactNode);
@@ -21,13 +21,22 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
   height = "100%",
   mx = 0,
   wrapHeaders = false,
+  darkMode = false,
   children,
 }) => {
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === "dark";
-  const agGridThemeClass = isDarkMode
+  const agGridThemeClass = darkMode
     ? "ag-theme-quartz-dark"
     : "ag-theme-quartz";
+
+  // Debug logging to check darkMode prop changes
+  React.useEffect(() => {
+    console.log(
+      "AgGridTheme - darkMode prop changed:",
+      darkMode,
+      "theme class:",
+      agGridThemeClass,
+    );
+  }, [darkMode, agGridThemeClass]);
 
   // Internal popup parent management
   const popupParentRef = React.useRef<HTMLDivElement>(null);
@@ -68,59 +77,25 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
             borderRadius: "0px !important",
             border: "none !important",
           },
-          "--ag-background-color": token(
-            theme,
-            ui.tableRow.base.default.background,
-          ),
-          "--ag-odd-row-background-color": token(
-            theme,
-            ui.tableRow.base.default.background,
-          ),
-          "--ag-foreground-color": theme.palette.text.primary,
-          "--ag-header-background-color": token(
-            theme,
-            ui.tableHeader.base.default.background,
-          ),
-          "--ag-header-foreground-color": token(
-            theme,
-            ui.tableHeader.base.default.color,
-          ),
-          "--ag-border-color": token(
-            theme,
-            ui.tableRow.base.default.borderColor,
-          ),
-          "--ag-row-hover-color": token(
-            theme,
-            ui.tableRow.base.hover.background,
-          ),
-          "--ag-selected-row-background-color": token(
-            theme,
-            ui.tableRow.base.selected.background,
-          ),
-          "--ag-header-row-border-style": "none",
-          "--ag-borders-critical": "none",
+          "--ag-background-color":
+            ui.tableRow.base.default.background(darkMode),
+          // "--ag-odd-row-background-color": ui.tableRow.base.default.background,
+          // "--ag-foreground-color": theme.palette.text.primary,
+          "--ag-header-background-color":
+            ui.tableHeader.base.default.background(darkMode),
+          // "--ag-header-foreground-color": ui.tableHeader.base.default.color,
+          "--ag-border-color": ui.tableRow.base.default.borderColor(darkMode),
+          // "--ag-row-hover-color": ui.tableRow.base.hover.background,
+          // "--ag-selected-row-background-color": ui.tableRow.base.selected.background,
+          // "--ag-header-row-border-style": "none",
+          // "--ag-borders-critical": "none",
           // Additional AG Grid theme variables
-          "--ag-input-border-color": token(
-            theme,
-            ui.input.base.default.borderColor,
-          ),
-          "--ag-input-background-color": token(
-            theme,
-            ui.input.base.default.background,
-          ),
-          "--ag-input-focus-border-color": token(
-            theme,
-            ui.input.base.focus.borderColor,
-          ),
-          "--ag-input-disabled-background-color": token(
-            theme,
-            ui.input.base.disabled.background,
-          ),
-          "--ag-chip-background-color": token(
-            theme,
-            ui.chip.default.default.background,
-          ),
-          "--ag-modal-overlay-background-color": "rgba(0, 0, 0, 0.4)",
+          // "--ag-input-border-color": ui.input.base.default.borderColor,
+          // "--ag-input-background-color": ui.input.base.default.background,
+          // "--ag-input-focus-border-color": ui.input.base.focus.borderColor,
+          // "--ag-input-disabled-background-color": ui.input.base.disabled.background,
+          // "--ag-chip-background-color": ui.chip.default.default.background,
+          // "--ag-modal-overlay-background-color": "rgba(0, 0, 0, 0.4)",
           // Row heights
           "--ag-header-height": "42px",
           "--ag-row-height": "54px",

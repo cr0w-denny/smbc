@@ -1,4 +1,3 @@
-import { Theme } from '@mui/material/styles';
 import { ReactNode } from 'react';
 import { UserRole } from '../UserMenu';
 
@@ -18,7 +17,7 @@ export interface NavigationItem {
   label: string;
   type: 'link' | 'dropdown' | 'tree-dropdown' | 'button';
   href?: string;
-  items?: { label: string; href?: string; onClick?: () => void }[];
+  items?: { label: string; href?: string; onClick?: () => void; icon?: ReactNode }[];
   treeItems?: TreeNavigationItem[]; // For tree-style dropdowns
   onClick?: () => void;
   variant?: 'text' | 'contained' | 'outlined';
@@ -32,7 +31,6 @@ export interface AppShellProps {
   hamburgerMenu?: ReactNode;
   navigation: NavigationItem[];
   children: ReactNode;
-  theme?: Theme;
   onNavigate?: (href: string) => void;
   /** Current path for active navigation highlighting */
   currentPath?: string;

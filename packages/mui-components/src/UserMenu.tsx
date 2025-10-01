@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Collapse,
-  Divider,
   IconButton,
   ListItemText,
   Menu,
@@ -15,8 +14,9 @@ import {
 import Logout from "@mui/icons-material/Logout";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
-import { size } from "@smbc/ui-core";
+import { size, ui } from "@smbc/ui-core";
 import { DarkModeSwitch } from "./DarkModeSwitch";
+import { Divider } from "./Divider";
 
 export type UserRole = {
   id: string;
@@ -48,14 +48,6 @@ export type UserMenuProps = {
   onToggleRole?: (roleId: string, enabled: boolean) => void;
 };
 
-const sxDivider = {
-  my: 2,
-  border: "none",
-  height: (theme: any) => theme.palette.mode === "dark" ? "1.7px" : "1px",
-  background: (theme: any) => theme.palette.mode === "dark"
-    ? "linear-gradient(90deg, transparent 0%, #4A5971 50%, transparent 100%)"
-    : "linear-gradient(90deg, transparent 0%, #00000080 50%, transparent 100%)",
-};
 
 export function UserMenu({
   open,
@@ -91,8 +83,8 @@ export function UserMenu({
             mt: 1.5,
             ml: 0.125, // 1px offset to the right
             p: 2,
-            backgroundColor: (theme) => theme.palette.mode === "dark" ? "#0A111B" : "#ffffff",
-            border: (theme) => `1px solid ${theme.palette.mode === "dark" ? "#24324C" : "rgba(36, 50, 76, 0.17)"}`,
+            backgroundColor: `${ui.color.background.secondary} !important`,
+            border: `1px solid ${ui.color.border.primary}`,
             "&.MuiPaper-root": {
               backgroundImage: "none",
             },
@@ -133,14 +125,14 @@ export function UserMenu({
         <ListItemText primary="Settings" sx={{ textAlign: 'center', flex: 'none', '& .MuiListItemText-primary': { fontSize: '13px' } }} />
       </MenuItem>
 
-      <Divider sx={sxDivider} />
+      <Divider />
 
       {/* Dashboard section */}
       <Box sx={{ px: 2, py: 1, textAlign: 'center' }}>
         <Typography
           variant="body2"
           sx={{
-            color: (theme) => theme.palette.mode === "dark" ? "#9FBCDE" : "text.secondary",
+            color: ui.color.text.secondary,
             fontWeight: 600,
             letterSpacing: 0.5,
             fontSize: '13px'
@@ -163,13 +155,13 @@ export function UserMenu({
             flex: 'none',
             '& .MuiListItemText-primary': {
               fontSize: '13px',
-              color: (theme) => theme.palette.mode === "dark" ? "#3794F5" : "#1E68B4E5"
+              color: ui.color.brand.primary
             }
           }}
         />
       </MenuItem>
 
-      <Divider sx={sxDivider} />
+      <Divider />
 
       {/* Personas section - only show if userRoles exist */}
       {userRoles.length > 0 && (
@@ -188,7 +180,7 @@ export function UserMenu({
             <Typography
               variant="body2"
               sx={{
-                color: (theme) => theme.palette.mode === "dark" ? "#9FBCDE" : "text.secondary",
+                color: ui.color.text.secondary,
                 fontWeight: 600,
                 letterSpacing: 0.5,
                 fontSize: '13px'
@@ -201,11 +193,11 @@ export function UserMenu({
               sx={{
                 ml: 1,
                 p: 0.5,
-                border: (theme) => `1px solid ${theme.palette.mode === "dark" ? "#3794F5" : "#1163C8"}`,
+                border: `1px solid ${ui.color.brand.primary}`,
                 borderRadius: '50%',
                 width: 20,
                 height: 20,
-                color: (theme) => theme.palette.mode === "dark" ? "#3794F5" : "#1163C8",
+                color: ui.color.brand.primary,
                 '& .MuiSvgIcon-root': {
                   fontSize: '0.875rem',
                 }
@@ -268,7 +260,7 @@ export function UserMenu({
         />
       </MenuItem>
 
-      <Divider sx={sxDivider} />
+      <Divider />
 
       <Box sx={{ p: 2 }}>
         <Button

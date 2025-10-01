@@ -1,3 +1,5 @@
+// Import CSS custom properties for design tokens
+import "@smbc/ui-core/tokens.css";
 
 // Export all shared MUI components
 export { LoadingTable } from "./LoadingTable";
@@ -16,11 +18,12 @@ export { CustomSelect } from "./CustomSelect";
 export type { CustomSelectProps } from "./CustomSelect";
 
 export { ActionMenu } from "./ActionMenu";
+
+export { Divider } from "./Divider";
+export type { DividerProps } from "./Divider";
 export type { ActionMenuProps, ActionMenuItem } from "./ActionMenu";
 
 export { Width } from "./Width";
-
-
 
 export { TreeMenu } from "./TreeMenu";
 export type {
@@ -46,21 +49,21 @@ export type {
   FilterProps,
 } from "./Filter";
 
+// New CSS variable theme (works for both light and dark)
+export { cssVarTheme, createCssVarTheme } from "./theme";
+export * from "./theme/utils";
 
+// Import for local use
+import { cssVarTheme } from "./theme";
 
-export { lightTheme } from "./theme/light";
-export { darkTheme } from "./theme/dark";
-export { createTheme } from "./theme/base";
-import { lightTheme } from "./theme/light";
-import { darkTheme } from "./theme/dark";
-export const getTheme = (mode: "light" | "dark" = "light") => {
-  switch (mode) {
-    case "dark":
-      return darkTheme;
-    case "light":
-    default:
-      return lightTheme;
-  }
+// Theme creation - CSS variables handle light/dark automatically
+export const createTheme = () => {
+  return cssVarTheme;
+};
+
+// Deprecated - kept for backward compatibility
+export const getTheme = () => {
+  return cssVarTheme;
 };
 
 // App Shell
@@ -120,11 +123,8 @@ export type { StatusChipProps } from "./StatusChip";
 export { RelatedNews } from "./RelatedNews";
 export type { RelatedNewsProps, NewsItem } from "./RelatedNews";
 
-// Scrollbar utilities
-export {
-  darkScrollbarStyles,
-  lightScrollbarStyles
-} from "./theme/dark/scrollbar";
-
-// Token utilities
-export { token, t } from "./utils/tokens";
+// Scrollbar utilities - TODO: Move to new theme system
+// For now, create inline to avoid theme-old import
+const getScrollbarStyles = () => ({});
+export const darkScrollbarStyles = getScrollbarStyles();
+export const lightScrollbarStyles = getScrollbarStyles();

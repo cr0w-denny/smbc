@@ -12,13 +12,15 @@ import {
   AgGridTheme,
   AppShell,
   Card,
-  darkTheme,
   StatusChip,
-  token,
   Width,
 } from "@smbc/mui-components";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
-import { useHashNavigation, useApiClient } from "@smbc/applet-core";
+import {
+  useHashNavigation,
+  useApiClient,
+  useFeatureFlag,
+} from "@smbc/applet-core";
 import { ui, color, shadow } from "@smbc/ui-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
@@ -139,9 +141,9 @@ const StatusCellRenderer = (params: any) => {
       <StatusChip
         variant="custom"
         label={label}
-        outlineColor={color.tertiary.plum100}
-        fillColor={token(theme, ui.color.background.tertiary)}
-        textColor={token(theme, ui.color.text.primary)}
+        outlineColor={color.neutral.plum100}
+        fillColor={ui.color.background.tertiary}
+        textColor={ui.color.text.primary}
         sx={{
           fontSize: "12px",
           fontWeight: theme.palette.mode === "dark" ? 300 : 400,
@@ -280,10 +282,13 @@ interface EventsProps {
 
 export const Events: React.FC<EventsProps> = () => {
   const gridRef = React.useRef<AgGridReact>(null);
+  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
 
   const autoDefaults = {
     status: "",
     category: "",
+    statuses: [],
+    categories: [],
   };
 
   const draftDefaults = {
@@ -542,6 +547,27 @@ export const Events: React.FC<EventsProps> = () => {
     };
   }, [events]);
 
+  // Filter events based on active chip selections
+  const filteredEvents = React.useMemo(() => {
+    if (!events) return [];
+
+    // Get active filters from autoParams
+    const activeCategories = (autoParams as any).categories || [];
+    const activeStatuses = (autoParams as any).statuses || [];
+
+    return events.filter((event: Event) => {
+      // If no category filters are active, include all categories
+      const categoryMatch = activeCategories.length === 0 ||
+        activeCategories.includes(event.event_category);
+
+      // If no status filters are active, include all statuses
+      const statusMatch = activeStatuses.length === 0 ||
+        activeStatuses.includes(event.lifecycle_status);
+
+      return categoryMatch && statusMatch;
+    });
+  }, [events, (autoParams as any).categories, (autoParams as any).statuses]);
+
   const toolbar = (
     <>
       <FilterBar
@@ -549,6 +575,8 @@ export const Events: React.FC<EventsProps> = () => {
         onValuesChange={setParams}
         onApply={handleApplyFilters}
         filtersChanged={hasChanges}
+        workflowActions={workflowActions}
+        selectedItems={selectedRows}
       />
     </>
   );
@@ -565,7 +593,7 @@ export const Events: React.FC<EventsProps> = () => {
 
   return (
     <AppShell.Page>
-      <AppShell.Toolbar>
+      <AppShell.Toolbar darkMode={isDarkMode}>
         <Width>{toolbar}</Width>
       </AppShell.Toolbar>
 
@@ -575,12 +603,8 @@ export const Events: React.FC<EventsProps> = () => {
             header={
               <ActionBar
                 values={autoParams}
-                appliedParams={autoParams}
                 onValuesChange={setAutoParams}
                 statusCounts={statusCounts}
-                workflowActions={workflowActions}
-                selectedItems={selectedRows}
-                gridRef={gridRef}
                 actionMenuItems={[
                   {
                     label: "Export Data",
@@ -629,13 +653,13 @@ export const Events: React.FC<EventsProps> = () => {
             }
             sx={{ height: "100%" }}
           >
-            <AgGridTheme height="92%" wrapHeaders={true}>
+            <AgGridTheme height="92%" wrapHeaders={true} darkMode={isDarkMode}>
               {(popupParent) => (
                 <AgGridReact
                   ref={gridRef}
                   headerHeight={54}
                   popupParent={popupParent}
-                  rowData={events || []}
+                  rowData={filteredEvents}
                   columnDefs={columnDefs}
                   rowSelection="multiple"
                   onSelectionChanged={onSelectionChanged}
@@ -657,18 +681,12 @@ export const Events: React.FC<EventsProps> = () => {
                   getRowStyle={(params) => {
                     if (params.node.expanded) {
                       return {
-                        backgroundColor: token(
-                          darkTheme,
-                          ui.tableRow.base.hover.background,
-                        ),
+                        backgroundColor: ui.tableRow.base.hover.background,
                       };
                     }
                     if (params.node.detail) {
                       return {
-                        backgroundColor: token(
-                          darkTheme,
-                          ui.tableRow.base.selected.background,
-                        ),
+                        backgroundColor: ui.tableRow.base.selected.background,
                       };
                     }
                     return undefined;
@@ -677,7 +695,7 @@ export const Events: React.FC<EventsProps> = () => {
                     filter: true,
                     sortable: true,
                     resizable: true,
-                    menuTabs: ["filterMenuTab", "columnsMenuTab"],
+                    menuTabs: ["filterMenuTab"],
                   }}
                   sortingOrder={["asc", "desc"]}
                   multiSortKey={"ctrl"}

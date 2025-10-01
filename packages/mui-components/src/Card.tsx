@@ -10,11 +10,9 @@ import {
   Box,
   Divider,
   Typography,
-  useTheme,
 } from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { ui } from "@smbc/ui-core";
-import { token } from "./utils/tokens";
 
 export interface CardMenuItem {
   label: string;
@@ -56,8 +54,6 @@ export const Card: React.FC<CardProps> = ({
   header,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -82,12 +78,12 @@ export const Card: React.FC<CardProps> = ({
       elevation={elevation}
       sx={{
         backgroundImage: "none !important",
-        backgroundColor: token(isDark, ui.card.base.default.background),
-        border: `1px solid ${token(isDark, ui.card.base.default.borderColor)}`,
+        backgroundColor: ui.card.base.default.background,
+        border: `1px solid ${ui.card.base.default.borderColor}`,
         borderRadius: ui.card.base.default.borderRadius,
         "&:hover": {
           boxShadow: elevation,
-          backgroundColor: token(isDark, ui.card.base.default.background),
+          backgroundColor: ui.card.base.default.background,
           backgroundImage: "none !important",
           transform: "none",
         },
@@ -121,7 +117,7 @@ export const Card: React.FC<CardProps> = ({
                   fontSize: ui.cardHeader.base.default.fontSize,
                   fontWeight: ui.cardHeader.base.default.fontWeight,
                   fontFamily: ui.cardHeader.base.default.fontFamily,
-                  color: token(isDark, ui.cardHeader.base.default.color),
+                  color: ui.cardHeader.base.default.color,
                   lineHeight: 1.2
                 }}
               >

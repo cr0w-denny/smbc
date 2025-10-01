@@ -96,7 +96,7 @@ const appletDefinitions = [
     config: {
       id: "ewi-obligor",
       label: "Obligor Dashboard",
-      path: "/obligor-dashboard",
+      path: "/obligors",
       icon: Dashboard,
       permissions: [ewiObligorApplet.permissions.VIEW_OBLIGORS],
     },

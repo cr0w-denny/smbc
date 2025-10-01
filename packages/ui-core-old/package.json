@@ -1,0 +1,35 @@
+{
+  "name": "@smbc/ui-core-old",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Framework-agnostic UI core primitives for SMBC applications (design tokens, types, etc.)",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./tokens/*": "./tokens/*"
+  },
+  "files": [
+    "dist",
+    "tokens"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "lint": "echo 'Lint: ui-core'",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
+  }
+}

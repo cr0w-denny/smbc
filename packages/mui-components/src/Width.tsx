@@ -1,5 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
+import { layout } from "@smbc/ui-core";
 
 interface WidthProps {
   children: React.ReactNode;
@@ -11,7 +12,13 @@ interface WidthProps {
  */
 export const Width: React.FC<WidthProps> = ({
   children,
-  max = { xs: "96%", sm: "96%", md: "88%", lg: "88%", xl: "92%" },
+  max = {
+    xs: layout.maxWidth.xs(),
+    sm: layout.maxWidth.sm(),
+    md: layout.maxWidth.md(),
+    lg: layout.maxWidth.lg(),
+    xl: layout.maxWidth.xl(),
+  },
 }) => (
   <Box
     sx={{

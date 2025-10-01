@@ -16,7 +16,7 @@ import {
   AssignmentAdd as AssignmentAddIcon,
   AssignmentTurnedIn as AssignmentTurnedInIcon,
 } from "@mui/icons-material";
-import { useHashNavigation } from "@smbc/applet-core";
+import { useHashNavigation, useFeatureFlag } from "@smbc/applet-core";
 import { TabBar, AppShell, Width } from "@smbc/mui-components";
 import { shadow } from "@smbc/ui-core";
 import type { TabBarItem } from "@smbc/mui-components";
@@ -42,6 +42,7 @@ const tabs: TabBarItem[] = [
 ];
 
 export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
+  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const [activeTab, setActiveTab] = useState("event");
   const [isEditorMaximized, setIsEditorMaximized] = useState(false);
   const [workflowMenuAnchorEl, setWorkflowMenuAnchorEl] =
@@ -118,7 +119,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
 
   return (
     <AppShell.Page>
-      <AppShell.Toolbar>
+      <AppShell.Toolbar darkMode={isDarkMode}>
         <Width>
           <Box
             sx={{

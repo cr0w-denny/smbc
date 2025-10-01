@@ -9,16 +9,13 @@ import {
   Button,
   IconButton,
   Avatar,
-  ThemeProvider,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
 import { NavigationItem } from "../types";
 import { TreeDropdownMenu } from "./TreeDropdownMenu";
 import { UserMenu, UserRole } from "../../UserMenu";
-import { darkTheme } from "../../theme/dark";
 import { color } from "@smbc/ui-core";
-import { token } from "../../utils/tokens";
 
 interface TopNavProps {
   logo?: React.ReactNode;
@@ -198,13 +195,12 @@ export const TopNav: React.FC<TopNavProps> = ({
                 }}
               />
             )}
-            <ThemeProvider theme={darkTheme}>
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl) && activeMenu === item.label}
                 onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
                 slotProps={{
                   paper: {
                     sx: {
@@ -222,12 +218,22 @@ export const TopNav: React.FC<TopNavProps> = ({
                       if (subItem.onClick) subItem.onClick();
                       handleNavigation(subItem.href);
                     }}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                    }}
                   >
+                    {subItem.icon && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.25rem' }}>
+                        {console.log('Rendering icon for:', subItem.label, subItem.icon)}
+                        {subItem.icon}
+                      </Box>
+                    )}
                     {subItem.label}
                   </MenuItem>
                 ))}
               </Menu>
-            </ThemeProvider>
           </Box>
         );
 
@@ -242,7 +248,6 @@ export const TopNav: React.FC<TopNavProps> = ({
             >
               {item.label}
             </Button>
-            <ThemeProvider theme={darkTheme}>
               <TreeDropdownMenu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl) && activeMenu === item.label}
@@ -250,7 +255,6 @@ export const TopNav: React.FC<TopNavProps> = ({
                 items={item.treeItems || []}
                 menuId={item.label}
               />
-            </ThemeProvider>
           </Box>
         );
 
@@ -349,10 +353,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 },
                 ...(isImpersonating && {
-                  border: `2px solid ${token(
-                    false,
-                    color.brand.primary.freshGreen,
-                  )}`,
+                  border: `2px solid ${color.brand.freshGreen}`,
                   borderRadius: "50%",
                   padding: "6px", // Reduced to account for 2px border
                 }),
@@ -368,10 +369,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                     width: 32,
                     height: 32,
                     ...(isImpersonating && {
-                      border: `2px solid ${token(
-                        false,
-                        color.brand.primary.freshGreen,
-                      )}`,
+                      border: `2px solid ${color.brand.freshGreen}`,
                     }),
                   }}
                 />
@@ -380,7 +378,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                   sx={{
                     fontSize: 32,
                     ...(isImpersonating && {
-                      color: token(false, color.brand.primary.freshGreen),
+                      color: color.brand.freshGreen,
                     }),
                   }}
                 />

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import {
   AgGridTheme,
@@ -8,7 +8,6 @@ import {
   ChipToggleGroup,
 } from "@smbc/mui-components";
 import { ui } from "@smbc/ui-core";
-import { token } from "@smbc/mui-components";
 import type { ColDef } from "ag-grid-community";
 import type { CardMenuItem, ChipToggleItem } from "@smbc/mui-components";
 import ErrorIcon from "@mui/icons-material/Error";
@@ -32,7 +31,6 @@ interface GridProps {
 }
 
 export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
-  const theme = useTheme();
   const gridRef = useRef<AgGridReact>(null);
   const [activeChips, setActiveChips] = useState<string[]>([]);
 
@@ -42,7 +40,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "Past Due",
       icon: <ErrorIcon />,
       count: 3,
-      color: token(theme, ui.color.status.error),
+      color: ui.color.status.error,
       group: "status",
     },
     {
@@ -50,7 +48,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "Almost Due",
       icon: <WarningIcon />,
       count: 7,
-      color: token(theme, ui.color.status.warning),
+      color: ui.color.status.warning,
       group: "status",
     },
     {
@@ -58,7 +56,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
       label: "On Course",
       icon: <CheckCircleIcon />,
       count: 12,
-      color: token(theme, ui.color.status.success),
+      color: ui.color.status.success,
       group: "status",
     },
   ];

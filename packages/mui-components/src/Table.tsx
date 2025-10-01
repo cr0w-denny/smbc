@@ -5,10 +5,8 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  useTheme,
 } from "@mui/material";
 import { ui } from "@smbc/ui-core";
-import { token } from "./utils/tokens";
 
 type ColumnDef<T> = {
   header: string;
@@ -28,8 +26,6 @@ export function Table<T>({
   rows: T[];
   sx?: any;
 }) {
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === "dark";
 
   return (
     <MuiTable size="small" sx={sx}>
@@ -40,7 +36,7 @@ export function Table<T>({
               key={i}
               align={c.align ?? "left"}
               sx={{
-                bgcolor: token(isDarkMode, ui.tableHeader.base.default.background),
+                bgcolor: ui.tableHeader.base.default.background,
                 fontWeight: 600,
                 width: c.width,
                 borderBottom: "none",

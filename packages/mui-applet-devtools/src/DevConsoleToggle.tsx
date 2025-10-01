@@ -20,6 +20,10 @@ export interface DevConsoleToggleProps {
   impersonationEmail?: string;
   /** Callback when impersonation email changes */
   onImpersonationEmailChange?: (email: string) => void;
+  /** Theme for token editor */
+  theme?: any;
+  /** Callback to update theme */
+  setTheme?: (theme: any) => void;
 }
 
 /**
@@ -29,7 +33,9 @@ export interface DevConsoleToggleProps {
 export const DevConsoleToggle: React.FC<DevConsoleToggleProps> = ({
   applets,
   impersonationEmail,
-  onImpersonationEmailChange
+  onImpersonationEmailChange,
+  theme,
+  setTheme
 }) => {
   const [devConsoleOpen, setDevConsoleOpen] = useState(false);
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -114,6 +120,8 @@ export const DevConsoleToggle: React.FC<DevConsoleToggleProps> = ({
         currentAppletInfo={currentAppletInfo}
         impersonationEmail={impersonationEmail}
         onImpersonationEmailChange={onImpersonationEmailChange}
+        theme={theme}
+        setTheme={setTheme}
       />
     </>
   );
