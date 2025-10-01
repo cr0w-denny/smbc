@@ -12,21 +12,24 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./tokens/*": "./tokens/*"
+    "./tokens.css": "./tokens.css"
   },
   "files": [
     "dist",
-    "tokens"
+    "tokens.css"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b && node generate-css.mjs",
     "dev": "tsc -b --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "echo 'Lint: ui-core'",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "generate-css": "node generate-css.mjs",
+    "watch-css": "chokidar src/tokens.ts -c \"npm run generate-css\""
   },
   "devDependencies": {
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "chokidar-cli": "^3.0.0"
   },
   "publishConfig": {
     "registry": "http://localhost:4873",

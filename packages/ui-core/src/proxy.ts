@@ -1,141 +1,111 @@
-/**
- * Token Proxy System for Development
- * Wraps tokens to enable real-time modification in development
- */
+import { tokens } from "./tokens.js";
+import { resolveTokenReference } from "./tokenResolver.js";
+import type {
+  UITokens,
+  ColorTokens,
+  ShadowTokens,
+  ZIndexTokens,
+  TypographyTokens,
+  BreakpointsTokens,
+  SizeTokens,
+  LayoutTokens
+} from "./types.js";
 
-// Store for token overrides
-const tokenOverrides = new Map<string, any>();
+// Type definition for our proxy tokens
+type TokenFunction = {
+  (): string;                    // No args = CSS variable
+  (isDark: boolean): string;     // Boolean = resolve for mode
+  (theme: any): string;          // Theme object = extract mode and resolve
+  toString(): string;            // For implicit string conversion
+  valueOf(): string;             // For valueOf operations
+} & string;
 
-// Event emitter for token changes
-const listeners = new Set<() => void>();
-
-// Flag to prevent loops during theme creation
-let isCreatingTheme = false;
-
-// Debouncing for token notifications
-let notificationTimeout: number | null = null;
-let pendingNotification = false;
-
-export const addTokenChangeListener = (listener: () => void) => {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-};
-
-const notifyListeners = () => {
-  // Don't notify during theme creation to prevent loops
-  if (isCreatingTheme) {
-    pendingNotification = true; // Remember we need to notify later
-    return;
-  }
-
-  listeners.forEach(listener => listener());
-  pendingNotification = false;
-};
-
-const debouncedNotifyListeners = () => {
-  if (notificationTimeout) {
-    clearTimeout(notificationTimeout);
-  }
-
-  notificationTimeout = window.setTimeout(() => {
-    notifyListeners();
-    notificationTimeout = null;
-  }, 50);
-};
-
-// Create a deep proxy for nested token objects
-const createTokenProxy = <T extends object>(obj: T, path: string = ''): T => {
-  return new Proxy(obj, {
-    get(target, prop: string | symbol) {
-      // Convert symbol to string for path
-      const propKey = String(prop);
-      const fullPath = path ? `${path}.${propKey}` : propKey;
-
-      // Check for override first
-      if (tokenOverrides.has(fullPath)) {
-        return tokenOverrides.get(fullPath);
-      }
-
-      const value = (target as any)[prop];
-
-      // Recursively proxy nested objects (but not functions or null)
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        return createTokenProxy(value, fullPath);
-      }
-
-      return value;
-    }
-  }) as T;
-};
-
-// Token modification functions
-export const updateToken = (path: string, value: any) => {
-  tokenOverrides.set(path, value);
-};
-
-export const clearToken = (path: string) => {
-  tokenOverrides.delete(path);
-};
-
-export const clearAllTokens = () => {
-  tokenOverrides.clear();
-};
-
-export const exportTokenOverrides = () => {
-  const overrides = Object.fromEntries(tokenOverrides);
-  return JSON.stringify(overrides, null, 2);
-};
-
-export const importTokenOverrides = (json: string) => {
-  try {
-    const overrides = JSON.parse(json);
-    tokenOverrides.clear();
-    Object.entries(overrides).forEach(([path, value]) => {
-      tokenOverrides.set(path, value);
-    });
-    notifyListeners();
-    return true;
-  } catch (error) {
-    console.error('Failed to import token overrides:', error);
-    return false;
-  }
-};
-
-export const getTokenOverrides = () => {
-  return Object.fromEntries(tokenOverrides);
-};
-
-// Theme creation control
-export const setThemeCreating = (creating: boolean) => {
-  isCreatingTheme = creating;
-
-  // If finishing theme creation and there was a pending notification, send it now
-  if (!creating && pendingNotification) {
-    debouncedNotifyListeners();
-  }
-};
-
-// Proxy wrapper function
-export const withTokenProxy = <T extends object>(obj: T, name: string): T => {
-  // Only proxy in development
-  if (process.env.NODE_ENV !== 'development') {
-    return obj;
-  }
-
-  return createTokenProxy(obj, name);
-};
-
-// Make proxy functions available globally for DevTools
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).__tokenProxy = {
-    updateToken,
-    clearToken,
-    clearAllTokens,
-    exportTokenOverrides,
-    importTokenOverrides,
-    getTokenOverrides,
-    addTokenChangeListener,
-  };
+// Get nested value from object using path array
+function getNestedValue(obj: any, path: string[]): any {
+  return path.reduce((current, key) => current?.[key], obj);
 }
+
+// Create proxy for token access
+function createTokenProxy(data: any, path: string[] = []): any {
+  return new Proxy(() => {}, {
+    get(_target, prop) {
+      if (typeof prop === 'string') {
+        const newPath = [...path, prop];
+        const value = getNestedValue(data, newPath);
+
+        if (value !== undefined && (typeof value === 'string' || typeof value === 'number' || (typeof value === 'object' && 'light' in value && 'dark' in value))) {
+          // This is a leaf node - create function proxy
+          const leafProxy = new Proxy(() => {}, {
+            apply(_target, _thisArg, args) {
+              const cssVar = `var(--${newPath.join('-')})`;
+
+              if (args.length === 0) {
+                // No args = return resolved value (default to light mode)
+                if (value && typeof value === 'object' && 'light' in value && 'dark' in value) {
+                  return resolveTokenReference(String(value.light), data);
+                }
+                return resolveTokenReference(String(value), data);
+              }
+
+              const [param] = args;
+
+              if (typeof param === 'boolean') {
+                // Boolean = resolve for light/dark mode
+                const isDark = param;
+
+                // Handle light/dark value objects
+                if (value && typeof value === 'object' && 'light' in value && 'dark' in value) {
+                  const modeValue = isDark ? value.dark : value.light;
+                  return resolveTokenReference(String(modeValue), data);
+                }
+
+                // Regular value - resolve with token data
+                return resolveTokenReference(String(value), data);
+              }
+
+              if (typeof param === 'object' && param?.palette?.mode) {
+                // Theme object = extract mode and resolve
+                const isDark = param.palette.mode === 'dark';
+
+                // Handle light/dark value objects
+                if (value && typeof value === 'object' && 'light' in value && 'dark' in value) {
+                  const modeValue = isDark ? value.dark : value.light;
+                  return resolveTokenReference(String(modeValue), data);
+                }
+
+                // Regular value - resolve with token data
+                return resolveTokenReference(String(value), data);
+              }
+
+              // Default to CSS variable
+              return cssVar;
+            }
+          }) as TokenFunction;
+
+          // Make it act like a string when used in string contexts
+          leafProxy.toString = () => `var(--${newPath.join('-')})`;
+          leafProxy.valueOf = () => `var(--${newPath.join('-')})`;
+
+          return leafProxy;
+        }
+
+        if (value !== undefined && typeof value === 'object') {
+          // This is a branch - create nested proxy
+          return createTokenProxy(data, newPath);
+        }
+      }
+
+      return undefined;
+    }
+  });
+}
+
+// Create proxies for all top-level token nodes with proper types and base paths
+export const ui: UITokens = createTokenProxy(tokens, ['ui']) as UITokens;
+export const color: ColorTokens = createTokenProxy(tokens, ['color']) as ColorTokens;
+export const shadow: ShadowTokens = createTokenProxy(tokens, ['shadow']) as ShadowTokens;
+export const zIndex: ZIndexTokens = createTokenProxy(tokens, ['zIndex']) as ZIndexTokens;
+export const typography: TypographyTokens = createTokenProxy(tokens, ['typography']) as TypographyTokens;
+export const breakpoints: BreakpointsTokens = createTokenProxy(tokens, ['breakpoints']) as BreakpointsTokens;
+export const size: SizeTokens = createTokenProxy(tokens, ['size']) as SizeTokens;
+export const layout: LayoutTokens = createTokenProxy(tokens, ['layout']) as LayoutTokens;
