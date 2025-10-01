@@ -4,18 +4,14 @@ import { createCssVarComponents } from "./components";
 import { baseTypography, baseSpacing } from "./typography";
 import { shadow, breakpoints } from "@smbc/ui-core";
 
-// Single theme that works for both light and dark modes via CSS variables
-export const createCssVarTheme = () => {
-  // Create the base theme
+// Theme factory that creates theme based on current mode
+export const createCssVarTheme = (mode: 'light' | 'dark' = 'light') => {
+  // Create the base theme with current mode
   const baseTheme = createTheme({
-    colorSchemes: {
-      light: true,
-      dark: true
-    },
     cssVariables: {
       colorSchemeSelector: '[data-theme=%s]'
     },
-    palette: createCssVarPalette(),
+    palette: createCssVarPalette(mode),
     typography: baseTypography as TypographyVariantsOptions,
     spacing: baseSpacing,
     breakpoints: {
@@ -56,21 +52,18 @@ export const createCssVarTheme = () => {
     ],
   });
 
-  // Create the final theme with components
+  // Create the final theme with components - keep CSS variables but disable automatic color scheme detection
   return createTheme({
     ...baseTheme,
-    colorSchemes: {
-      light: true,
-      dark: true
-    },
     cssVariables: {
       colorSchemeSelector: '[data-theme=%s]'
     },
+    defaultColorScheme: 'light',
     components: createCssVarComponents(baseTheme),
   });
 };
 
-// Export a single theme instance
-export const cssVarTheme = createCssVarTheme();
+// Export default light theme for backwards compatibility
+export const cssVarTheme = createCssVarTheme('light');
 
 export default cssVarTheme;

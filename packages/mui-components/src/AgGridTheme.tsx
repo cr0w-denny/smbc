@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { ui } from "@smbc/ui-core";
 
 // Import AG Grid styles
@@ -11,7 +11,6 @@ interface AgGridThemeProps {
   height?: string | number;
   mx?: number;
   wrapHeaders?: boolean;
-  darkMode?: boolean;
   children:
     | React.ReactNode
     | ((popupParent: HTMLElement | null) => React.ReactNode);
@@ -21,22 +20,25 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
   height = "100%",
   mx = 0,
   wrapHeaders = false,
-  darkMode = false,
   children,
 }) => {
-  const agGridThemeClass = darkMode
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+  const agGridThemeClass = isDarkMode
     ? "ag-theme-quartz-dark"
     : "ag-theme-quartz";
 
-  // Debug logging to check darkMode prop changes
+  // Debug logging to check dark mode changes
   React.useEffect(() => {
     console.log(
-      "AgGridTheme - darkMode prop changed:",
-      darkMode,
+      "AgGridTheme - theme mode:",
+      theme.palette.mode,
+      "isDarkMode:",
+      isDarkMode,
       "theme class:",
       agGridThemeClass,
     );
-  }, [darkMode, agGridThemeClass]);
+  }, [theme.palette.mode, isDarkMode, agGridThemeClass]);
 
   // Internal popup parent management
   const popupParentRef = React.useRef<HTMLDivElement>(null);
@@ -78,13 +80,13 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
             border: "none !important",
           },
           "--ag-background-color":
-            ui.tableRow.base.default.background(darkMode),
+            ui.tableRow.base.default.background(isDarkMode),
           // "--ag-odd-row-background-color": ui.tableRow.base.default.background,
           // "--ag-foreground-color": theme.palette.text.primary,
           "--ag-header-background-color":
-            ui.tableHeader.base.default.background(darkMode),
+            ui.tableHeader.base.default.background(isDarkMode),
           // "--ag-header-foreground-color": ui.tableHeader.base.default.color,
-          "--ag-border-color": ui.tableRow.base.default.borderColor(darkMode),
+          "--ag-border-color": ui.tableRow.base.default.borderColor(isDarkMode),
           // "--ag-row-hover-color": ui.tableRow.base.hover.background,
           // "--ag-selected-row-background-color": ui.tableRow.base.selected.background,
           // "--ag-header-row-border-style": "none",

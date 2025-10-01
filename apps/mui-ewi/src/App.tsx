@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Box, Typography, CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
@@ -8,16 +8,16 @@ import { AuthGate } from "./components/AuthGate";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 import {
-  useHashNavigation,
   AppletProvider,
   FeatureFlagProvider,
   useFeatureFlag,
   useFeatureFlagToggle,
+  useHashNavigation,
 } from "@smbc/applet-core";
 import { DataViewProvider } from "@smbc/dataview";
 import { configureApplets, AppletRouter } from "@smbc/applet-host";
 import { APPLETS, ROLE_CONFIG } from "./applet.config";
-import { cssVarTheme } from "@smbc/mui-components";
+import { createCssVarTheme } from "@smbc/mui-components";
 import { navigation } from "./menu";
 
 // Simple production query client
@@ -37,37 +37,20 @@ const AppShellContent: React.FC = () => {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const toggleDarkMode = useFeatureFlagToggle("darkMode");
 
-  const handleDarkModeToggle = () => {
-    toggleDarkMode();
-  };
-
-  const handleProfile = () => {
-    console.log("Profile clicked");
-  };
-
-  const handleSettings = () => {
-    console.log("Settings clicked");
-  };
-
-  const handleQuickGuide = () => {
-    console.log("Quick Guide clicked");
-  };
-
-  const handleLogout = () => {
-    console.log("Logout clicked");
-    alert("Logout functionality would be implemented here");
-  };
-
-  // Use static CSS variable theme - dark mode handled by data attribute
-  const appTheme = cssVarTheme;
-
   // Set data-theme attribute on document for CSS variable switching
-  useEffect(() => {
+  React.useEffect(() => {
     document.documentElement.setAttribute(
       "data-theme",
       isDarkMode ? "dark" : "light",
     );
   }, [isDarkMode]);
+
+  const handleDarkModeToggle = (enabled: boolean) => {
+    toggleDarkMode();
+  };
+
+  // Create theme based on current mode
+  const theme = React.useMemo(() => createCssVarTheme(isDarkMode ? 'dark' : 'light'), [isDarkMode]);
 
   // Default component for unmatched routes
   const AppRoutes = () => {
@@ -119,7 +102,7 @@ const AppShellContent: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={appTheme}>
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         <AppShell.Layout
           logo={
@@ -136,10 +119,13 @@ const AppShellContent: React.FC = () => {
           isDarkMode={isDarkMode}
           onDarkModeToggle={handleDarkModeToggle}
           username="John Doe"
-          onProfile={handleProfile}
-          onSettings={handleSettings}
-          onQuickGuide={handleQuickGuide}
-          onLogout={handleLogout}
+          onProfile={() => console.log("Profile clicked")}
+          onSettings={() => console.log("Settings clicked")}
+          onQuickGuide={() => console.log("Quick Guide clicked")}
+          onLogout={() => {
+            console.log("Logout clicked");
+            alert("Logout functionality would be implemented here");
+          }}
           right={
             <Box
               sx={{
@@ -187,12 +173,7 @@ const AppContent: React.FC = () => {
           {
             key: "darkMode",
             defaultValue: false,
-            initializer: () => {
-              // Check data-theme attribute on document element
-              const dataTheme =
-                document.documentElement.getAttribute("data-theme");
-              return dataTheme === "dark";
-            },
+            persist: true,
           },
         ]}
       >

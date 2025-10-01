@@ -2,11 +2,13 @@ import { PaletteOptions } from "@mui/material/styles";
 import { ui, color } from "@smbc/ui-core";
 import { stringifyTokens } from "./utils";
 
-// Single palette that uses CSS variables - the ui proxy handles light/dark automatically
-export const createCssVarPalette = (): PaletteOptions =>
+// Palette that uses CSS variables and accepts current mode
+export const createCssVarPalette = (
+  mode: "light" | "dark" = "light",
+): PaletteOptions =>
   stringifyTokens(
     {
-      mode: "light", // This is just a default, CSS variables handle the actual theming
+      mode, // Use the actual current mode
       primary: {
         main: ui.color.brand.primary,
         light: color.cool.jadeGreen75,
@@ -52,7 +54,7 @@ export const createCssVarPalette = (): PaletteOptions =>
         secondary: ui.color.text.secondary,
         disabled: ui.color.text.disabled,
       },
-      divider: ui.color.border.primary,
+      divider: ui.color.border.primary(mode === "dark"),
       dividerChannel: undefined,
       grey: {
         50: color.neutral.gray50,
@@ -68,7 +70,7 @@ export const createCssVarPalette = (): PaletteOptions =>
       },
       action: {
         active: ui.color.action.hover, // Using hover as active for now
-        hover: ui.color.action.hover,
+        hover: ui.color.action.hover(mode === "dark"),
         selected: ui.color.action.selected,
         disabled: ui.color.action.disabled,
         disabledBackground: ui.color.action.disabledBackground,

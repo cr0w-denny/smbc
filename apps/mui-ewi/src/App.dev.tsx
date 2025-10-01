@@ -8,17 +8,17 @@ import { ActivityNotifications } from "@smbc/mui-applet-core";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 import {
-  useHashNavigation,
   AppletProvider,
   FeatureFlagProvider,
   useFeatureFlag,
   useFeatureFlagToggle,
+  useHashNavigation,
 } from "@smbc/applet-core";
 import { DataViewProvider } from "@smbc/dataview";
 import { AuthGate } from "./components/AuthGate";
 import { configureApplets, AppletRouter } from "@smbc/applet-host";
 import { APPLETS, ROLE_CONFIG } from "./applet.config";
-import { cssVarTheme } from "@smbc/mui-components";
+import { createCssVarTheme } from "@smbc/mui-components";
 import { navigation } from "./menu";
 import { useDebug, useDevTools, DevProvider } from "./context/DevContext";
 import { DevConsoleToggle } from "@smbc/mui-applet-devtools";
@@ -200,23 +200,47 @@ const AppShellContent: React.FC = () => {
   const toggleDarkMode = useFeatureFlagToggle("darkMode");
   const { debug, createSessionId } = useDebug();
 
-  // Use static CSS variable theme - dark mode handled by data attribute
-  const appTheme = cssVarTheme;
+  // Debug logging for dark mode
+  console.log('🌙 Dark mode debug:');
+  console.log('isDarkMode value:', isDarkMode);
+  console.log('typeof isDarkMode:', typeof isDarkMode);
+  console.log('localStorage featureFlag-darkMode:', localStorage.getItem('featureFlag-darkMode'));
+  console.log('localStorage raw access:', localStorage['featureFlag-darkMode']);
+  console.log('Current data-theme attribute:', document.documentElement.getAttribute('data-theme'));
 
-  // Set data-theme attribute on document for CSS variable switching
+  // Override setAttribute to catch who's setting data-theme
+  React.useEffect(() => {
+    const originalSetAttribute = document.documentElement.setAttribute;
+    document.documentElement.setAttribute = function(name: string, value: string) {
+      if (name === 'data-theme') {
+        console.log('🔍 setAttribute called for data-theme:', value);
+        console.trace('Stack trace for setAttribute call:');
+
+        // Check if system prefers dark mode
+        console.log('System prefers-color-scheme:', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+      return originalSetAttribute.call(this, name, value);
+    };
+
+    return () => {
+      document.documentElement.setAttribute = originalSetAttribute;
+    };
+  }, []);
+
+  // Enhanced dark mode effect with debugging
   useEffect(() => {
-    document.documentElement.setAttribute(
-      "data-theme",
-      isDarkMode ? "dark" : "light",
-    );
+    const theme = isDarkMode ? "dark" : "light";
+    console.log('🎨 Setting data-theme to:', theme, 'based on isDarkMode:', isDarkMode);
+    document.documentElement.setAttribute("data-theme", theme);
   }, [isDarkMode]);
+
   const {
     DevConsoleToggle: _,
     roleSelection,
     impersonation,
     requestHeaders,
   } = useDevTools();
-  // Use role selection from DevContext
+
   const { userRoles, handleRoleToggle } = roleSelection;
 
   // Create query client with access to impersonation context
@@ -236,63 +260,45 @@ const AppShellContent: React.FC = () => {
   }, [interceptorSetup, impersonation.setEmail, debug, createSessionId]);
 
   const handleDarkModeToggle = (enabled: boolean) => {
-    // debug.log(
-    //   createSessionId("dark-mode-toggle"),
-    //   "UserActions",
-    //   "dark-mode-changed",
-    //   {
-    //     enabled,
-    //     previousMode: isDarkMode,
-    //   },
-    // );
     toggleDarkMode();
-
-    // CSS variables handle the theme automatically
-
-    // Update CSS variables for the new mode if overrides exist
-    const globalOverrides = (window as any).__tokenOverrides;
-    if (globalOverrides) {
-      // Need to import resolveTokenReference
-      import("@smbc/ui-core").then(({ resolveTokenReference }) => {
-        // Re-inject CSS variables with the new mode
-        let cssText = ":root {\n";
-        for (const [tokenPath, tokenValue] of Object.entries(
-          globalOverrides as Record<string, { light: string; dark: string }>,
-        )) {
-          const cssVar = `--${tokenPath.replace(/\./g, "-")}`;
-          const rawValue = enabled ? tokenValue.dark : tokenValue.light;
-          const resolvedValue = resolveTokenReference(rawValue);
-          cssText += `  ${cssVar}: ${resolvedValue};\n`;
-        }
-        cssText += "}";
-
-        const styleElement = document.getElementById("token-overrides");
-        if (styleElement) {
-          styleElement.textContent = cssText;
-        }
-      });
-    }
   };
 
-  const handleProfile = () => {
-    console.log("Profile clicked");
-    // Navigate to profile page or show profile modal
-  };
+  // Custom right content with dev tools
+  const rightContent = (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        "& .MuiIconButton-root svg": { fontSize: 28 },
+      }}
+    >
+      <DevConsoleToggle
+        applets={APPLETS}
+        impersonationEmail={impersonation.email}
+        onImpersonationEmailChange={impersonation.setEmail}
+      />
+      <ActivityNotifications onNavigate={navigate} />
+    </Box>
+  );
 
-  const handleSettings = () => {
-    console.log("Settings clicked");
-    // Navigate to settings page or show settings modal
-  };
+  const username = impersonation.email ? (
+    <span style={{ color: color.brand.freshGreen }}>
+      {impersonation.email}
+    </span>
+  ) : (
+    "John Doe"
+  );
 
-  const handleQuickGuide = () => {
-    console.log("Quick Guide clicked");
-    // Show quick guide modal or navigate to help
-  };
+  // Create theme based on current mode
+  const theme = React.useMemo(() => createCssVarTheme(isDarkMode ? 'dark' : 'light'), [isDarkMode]);
 
-  const handleLogout = () => {
-    console.log("Logout clicked");
-    // Handle logout logic
-    alert("Logout functionality would be implemented here");
+  const maxWidthConfig = {
+    xs: "96%",
+    sm: "96%",
+    md: "88%", // 6% margin on each side
+    lg: "88%", // 6% margin on each side
+    xl: "92%", // 4% margin on each side
   };
 
   // Default component for unmatched routes
@@ -335,17 +341,9 @@ const AppShellContent: React.FC = () => {
     }
   };
 
-  const maxWidthConfig = {
-    xs: "96%",
-    sm: "96%",
-    md: "88%", // 6% margin on each side
-    lg: "88%", // 6% margin on each side
-    xl: "92%", // 4% margin on each side
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={appTheme}>
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         <AppShell.Layout
           logo={
@@ -361,39 +359,18 @@ const AppShellContent: React.FC = () => {
           currentPath={path}
           isDarkMode={isDarkMode}
           onDarkModeToggle={handleDarkModeToggle}
-          username={
-            impersonation.email ? (
-              <span style={{ color: color.brand.freshGreen }}>
-                {impersonation.email}
-              </span>
-            ) : (
-              "John Doe"
-            )
-          }
+          username={username}
           userRoles={userRoles}
           onToggleRole={handleRoleToggle}
-          onProfile={handleProfile}
-          onSettings={handleSettings}
-          onQuickGuide={handleQuickGuide}
-          onLogout={handleLogout}
+          onProfile={() => console.log("Profile clicked")}
+          onSettings={() => console.log("Settings clicked")}
+          onQuickGuide={() => console.log("Quick Guide clicked")}
+          onLogout={() => {
+            console.log("Logout clicked");
+            alert("Logout functionality would be implemented here");
+          }}
           isImpersonating={impersonation.isImpersonating}
-          right={
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                "& .MuiIconButton-root svg": { fontSize: 28 },
-              }}
-            >
-              <DevConsoleToggle
-                applets={APPLETS}
-                impersonationEmail={impersonation.email}
-                onImpersonationEmailChange={impersonation.setEmail}
-              />
-              <ActivityNotifications onNavigate={navigate} />
-            </Box>
-          }
+          right={rightContent}
           maxWidth={maxWidthConfig}
         >
           <ErrorBoundary>
@@ -431,12 +408,7 @@ const AppContent: React.FC = () => {
           {
             key: "darkMode",
             defaultValue: false,
-            initializer: () => {
-              // Check data-theme attribute on document element
-              const dataTheme =
-                document.documentElement.getAttribute("data-theme");
-              return dataTheme === "dark";
-            },
+            persist: true,
           },
         ]}
       >

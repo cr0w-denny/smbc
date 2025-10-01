@@ -6,7 +6,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { ui } from "@smbc/ui-core";
+// import { ui } from "@smbc/ui-core";
 
 type ColumnDef<T> = {
   header: string;
@@ -26,7 +26,6 @@ export function Table<T>({
   rows: T[];
   sx?: any;
 }) {
-
   return (
     <MuiTable size="small" sx={sx}>
       <TableHead>
@@ -36,7 +35,7 @@ export function Table<T>({
               key={i}
               align={c.align ?? "left"}
               sx={{
-                bgcolor: ui.tableHeader.base.default.background,
+                // bgcolor: ui.tableHeader.base.default.background,
                 fontWeight: 600,
                 width: c.width,
                 borderBottom: "none",
@@ -61,7 +60,7 @@ export function Table<T>({
                   borderBottomColor: "divider",
                   height: "54px",
                   padding: "0 16px",
-                  ...c.cellSx
+                  ...c.cellSx,
                 }}
               >
                 {c.render(r)}

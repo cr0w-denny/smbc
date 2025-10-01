@@ -22,10 +22,17 @@ const Container = styled(Box)(({ theme }) => ({
   display: "inline-flex",
   alignItems: "center",
   position: "relative",
-  backgroundColor: theme.palette.mode === "light" ? "#353D41" : alpha(theme.palette.action.hover, 0.04),
+  backgroundColor:
+    theme.palette.mode === "light"
+      ? "#353D41"
+      : alpha(theme.palette.action.hover, 0.04),
   borderRadius: Number(theme.shape.borderRadius) * 2,
   padding: theme.spacing(0.25),
-  border: `1px solid ${theme.palette.mode === "light" ? "#020D10" : alpha(theme.palette.divider, 0.08)}`,
+  border: `1px solid ${
+    theme.palette.mode === "light"
+      ? "#020D10"
+      : alpha(theme.palette.divider, 0.08)
+  }`,
 }));
 
 const TabItem = styled(Box, {
@@ -44,11 +51,7 @@ const TabItem = styled(Box, {
       : isActive
       ? ui.color.brand.primaryContrast
       : ui.color.text.secondary,
-    opacity: isDisabled
-      ? 0.5
-      : isActive
-      ? 1
-      : 0.7,
+    opacity: isDisabled ? 0.5 : isActive ? 1 : 0.7,
     fontWeight: isActive ? 600 : 500,
 
     "&:hover": {

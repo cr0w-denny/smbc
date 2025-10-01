@@ -334,14 +334,8 @@ export const tokens = {
             light: "var(--color-neutral-gray300)",
             dark: "#12244A",
           },
-          borderWidth: {
-            light: "1px",
-            dark: "1px",
-          },
-          borderStyle: {
-            light: "solid",
-            dark: "solid",
-          },
+          borderWidth: "1px",
+          borderStyle: "solid",
           color: {
             light: "var(--color-neutral-gray900)",
             dark: "#E2E6EC",
@@ -420,44 +414,20 @@ export const tokens = {
     button: {
       base: {
         default: {
-          borderRadius: {
-            light: "4px",
-            dark: "4px",
-          },
-          fontSize: {
-            light: "14px",
-            dark: "14px",
-          },
-          fontWeight: {
-            light: "500",
-            dark: "500",
-          },
-          padding: {
-            light: "8px 16px",
-            dark: "8px 16px",
-          },
+          borderRadius: "4px",
+          fontSize: "14px",
+          fontWeight: "500",
+          padding: "8px 16px",
         },
         hover: {
-          cursor: {
-            light: "pointer",
-            dark: "pointer",
-          },
+          cursor: "pointer",
         },
         active: {
-          transform: {
-            light: "translateY(1px)",
-            dark: "translateY(1px)",
-          },
+          transform: "translateY(1px)",
         },
         disabled: {
-          cursor: {
-            light: "not-allowed",
-            dark: "not-allowed",
-          },
-          opacity: {
-            light: "0.6",
-            dark: "0.6",
-          },
+          cursor: "not-allowed",
+          opacity: "0.6",
         },
       },
       primary: {
@@ -474,14 +444,8 @@ export const tokens = {
             light: "var(--color-brand-tradGreen)",
             dark: "var(--color-brand-freshGreen)",
           },
-          borderWidth: {
-            light: "1px",
-            dark: "1px",
-          },
-          borderStyle: {
-            light: "solid",
-            dark: "solid",
-          },
+          borderWidth: "1px",
+          borderStyle: "solid",
         },
         hover: {
           background: {
@@ -524,14 +488,8 @@ export const tokens = {
             light: "var(--color-neutral-gray300)",
             dark: "rgba(255, 255, 255, 0.23)",
           },
-          borderWidth: {
-            light: "1px",
-            dark: "1px",
-          },
-          borderStyle: {
-            light: "solid",
-            dark: "solid",
-          },
+          borderWidth: "1px",
+          borderStyle: "solid",
         },
         hover: {
           background: {
@@ -602,14 +560,8 @@ export const tokens = {
     table: {
       base: {
         default: {
-          borderCollapse: {
-            light: "collapse",
-            dark: "collapse",
-          },
-          width: {
-            light: "100%",
-            dark: "100%",
-          },
+          borderCollapse: "collapse",
+          width: "100%",
         },
       },
     },
@@ -624,14 +576,8 @@ export const tokens = {
             light: "var(--color-neutral-gray700)",
             dark: "rgba(255, 255, 255, 0.87)",
           },
-          fontWeight: {
-            light: "600",
-            dark: "600",
-          },
-          padding: {
-            light: "12px",
-            dark: "12px",
-          },
+          fontWeight: "600",
+          padding: "12px",
         },
       },
     },
@@ -646,14 +592,8 @@ export const tokens = {
             light: "var(--color-neutral-gray200)",
             dark: "#1F3359",
           },
-          borderWidth: {
-            light: "1px",
-            dark: "1px",
-          },
-          borderStyle: {
-            light: "solid",
-            dark: "solid",
-          },
+          borderWidth: "1px",
+          borderStyle: "solid",
         },
         hover: {
           background: {
@@ -672,18 +612,9 @@ export const tokens = {
     chip: {
       base: {
         default: {
-          borderRadius: {
-            light: "16px",
-            dark: "16px",
-          },
-          fontSize: {
-            light: "12px",
-            dark: "12px",
-          },
-          padding: {
-            light: "4px 12px",
-            dark: "4px 12px",
-          },
+          borderRadius: "16px",
+          fontSize: "12px",
+          padding: "4px 12px",
         },
       },
       default: {
@@ -748,14 +679,8 @@ export const tokens = {
             light: "var(--color-neutral-gray200)",
             dark: "#24324C",
           },
-          borderWidth: {
-            light: "1px",
-            dark: "1px",
-          },
-          borderStyle: {
-            light: "solid",
-            dark: "solid",
-          },
+          borderWidth: "1px",
+          borderStyle: "solid",
           borderRadius: {
             light: "16px",
             dark: "16px",
@@ -774,10 +699,7 @@ export const tokens = {
             light: "#486C94",
             dark: "#98A4B9",
           },
-          fontSize: {
-            light: "18px",
-            dark: "18px",
-          },
+          fontSize: "18px",
           fontFamily: {
             light: "Roboto, sans-serif",
             dark: "Montserrat, sans-serif",
@@ -786,20 +708,14 @@ export const tokens = {
             light: "400",
             dark: "500",
           },
-          padding: {
-            light: "0 0 16px 0",
-            dark: "0 0 16px 0",
-          },
+          padding: "0 0 16px 0",
         },
       },
     },
     scrollbar: {
       base: {
         default: {
-          width: {
-            light: "8px",
-            dark: "8px",
-          },
+          width: "8px",
         },
       },
     },
@@ -820,10 +736,7 @@ export const tokens = {
             light: "var(--color-neutral-gray400)",
             dark: "#1F3359",
           },
-          borderRadius: {
-            light: "4px",
-            dark: "4px",
-          },
+          borderRadius: "4px",
         },
         hover: {
           background: {
@@ -850,26 +763,11 @@ export const tokens = {
             light: "#ffffff",
             dark: "var(--color-neutral-gray900)",
           },
-          borderRadius: {
-            light: "4px",
-            dark: "4px",
-          },
-          padding: {
-            light: "8px 12px",
-            dark: "8px 12px",
-          },
-          fontSize: {
-            light: "12px",
-            dark: "12px",
-          },
-          fontWeight: {
-            light: "400",
-            dark: "400",
-          },
-          maxWidth: {
-            light: "200px",
-            dark: "200px",
-          },
+          borderRadius: "4px",
+          padding: "8px 12px",
+          fontSize: "12px",
+          fontWeight: "400",
+          maxWidth: "200px",
           boxShadow: {
             light: "0 2px 8px rgba(0, 0, 0, 0.15)",
             dark: "0 2px 8px rgba(0, 0, 0, 0.3)",
@@ -880,26 +778,14 @@ export const tokens = {
     switch: {
       base: {
         default: {
-          width: {
-            light: "44px",
-            dark: "44px",
-          },
-          height: {
-            light: "24px",
-            dark: "24px",
-          },
-          borderRadius: {
-            light: "12px",
-            dark: "12px",
-          },
+          width: "44px",
+          height: "24px",
+          borderRadius: "12px",
           background: {
             light: "var(--color-neutral-gray300)",
             dark: "rgba(255, 255, 255, 0.38)",
           },
-          padding: {
-            light: "2px",
-            dark: "2px",
-          },
+          padding: "2px",
           transition: {
             light: "all 0.2s ease-in-out",
             dark: "all 0.2s ease-in-out",
@@ -926,18 +812,9 @@ export const tokens = {
     switchThumb: {
       base: {
         default: {
-          width: {
-            light: "20px",
-            dark: "20px",
-          },
-          height: {
-            light: "20px",
-            dark: "20px",
-          },
-          borderRadius: {
-            light: "50%",
-            dark: "50%",
-          },
+          width: "20px",
+          height: "20px",
+          borderRadius: "50%",
           background: {
             light: "#ffffff",
             dark: "#ffffff",

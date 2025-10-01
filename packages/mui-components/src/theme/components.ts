@@ -62,6 +62,9 @@ export const createCssVarComponents = (
             "& fieldset": {
               borderColor: `${ui.input.base.default.borderColor}`,
             },
+            "&:hover": {
+              backgroundColor: `${ui.input.base.hover.background}`,
+            },
             "&:hover fieldset": {
               borderColor: `${ui.input.base.hover.borderColor}`,
             },
@@ -154,11 +157,11 @@ export const createCssVarComponents = (
           borderRadius: theme.spacing(3),
           fontSize: "0.75rem",
           height: 24,
-          backgroundColor: ui.chip.default.default.background,
+          // backgroundColor: ui.chip.default.default.background,
           color: ui.chip.default.default.color,
         },
         colorPrimary: {
-          backgroundColor: ui.chip.primary.default.background,
+          // backgroundColor: ui.chip.primary.default.background,
           color: ui.chip.primary.default.color,
         },
       },
@@ -351,6 +354,9 @@ export const createCssVarComponents = (
         root: {
           backgroundColor: ui.input.base.default.background,
           borderRadius: theme.spacing(3),
+          "&:hover": {
+            backgroundColor: ui.input.base.hover.background,
+          },
           "&.Mui-focused": {
             backgroundColor: ui.input.base.focus.background,
           },
@@ -365,6 +371,9 @@ export const createCssVarComponents = (
               borderRadius: theme.spacing(3),
               "& fieldset": {
                 borderColor: ui.input.base.default.borderColor,
+              },
+              "&:hover": {
+                backgroundColor: ui.input.base.hover.background,
               },
               "&:hover fieldset": {
                 borderColor: ui.input.base.hover.borderColor,

@@ -15,8 +15,6 @@ export interface FeatureFlagConfig<
   key: string;
   /** Default value for the feature flag */
   defaultValue: T;
-  /** Optional initializer function to compute initial value dynamically */
-  initializer?: () => T;
   /** Human-readable description of the feature flag */
   description?: string;
   /** Whether to persist the value to localStorage */
@@ -114,8 +112,7 @@ export function FeatureFlagProvider({
     const initialFlags: Record<string, FeatureFlagValue> = {};
 
     configs.forEach((config) => {
-      // Use initializer function if provided, otherwise use defaultValue
-      let value = config.initializer ? config.initializer() : config.defaultValue;
+      let value = config.defaultValue;
 
       // Try to load from localStorage if persistence is enabled
       if (config.persist) {
@@ -219,8 +216,7 @@ export function FeatureFlagProvider({
     (key: string) => {
       const config = getConfig(key);
       if (config) {
-        const value = config.initializer ? config.initializer() : config.defaultValue;
-        setFlag(key, value);
+        setFlag(key, config.defaultValue);
       }
     },
     [getConfig, setFlag],
@@ -228,8 +224,7 @@ export function FeatureFlagProvider({
 
   const resetAllFlags = useCallback(() => {
     configs.forEach((config) => {
-      const value = config.initializer ? config.initializer() : config.defaultValue;
-      setFlag(config.key, value);
+      setFlag(config.key, config.defaultValue);
     });
   }, [configs, setFlag]);
 

@@ -53,12 +53,17 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
       backgroundColor:
         theme.palette.mode === "dark"
           ? theme.palette.background.paper
-          : (isActive ? hexToRgba(baseColor, 0.1) : "#FFFFFF"),
-      border: theme.palette.mode === "dark"
-        ? "none"
-        : `1px solid ${hexToRgba(baseColor, 0.5)}`,
+          : isActive
+          ? hexToRgba(baseColor, 0.1)
+          : "#FFFFFF",
+      border:
+        theme.palette.mode === "dark"
+          ? "none"
+          : `1px solid ${hexToRgba(baseColor, 0.5)}`,
       outline: isActive
-        ? (theme.palette.mode === "dark" ? `3px solid ${baseColor}` : `1px solid ${baseColor}`)
+        ? theme.palette.mode === "dark"
+          ? `3px solid ${baseColor}`
+          : `1px solid ${baseColor}`
         : "none",
       borderRadius: "23px", // 46px height / 2 for full rounded
       minWidth: "158px",
@@ -69,14 +74,12 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
       fontWeight: 500,
       display: "flex",
       alignItems: "center",
-      boxShadow: theme.palette.mode === "dark"
-        ? `0 0 1px 3px ${shadowColor}`
-        : "none",
+      boxShadow:
+        theme.palette.mode === "dark" ? `0 0 1px 3px ${shadowColor}` : "none",
       "&:hover": {
         outline: isActive ? `3px solid ${baseColor}` : `1px solid ${baseColor}`,
-        boxShadow: theme.palette.mode === "dark"
-          ? `0 0 1px 3px ${shadowColor}`
-          : "none",
+        boxShadow:
+          theme.palette.mode === "dark" ? `0 0 1px 3px ${shadowColor}` : "none",
       },
       "&.MuiChip-clickable:hover": {},
       "& .MuiChip-label": {
@@ -154,9 +157,12 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                      backgroundColor: theme.palette.mode === "light"
-                        ? (isActive ? hexToRgba(baseColor, 0.2) : hexToRgba(baseColor, 0.1))
-                        : "transparent",
+                      backgroundColor:
+                        theme.palette.mode === "light"
+                          ? isActive
+                            ? hexToRgba(baseColor, 0.2)
+                            : hexToRgba(baseColor, 0.1)
+                          : "transparent",
                       borderRadius: "50%",
                     })}
                   >
@@ -166,13 +172,17 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
                         width: "18px",
                         height: "18px",
                         color: isActive
-                          ? (theme.palette.mode === "dark" ? "#FFFFFF" : baseColor)
+                          ? theme.palette.mode === "dark"
+                            ? "#FFFFFF"
+                            : baseColor
                           : baseColor,
                         filter: isActive
-                          ? (theme.palette.mode === "dark"
+                          ? theme.palette.mode === "dark"
                             ? `drop-shadow(0 0 4px ${baseColor}) drop-shadow(0 0 8px ${baseColor})`
-                            : "none")
-                          : (theme.palette.mode === "dark" ? `drop-shadow(0 0 8px ${baseColor})` : "none"),
+                            : "none"
+                          : theme.palette.mode === "dark"
+                          ? `drop-shadow(0 0 8px ${baseColor})`
+                          : "none",
                       }),
                     })}
                   </Box>
@@ -186,7 +196,9 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
                     fontSize: "13px",
                     fontWeight: 500,
                     color: isActive
-                      ? (theme.palette.mode === "dark" ? "#FFFFFF" : baseColor)
+                      ? theme.palette.mode === "dark"
+                        ? "#FFFFFF"
+                        : baseColor
                       : theme.palette.mode === "dark"
                       ? theme.palette.text.primary
                       : "#1A1A1A",

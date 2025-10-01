@@ -557,11 +557,13 @@ export const Events: React.FC<EventsProps> = () => {
 
     return events.filter((event: Event) => {
       // If no category filters are active, include all categories
-      const categoryMatch = activeCategories.length === 0 ||
+      const categoryMatch =
+        activeCategories.length === 0 ||
         activeCategories.includes(event.event_category);
 
       // If no status filters are active, include all statuses
-      const statusMatch = activeStatuses.length === 0 ||
+      const statusMatch =
+        activeStatuses.length === 0 ||
         activeStatuses.includes(event.lifecycle_status);
 
       return categoryMatch && statusMatch;
@@ -653,7 +655,7 @@ export const Events: React.FC<EventsProps> = () => {
             }
             sx={{ height: "100%" }}
           >
-            <AgGridTheme height="92%" wrapHeaders={true} darkMode={isDarkMode}>
+            <AgGridTheme height="92%" wrapHeaders={true}>
               {(popupParent) => (
                 <AgGridReact
                   ref={gridRef}
