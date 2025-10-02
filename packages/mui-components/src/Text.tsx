@@ -2,9 +2,9 @@ import React from "react";
 import { Typography as MuiTypography, TypographyProps as MuiTypographyProps } from "@mui/material";
 import { ui } from "@smbc/ui-core";
 
-export type TypographyProps = MuiTypographyProps;
+export type TextProps = MuiTypographyProps;
 
-export const Typography: React.FC<TypographyProps> = ({ sx, ...props }) => {
+export const Text: React.FC<TextProps> = ({ sx, ...props }) => {
   return (
     <MuiTypography
       sx={{

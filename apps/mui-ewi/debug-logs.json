@@ -15902,8 +15902,119 @@
             }
           ]
         }
+      },
+      {
+        "timestamp": "2025-10-02T19:04:55.923Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligors"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-10-02T19:06:09.414Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligors"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-10-02T19:06:09.420Z",
+        "component": "DevToolsMenu",
+        "event": "path-changed",
+        "data": {
+          "hookPath": "/events",
+          "actualPath": "/events",
+          "pathWithoutQuery": "/events",
+          "foundApplet": "ewi-events",
+          "allApplets": [
+            {
+              "id": "ewi-events",
+              "routes": [
+                "/events"
+              ]
+            },
+            {
+              "id": "ewi-event-details",
+              "routes": [
+                "/events/detail"
+              ]
+            },
+            {
+              "id": "ewi-obligor",
+              "routes": [
+                "/obligors"
+              ]
+            },
+            {
+              "id": "usage-stats",
+              "routes": [
+                "/usage-stats"
+              ]
+            }
+          ]
+        }
       }
     ]
   },
-  "lastUpdate": "2025-10-02T19:04:00.124Z"
+  "lastUpdate": "2025-10-02T19:06:09.420Z"
 }

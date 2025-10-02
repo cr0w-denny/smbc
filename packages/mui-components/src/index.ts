@@ -107,9 +107,9 @@ export type { TooltipProps } from "./Tooltip";
 export { Chip } from "./Chip";
 export type { ChipProps } from "./Chip";
 
-// Typography
-export { Typography } from "./Typography";
-export type { TypographyProps } from "./Typography";
+// Text (wrapper for MUI Typography)
+export { Text } from "./Text";
+export type { TextProps } from "./Text";
 
 // Card
 export { Card } from "./Card";
