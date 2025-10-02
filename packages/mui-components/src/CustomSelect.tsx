@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Select,
   FormControl,
   InputLabel,
   SelectProps,
@@ -8,6 +7,7 @@ import {
   InputLabelProps,
   Box,
 } from "@mui/material";
+import { Select } from "./Select";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { ui } from "@smbc/ui-core";
 

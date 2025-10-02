@@ -8,6 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
+import { ui, shadow } from "@smbc/ui-core";
 
 export interface ActionMenuItem<T = void> {
   label: string;
@@ -118,8 +119,12 @@ export const ActionMenu = <T = void,>({
           paper: {
             sx: {
               minWidth: 200,
-              boxShadow:
-                "0px 2px 4px rgba(0,0,0,0.1), 0px 4px 8px rgba(0,0,0,0.08)",
+              boxShadow: shadow.md,
+              backgroundColor: ui.color.background.secondary(theme),
+              border: `1px solid ${ui.color.border.primary(theme)}`,
+              color: ui.color.text.primary,
+              "--Paper-overlay": "none !important",
+              "--Paper-elevation": "none !important",
             },
           },
         }}
