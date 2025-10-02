@@ -29,13 +29,6 @@ export const createCssVarComponents = (
         },
       },
     },
-    MuiDivider: {
-      styleOverrides: {
-        root: {
-          borderColor: ui.color.border.secondary,
-        },
-      },
-    },
     MuiFormControl: {
       styleOverrides: {
         root: {
@@ -60,15 +53,6 @@ export const createCssVarComponents = (
               color: ui.input.on.focus.borderColor,
             },
           },
-        },
-      },
-    },
-    MuiIconButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          padding: 8,
-          color: "#98A4B9",
         },
       },
     },
@@ -244,24 +228,6 @@ export const createCssVarComponents = (
         },
       },
     },
-    MuiTooltip: {
-      styleOverrides: {
-        tooltip: {
-          backgroundColor: ui.tooltip.background,
-          color: ui.tooltip.color,
-          fontSize: "0.75rem",
-          borderRadius: 6,
-          boxShadow: ui.tooltip.boxShadow,
-        },
-      },
-    },
-    MuiTypography: {
-      styleOverrides: {
-        root: {
-          color: ui.color.text.primary,
-        },
-      },
-    },
   };
 
   return {
@@ -400,21 +366,6 @@ export const createCssVarComponents = (
         },
         elevation3: {
           boxShadow: shadow.lg,
-        },
-      },
-    },
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          borderRadius: theme.spacing(3),
-          fontSize: "0.75rem",
-          height: 24,
-          // backgroundColor: ui.chip.default.background,
-          color: ui.chip.classes.default.color,
-        },
-        colorPrimary: {
-          // backgroundColor: ui.chip.background,
-          color: ui.chip.color,
         },
       },
     },
@@ -583,24 +534,6 @@ export const createCssVarComponents = (
         },
       },
     },
-    MuiTooltip: {
-      styleOverrides: {
-        tooltip: {
-          backgroundColor: ui.tooltip.background,
-          color: ui.tooltip.color,
-          fontSize: "0.75rem",
-          borderRadius: 6,
-          boxShadow: ui.tooltip.boxShadow,
-        },
-      },
-    },
-    MuiTypography: {
-      styleOverrides: {
-        root: {
-          color: ui.color.text.primary,
-        },
-      },
-    },
     MuiInputBase: {
       styleOverrides: {
         root: {
@@ -639,13 +572,6 @@ export const createCssVarComponents = (
               color: ui.input.on.focus.borderColor,
             },
           },
-        },
-      },
-    },
-    MuiDivider: {
-      styleOverrides: {
-        root: {
-          borderColor: ui.color.border.secondary,
         },
       },
     },
