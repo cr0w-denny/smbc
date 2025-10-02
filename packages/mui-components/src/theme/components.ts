@@ -1,5 +1,5 @@
 import { Components, Theme } from "@mui/material/styles";
-import { ui, color, shadow } from "@smbc/ui-core";
+import { ui, shadow } from "@smbc/ui-core";
 
 declare module "@mui/material/styles" {
   interface Components<Theme> {
@@ -26,37 +26,6 @@ export const createCssVarComponents = (
           backgroundColor: `${ui.navigation.background(theme)} !important`,
           borderBottom: "3px solid #02080b",
           color: `${ui.navigation.color(theme)} !important`,
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          "#app-content &, .MuiMenu-paper &": {
-            background: color.gradient.primaryBlue,
-            borderRadius: ui.button.borderRadius,
-            color: ui.button.color,
-            fontSize: "17px",
-            fontWeight: 500,
-            height: "40px",
-            letterSpacing: "0.2px",
-            textTransform: "none",
-            "&.Mui-disabled": {
-              opacity: 0.8,
-              filter: "brightness(50%)",
-            },
-          },
-          '[data-theme="dark"] #app-content &': {},
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: "16px",
-          backgroundColor: `${ui.card.background(theme)} !important`,
-          border: `1px solid ${ui.card.borderColor(theme)}`,
-          boxShadow: shadow.base,
         },
       },
     },

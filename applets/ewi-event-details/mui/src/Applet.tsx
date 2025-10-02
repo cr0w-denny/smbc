@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Button,
 } from "@mui/material";
 import {
   Save as SaveIcon,
@@ -13,7 +12,7 @@ import {
   AssignmentTurnedIn as AssignmentTurnedInIcon,
 } from "@mui/icons-material";
 import { useHashNavigation, useFeatureFlag } from "@smbc/applet-core";
-import { TabBar, AppShell, Width, ActionMenu, ActionMenuItem } from "@smbc/mui-components";
+import { TabBar, AppShell, Width, ActionMenu, ActionMenuItem, Button } from "@smbc/mui-components";
 import type { TabBarItem } from "@smbc/mui-components";
 import { EventTab } from "./components/EventTab";
 import { TriggerTab } from "./components/TriggerTab";
