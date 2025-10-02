@@ -1,6 +1,5 @@
 import React, { useRef, useLayoutEffect } from "react";
 import { Box } from "@mui/material";
-import { ui } from "@smbc/ui-core";
 
 export interface ToolbarProps {
   children: React.ReactNode;
@@ -42,7 +41,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             left: 0,
             right: 0,
             height: "200px", // Extend below toolbar
-            backgroundColor: ui.navigation.background,
+            backgroundColor: "#232B2F",
             zIndex: -1, // Behind everything else
           }}
         />
@@ -59,17 +58,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           right: 0,
           zIndex: 1002, // Above background
           py: 2,
-          ...(darkMode
-            ? {
-                background: "var(--color-gradient-darkBlue)",
-                backgroundAttachment: "fixed",
-              }
-            : {
-                background:
-                  variant === "extended"
-                    ? ui.navigation.background
-                    : "transparent",
-              }),
         }}
       >
         {children}

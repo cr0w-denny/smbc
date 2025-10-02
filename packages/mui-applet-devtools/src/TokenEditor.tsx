@@ -29,7 +29,6 @@ import { tokens } from "@smbc/ui-core";
 import { useFeatureFlagEnabled } from "@smbc/applet-core";
 import { ContextEditor } from "./ContextEditor";
 
-
 // Interface for saved contexts
 interface SavedContext {
   id: string;
@@ -49,7 +48,11 @@ const getTokenUsage = (shortName: string): number => {
     let count = 0;
     const walkTokens = (obj: any) => {
       for (const [, value] of Object.entries(obj)) {
-        if (typeof value === "object" && value !== null && !("light" in value && "dark" in value)) {
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          !("light" in value && "dark" in value)
+        ) {
           // Continue walking if it's a nested object (but not a theme token)
           walkTokens(value);
         } else {
@@ -80,20 +83,24 @@ const extractExistingContexts = (): SavedContext[] => {
 
   // Read contexts from tokens.contexts property
   if ((tokens as any).contexts) {
-    Object.entries((tokens as any).contexts).forEach(([key, contextData]: [string, any]) => {
-      contexts.push({
-        id: contextData.id,
-        name: contextData.name,
-        shortName: key, // Use the key as shortName (camelCase)
-        cssSelector: contextData.cssSelector,
-        isBaseContext: false, // These are generated contexts
-      });
-    });
+    Object.entries((tokens as any).contexts).forEach(
+      ([key, contextData]: [string, any]) => {
+        contexts.push({
+          id: contextData.id,
+          name: contextData.name,
+          shortName: key, // Use the key as shortName (camelCase)
+          cssSelector: contextData.cssSelector,
+          isBaseContext: false, // These are generated contexts
+        });
+      },
+    );
   }
 
   // Sort contexts alphabetically by name (keeping Root first)
-  const rootContext = contexts.find(ctx => ctx.id === "default");
-  const otherContexts = contexts.filter(ctx => ctx.id !== "default").sort((a, b) => a.name.localeCompare(b.name));
+  const rootContext = contexts.find((ctx) => ctx.id === "default");
+  const otherContexts = contexts
+    .filter((ctx) => ctx.id !== "default")
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return rootContext ? [rootContext, ...otherContexts] : otherContexts;
 };
@@ -101,7 +108,7 @@ const extractExistingContexts = (): SavedContext[] => {
 // Helper function to build complete token structure with overrides applied
 const buildCompleteTokenStructure = (
   overrides: Record<string, any>,
-  savedContexts: SavedContext[] = []
+  savedContexts: SavedContext[] = [],
 ): any => {
   const result = JSON.parse(JSON.stringify(tokens)); // Deep clone
 
@@ -118,7 +125,9 @@ const buildCompleteTokenStructure = (
   }
 
   // Add contexts property - exclude only the root context
-  const contextsToExport = savedContexts.filter(context => context.id !== "default");
+  const contextsToExport = savedContexts.filter(
+    (context) => context.id !== "default",
+  );
 
   if (contextsToExport.length > 0) {
     result.contexts = contextsToExport.reduce((acc, context) => {
@@ -308,17 +317,17 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
   // Convert saved contexts to the format needed for the context menu
   const availableContexts = React.useMemo(() => {
     const contexts = [
-      { id: "global", label: "Global", description: "Default styles" }
+      { id: "global", label: "Global", description: "Default styles" },
     ];
 
     // Add non-root contexts from savedContexts
     savedContexts
-      .filter(ctx => ctx.id !== "default") // Exclude root context
-      .forEach(ctx => {
+      .filter((ctx) => ctx.id !== "default") // Exclude root context
+      .forEach((ctx) => {
         contexts.push({
           id: ctx.shortName,
           label: ctx.name,
-          description: `Within ${ctx.name.toLowerCase()}`
+          description: `Within ${ctx.name.toLowerCase()}`,
         });
       });
 
@@ -734,7 +743,7 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
               </Typography>
             </Box>
             <Box sx={{ pl: 2 }}>
-              {/* Show direct properties only when in base state or when no variant is selected */}
+              {/* Show direct properties for base */}
               {(selectedVariant === "props" || selectedVariant === "all") &&
                 Object.entries(directProps)
                   .sort(([a], [b]) => a.localeCompare(b))
@@ -742,7 +751,7 @@ const ComponentPropertiesGrid: React.FC<ComponentPropertiesGridProps> = ({
                     renderPropertyInput(key, key, value, "global"),
                   )}
 
-              {/* Show state properties when state is selected */}
+              {/* Show state properties for base */}
               {selectedVariant === "on" &&
                 selectedState &&
                 componentTokens.on?.[selectedState] &&
@@ -818,11 +827,11 @@ const getContextSelector = (context: string): string => {
   switch (context) {
     case "app":
       return "#app";
-    case "appheader":
+    case "appHeader":
       return "#app-header";
-    case "apptoolbar":
+    case "appToolbar":
       return ".AppShell-toolbar";
-    case "appcontent":
+    case "appContent":
       return "#app-content";
     case "devconsole":
       return "#devconsole";
@@ -975,10 +984,14 @@ const TokenEditor: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [appliedCss, setAppliedCss] = useState("");
   const [showBaseTokens, setShowBaseTokens] = useState(false);
-  const [activeView, setActiveView] = useState<"tokens" | "context-editor">("tokens");
-  const [selectedContext, setSelectedContext] = useState<SavedContext | null>(null);
+  const [activeView, setActiveView] = useState<"tokens" | "context-editor">(
+    "tokens",
+  );
+  const [selectedContext, setSelectedContext] = useState<SavedContext | null>(
+    null,
+  );
   const [savedContexts, setSavedContexts] = useState<SavedContext[]>(() =>
-    extractExistingContexts()
+    extractExistingContexts(),
   );
 
   // Section expansion states
@@ -1014,7 +1027,6 @@ const TokenEditor: React.FC = () => {
     return colors;
   }, []);
 
-
   const handleSectionToggle = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -1039,18 +1051,20 @@ const TokenEditor: React.FC = () => {
 
   // Filter contexts based on search
   const filteredContexts = useMemo(() => {
-    return savedContexts.filter((context) =>
-      context.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      context.shortName.toLowerCase().includes(searchTerm.toLowerCase())
+    return savedContexts.filter(
+      (context) =>
+        context.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        context.shortName.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [savedContexts, searchTerm]);
 
   // Filter colors based on search
   const filteredColors = useMemo(() => {
-    return colorTokens.filter((color) =>
-      color.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      color.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      color.path.toLowerCase().includes(searchTerm.toLowerCase())
+    return colorTokens.filter(
+      (color) =>
+        color.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        color.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        color.path.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [colorTokens, searchTerm]);
 
@@ -1196,12 +1210,29 @@ const TokenEditor: React.FC = () => {
     showBaseTokens,
   ]);
 
-  // Initialize CSS display on mount with our generated base CSS
+  // Handle showBaseTokens state changes - update CSS immediately
   useEffect(() => {
-    const baseCss = generateBaseCss(tokens, isDarkMode);
-    const initialCss = `/* Base UI Tokens (generated from @smbc/ui-core) */\n${baseCss}\n\n/* No token overrides active */`;
+    // Re-apply token overrides whenever showBaseTokens changes
+    applyTokenOverrides(
+      tokenOverrides,
+      isDarkMode,
+      showBaseTokens,
+      setAppliedCss,
+    );
+  }, [showBaseTokens, isDarkMode, tokenOverrides]);
+
+  // Initialize CSS display on mount - respect showBaseTokens state
+  useEffect(() => {
+    let initialCss = "";
+
+    if (showBaseTokens) {
+      const baseCss = generateBaseCss(tokens, isDarkMode);
+      initialCss = `/* Base UI Tokens (generated from @smbc/ui-core) */\n${baseCss}\n\n`;
+    }
+
+    initialCss += "/* No token overrides active */";
     setAppliedCss(initialCss);
-  }, [isDarkMode]);
+  }, []); // Only run on mount
 
   const handleTokenChange = (
     path: string,
@@ -1251,7 +1282,11 @@ const TokenEditor: React.FC = () => {
   };
 
   // Context management functions
-  const handleGenerateContext = (name: string, shortName: string, cssSelector: string) => {
+  const handleGenerateContext = (
+    name: string,
+    shortName: string,
+    cssSelector: string,
+  ) => {
     const id = `context-${Date.now()}`;
     const newContext: SavedContext = {
       id,
@@ -1264,8 +1299,10 @@ const TokenEditor: React.FC = () => {
     setSavedContexts((prev) => {
       const updatedContexts = [...prev, newContext];
       // Re-sort alphabetically, keeping Root first
-      const rootContext = updatedContexts.find(ctx => ctx.id === "default");
-      const otherContexts = updatedContexts.filter(ctx => ctx.id !== "default").sort((a, b) => a.name.localeCompare(b.name));
+      const rootContext = updatedContexts.find((ctx) => ctx.id === "default");
+      const otherContexts = updatedContexts
+        .filter((ctx) => ctx.id !== "default")
+        .sort((a, b) => a.name.localeCompare(b.name));
       return rootContext ? [rootContext, ...otherContexts] : otherContexts;
     });
     setSnackbarMessage(`Context "${name}" generated`);
@@ -1273,14 +1310,17 @@ const TokenEditor: React.FC = () => {
   };
 
   const handleDeleteContext = (contextId: string) => {
-    setSavedContexts((prev) => prev.filter(ctx => ctx.id !== contextId));
+    setSavedContexts((prev) => prev.filter((ctx) => ctx.id !== contextId));
     setSnackbarMessage("Context deleted");
     setSnackbarOpen(true);
   };
 
   const handleExport = () => {
     // Build complete token structure with overrides and contexts applied
-    const completeTokens = buildCompleteTokenStructure(tokenOverrides, savedContexts);
+    const completeTokens = buildCompleteTokenStructure(
+      tokenOverrides,
+      savedContexts,
+    );
     const dataStr = JSON.stringify(completeTokens, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
@@ -1388,262 +1428,273 @@ const TokenEditor: React.FC = () => {
           >
             {/* Tokens Section */}
             {filteredComponents.length > 0 && (
-            <Accordion
-              expanded={expandedSections.tokens}
-              onChange={() => handleSectionToggle("tokens")}
-              disableGutters
-              elevation={0}
-              TransitionProps={{ timeout: 0 }}
-              sx={{
-                "&:before": { display: "none" },
-                flex: expandedSections.tokens ? 1 : "none",
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-                "& .MuiCollapse-root": {
-                  overflowY: "scroll",
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
+              <Accordion
+                expanded={expandedSections.tokens}
+                onChange={() => handleSectionToggle("tokens")}
+                disableGutters
+                elevation={0}
+                TransitionProps={{ timeout: 0 }}
                 sx={{
-                  px: 2,
-                  py: 1,
-                  flexShrink: 0,
-                  bgcolor: "background.paper",
-                  borderTop: 1,
-                  borderColor: "divider",
-                  "&:hover": {
-                    bgcolor: "action.hover",
+                  "&:before": { display: "none" },
+                  flex: expandedSections.tokens ? 1 : "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                  "& .MuiCollapse-root": {
+                    overflowY: "scroll",
                   },
                 }}
               >
-                <Typography variant="body2" fontWeight="medium">
-                  Tokens
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
-                <Box sx={{ px: 1, py: 0.5 }}>
-                  {filteredComponents.map((comp) => (
-                    <Box
-                      key={comp}
-                      onClick={() => {
-                        setSelectedComponent(comp);
-                        setActiveView("tokens");
-                      }}
-                      sx={{
-                        p: 1,
-                        cursor: "pointer",
-                        borderRadius: 1,
-                        bgcolor:
-                          selectedComponent === comp
-                            ? "action.selected"
-                            : "transparent",
-                        "&:hover": {
-                          bgcolor: "action.hover",
-                        },
-                      }}
-                    >
-                      <Typography variant="body2">{comp}</Typography>
-                    </Box>
-                  ))}
-                </Box>
-              </AccordionDetails>
-            </Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    flexShrink: 0,
+                    bgcolor: "background.paper",
+                    borderTop: 1,
+                    borderColor: "divider",
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
+                  }}
+                >
+                  <Typography variant="body2" fontWeight="medium">
+                    Tokens
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
+                  <Box sx={{ px: 1, py: 0.5 }}>
+                    {filteredComponents.map((comp) => (
+                      <Box
+                        key={comp}
+                        onClick={() => {
+                          setSelectedComponent(comp);
+                          setActiveView("tokens");
+                        }}
+                        sx={{
+                          p: 1,
+                          cursor: "pointer",
+                          borderRadius: 1,
+                          bgcolor:
+                            selectedComponent === comp
+                              ? "action.selected"
+                              : "transparent",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Typography variant="body2">{comp}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
             )}
 
             {/* Contexts Section */}
             {filteredContexts.length > 0 && (
-            <Accordion
-              expanded={expandedSections.contexts}
-              onChange={() => handleSectionToggle("contexts")}
-              disableGutters
-              elevation={0}
-              TransitionProps={{ timeout: 0 }}
-              sx={{
-                "&:before": { display: "none" },
-                flex: expandedSections.contexts ? 1 : "none",
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-                "& .MuiCollapse-root": {
-                  overflowY: "scroll",
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
+              <Accordion
+                expanded={expandedSections.contexts}
+                onChange={() => handleSectionToggle("contexts")}
+                disableGutters
+                elevation={0}
+                TransitionProps={{ timeout: 0 }}
                 sx={{
-                  px: 2,
-                  py: 1,
-                  flexShrink: 0,
-                  bgcolor: "background.paper",
-                  borderTop: 1,
-                  borderColor: "divider",
-                  "&:hover": {
-                    bgcolor: "action.hover",
+                  "&:before": { display: "none" },
+                  flex: expandedSections.contexts ? 1 : "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                  "& .MuiCollapse-root": {
+                    overflowY: "scroll",
                   },
                 }}
               >
-                <Typography variant="body2" fontWeight="medium">
-                  Contexts
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
-                <Box sx={{ px: 1, py: 0.5 }}>
-                  {filteredContexts.map((context) => (
-                    <Box
-                      key={context.name}
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        bgcolor: selectedContext?.id === context.id && activeView === "context-editor" ? "action.selected" : "transparent",
-                        "&:hover": {
-                          bgcolor: "action.hover",
-                        },
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    flexShrink: 0,
+                    bgcolor: "background.paper",
+                    borderTop: 1,
+                    borderColor: "divider",
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
+                  }}
+                >
+                  <Typography variant="body2" fontWeight="medium">
+                    Contexts
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
+                  <Box sx={{ px: 1, py: 0.5 }}>
+                    {filteredContexts.map((context) => (
                       <Box
-                        onClick={() => {
-                          setSelectedContext(context);
-                          setActiveView("context-editor");
-                        }}
+                        key={context.name}
                         sx={{
-                          flexGrow: 1,
-                          cursor: "pointer",
-                          minWidth: 0,
+                          p: 1,
+                          borderRadius: 1,
+                          bgcolor:
+                            selectedContext?.id === context.id &&
+                            activeView === "context-editor"
+                              ? "action.selected"
+                              : "transparent",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
                         }}
                       >
-                        <Typography variant="body2" fontWeight="medium">
-                          {context.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {context.shortName}
-                        </Typography>
-                      </Box>
-                      {context.id !== "default" && (() => {
-                        const usage = getTokenUsage(context.shortName);
-                        const hasUsage = usage > 0;
+                        <Box
+                          onClick={() => {
+                            setSelectedContext(context);
+                            setActiveView("context-editor");
+                          }}
+                          sx={{
+                            flexGrow: 1,
+                            cursor: "pointer",
+                            minWidth: 0,
+                          }}
+                        >
+                          <Typography variant="body2" fontWeight="medium">
+                            {context.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {context.shortName}
+                          </Typography>
+                        </Box>
+                        {context.id !== "default" &&
+                          (() => {
+                            const usage = getTokenUsage(context.shortName);
+                            const hasUsage = usage > 0;
 
-                        return (
-                          <IconButton
-                            size="small"
-                            disabled={hasUsage}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!hasUsage) {
-                                handleDeleteContext(context.id);
-                              }
-                            }}
-                            sx={{
-                              ml: 1,
-                              flexShrink: 0,
-                              opacity: hasUsage ? 0.5 : 1,
-                            }}
-                            title={hasUsage ? `Cannot delete: ${usage} token override${usage !== 1 ? "s" : ""} using this context` : "Delete context"}
-                          >
-                            <ClearIcon fontSize="small" />
-                          </IconButton>
-                        );
-                      })()}
-                    </Box>
-                  ))}
-                </Box>
-              </AccordionDetails>
-            </Accordion>
+                            return (
+                              <IconButton
+                                size="small"
+                                disabled={hasUsage}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!hasUsage) {
+                                    handleDeleteContext(context.id);
+                                  }
+                                }}
+                                sx={{
+                                  ml: 1,
+                                  flexShrink: 0,
+                                  opacity: hasUsage ? 0.5 : 1,
+                                }}
+                                title={
+                                  hasUsage
+                                    ? `Cannot delete: ${usage} token override${
+                                        usage !== 1 ? "s" : ""
+                                      } using this context`
+                                    : "Delete context"
+                                }
+                              >
+                                <ClearIcon fontSize="small" />
+                              </IconButton>
+                            );
+                          })()}
+                      </Box>
+                    ))}
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
             )}
 
             {/* Colors Section */}
             {filteredColors.length > 0 && (
-            <Accordion
-              expanded={expandedSections.palettes}
-              onChange={() => handleSectionToggle("palettes")}
-              disableGutters
-              elevation={0}
-              TransitionProps={{ timeout: 0 }}
-              sx={{
-                "&:before": { display: "none" },
-                flex: expandedSections.palettes ? 1 : "none",
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-                "& .MuiCollapse-root": {
-                  overflowY: "scroll",
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
+              <Accordion
+                expanded={expandedSections.palettes}
+                onChange={() => handleSectionToggle("palettes")}
+                disableGutters
+                elevation={0}
+                TransitionProps={{ timeout: 0 }}
                 sx={{
-                  px: 2,
-                  py: 1,
-                  flexShrink: 0,
-                  bgcolor: "background.paper",
-                  borderTop: 1,
-                  borderColor: "divider",
-                  "&:hover": {
-                    bgcolor: "action.hover",
+                  "&:before": { display: "none" },
+                  flex: expandedSections.palettes ? 1 : "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                  "& .MuiCollapse-root": {
+                    overflowY: "scroll",
                   },
                 }}
               >
-                <Typography variant="body2" fontWeight="medium">
-                  Colors
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
-                <Box sx={{ px: 1, py: 0.5 }}>
-                  {filteredColors.map((color) => (
-                    <Box
-                      key={color.path}
-                      onClick={() => {
-                        navigator.clipboard?.writeText(`ui.${color.path}`);
-                        setSnackbarMessage(`Copied: ui.${color.path}`);
-                        setSnackbarOpen(true);
-                      }}
-                      sx={{
-                        p: 1,
-                        cursor: "pointer",
-                        borderRadius: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        "&:hover": {
-                          bgcolor: "action.hover",
-                        },
-                      }}
-                    >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    flexShrink: 0,
+                    bgcolor: "background.paper",
+                    borderTop: 1,
+                    borderColor: "divider",
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
+                  }}
+                >
+                  <Typography variant="body2" fontWeight="medium">
+                    Colors
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0, flex: 1, overflow: "auto" }}>
+                  <Box sx={{ px: 1, py: 0.5 }}>
+                    {filteredColors.map((color) => (
                       <Box
-                        sx={{
-                          width: 16,
-                          height: 16,
-                          backgroundColor: color.value,
-                          borderRadius: "50%",
-                          border: "1px solid",
-                          borderColor: "divider",
-                          flexShrink: 0,
+                        key={color.path}
+                        onClick={() => {
+                          navigator.clipboard?.writeText(`ui.${color.path}`);
+                          setSnackbarMessage(`Copied: ui.${color.path}`);
+                          setSnackbarOpen(true);
                         }}
-                      />
-                      <Box sx={{ minWidth: 0, flex: 1 }}>
-                        <Typography variant="body2" noWrap>
-                          {color.name}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          noWrap
-                        >
-                          {color.value}
-                        </Typography>
+                        sx={{
+                          p: 1,
+                          cursor: "pointer",
+                          borderRadius: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 16,
+                            height: 16,
+                            backgroundColor: color.value,
+                            borderRadius: "50%",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            flexShrink: 0,
+                          }}
+                        />
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography variant="body2" noWrap>
+                            {color.name}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            noWrap
+                          >
+                            {color.value}
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
-                </Box>
-              </AccordionDetails>
-            </Accordion>
+                    ))}
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
             )}
           </Box>
         </Box>
@@ -1653,196 +1704,215 @@ const TokenEditor: React.FC = () => {
           {activeView === "context-editor" ? (
             <ContextEditor
               onContextGenerated={handleGenerateContext}
-              existingContexts={savedContexts.map(ctx => ({
+              existingContexts={savedContexts.map((ctx) => ({
                 name: ctx.name,
                 shortName: ctx.shortName,
-                cssSelector: ctx.cssSelector
+                cssSelector: ctx.cssSelector,
               }))}
               selectedContext={selectedContext}
             />
           ) : (
             <>
-          {/* States filter and action buttons */}
-          {currentComponentTokens && (
-            <Box
-              sx={{
-                borderBottom: 1,
-                borderColor: "divider",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                px: 2,
-                py: 1,
-              }}
-            >
-              {/* States filter */}
-              {currentComponentTokens.on &&
-              Object.keys(currentComponentTokens.on).length > 0 ? (
-                <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                  <Chip
-                    label="Base"
-                    onClick={() => {
-                      setSelectedVariant("all");
-                      setSelectedState("");
-                    }}
-                    variant={
-                      selectedVariant === "props" || selectedVariant === "all"
-                        ? "filled"
-                        : "outlined"
-                    }
-                    color={
-                      selectedVariant === "props" || selectedVariant === "all"
-                        ? "primary"
-                        : "default"
-                    }
-                    size="small"
-                  />
-                  {Object.keys(currentComponentTokens.on).map((state) => (
-                    <Chip
-                      key={state}
-                      label={state.charAt(0).toUpperCase() + state.slice(1)}
-                      onClick={() => {
-                        setSelectedVariant("on");
-                        setSelectedState(state);
-                      }}
-                      variant={
-                        selectedVariant === "on" && selectedState === state
-                          ? "filled"
-                          : "outlined"
-                      }
-                      color={
-                        selectedVariant === "on" && selectedState === state
-                          ? "primary"
-                          : "default"
-                      }
-                      size="small"
-                    />
-                  ))}
-                </Stack>
-              ) : (
-                <Box />
-              )}
-
-              <Stack direction="row" spacing={1} alignItems="center">
-                {Object.keys(tokenOverrides).length > 0 && (
-                  <Chip
-                    label={`${Object.keys(tokenOverrides).length} overrides`}
-                    size="small"
-                    color="primary"
-                  />
-                )}
-                <IconButton size="small" onClick={handleExport} title="Export">
-                  <DownloadIcon fontSize="small" />
-                </IconButton>
-                <IconButton size="small" onClick={handleImport} title="Import">
-                  <UploadIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={handleClearAll}
-                  title="Clear All"
-                >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              </Stack>
-            </Box>
-          )}
-
-          {/* Content Area - Properties and CSS side by side */}
-          {currentComponentTokens && (
-            <Box sx={{ display: "flex", flex: 1, height: "100%" }}>
-              {/* Properties Grid */}
-              <Box sx={{ flex: 1, minWidth: 0, pt: 0 }}>
-                <ComponentPropertiesGrid
-                  componentTokens={currentComponentTokens}
-                  componentName={selectedComponent}
-                  selectedVariant={selectedVariant}
-                  selectedState={selectedState}
-                  tokenOverrides={tokenOverrides}
-                  onTokenChange={handleTokenChange}
-                  onTokenClear={handleTokenClear}
-                  onVariantChange={setSelectedVariant}
-                  onStateChange={setSelectedState}
-                  savedContexts={savedContexts}
-                />
-              </Box>
-
-              {/* CSS Output */}
-              {appliedCss && (
+              {/* States filter and action buttons */}
+              {currentComponentTokens && (
                 <Box
                   sx={{
-                    width: "55%",
-                    borderLeft: 1,
+                    borderBottom: 1,
                     borderColor: "divider",
                     display: "flex",
-                    flexDirection: "column",
-                    position: "relative",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    px: 2,
+                    py: 1,
                   }}
                 >
-                  {/* Show Base Tokens Checkbox */}
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      zIndex: 1,
-                      bgcolor: "rgba(255, 255, 255, 0.1)",
-                      backdropFilter: "blur(4px)",
-                      borderRadius: 4,
-                      px: 1,
-                      py: 0.5,
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                      opacity: 0.7,
-                      "&:hover": {
-                        opacity: 1,
-                        bgcolor: "rgba(255, 255, 255, 0.15)",
-                      },
-                    }}
-                  >
-                    <FormControlLabel
-                      control={
-                        <Checkbox
+                  {/* States filter */}
+                  {currentComponentTokens.on &&
+                  Object.keys(currentComponentTokens.on).length > 0 ? (
+                    <Stack
+                      direction="row"
+                      spacing={0.5}
+                      flexWrap="wrap"
+                      useFlexGap
+                    >
+                      <Chip
+                        label="Base"
+                        onClick={() => {
+                          setSelectedVariant("all");
+                          setSelectedState("");
+                        }}
+                        variant={
+                          selectedVariant === "props" ||
+                          selectedVariant === "all"
+                            ? "filled"
+                            : "outlined"
+                        }
+                        color={
+                          selectedVariant === "props" ||
+                          selectedVariant === "all"
+                            ? "primary"
+                            : "default"
+                        }
+                        size="small"
+                      />
+                      {Object.keys(currentComponentTokens.on).map((state) => (
+                        <Chip
+                          key={state}
+                          label={state.charAt(0).toUpperCase() + state.slice(1)}
+                          onClick={() => {
+                            setSelectedVariant("on");
+                            setSelectedState(state);
+                          }}
+                          variant={
+                            selectedVariant === "on" && selectedState === state
+                              ? "filled"
+                              : "outlined"
+                          }
+                          color={
+                            selectedVariant === "on" && selectedState === state
+                              ? "primary"
+                              : "default"
+                          }
                           size="small"
-                          checked={showBaseTokens}
-                          onChange={(e) => setShowBaseTokens(e.target.checked)}
                         />
-                      }
-                      label={
-                        <Typography variant="caption" sx={{ fontSize: 11 }}>
-                          Show base tokens
-                        </Typography>
-                      }
-                      sx={{ mr: 0 }}
-                    />
-                  </Box>
-                  <TextField
-                    multiline
-                    fullWidth
-                    value={appliedCss}
-                    InputProps={{
-                      readOnly: true,
-                      sx: {
-                        fontFamily: "monospace",
-                        fontSize: "12px",
-                        backgroundColor: "background.default",
-                      },
-                    }}
-                    sx={{
-                      height: "100%",
-                      "& .MuiInputBase-root": {
-                        height: "100%",
-                        alignItems: "flex-start",
-                      },
-                      "& .MuiInputBase-input": {
-                        height: "100% !important",
-                        overflow: "auto !important",
-                      },
-                    }}
-                  />
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Box />
+                  )}
+
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    {Object.keys(tokenOverrides).length > 0 && (
+                      <Chip
+                        label={`${
+                          Object.keys(tokenOverrides).length
+                        } overrides`}
+                        size="small"
+                        color="primary"
+                      />
+                    )}
+                    <IconButton
+                      size="small"
+                      onClick={handleExport}
+                      title="Export"
+                    >
+                      <DownloadIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={handleImport}
+                      title="Import"
+                    >
+                      <UploadIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={handleClearAll}
+                      title="Clear All"
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
                 </Box>
               )}
-            </Box>
-          )}
+
+              {/* Content Area - Properties and CSS side by side */}
+              {currentComponentTokens && (
+                <Box sx={{ display: "flex", flex: 1, height: "100%" }}>
+                  {/* Properties Grid */}
+                  <Box sx={{ flex: 1, minWidth: 0, pt: 0 }}>
+                    <ComponentPropertiesGrid
+                      componentTokens={currentComponentTokens}
+                      componentName={selectedComponent}
+                      selectedVariant={selectedVariant}
+                      selectedState={selectedState}
+                      tokenOverrides={tokenOverrides}
+                      onTokenChange={handleTokenChange}
+                      onTokenClear={handleTokenClear}
+                      onVariantChange={setSelectedVariant}
+                      onStateChange={setSelectedState}
+                      savedContexts={savedContexts}
+                    />
+                  </Box>
+
+                  {/* CSS Output */}
+                  {appliedCss && (
+                    <Box
+                      sx={{
+                        width: "55%",
+                        borderLeft: 1,
+                        borderColor: "divider",
+                        display: "flex",
+                        flexDirection: "column",
+                        position: "relative",
+                      }}
+                    >
+                      {/* Show Base Tokens Checkbox */}
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          zIndex: 1,
+                          bgcolor: "rgba(255, 255, 255, 0.1)",
+                          backdropFilter: "blur(4px)",
+                          borderRadius: 4,
+                          px: 1,
+                          py: 0.5,
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          opacity: 0.7,
+                          "&:hover": {
+                            opacity: 1,
+                            bgcolor: "rgba(255, 255, 255, 0.15)",
+                          },
+                        }}
+                      >
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              size="small"
+                              checked={showBaseTokens}
+                              onChange={(e) =>
+                                setShowBaseTokens(e.target.checked)
+                              }
+                            />
+                          }
+                          label={
+                            <Typography variant="caption" sx={{ fontSize: 11 }}>
+                              Show base tokens
+                            </Typography>
+                          }
+                          sx={{ mr: 0 }}
+                        />
+                      </Box>
+                      <TextField
+                        multiline
+                        fullWidth
+                        value={appliedCss}
+                        InputProps={{
+                          readOnly: true,
+                          sx: {
+                            fontFamily: "monospace",
+                            fontSize: "12px",
+                            backgroundColor: "background.default",
+                          },
+                        }}
+                        sx={{
+                          height: "100%",
+                          "& .MuiInputBase-root": {
+                            height: "100%",
+                            alignItems: "flex-start",
+                          },
+                          "& .MuiInputBase-input": {
+                            height: "100% !important",
+                            overflow: "auto !important",
+                          },
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              )}
             </>
           )}
         </Box>

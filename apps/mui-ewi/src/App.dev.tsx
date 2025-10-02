@@ -94,64 +94,21 @@ const createQueryClient = (getImpersonationEmail: () => string) => {
 
 // Setup global fetch interceptor with context access
 const setupGlobalFetchInterceptor = () => {
-  console.log("🔧 setupGlobalFetchInterceptor called");
-  // debug.log(
-  //   createSessionId("interceptor-setup"),
-  //   "GlobalFetchInterceptor",
-  //   "interceptor-setup",
-  //   {
-  //     originalFetchExists: typeof window.fetch === "function",
-  //   },
-  // );
-
   const originalFetch = window.fetch;
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     // Read impersonation email from global variable (same as useApiClient)
     const impersonateEmail = (window as any).__devImpersonateEmail;
-
-    // console.log("🌐 Fetch interceptor called for:", url);
-
-    // Log all outgoing requests
-    // debug.log(
-    //   createSessionId("fetch-request"),
-    //   "GlobalFetchInterceptor",
-    //   "request-made",
-    //   {
-    //     url,
-    //     method: init?.method || "GET",
-    //     hasImpersonationEmail: Boolean(impersonateEmail),
-    //     impersonationEmail: impersonateEmail || null,
-    //     originalHeaders: init?.headers
-    //       ? Object.fromEntries(new Headers(init.headers))
-    //       : {},
-    //     timestamp: new Date().toISOString(),
-    //   },
-    // );
 
     if (impersonateEmail) {
       // Clone and modify headers
       const headers = new Headers(init?.headers);
       headers.set("X-Impersonate", impersonateEmail);
 
-      console.log(
-        "🌍 Global fetch interceptor adding X-Impersonate:",
-        impersonateEmail,
-      );
-      console.log(
-        "🌍 All headers after modification:",
-        Object.fromEntries(headers),
-      );
-
-      // debug.log(
-      //   createSessionId("impersonate-header"),
-      //   "GlobalFetchInterceptor",
-      //   "header-added",
-      //   {
-      //     url,
-      //     impersonationEmail: impersonateEmail,
-      //     finalHeaders: Object.fromEntries(headers),
-      //     timestamp: new Date().toISOString(),
-      //   },
+      // console.log(
+      //   "🌍 Global fetch interceptor adding X-Impersonate:",
+      //   impersonateEmail,
+      //   "🌍 All headers after modification:",
+      //   Object.fromEntries(headers),
       // );
 
       // Call original fetch with modified headers
@@ -160,35 +117,9 @@ const setupGlobalFetchInterceptor = () => {
         headers,
       });
     } else {
-      console.log(
-        "🔍 No impersonation email, calling original fetch unchanged",
-      );
-      // debug.log(
-      //   createSessionId("no-impersonate"),
-      //   "GlobalFetchInterceptor",
-      //   "no-impersonation",
-      //   {
-      //     url,
-      //     reason: "No impersonation email set",
-      //     timestamp: new Date().toISOString(),
-      //   },
-      // );
+      return originalFetch(input, init);
     }
-
-    // Call original fetch unchanged
-    return originalFetch(input, init);
   };
-
-  console.log("🔧 Global fetch interceptor installed successfully");
-  // debug.log(
-  //   createSessionId("interceptor-ready"),
-  //   "GlobalFetchInterceptor",
-  //   "interceptor-ready",
-  //   {
-  //     message: "Global fetch interceptor is now active",
-  //     timestamp: new Date().toISOString(),
-  //   },
-  // );
 };
 
 configureApplets(APPLETS);
@@ -201,23 +132,37 @@ const AppShellContent: React.FC = () => {
   const { debug, createSessionId } = useDebug();
 
   // Debug logging for dark mode
-  console.log('🌙 Dark mode debug:');
-  console.log('isDarkMode value:', isDarkMode);
-  console.log('typeof isDarkMode:', typeof isDarkMode);
-  console.log('localStorage featureFlag-darkMode:', localStorage.getItem('featureFlag-darkMode'));
-  console.log('localStorage raw access:', localStorage['featureFlag-darkMode']);
-  console.log('Current data-theme attribute:', document.documentElement.getAttribute('data-theme'));
+  console.log("🌙 Dark mode debug:");
+  console.log("isDarkMode value:", isDarkMode);
+  console.log("typeof isDarkMode:", typeof isDarkMode);
+  console.log(
+    "localStorage featureFlag-darkMode:",
+    localStorage.getItem("featureFlag-darkMode"),
+  );
+  console.log("localStorage raw access:", localStorage["featureFlag-darkMode"]);
+  console.log(
+    "Current data-theme attribute:",
+    document.documentElement.getAttribute("data-theme"),
+  );
 
   // Override setAttribute to catch who's setting data-theme
   React.useEffect(() => {
     const originalSetAttribute = document.documentElement.setAttribute;
-    document.documentElement.setAttribute = function(name: string, value: string) {
-      if (name === 'data-theme') {
-        console.log('🔍 setAttribute called for data-theme:', value);
-        console.trace('Stack trace for setAttribute call:');
+    document.documentElement.setAttribute = function (
+      name: string,
+      value: string,
+    ) {
+      if (name === "data-theme") {
+        console.log("🔍 setAttribute called for data-theme:", value);
+        console.trace("Stack trace for setAttribute call:");
 
         // Check if system prefers dark mode
-        console.log('System prefers-color-scheme:', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        console.log(
+          "System prefers-color-scheme:",
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light",
+        );
       }
       return originalSetAttribute.call(this, name, value);
     };
@@ -230,7 +175,12 @@ const AppShellContent: React.FC = () => {
   // Enhanced dark mode effect with debugging
   useEffect(() => {
     const theme = isDarkMode ? "dark" : "light";
-    console.log('🎨 Setting data-theme to:', theme, 'based on isDarkMode:', isDarkMode);
+    console.log(
+      "🎨 Setting data-theme to:",
+      theme,
+      "based on isDarkMode:",
+      isDarkMode,
+    );
     document.documentElement.setAttribute("data-theme", theme);
   }, [isDarkMode]);
 
@@ -259,7 +209,7 @@ const AppShellContent: React.FC = () => {
     }
   }, [interceptorSetup, impersonation.setEmail, debug, createSessionId]);
 
-  const handleDarkModeToggle = (enabled: boolean) => {
+  const handleDarkModeToggle = (_enabled: boolean) => {
     toggleDarkMode();
   };
 
@@ -283,15 +233,16 @@ const AppShellContent: React.FC = () => {
   );
 
   const username = impersonation.email ? (
-    <span style={{ color: color.brand.freshGreen }}>
-      {impersonation.email}
-    </span>
+    <span style={{ color: color.brand.freshGreen }}>{impersonation.email}</span>
   ) : (
     "John Doe"
   );
 
   // Create theme based on current mode
-  const theme = React.useMemo(() => createCssVarTheme(isDarkMode ? 'dark' : 'light'), [isDarkMode]);
+  const theme = React.useMemo(
+    () => createCssVarTheme(isDarkMode ? "dark" : "light"),
+    [isDarkMode],
+  );
 
   const maxWidthConfig = {
     xs: "96%",

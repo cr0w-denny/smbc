@@ -110,6 +110,7 @@
   --color-status-info800: #1e40af;
   --color-status-info900: #01579b;
   --color-gradient-darkBlue: linear-gradient(to bottom right, #0b1524 0%, #0B1220 30%, #070f1a 57%, #040b13 96%);
+  --color-gradient-primaryBlue: linear-gradient(130.39deg, #024FB0 24.79%, #2C88F3 75.21%);
   --shadow-none: none;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
@@ -275,13 +276,12 @@
   --ui-input-on-error-borderColor: var(--color-status-error500);
   --ui-input-on-error-color: var(--color-status-error700);
   --ui-input-on-error-message: var(--color-status-error600);
-  --ui-button-borderRadius: 4px;
+  --ui-button-borderRadius: 44px;
   --ui-button-fontSize: 14px;
   --ui-button-fontWeight: 500;
   --ui-button-padding: 8px 16px;
-  --ui-button-background: var(--color-brand-tradGreen);
+  --ui-button-background: var(--color-gradient-primaryBlue);
   --ui-button-color: #ffffff;
-  --ui-button-borderColor: var(--color-brand-tradGreen);
   --ui-button-borderWidth: 1px;
   --ui-button-borderStyle: solid;
   --ui-button-on-hover-cursor: pointer;
@@ -452,9 +452,6 @@
   --ui-input-on-error-borderColor: var(--color-status-error400);
   --ui-input-on-error-color: var(--color-status-error300);
   --ui-input-on-error-message: var(--color-status-error400);
-  --ui-button-background: var(--color-brand-freshGreen);
-  --ui-button-color: #000000;
-  --ui-button-borderColor: var(--color-brand-freshGreen);
   --ui-button-on-hover-background: var(--color-brand-tradGreen);
   --ui-button-on-hover-color: #ffffff;
   --ui-button-on-active-background: #003d28;

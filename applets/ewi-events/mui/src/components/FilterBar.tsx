@@ -3,17 +3,14 @@ import {
   Box,
   Typography,
   Button,
-  Popover,
-  MenuItem,
-  MenuList,
 } from "@mui/material";
 import {
   Filter,
+  ActionMenu,
   AccountTree as WorkflowIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
 } from "@smbc/mui-components";
-import { shadow } from "@smbc/ui-core";
 import type { FilterSpec } from "@smbc/mui-components";
 
 interface BulkAction {
@@ -51,32 +48,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   workflowActions = [],
   selectedItems = [],
 }) => {
-  const workflowButtonRef = React.useRef<HTMLButtonElement>(null);
-  const [workflowAnchor, setWorkflowAnchor] = useState<null | HTMLElement>(
-    null,
-  );
-
-  // Auto-open workflow dropdown when at least 2 items are selected
-  React.useEffect(() => {
-    if (selectedItems.length >= 2 && !workflowAnchor && workflowButtonRef.current) {
-      setWorkflowAnchor(workflowButtonRef.current);
-    }
-  }, [selectedItems.length >= 2, workflowAnchor]);
-
-  const handleWorkflowClick = (event: React.MouseEvent<HTMLElement>) => {
-    setWorkflowAnchor(event.currentTarget);
-  };
-
-  const handleWorkflowClose = () => {
-    setWorkflowAnchor(null);
-  };
-
-  // Close workflow menu when fewer than 2 items are selected
-  React.useEffect(() => {
-    if (selectedItems.length < 2 && workflowAnchor) {
-      setWorkflowAnchor(null);
-    }
-  }, [selectedItems.length, workflowAnchor]);
+  const [workflowMenuOpen, setWorkflowMenuOpen] = useState(false);
   const filterSpec: FilterSpec = {
     debounceMs: 0, // Disable debouncing since we have apply button
     fields: [
@@ -177,89 +149,34 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </Button>
       </Box>
       {workflowActions.length > 0 && (
-        <Box>
-          <Button
-            ref={workflowButtonRef}
-            variant="contained"
-            startIcon={<WorkflowIcon />}
-            endIcon={
-              Boolean(workflowAnchor) ? <ExpandLessIcon /> : <ExpandMoreIcon />
-            }
-            onClick={handleWorkflowClick}
-            disabled={selectedItems.length < 2}
-            sx={{
-              "&.Mui-disabled": {
-                outline: "none",
-                border: "none",
-              },
-            }}
-          >
-            Workflow
-          </Button>
-
-          <Popover
-            anchorEl={workflowAnchor}
-            open={Boolean(workflowAnchor)}
-            onClose={handleWorkflowClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            disableAutoFocus
-            disableEnforceFocus
-            disableRestoreFocus
-            disablePortal={false}
-            hideBackdrop
-            disableScrollLock
-            sx={{
-              mt: 1,
-              pointerEvents: "none",
-              "& .MuiPopover-root": {
-                pointerEvents: "none",
-              },
-              "& .MuiPaper-root": {
-                pointerEvents: "auto",
-                boxShadow: shadow.md,
-              },
-            }}
-          >
-            <MenuList>
-              {workflowActions.length > 0 ? (
-                workflowActions.map((action) => (
-                  <MenuItem
-                    key={action.key}
-                    onClick={() => {
-                      action.onClick?.(selectedItems);
-                      // Only close the menu if fewer than 2 items will likely remain
-                      // (This is a heuristic since we don't know exactly what the action does)
-                      if (selectedItems.length < 2) {
-                        handleWorkflowClose();
-                      }
-                    }}
-                    disabled={action.disabled?.(selectedItems)}
-                  >
-                    {action.icon && (
-                      <Box
-                        component={action.icon}
-                        fontSize="small"
-                        sx={{ mr: 1 }}
-                      />
-                    )}
-                    {action.label}
-                  </MenuItem>
-                ))
-              ) : (
-                <MenuItem disabled>
-                  No actions available for selected items
-                </MenuItem>
-              )}
-            </MenuList>
-          </Popover>
-        </Box>
+        <ActionMenu
+          trigger={
+            <Button
+              variant="contained"
+              startIcon={<WorkflowIcon />}
+              endIcon={
+                workflowMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />
+              }
+              disabled={selectedItems.length < 2}
+              sx={{
+                "&.Mui-disabled": {
+                  outline: "none",
+                  border: "none",
+                },
+              }}
+            >
+              Workflow
+            </Button>
+          }
+          menuItems={workflowActions.map((action) => ({
+            label: action.label,
+            icon: action.icon ? <Box component={action.icon} fontSize="small" /> : undefined,
+            onClick: () => action.onClick?.(selectedItems),
+            disabled: action.disabled?.(selectedItems),
+          }))}
+          onMenuOpen={() => setWorkflowMenuOpen(true)}
+          onMenuClose={() => setWorkflowMenuOpen(false)}
+        />
       )}
     </Box>
   );

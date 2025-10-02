@@ -1,5 +1,5 @@
 import { Components, Theme } from "@mui/material/styles";
-import { ui, shadow } from "@smbc/ui-core";
+import { ui, color, shadow } from "@smbc/ui-core";
 
 declare module "@mui/material/styles" {
   interface Components<Theme> {
@@ -11,11 +11,296 @@ declare module "@mui/material/styles" {
 export const createCssVarComponents = (
   theme: Theme,
 ): Components<Omit<Theme, "components">> => {
+  console.log(
+    "DENNY",
+    ui.navigation.background,
+    ui.navigation.background(theme),
+    theme.palette.mode,
+  );
+  return {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          "--Paper-overlay": "none !important",
+          "--Paper-elevation": "none !important",
+          backgroundColor: `${ui.navigation.background(theme)} !important`,
+          borderBottom: "3px solid #02080b",
+          color: `${ui.navigation.color(theme)} !important`,
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          "#app-content &, .MuiMenu-paper &": {
+            background: color.gradient.primaryBlue,
+            borderRadius: ui.button.borderRadius,
+            color: ui.button.color,
+            fontSize: "17px",
+            fontWeight: 500,
+            height: "40px",
+            letterSpacing: "0.2px",
+            textTransform: "none",
+            "&.Mui-disabled": {
+              opacity: 0.8,
+              filter: "brightness(50%)",
+            },
+          },
+          '[data-theme="dark"] #app-content &': {},
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: "16px",
+          backgroundColor: `${ui.card.background(theme)} !important`,
+          border: `1px solid ${ui.card.borderColor(theme)}`,
+          boxShadow: shadow.base,
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: ui.color.border.secondary,
+        },
+      },
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          "&.MuiPickersTextField-root": {
+            "& .MuiInputBase-root, & .MuiOutlinedInput-root": {
+              borderRadius: theme.spacing(3),
+              "& fieldset": {
+                borderColor: ui.input.borderColor,
+              },
+              "&:hover": {
+                backgroundColor: ui.input.on.hover.background,
+              },
+              "&:hover fieldset": {
+                borderColor: ui.input.on.hover.borderColor,
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: ui.input.on.focus.borderColor,
+                borderWidth: 2,
+              },
+            },
+            "& .MuiIconButton-root": {
+              color: ui.input.on.focus.borderColor,
+            },
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          padding: 8,
+          color: "#98A4B9",
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          backgroundColor: ui.input.background,
+          borderRadius: theme.spacing(3),
+          "&:hover": {
+            backgroundColor: ui.input.on.hover.background,
+          },
+          "&.Mui-focused": {
+            backgroundColor: ui.input.on.focus.background,
+          },
+        },
+      },
+    },
+    // MUI X Date Pickers - using correct component names
+    MuiPickersInputBase: {
+      styleOverrides: {
+        root: {
+          backgroundColor: ui.input.background,
+          "&.Mui-focused": {
+            backgroundColor: ui.input.on.focus.background,
+          },
+        },
+      },
+    },
+    MuiPickersOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: ui.input.background,
+          "&.Mui-focused": {
+            backgroundColor: ui.input.on.focus.background,
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: ui.input.color,
+          "&.Mui-focused": {
+            color: `${ui.input.on.focus.borderColor(theme)} !important`,
+          },
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          paddingTop: 6,
+          paddingBottom: 6,
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          margin: "0 8px",
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {},
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          "&.MuiMenu-paper, &.MuiPopover-paper": {
+            "--Paper-overlay": "none !important",
+            "--Paper-elevation": "none !important",
+            backgroundColor: `${ui.color.background.secondary(
+              theme,
+            )} !important`,
+            border: `1px solid ${ui.color.border.primary(theme)}`,
+            color: ui.color.text.primary,
+          },
+        },
+        elevation1: {
+          boxShadow: shadow.base,
+        },
+        elevation2: {
+          boxShadow: shadow.md,
+        },
+        elevation3: {
+          boxShadow: shadow.lg,
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          borderRadius: theme.spacing(3),
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderRadius: theme.spacing(3),
+            borderColor: ui.input.borderColor,
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: ui.input.on.hover.borderColor,
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: ui.input.on.focus.borderColor,
+            borderWidth: 2,
+          },
+          "&.Mui-focused": {
+            backgroundColor: ui.input.on.focus.background,
+          },
+          "& .MuiSvgIcon-root": {
+            color: ui.input.on.focus.borderColor,
+          },
+        },
+      },
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        root: {
+          "& .MuiSwitch-switchBase.Mui-checked": {
+            color: "#1976D2",
+            "& + .MuiSwitch-track": {
+              backgroundColor: "#114377",
+            },
+            "& .MuiSwitch-thumb": {
+              backgroundColor: "#1976D2",
+            },
+          },
+          "& .MuiSwitch-thumb": {
+            backgroundColor: ui.switchThumb.background,
+            boxShadow: ui.switchThumb.boxShadow,
+          },
+          "& .MuiSwitch-track": {
+            backgroundColor: ui.switchThumb.background,
+          },
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          padding: "8px 16px",
+          fontSize: "0.875rem",
+          borderColor: ui.tableRow.borderColor,
+        },
+        head: {
+          fontWeight: 600,
+          backgroundColor: ui.tableHeader.background,
+          color: ui.tableHeader.color,
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          backgroundColor: ui.tableHeader.background,
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          "&:hover": {
+            backgroundColor: ui.tableRow.on.hover.background,
+          },
+          "&.Mui-selected": {
+            backgroundColor: ui.tableRow.on.selected.background,
+            "&:hover": {
+              backgroundColor: ui.tableRow.on.selected.background,
+            },
+          },
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: ui.tooltip.background,
+          color: ui.tooltip.color,
+          fontSize: "0.75rem",
+          borderRadius: 6,
+          boxShadow: ui.tooltip.boxShadow,
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          color: ui.color.text.primary,
+        },
+      },
+    },
+  };
+
   return {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: theme.spacing(3),
+          background: ui.button.background,
+          borderRadius: ui.button.borderRadius,
           padding: "6px 16px",
           fontSize: "0.875rem",
           fontWeight: 500,
@@ -30,18 +315,16 @@ export const createCssVarComponents = (
           },
         },
         contained: {
-          background:
-            "linear-gradient(130.39deg, #024FB0 24.79%, #2C88F3 75.21%)",
+          background: ui.button.background,
           border: "1px solid #2C88F3",
           color: "#ffffff",
           "&:hover": {
-            background:
-              "linear-gradient(130.39deg, #023d8a 24.79%, #2472d9 75.21%)",
+            background: ui.button.background,
             border: "1px solid #2472d9",
             boxShadow: shadow.md,
           },
           "&.MuiButton-containedSecondary": {
-            background: `linear-gradient(180deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+            background: ui.button.background,
             "&:hover": {
               background: `linear-gradient(180deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`,
             },

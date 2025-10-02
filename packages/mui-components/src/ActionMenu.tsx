@@ -4,35 +4,58 @@ import {
   Menu,
   MenuItem,
   ListItemIcon,
-  ListItemText,
   Divider,
+  useTheme,
 } from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 
-export interface ActionMenuItem {
+export interface ActionMenuItem<T = void> {
   label: string;
   icon?: React.ReactNode;
-  onClick: () => void;
+  onClick?: (item: T, event: React.MouseEvent) => void;
+  href?: string;
+  disabled?: boolean | ((item: T) => boolean);
+  appliesTo?: (item: T) => boolean;
   divider?: boolean;
-  disabled?: boolean;
+  component?: React.ElementType;
 }
 
-export interface ActionMenuProps {
-  menuItems: ActionMenuItem[];
+export interface ActionMenuProps<T = void> {
+  menuItems: ActionMenuItem<T>[];
+  /** Item data for data-driven menus (optional) */
+  item?: T;
   onMenuOpen?: () => void;
   onMenuClose?: () => void;
+  /** Custom trigger element (if provided, renders instead of default IconButton) */
+  trigger?: React.ReactElement;
+  /** Custom icon for the trigger button (defaults to MoreVertIcon) */
+  icon?: React.ReactNode;
+  /** Custom sx props for the IconButton trigger */
   sx?: any;
+  /** Custom aria-label for the trigger button */
+  ariaLabel?: string;
+  /** Stop propagation on menu item click (useful for grid rows) */
+  stopPropagation?: boolean;
 }
 
-export const ActionMenu: React.FC<ActionMenuProps> = ({
+export const ActionMenu = <T = void,>({
   menuItems,
+  item,
   onMenuOpen,
   onMenuClose,
+  trigger,
+  icon,
   sx,
-}) => {
+  ariaLabel = "more options",
+  stopPropagation = false,
+}: ActionMenuProps<T>) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (stopPropagation) {
+      event.stopPropagation();
+    }
     setAnchorEl(event.currentTarget);
     onMenuOpen?.();
   };
@@ -42,26 +65,50 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
     onMenuClose?.();
   };
 
-  const handleMenuItemClick = (item: ActionMenuItem) => {
-    item.onClick();
+  const handleMenuItemClick = (
+    menuItem: ActionMenuItem<T>,
+    event: React.MouseEvent,
+  ) => {
+    if (stopPropagation) {
+      event.stopPropagation();
+    }
+    menuItem.onClick?.(item as T, event);
     handleMenuClose();
   };
 
-  if (!menuItems || menuItems.length === 0) {
+  // Filter items based on appliesTo
+  const visibleItems = menuItems.filter(
+    (menuItem) => !menuItem.appliesTo || menuItem.appliesTo(item as T),
+  );
+
+  if (!visibleItems || visibleItems.length === 0) {
     return null;
   }
 
   return (
     <>
-      <IconButton
-        size="small"
-        onClick={handleMenuClick}
-        aria-label="more options"
-        sx={{ mr: "-8px", ...sx }}
-      >
-        <MoreVertIcon fontSize="small" />
-      </IconButton>
+      {trigger ? (
+        React.cloneElement(trigger, {
+          onClick: handleMenuClick,
+          "aria-controls": anchorEl ? "action-menu" : undefined,
+          "aria-haspopup": "true",
+          "aria-expanded": anchorEl ? "true" : undefined,
+        })
+      ) : (
+        <IconButton
+          size="small"
+          onClick={handleMenuClick}
+          aria-label={ariaLabel}
+          aria-controls={anchorEl ? "action-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={anchorEl ? "true" : undefined}
+          sx={{ mr: "-8px", ...sx, height: "36px" }}
+        >
+          {icon || <MoreVertIcon fontSize="small" />}
+        </IconButton>
+      )}
       <Menu
+        id="action-menu"
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
@@ -77,18 +124,51 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
           },
         }}
       >
-        {menuItems.map((item, index) => (
-          <React.Fragment key={index}>
-            {item.divider && index > 0 && <Divider />}
-            <MenuItem
-              onClick={() => handleMenuItemClick(item)}
-              disabled={item.disabled}
-            >
-              {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
-              <ListItemText>{item.label}</ListItemText>
-            </MenuItem>
-          </React.Fragment>
-        ))}
+        {visibleItems.map((menuItem, index) => {
+          const isDisabled =
+            typeof menuItem.disabled === "function"
+              ? menuItem.disabled(item as T)
+              : menuItem.disabled;
+
+          return (
+            <React.Fragment key={index}>
+              {menuItem.divider && index > 0 && <Divider />}
+              <MenuItem
+                component={menuItem.component || (menuItem.href ? "a" : "li")}
+                href={menuItem.href}
+                onClick={(e: React.MouseEvent) =>
+                  handleMenuItemClick(menuItem, e)
+                }
+                disabled={isDisabled}
+                sx={{
+                  color: theme.palette.mode === "dark" ? "#E6E7E8" : "#ddd",
+                  pr: "4px",
+                  "&:hover": {
+                    pr: "4px",
+                    backgroundColor: "transparent",
+                  },
+                  "& .MuiSvgIcon-root": {
+                    color: theme.palette.mode === "dark" ? "#98A4B9" : "",
+                  },
+                  "& .menu-item-text": {
+                    borderRadius: "4px",
+                    padding: "2px 6px",
+                    margin: "-2px -6px",
+                    display: "block",
+                    width: "100%",
+                    "&:hover": {
+                      backgroundColor:
+                        theme.palette.mode === "dark" ? "#524747" : "red",
+                    },
+                  },
+                }}
+              >
+                {menuItem.icon && <ListItemIcon>{menuItem.icon}</ListItemIcon>}
+                <span className="menu-item-text">{menuItem.label}</span>
+              </MenuItem>
+            </React.Fragment>
+          );
+        })}
       </Menu>
     </>
   );

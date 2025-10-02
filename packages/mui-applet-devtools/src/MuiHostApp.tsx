@@ -22,7 +22,7 @@ import {
   AppletDrawer,
   MuiAppletRouter,
 } from "./index";
-import { cssVarTheme } from "@smbc/mui-components";
+import { createCssVarTheme } from "@smbc/mui-components";
 import { ActivitySnackbar, ActivityNotifications } from "@smbc/mui-applet-core";
 import { ActivityProvider, TransactionProvider } from "@smbc/dataview";
 import {
@@ -371,8 +371,19 @@ function Navigation({
 
 // Component with theme provider
 function AppWithThemeProvider(props: MuiHostAppProps) {
-  useFeatureFlag<boolean>("darkMode");
-  const theme = cssVarTheme; // CSS variables handle dark mode automatically
+  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
+  const theme = React.useMemo(
+    () => createCssVarTheme(isDarkMode ? "dark" : "light"),
+    [isDarkMode],
+  );
+
+  // Set data-theme attribute on document for CSS variable switching
+  React.useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      isDarkMode ? "dark" : "light",
+    );
+  }, [isDarkMode]);
 
   // Create user with calculated permissions
   const userWithPermissions = {

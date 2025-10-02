@@ -50,21 +50,8 @@ export type {
 } from "./Filter";
 
 // New CSS variable theme (works for both light and dark)
-export { cssVarTheme, createCssVarTheme } from "./theme";
+export { createCssVarTheme } from "./theme";
 export * from "./theme/utils";
-
-// Import for local use
-import { cssVarTheme } from "./theme";
-
-// Theme creation - CSS variables handle light/dark automatically
-export const createTheme = () => {
-  return cssVarTheme;
-};
-
-// Deprecated - kept for backward compatibility
-export const getTheme = () => {
-  return cssVarTheme;
-};
 
 // App Shell
 export { AppShell } from "./AppShell";
@@ -80,8 +67,18 @@ export type {
   PageProps,
 } from "./AppShell";
 
-// AG Grid Theme
-export { AgGridTheme } from "./AgGridTheme";
+// AG Grid Utilities
+export {
+  gridOptions,
+  checkboxColumn,
+  expandColumn,
+  actionsColumn,
+  formatIsoDate,
+  formatLocalDate,
+  formatCurrency,
+  formatNumber,
+  AgGridTheme,
+} from "./ag-grid";
 
 // Console
 export { Console } from "./Console";

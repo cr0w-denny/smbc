@@ -2,10 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
 } from "@mui/material";
 import {
   Save as SaveIcon,
@@ -17,8 +13,7 @@ import {
   AssignmentTurnedIn as AssignmentTurnedInIcon,
 } from "@mui/icons-material";
 import { useHashNavigation, useFeatureFlag } from "@smbc/applet-core";
-import { TabBar, AppShell, Width } from "@smbc/mui-components";
-import { shadow } from "@smbc/ui-core";
+import { TabBar, AppShell, Width, ActionMenu, ActionMenuItem } from "@smbc/mui-components";
 import type { TabBarItem } from "@smbc/mui-components";
 import { EventTab } from "./components/EventTab";
 import { TriggerTab } from "./components/TriggerTab";
@@ -45,8 +40,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
   const [activeTab, setActiveTab] = useState("event");
   const [isEditorMaximized, setIsEditorMaximized] = useState(false);
-  const [workflowMenuAnchorEl, setWorkflowMenuAnchorEl] =
-    useState<null | HTMLElement>(null);
+  const [workflowMenuOpen, setWorkflowMenuOpen] = useState(false);
   const [eventData, setEventData] = useState<EventData | null>(null);
 
   // Extract event ID from URL parameters - only accept id param, ignore others
@@ -73,19 +67,33 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
     }
   }, [eventId]);
 
-  const handleWorkflowMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setWorkflowMenuAnchorEl(event.currentTarget);
-  };
-
-  const handleWorkflowMenuClose = () => {
-    setWorkflowMenuAnchorEl(null);
-  };
-
   const handleWorkflowAction = (action: string) => {
     console.log("Workflow action:", action, "for event:", eventId);
-    handleWorkflowMenuClose();
     // TODO: Implement workflow actions
   };
+
+  const workflowMenuItems: ActionMenuItem[] = [
+    {
+      label: "Submit for Review",
+      icon: <SendIcon fontSize="small" />,
+      onClick: () => handleWorkflowAction("submit-review"),
+    },
+    {
+      label: "Revoke Review Request",
+      icon: <CancelScheduleSendIcon fontSize="small" />,
+      onClick: () => handleWorkflowAction("revoke-review"),
+    },
+    {
+      label: "Reassign Event Owner",
+      icon: <AssignmentAddIcon fontSize="small" />,
+      onClick: () => handleWorkflowAction("reassign-owner"),
+    },
+    {
+      label: "Reassign Event Approvers",
+      icon: <AssignmentTurnedInIcon fontSize="small" />,
+      onClick: () => handleWorkflowAction("reassign-approvers"),
+    },
+  ];
 
   const handleSave = () => {
     console.log("Save event:", eventId);
@@ -147,62 +155,25 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
                 Save
               </Button>
 
-              <Button
-                variant="contained"
-                endIcon={
-                  Boolean(workflowMenuAnchorEl) ? (
-                    <ExpandLessIcon />
-                  ) : (
-                    <ExpandMoreIcon />
-                  )
+              <ActionMenu
+                trigger={
+                  <Button
+                    variant="contained"
+                    endIcon={
+                      workflowMenuOpen ? (
+                        <ExpandLessIcon />
+                      ) : (
+                        <ExpandMoreIcon />
+                      )
+                    }
+                  >
+                    Workflow
+                  </Button>
                 }
-                onClick={handleWorkflowMenuOpen}
-              >
-                Workflow
-              </Button>
-
-              <Menu
-                anchorEl={workflowMenuAnchorEl}
-                open={Boolean(workflowMenuAnchorEl)}
-                onClose={handleWorkflowMenuClose}
-                transformOrigin={{ horizontal: "right", vertical: "top" }}
-                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                sx={{
-                  mt: 1,
-                  "& .MuiPaper-root": {
-                    boxShadow: shadow.md,
-                  },
-                }}
-              >
-                <MenuItem onClick={() => handleWorkflowAction("submit-review")}>
-                  <ListItemIcon>
-                    <SendIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Submit for Review</ListItemText>
-                </MenuItem>
-                <MenuItem onClick={() => handleWorkflowAction("revoke-review")}>
-                  <ListItemIcon>
-                    <CancelScheduleSendIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Revoke Review Request</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => handleWorkflowAction("reassign-owner")}
-                >
-                  <ListItemIcon>
-                    <AssignmentAddIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Reassign Event Owner</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => handleWorkflowAction("reassign-approvers")}
-                >
-                  <ListItemIcon>
-                    <AssignmentTurnedInIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Reassign Event Approvers</ListItemText>
-                </MenuItem>
-              </Menu>
+                menuItems={workflowMenuItems}
+                onMenuOpen={() => setWorkflowMenuOpen(true)}
+                onMenuClose={() => setWorkflowMenuOpen(false)}
+              />
             </Box>
           </Box>
         </Width>

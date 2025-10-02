@@ -1,11 +1,38 @@
 import { PaletteOptions } from "@mui/material/styles";
+import { grey } from "@mui/material/colors";
 import { ui, color } from "@smbc/ui-core";
 import { stringifyTokens } from "./utils";
+
+const grayTheme = (mode: "light" | "dark") => ({
+  mode,
+  primary: {
+    main: grey[900], // Dark gray for primary elements
+    light: grey[700],
+    dark: grey[900],
+    contrastText: "#fff", // White text on dark gray
+  },
+  secondary: {
+    main: grey[500], // Medium gray for secondary elements
+    light: grey[300],
+    dark: grey[700],
+    contrastText: "#fff",
+  },
+  background: {
+    default: grey[100], // Light gray for default background
+    paper: "#fff", // White for paper-like surfaces
+  },
+  text: {
+    primary: grey[900], // Dark gray for main text
+    secondary: grey[700], // Medium gray for secondary text
+  },
+  divider: grey[300], // Light gray for dividers
+});
 
 // Palette that uses CSS variables and accepts current mode
 export const createCssVarPalette = (
   mode: "light" | "dark" = "light",
 ): PaletteOptions =>
+  !grayTheme(mode) ||
   stringifyTokens(
     {
       mode, // Use the actual current mode

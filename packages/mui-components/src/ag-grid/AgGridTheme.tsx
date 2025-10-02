@@ -79,16 +79,15 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
             borderRadius: "0px !important",
             border: "none !important",
           },
-          "--ag-background-color":
-            ui.tableRow.background(isDarkMode),
+          "--ag-background-color": ui.tableRow.background(isDarkMode),
           // "--ag-odd-row-background-color": ui.tableRow.background,
           // "--ag-foreground-color": theme.palette.text.primary,
-          "--ag-header-background-color":
-            ui.tableHeader.background(isDarkMode),
+          "--ag-header-background-color": ui.tableHeader.background(isDarkMode),
           // "--ag-header-foreground-color": ui.tableHeader.color,
           "--ag-border-color": ui.tableRow.borderColor(isDarkMode),
-          // "--ag-row-hover-color": ui.tableRow.hover.background,
-          // "--ag-selected-row-background-color": ui.tableRow.selected.background,
+          "--ag-row-hover-color": ui.tableRow.on.hover.background,
+          "--ag-selected-row-background-color":
+            ui.tableRow.on.selected.background,
           // "--ag-header-row-border-style": "none",
           // "--ag-borders-critical": "none",
           // Additional AG Grid theme variables

@@ -50,6 +50,7 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
 
     return (theme: any) => ({
       cursor: "pointer",
+      transition: "none !important",
       backgroundColor:
         theme.palette.mode === "dark"
           ? theme.palette.background.paper
@@ -157,6 +158,7 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
+                      transition: "none !important",
                       backgroundColor:
                         theme.palette.mode === "light"
                           ? isActive
@@ -171,6 +173,7 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
                         fontSize: "18px",
                         width: "18px",
                         height: "18px",
+                        transition: "none !important",
                         color: isActive
                           ? theme.palette.mode === "dark"
                             ? "#FFFFFF"
@@ -195,6 +198,7 @@ export const ChipToggleGroup: React.FC<ChipToggleGroupProps> = ({
                     textAlign: "center",
                     fontSize: "13px",
                     fontWeight: 500,
+                    transition: "none !important",
                     color: isActive
                       ? theme.palette.mode === "dark"
                         ? "#FFFFFF"

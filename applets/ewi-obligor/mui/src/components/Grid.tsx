@@ -6,6 +6,9 @@ import {
   Card,
   Filter,
   ChipToggleGroup,
+  gridOptions,
+  checkboxColumn,
+  formatLocalDate,
 } from "@smbc/mui-components";
 import { ui } from "@smbc/ui-core";
 import type { ColDef } from "ag-grid-community";
@@ -73,18 +76,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
 
   const columnDefs: ColDef[] = useMemo(
     () => [
-      {
-        field: "checkbox",
-        headerName: "",
-        maxWidth: 50,
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        sortable: false,
-        filter: false,
-        pinned: "left",
-        resizable: false,
-        suppressColumnsToolPanel: true,
-      },
+      checkboxColumn(),
       {
         headerName: "Obligor Name",
         field: "obligor_name",
@@ -126,8 +118,7 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
         field: "last_review",
         flex: 1,
         width: 130,
-        valueFormatter: ({ value }) =>
-          value ? new Date(value).toLocaleDateString() : "---",
+        valueFormatter: formatLocalDate,
       },
     ],
     [],
@@ -196,25 +187,13 @@ export const Grid: React.FC<GridProps> = ({ obligors, menuItems }) => {
           {(popupParent) => (
             <AgGridReact
               ref={gridRef}
-              popupParent={popupParent}
-              headerHeight={50}
-              rowData={obligors}
-              columnDefs={columnDefs}
-              rowSelection="multiple"
-              suppressCellFocus
-              suppressRowClickSelection
-              animateRows={true}
-              cellSelection={false}
-              pagination={false}
-              suppressHorizontalScroll={false}
-              alwaysShowHorizontalScroll={false}
-              columnMenu="legacy"
-              defaultColDef={{
-                filter: true,
-                sortable: true,
-                resizable: true,
-                menuTabs: ["filterMenuTab", "columnsMenuTab"],
-              }}
+              {...gridOptions({
+                popupParent,
+                rowData: obligors,
+                columnDefs,
+                rowSelection: 'multiple',
+                headerHeight: 50,
+              })}
             />
           )}
         </AgGridTheme>

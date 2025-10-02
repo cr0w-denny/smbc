@@ -48,7 +48,6 @@ export type UserMenuProps = {
   onToggleRole?: (roleId: string, enabled: boolean) => void;
 };
 
-
 export function UserMenu({
   open,
   anchorEl,
@@ -75,7 +74,7 @@ export function UserMenu({
       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       slotProps={{
         paper: {
-          elevation: 6,
+          elevation: 2,
           sx: {
             width: 283,
             borderRadius: `${size.borderRadius.base}px`,
@@ -83,25 +82,43 @@ export function UserMenu({
             mt: 1.5,
             ml: 0.125, // 1px offset to the right
             p: 2,
-            backgroundColor: `${ui.color.background.secondary} !important`,
-            border: `1px solid ${ui.color.border.primary}`,
+            backgroundColor: `${ui.color.background.secondary(
+              darkMode,
+            )} !important`,
+            border: `1px solid ${ui.color.border.primary(darkMode)}`,
             "&.MuiPaper-root": {
               backgroundImage: "none",
             },
           },
         },
-        list: { dense: true, sx: { p: 0 } }
+        list: { dense: true, sx: { p: 0 } },
       }}
     >
       {/* Header */}
-      <Box sx={{ pb: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar src={avatarUrl} alt={typeof name === 'string' ? name : 'User'} sx={{ width: 44, height: 44, mb: 1.5 }} />
+      <Box
+        sx={{
+          pb: 1.5,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Avatar
+          src={avatarUrl}
+          alt={typeof name === "string" ? name : "User"}
+          sx={{ width: 44, height: 44, mb: 1.5 }}
+        />
         <Typography
           variant="subtitle1"
-          sx={{ fontWeight: 700, letterSpacing: 1.2, textAlign: 'center', fontSize: '13px' }}
+          sx={{
+            fontWeight: 700,
+            letterSpacing: 1.2,
+            textAlign: "center",
+            fontSize: "13px",
+          }}
           noWrap
         >
-          {typeof name === 'string' ? name.toUpperCase() : name}
+          {typeof name === "string" ? name.toUpperCase() : name}
         </Typography>
       </Box>
 
@@ -111,31 +128,45 @@ export function UserMenu({
           onProfile?.();
           onClose();
         }}
-        sx={{ justifyContent: 'center', py: 0.75 }}
+        sx={{ justifyContent: "center", py: 0.75 }}
       >
-        <ListItemText primary="Profile" sx={{ textAlign: 'center', flex: 'none', '& .MuiListItemText-primary': { fontSize: '13px' } }} />
+        <ListItemText
+          primary="Profile"
+          sx={{
+            textAlign: "center",
+            flex: "none",
+            "& .MuiListItemText-primary": { fontSize: "13px" },
+          }}
+        />
       </MenuItem>
       <MenuItem
         onClick={() => {
           onSettings?.();
           onClose();
         }}
-        sx={{ justifyContent: 'center', py: 0.75 }}
+        sx={{ justifyContent: "center", py: 0.75 }}
       >
-        <ListItemText primary="Settings" sx={{ textAlign: 'center', flex: 'none', '& .MuiListItemText-primary': { fontSize: '13px' } }} />
+        <ListItemText
+          primary="Settings"
+          sx={{
+            textAlign: "center",
+            flex: "none",
+            "& .MuiListItemText-primary": { fontSize: "13px" },
+          }}
+        />
       </MenuItem>
 
       <Divider />
 
       {/* Dashboard section */}
-      <Box sx={{ px: 2, py: 1, textAlign: 'center' }}>
+      <Box sx={{ px: 2, py: 1, textAlign: "center" }}>
         <Typography
           variant="body2"
           sx={{
-            color: ui.color.text.secondary,
+            color: ui.color.text.secondary(darkMode),
             fontWeight: 600,
             letterSpacing: 0.5,
-            fontSize: '13px'
+            fontSize: "13px",
           }}
         >
           DASHBOARD
@@ -146,17 +177,17 @@ export function UserMenu({
           onQuickGuide?.();
           onClose();
         }}
-        sx={{ justifyContent: 'center' }}
+        sx={{ justifyContent: "center" }}
       >
         <ListItemText
           primary="Quick Guide"
           sx={{
-            textAlign: 'center',
-            flex: 'none',
-            '& .MuiListItemText-primary': {
-              fontSize: '13px',
-              color: ui.color.brand.primary
-            }
+            textAlign: "center",
+            flex: "none",
+            "& .MuiListItemText-primary": {
+              fontSize: "13px",
+              color: ui.color.brand.primary(darkMode),
+            },
           }}
         />
       </MenuItem>
@@ -170,20 +201,20 @@ export function UserMenu({
             sx={{
               px: 2,
               py: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer'
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
             }}
             onClick={() => setPersonasExpanded(!personasExpanded)}
           >
             <Typography
               variant="body2"
               sx={{
-                color: ui.color.text.secondary,
+                color: ui.color.text.secondary(darkMode),
                 fontWeight: 600,
                 letterSpacing: 0.5,
-                fontSize: '13px'
+                fontSize: "13px",
               }}
             >
               PERSONAS
@@ -193,14 +224,14 @@ export function UserMenu({
               sx={{
                 ml: 1,
                 p: 0.5,
-                border: `1px solid ${ui.color.brand.primary}`,
-                borderRadius: '50%',
+                border: `1px solid ${ui.color.brand.primary(darkMode)}`,
+                borderRadius: "50%",
                 width: 20,
                 height: 20,
-                color: ui.color.brand.primary,
-                '& .MuiSvgIcon-root': {
-                  fontSize: '0.875rem',
-                }
+                color: ui.color.brand.primary(darkMode),
+                "& .MuiSvgIcon-root": {
+                  fontSize: "0.875rem",
+                },
               }}
             >
               {personasExpanded ? <ExpandLess /> : <ExpandMore />}
@@ -213,7 +244,7 @@ export function UserMenu({
                 px: 2,
                 py: 1,
                 maxHeight: 200, // Limit height to prevent menu from being too tall
-                overflowY: 'auto', // Add scrolling when content exceeds max height
+                overflowY: "auto", // Add scrolling when content exceeds max height
               }}
             >
               {/* Role toggles */}
@@ -221,13 +252,13 @@ export function UserMenu({
                 <MenuItem
                   key={role.id}
                   disableRipple
-                  sx={{ py: 0.25, justifyContent: 'space-between' }}
+                  sx={{ py: 0.25, justifyContent: "space-between" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     onToggleRole?.(role.id, !role.enabled);
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontSize: '13px' }}>
+                  <Typography variant="body2" sx={{ fontSize: "13px" }}>
                     {role.label}
                   </Typography>
                   <Switch
@@ -246,7 +277,7 @@ export function UserMenu({
       {/* Dark Mode - Always visible */}
       <MenuItem
         disableRipple
-        sx={{ py: 1.25, justifyContent: 'center', mt: 1 }}
+        sx={{ py: 1.25, justifyContent: "center", mt: 1 }}
         onClick={(e) => {
           // avoid closing when toggling
           e.stopPropagation();

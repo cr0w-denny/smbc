@@ -1,12 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  Box,
-  IconButton,
-  Typography,
-  Menu,
-  MenuItem,
-  useTheme,
-} from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import {
   AgGridTheme,
@@ -14,6 +7,8 @@ import {
   Card,
   StatusChip,
   Width,
+  ActionMenu,
+  ActionMenuItem,
 } from "@smbc/mui-components";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import {
@@ -21,7 +16,7 @@ import {
   useApiClient,
   useFeatureFlag,
 } from "@smbc/applet-core";
-import { ui, color, shadow } from "@smbc/ui-core";
+import { ui, color } from "@smbc/ui-core";
 import { FilterBar } from "./FilterBar";
 import { ActionBar } from "./ActionBar";
 import type { components, paths } from "@smbc/ewi-events-api/types";
@@ -30,7 +25,6 @@ import { useQuery } from "@tanstack/react-query";
 type Event = components["schemas"]["Event"];
 
 import {
-  MoreVert as MoreIcon,
   AddCircle as AddCircleIcon,
   List as ListIcon,
 } from "@smbc/mui-components";
@@ -184,94 +178,54 @@ const StatusCellRenderer = (params: any) => {
   );
 };
 
-// Actions cell renderer - just the menu button
+// Actions cell renderer - using ActionMenu
 const createActionsCellRenderer =
-  (_navigate: (path: string) => void) => (params: any) => {
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-
-    const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      console.log(
-        "ActionsCellRenderer: Menu button clicked for row:",
-        params.data?.id,
-      );
-      setAnchorEl(event.currentTarget);
-    };
-
-    const handleMenuClose = () => {
-      setAnchorEl(null);
-    };
-
-    const handleAction = (action: string, event: React.MouseEvent) => {
-      event.stopPropagation();
-      console.log(`${action} action for:`, params.data);
-
-      if (action === "view" && params.data?.id) {
-        // Navigate to event details applet with only event ID using proper hook navigation
-        _navigate(`/events/detail?id=${params.data.id}`);
-        return;
-      }
-
-      handleMenuClose();
-    };
+  (navigate: (path: string) => void) => (params: any) => {
+    const menuItems: ActionMenuItem<Event>[] = [
+      {
+        label: "Show Details",
+        icon: <ListIcon fontSize="small" />,
+        href: `#/events/detail?id=${params.data.id}`,
+        onClick: (item, event) => {
+          // Allow Cmd+Click (metaKey) or Ctrl+Click (ctrlKey) to open in new tab
+          if (!event.metaKey && !event.ctrlKey) {
+            event.preventDefault();
+            navigate(`/events/detail?id=${item.event_ref_id}`);
+          }
+        },
+        component: "a",
+      },
+      {
+        label: "Add 1 LOD Analyst(s)",
+        icon: <PersonAddIcon fontSize="small" />,
+        onClick: (item) => {
+          console.log("add-1lod-analyst action for:", item);
+        },
+      },
+      {
+        label: "Add 1 LOD Management Reviewer(s)",
+        icon: <SupervisorAccountIcon fontSize="small" />,
+        onClick: (item) => {
+          console.log("add-1lod-management action for:", item);
+        },
+      },
+      {
+        label: "Add GBR Application Number",
+        icon: <AddCircleIcon fontSize="small" />,
+        onClick: (item) => {
+          console.log("add-gbr-number action for:", item);
+        },
+      },
+    ];
 
     return (
       <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <IconButton
-          size="small"
-          color="inherit"
-          onClick={handleMenuClick}
-          title="More Actions"
-          aria-controls={open ? "row-actions-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? "true" : undefined}
-        >
-          <MoreIcon fontSize="small" />
-        </IconButton>
-        <Menu
-          id="row-actions-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleMenuClose}
-          slotProps={{
-            paper: {
-              "aria-labelledby": "row-actions-button",
-              sx: {
-                boxShadow: shadow.md,
-              },
-            },
-          }}
-          transformOrigin={{ horizontal: "right", vertical: "top" }}
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        >
-          <MenuItem
-            component="a"
-            href={`#/events/detail?id=${params.data.id}`}
-            onClick={(e) => {
-              // Allow Cmd+Click (metaKey) or Ctrl+Click (ctrlKey) to open in new tab
-              if (!e.metaKey && !e.ctrlKey) {
-                e.preventDefault();
-                handleAction("view", e);
-              }
-            }}
-          >
-            <ListIcon fontSize="small" sx={{ mr: 1 }} />
-            Show Details
-          </MenuItem>
-          <MenuItem onClick={(e) => handleAction("add-1lod-analyst", e)}>
-            <PersonAddIcon fontSize="small" sx={{ mr: 1 }} />
-            Add 1 LOD Analyst(s)
-          </MenuItem>
-          <MenuItem onClick={(e) => handleAction("add-1lod-management", e)}>
-            <SupervisorAccountIcon fontSize="small" sx={{ mr: 1 }} />
-            Add 1 LOD Management Reviewer(s)
-          </MenuItem>
-          <MenuItem onClick={(e) => handleAction("add-gbr-number", e)}>
-            <AddCircleIcon fontSize="small" sx={{ mr: 1 }} />
-            Add GBR Application Number
-          </MenuItem>
-        </Menu>
+        <ActionMenu<Event>
+          menuItems={menuItems}
+          item={params.data}
+          stopPropagation={true}
+          ariaLabel="More Actions"
+        />
       </Box>
     );
   };
@@ -368,6 +322,7 @@ export const Events: React.FC<EventsProps> = () => {
       },
       {
         headerName: "Event Date",
+        headerTooltip: "Event Date",
         field: "event_date",
         minWidth: 150,
         valueFormatter: ({ value }) => (value ? value.split("T")[0] : "---"),
@@ -377,6 +332,7 @@ export const Events: React.FC<EventsProps> = () => {
       },
       {
         headerName: "Category",
+        headerTooltip: "Category",
         field: "event_category",
         minWidth: 160,
         flex: 1,
@@ -386,11 +342,13 @@ export const Events: React.FC<EventsProps> = () => {
       },
       {
         headerName: "Workflow Status",
+        headerTooltip: "Workflow Status",
         field: "workflow_status",
         flex: 1,
       },
       {
         headerName: "Obligor Name",
+        headerTooltip: "Obligor Name",
         minWidth: 150,
         field: "obligor",
         flex: 1,
@@ -399,40 +357,47 @@ export const Events: React.FC<EventsProps> = () => {
       },
       {
         headerName: "SUN ID",
+        headerTooltip: "SUN ID",
         maxWidth: 110,
         field: "sun_id",
         flex: 1,
       },
       {
         headerName: "PLO",
+        headerTooltip: "PLO",
         maxWidth: 110,
         field: "plo",
         flex: 1,
       },
       {
         headerName: "Exposure $",
+        headerTooltip: "Exposure $",
         field: "exposure",
         flex: 1,
       },
       {
         headerName: "Trigger",
+        headerTooltip: "Trigger",
         field: "trigger_shortname",
         minWidth: 120,
         flex: 1,
       },
       {
         headerName: "Trigger Type",
+        headerTooltip: "Trigger Type",
         field: "trigger_type",
         flex: 1,
       },
       {
         headerName: "Trigger Values",
+        headerTooltip: "Trigger Values",
         field: "trigger_values",
         hide: true,
       },
       {
         minWidth: 180,
         headerName: "Lifecycle Status",
+        headerTooltip: "Lifecycle Status",
         field: "lifecycle_status",
         cellRenderer: StatusCellRenderer,
         pinned: "right",
@@ -595,7 +560,7 @@ export const Events: React.FC<EventsProps> = () => {
 
   return (
     <AppShell.Page>
-      <AppShell.Toolbar darkMode={isDarkMode}>
+      <AppShell.Toolbar darkMode={isDarkMode} variant="extended">
         <Width>{toolbar}</Width>
       </AppShell.Toolbar>
 
@@ -655,11 +620,12 @@ export const Events: React.FC<EventsProps> = () => {
             }
             sx={{ height: "100%" }}
           >
-            <AgGridTheme height="92%" wrapHeaders={true}>
+            <AgGridTheme height="92%">
               {(popupParent) => (
                 <AgGridReact
                   ref={gridRef}
                   headerHeight={54}
+                  enableBrowserTooltips={true}
                   popupParent={popupParent}
                   rowData={filteredEvents}
                   columnDefs={columnDefs}

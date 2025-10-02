@@ -150,9 +150,8 @@ export const TopNav: React.FC<TopNavProps> = ({
                 sx={{
                   position: "absolute",
                   bottom: -8,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: "80%",
+                  left: 0,
+                  width: "85%",
                   height: 5,
                   background:
                     "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
@@ -185,9 +184,8 @@ export const TopNav: React.FC<TopNavProps> = ({
                 sx={{
                   position: "absolute",
                   bottom: -8,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: "80%",
+                  left: 0,
+                  width: "85%",
                   height: 5,
                   background:
                     "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
@@ -195,45 +193,50 @@ export const TopNav: React.FC<TopNavProps> = ({
                 }}
               />
             )}
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl) && activeMenu === item.label}
-                onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                transformOrigin={{ vertical: "top", horizontal: "center" }}
-                slotProps={{
-                  paper: {
-                    sx: {
-                      minWidth: 150,
-                      mt: "15px",
-                      "& .MuiMenuItem-root": { minHeight: "auto" },
-                    },
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl) && activeMenu === item.label}
+              onClose={handleMenuClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              transformOrigin={{ vertical: "top", horizontal: "center" }}
+              slotProps={{
+                paper: {
+                  sx: {
+                    minWidth: 150,
+                    mt: "15px",
+                    "& .MuiMenuItem-root": { minHeight: "auto" },
                   },
-                }}
-              >
-                {item.items?.map((subItem, subIndex) => (
-                  <MenuItem
-                    key={subIndex}
-                    onClick={() => {
-                      if (subItem.onClick) subItem.onClick();
-                      handleNavigation(subItem.href);
-                    }}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1.5,
-                    }}
-                  >
-                    {subItem.icon && (
-                      <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.25rem' }}>
-                        {console.log('Rendering icon for:', subItem.label, subItem.icon)}
-                        {subItem.icon}
-                      </Box>
-                    )}
-                    {subItem.label}
-                  </MenuItem>
-                ))}
-              </Menu>
+                },
+              }}
+            >
+              {item.items?.map((subItem, subIndex) => (
+                <MenuItem
+                  key={subIndex}
+                  onClick={() => {
+                    if (subItem.onClick) subItem.onClick();
+                    handleNavigation(subItem.href);
+                  }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                  }}
+                >
+                  {subItem.icon && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: "1.25rem",
+                      }}
+                    >
+                      {subItem.icon}
+                    </Box>
+                  )}
+                  {subItem.label}
+                </MenuItem>
+              ))}
+            </Menu>
           </Box>
         );
 
@@ -248,13 +251,13 @@ export const TopNav: React.FC<TopNavProps> = ({
             >
               {item.label}
             </Button>
-              <TreeDropdownMenu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl) && activeMenu === item.label}
-                onClose={handleMenuClose}
-                items={item.treeItems || []}
-                menuId={item.label}
-              />
+            <TreeDropdownMenu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl) && activeMenu === item.label}
+              onClose={handleMenuClose}
+              items={item.treeItems || []}
+              menuId={item.label}
+            />
           </Box>
         );
 

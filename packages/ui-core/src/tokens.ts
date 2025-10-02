@@ -127,6 +127,7 @@ export const tokens = {
     gradient: {
       darkBlue:
         "linear-gradient(to bottom right, #0b1524 0%, #0B1220 30%, #070f1a 57%, #040b13 96%)",
+      primaryBlue: "linear-gradient(130.39deg, #024FB0 24.79%, #2C88F3 75.21%)",
     },
   },
   shadow: {
@@ -412,22 +413,12 @@ export const tokens = {
       },
     },
     button: {
-      borderRadius: "4px",
+      borderRadius: "44px",
       fontSize: "14px",
       fontWeight: "500",
       padding: "8px 16px",
-      background: {
-        light: "var(--color-brand-tradGreen)",
-        dark: "var(--color-brand-freshGreen)",
-      },
-      color: {
-        light: "#ffffff",
-        dark: "#000000",
-      },
-      borderColor: {
-        light: "var(--color-brand-tradGreen)",
-        dark: "var(--color-brand-freshGreen)",
-      },
+      background: "var(--color-gradient-primaryBlue)",
+      color: "#ffffff",
       borderWidth: "1px",
       borderStyle: "solid",
       on: {
@@ -618,7 +609,7 @@ export const tokens = {
         dark: "#0C121E",
       },
       color: {
-        light: "#ffffff",
+        light: "#000000",
         dark: "rgba(255, 255, 255, 0.87)",
       },
       on: {

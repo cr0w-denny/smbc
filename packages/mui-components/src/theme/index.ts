@@ -5,11 +5,11 @@ import { baseTypography, baseSpacing } from "./typography";
 import { shadow, breakpoints } from "@smbc/ui-core";
 
 // Theme factory that creates theme based on current mode
-export const createCssVarTheme = (mode: 'light' | 'dark' = 'light') => {
+export const createCssVarTheme = (mode: "light" | "dark" = "light") => {
   // Create the base theme with current mode
   const baseTheme = createTheme({
     cssVariables: {
-      colorSchemeSelector: '[data-theme=%s]'
+      colorSchemeSelector: "[data-theme=%s]",
     },
     palette: createCssVarPalette(mode),
     typography: baseTypography as TypographyVariantsOptions,
@@ -52,18 +52,12 @@ export const createCssVarTheme = (mode: 'light' | 'dark' = 'light') => {
     ],
   });
 
-  // Create the final theme with components - keep CSS variables but disable automatic color scheme detection
   return createTheme({
     ...baseTheme,
     cssVariables: {
-      colorSchemeSelector: '[data-theme=%s]'
+      colorSchemeSelector: "[data-theme=%s]",
     },
-    defaultColorScheme: 'light',
+    defaultColorScheme: "light",
     components: createCssVarComponents(baseTheme),
   });
 };
-
-// Export default light theme for backwards compatibility
-export const cssVarTheme = createCssVarTheme('light');
-
-export default cssVarTheme;
