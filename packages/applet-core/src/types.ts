@@ -204,6 +204,7 @@ export interface AppletMount {
   version?: string; // Optional version number for the applet
   packageName: string | false; // Package name (e.g., "@smbc/user-management-mui") or false for demo/in-app applets
   filterable?: boolean; // Whether this applet participates in search/filtering (default: true)
+  config?: Record<string, any>; // Optional host-specific configuration (can include functions, components, etc.)
   getHostNavigation?: (
     mountPath: string,
     hasAnyPermission: (appletId: string, permissions: string[]) => boolean,

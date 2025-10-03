@@ -36,3 +36,6 @@ export {
   createNavigationExport,
   type NavigationConfig,
 } from "./createNavigationExport";
+
+// Applet utilities
+export { getAllRoutes, getCurrentApplet } from "./utils/applet-utils";

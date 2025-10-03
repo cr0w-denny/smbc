@@ -5,10 +5,9 @@ import {
   Filter,
   RelatedNews,
   AppShell,
-  Width,
 } from "@smbc/mui-components";
 import type { NewsItem } from "@smbc/mui-components";
-import { useHashNavigation } from "@smbc/applet-core";
+import { useHashNavigation, useAppletConfig } from "@smbc/applet-core";
 import { DetailsCard } from "./DetailsCard";
 import { Grid } from "./Grid";
 import type { FilterValues, CardMenuItem } from "@smbc/mui-components";
@@ -121,6 +120,7 @@ interface ObligorFilters {
 }
 
 const Dashboard: React.FC = () => {
+  const { toolbarMode } = useAppletConfig();
   // Filter state - using auto-applied params (immediate URL sync)
   const { autoParams: params, setAutoParams: setParams } =
     useHashNavigation<ObligorFilters>({
@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
         sunId: "",
         fromDate: "",
         toDate: "",
-      }
+      },
     });
 
   // Filter obligors based on search criteria
@@ -192,18 +192,15 @@ const Dashboard: React.FC = () => {
 
   return (
     <AppShell.Page>
-      <AppShell.Toolbar variant="extended">
-        <Width>
-          <Filter
-            spec={filterSpec}
-            values={params}
-            onFiltersChange={handleFilterChange}
-          />
-        </Width>
+      <AppShell.Toolbar mode={toolbarMode}>
+        <Filter
+          spec={filterSpec}
+          values={params}
+          onFiltersChange={handleFilterChange}
+        />
       </AppShell.Toolbar>
 
       <AppShell.Content>
-        <Width>
           <Box
             sx={{
               display: "flex",
@@ -249,7 +246,6 @@ const Dashboard: React.FC = () => {
               </Box>
             </Box>
           </Box>
-        </Width>
       </AppShell.Content>
     </AppShell.Page>
   );

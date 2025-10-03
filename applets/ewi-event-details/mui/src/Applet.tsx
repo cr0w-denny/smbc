@@ -9,11 +9,10 @@ import {
   AssignmentAdd as AssignmentAddIcon,
   AssignmentTurnedIn as AssignmentTurnedInIcon,
 } from "@mui/icons-material";
-import { useHashNavigation, useFeatureFlag } from "@smbc/applet-core";
+import { useHashNavigation, useAppletConfig } from "@smbc/applet-core";
 import {
   TabBar,
   AppShell,
-  Width,
   ActionMenu,
   ActionMenuItem,
   Button,
@@ -41,7 +40,7 @@ const tabs: TabBarItem[] = [
 ];
 
 export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
-  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
+  const { toolbarMode } = useAppletConfig();
   const [activeTab, setActiveTab] = useState("event");
   const [isEditorMaximized, setIsEditorMaximized] = useState(false);
   const [workflowMenuOpen, setWorkflowMenuOpen] = useState(false);
@@ -130,56 +129,53 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
 
   return (
     <AppShell.Page>
-      <AppShell.Toolbar darkMode={isDarkMode} variant="extended">
-        <Width>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            {/* Left-aligned tabs */}
-            <TabBar
-              items={tabs}
-              value={activeTab}
-              onChange={setActiveTab}
-              size="medium"
+      <AppShell.Toolbar mode={toolbarMode}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          {/* Left-aligned tabs */}
+          <TabBar
+            items={tabs}
+            value={activeTab}
+            onChange={setActiveTab}
+            size="medium"
+          />
+
+          {/* Right-aligned buttons */}
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="contained"
+              startIcon={<SaveIcon />}
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+
+            <ActionMenu
+              trigger={
+                <Button
+                  variant="contained"
+                  endIcon={
+                    workflowMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />
+                  }
+                >
+                  Workflow
+                </Button>
+              }
+              menuItems={workflowMenuItems}
+              onMenuOpen={() => setWorkflowMenuOpen(true)}
+              onMenuClose={() => setWorkflowMenuOpen(false)}
             />
-
-            {/* Right-aligned buttons */}
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Button
-                variant="contained"
-                startIcon={<SaveIcon />}
-                onClick={handleSave}
-              >
-                Save
-              </Button>
-
-              <ActionMenu
-                trigger={
-                  <Button
-                    variant="contained"
-                    endIcon={
-                      workflowMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />
-                    }
-                  >
-                    Workflow
-                  </Button>
-                }
-                menuItems={workflowMenuItems}
-                onMenuOpen={() => setWorkflowMenuOpen(true)}
-                onMenuClose={() => setWorkflowMenuOpen(false)}
-              />
-            </Box>
           </Box>
-        </Width>
+        </Box>
       </AppShell.Toolbar>
 
       <AppShell.Content>
-        <Width>
           <Box
             sx={{
               display: "flex",
@@ -223,7 +219,6 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
               />
             </Box>
           </Box>
-        </Width>
       </AppShell.Content>
     </AppShell.Page>
   );

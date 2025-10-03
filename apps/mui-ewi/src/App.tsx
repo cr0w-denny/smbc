@@ -45,12 +45,15 @@ const AppShellContent: React.FC = () => {
     );
   }, [isDarkMode]);
 
-  const handleDarkModeToggle = (enabled: boolean) => {
+  const handleDarkModeToggle = () => {
     toggleDarkMode();
   };
 
   // Create theme based on current mode
-  const theme = React.useMemo(() => createCssVarTheme(isDarkMode ? 'dark' : 'light'), [isDarkMode]);
+  const theme = React.useMemo(
+    () => createCssVarTheme(isDarkMode ? "dark" : "light"),
+    [isDarkMode],
+  );
 
   // Default component for unmatched routes
   const AppRoutes = () => {
@@ -102,48 +105,48 @@ const AppShellContent: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <AppShell.Layout
-          logo={
-            <img
-              src={`${import.meta.env.BASE_URL}logo.svg`}
-              alt="EWI Logo"
-              style={{ height: 60, cursor: "pointer" }}
-              onClick={() => navigate("/")}
-            />
-          }
-          navigation={navigation}
-          onNavigate={navigate}
-          currentPath={path}
-          isDarkMode={isDarkMode}
-          onDarkModeToggle={handleDarkModeToggle}
-          username="John Doe"
-          onProfile={() => console.log("Profile clicked")}
-          onSettings={() => console.log("Settings clicked")}
-          onQuickGuide={() => console.log("Quick Guide clicked")}
-          onLogout={() => {
-            console.log("Logout clicked");
-            alert("Logout functionality would be implemented here");
-          }}
-          right={
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                "& .MuiIconButton-root svg": { fontSize: 28 },
-              }}
-            >
-              <ActivityNotifications onNavigate={navigate} />
-            </Box>
-          }
-          maxWidth={maxWidthConfig}
-        >
-          <ErrorBoundary>
-            <AppletRouter defaultComponent={AppRoutes} />
-          </ErrorBoundary>
-        </AppShell.Layout>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AppShell.Layout
+            logo={
+              <img
+                src={`${import.meta.env.BASE_URL}logo.svg`}
+                alt="EWI Logo"
+                style={{ height: 60, cursor: "pointer" }}
+                onClick={() => navigate("/")}
+              />
+            }
+            navigation={navigation}
+            onNavigate={navigate}
+            currentPath={path}
+            isDarkMode={isDarkMode}
+            onDarkModeToggle={handleDarkModeToggle}
+            username="John Doe"
+            onProfile={() => console.log("Profile clicked")}
+            onSettings={() => console.log("Settings clicked")}
+            onQuickGuide={() => console.log("Quick Guide clicked")}
+            onLogout={() => {
+              console.log("Logout clicked");
+              alert("Logout functionality would be implemented here");
+            }}
+            right={
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  "& .MuiIconButton-root svg": { fontSize: 28 },
+                }}
+              >
+                <ActivityNotifications onNavigate={navigate} />
+              </Box>
+            }
+            maxWidth={maxWidthConfig}
+          >
+            <ErrorBoundary>
+              <AppletRouter defaultComponent={AppRoutes} />
+            </ErrorBoundary>
+          </AppShell.Layout>
       </ThemeProvider>
     </QueryClientProvider>
   );

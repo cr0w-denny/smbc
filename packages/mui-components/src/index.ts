@@ -133,3 +133,7 @@ export type { RelatedNewsProps, NewsItem } from "./RelatedNews";
 const getScrollbarStyles = () => ({});
 export const darkScrollbarStyles = getScrollbarStyles();
 export const lightScrollbarStyles = getScrollbarStyles();
+
+// BackgroundEffect
+export { BackgroundEffect } from "./BackgroundEffect";
+export type { BackgroundEffectProps } from "./BackgroundEffect";

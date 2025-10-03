@@ -79,6 +79,7 @@ const appletDefinitions = [
       path: "/events",
       icon: Dashboard,
       permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
+      toolbarMode: "dark",
     },
   },
   {
@@ -89,6 +90,7 @@ const appletDefinitions = [
       path: "/events/detail",
       icon: Dashboard,
       permissions: [ewiEventDetailsApplet.permissions.VIEW_EVENT_DETAILS],
+      toolbarMode: "dark",
     },
   },
   {
@@ -99,6 +101,7 @@ const appletDefinitions = [
       path: "/obligors",
       icon: Dashboard,
       permissions: [ewiObligorApplet.permissions.VIEW_OBLIGORS],
+      toolbarMode: "dark",
     },
   },
   {

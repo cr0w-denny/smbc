@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import { Width } from "../../Width";
 
 export interface ContentProps {
   children: React.ReactNode;
@@ -100,7 +101,7 @@ export const Content: React.FC<ContentProps> = ({ children, error }) => {
         minHeight: "100%",
       }}
     >
-      {content}
+      <Width>{content}</Width>
     </Box>
   );
 };

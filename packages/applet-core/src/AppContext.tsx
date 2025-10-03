@@ -14,6 +14,7 @@ import {
   AppletMount,
   createRoleUtilities,
 } from "./types";
+import { getCurrentApplet } from "./utils/applet-utils";
 
 interface AppContextValue {
   state: AppState;
@@ -26,6 +27,7 @@ interface AppContextValue {
     setUserRoles: (roles: string[]) => void;
     setMswStatus: (status: MswStatus) => void;
   };
+  getConfig: <T = Record<string, any>>() => T;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -95,6 +97,11 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
     setState((prev: AppState) => ({ ...prev, mswStatus }));
   }, []);
 
+  const getConfig = useCallback(<T = Record<string, any>>(): T => {
+    const currentPath = window.location.hash.slice(1) || "/";
+    const currentApplet = getCurrentApplet(currentPath, applets);
+    return (currentApplet?.config || {}) as T;
+  }, [applets]);
 
   const contextValue: AppContextValue = {
     state,
@@ -107,6 +114,7 @@ export const AppletProvider: React.FC<AppletProviderProps> = ({
       setUserRoles,
       setMswStatus,
     },
+    getConfig,
   };
 
   return (
@@ -130,4 +138,10 @@ export const useApplets = (): AppletMount[] => {
     throw new Error("useApplets must be used within an AppletProvider");
   }
   return context.applets;
+};
+
+// Hook to get current applet config
+export const useAppletConfig = <T = Record<string, any>>(): T => {
+  const { getConfig } = useAppletCore();
+  return getConfig<T>();
 };

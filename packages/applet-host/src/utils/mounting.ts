@@ -60,6 +60,7 @@ export function mountApplet(
     apiBaseUrl?: string;
     filterable?: boolean;
     packageName?: string | false;
+    [key: string]: any; // Allow additional config properties
   },
   servers?: Array<{ url: string; description?: string }>,
 ): AppletMount {
@@ -89,6 +90,9 @@ export function mountApplet(
 
   const finalPackageName = config.packageName ?? `@smbc/${config.id}-mui`;
 
+  // Extract known mount properties
+  const { id, label, path, icon, permissions, apiBaseUrl, filterable, packageName, ...additionalConfig } = config;
+
   return {
     id: config.id,
     label: config.label,
@@ -97,6 +101,7 @@ export function mountApplet(
     packageName: finalPackageName,
     filterable: config.filterable,
     getHostNavigation: applet.getHostNavigation,
+    config: additionalConfig, // Pass through any additional config properties
     routes: [
       {
         path: config.path,

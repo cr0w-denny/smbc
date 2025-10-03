@@ -318,7 +318,7 @@
   --ui-tableRow-borderColor: var(--color-neutral-gray200);
   --ui-tableRow-borderWidth: 1px;
   --ui-tableRow-borderStyle: solid;
-  --ui-tableRow-on-hover-background: var(--color-neutral-gray100);
+  --ui-tableRow-on-hover-background: #F6F5F5;
   --ui-tableRow-on-selected-background: #EDECEC;
   --ui-chip-borderRadius: 16px;
   --ui-chip-fontSize: 12px;
@@ -340,7 +340,7 @@
   --ui-cardHeader-color: #486C94;
   --ui-cardHeader-fontSize: 18px;
   --ui-cardHeader-fontFamily: Roboto, sans-serif;
-  --ui-cardHeader-fontWeight: 400;
+  --ui-cardHeader-fontWeight: 500;
   --ui-cardHeader-padding: 0 0 16px 0;
   --ui-scrollbar-width: 8px;
   --ui-scrollbarTrack-background: var(--color-neutral-gray100);

@@ -1,10 +1,11 @@
 import React, { useRef, useLayoutEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
+import { BackgroundEffect } from "../../BackgroundEffect";
+import { Width } from "../../Width";
 
 export interface ToolbarProps {
   children: React.ReactNode;
-  variant?: "default" | "extended";
-  darkMode?: boolean;
+  mode?: "light" | "dark";
 }
 
 /**
@@ -16,11 +17,8 @@ export interface ToolbarProps {
  * - `--appshell-header-height`: Top offset (default: 104px)
  * - `--appshell-left-offset`: Left offset for sidebars (default: 0px)
  */
-export const Toolbar: React.FC<ToolbarProps> = ({
-  children,
-  variant = "default",
-  darkMode = false,
-}) => {
+export const Toolbar: React.FC<ToolbarProps> = ({ children, mode = "light" }) => {
+  const theme = useTheme();
   const toolbarRef = useRef<HTMLDivElement>(null);
 
   // Calculate and set toolbar height as CSS custom property
@@ -34,37 +32,37 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     }
   });
 
+  const shouldRenderBackdrop = mode === "dark" && theme.palette.mode === "light";
+
   return (
     <>
-      {/* Background extension for light mode */}
-      {variant === "extended" && !darkMode && (
-        <Box
+      {shouldRenderBackdrop && (
+        <BackgroundEffect
+          width="100%"
+          height="200px"
           sx={{
             position: "fixed",
             top: "var(--appshell-header-height, 104px)",
-            left: "var(--appshell-left-offset, 0px)",
-            right: 0,
-            height: "200px", // Extend below toolbar
+            left: 0,
+            transform: "none",
             backgroundColor: "#232B2F",
-            zIndex: -1, // Behind everything else
           }}
         />
       )}
 
-      {/* Main toolbar container */}
       <Box
         ref={toolbarRef}
-        className={`AppShell-toolbar AppShell-toolbar--${variant}`}
+        className="AppShell-toolbar"
         sx={{
           position: "fixed",
           top: "var(--appshell-header-height, 104px)",
           left: "var(--appshell-left-offset, 0px)",
           right: 0,
-          zIndex: 1002, // Above background
+          zIndex: 1002,
           py: 2,
         }}
       >
-        {children}
+        <Width>{children}</Width>
       </Box>
     </>
   );

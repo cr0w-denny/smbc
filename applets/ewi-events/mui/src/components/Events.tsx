@@ -6,7 +6,6 @@ import {
   AppShell,
   Card,
   StatusChip,
-  Width,
   ActionMenu,
   ActionMenuItem,
 } from "@smbc/mui-components";
@@ -14,7 +13,7 @@ import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import {
   useHashNavigation,
   useApiClient,
-  useFeatureFlag,
+  useAppletConfig,
 } from "@smbc/applet-core";
 import { ui, color } from "@smbc/ui-core";
 import { FilterBar } from "./FilterBar";
@@ -145,7 +144,10 @@ const StatusCellRenderer = (params: any) => {
           width: "160px",
           transition: "none !important",
           ".ag-row-hover &": {
-            backgroundColor: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF !important",
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(255, 255, 255, 0.08)"
+                : "#FFFFFF !important",
           },
           "& .MuiChip-label": {
             px: 1.5,
@@ -170,7 +172,10 @@ const StatusCellRenderer = (params: any) => {
         width: "160px",
         transition: "none !important",
         ".ag-row-hover &": {
-          backgroundColor: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF !important",
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? "rgba(255, 255, 255, 0.08)"
+              : "#FFFFFF !important",
         },
         "& .MuiChip-label": {
           px: 1.5,
@@ -242,7 +247,7 @@ interface EventsProps {
 
 export const Events: React.FC<EventsProps> = () => {
   const gridRef = React.useRef<AgGridReact>(null);
-  const isDarkMode = useFeatureFlag<boolean>("darkMode") || false;
+  const { toolbarMode } = useAppletConfig();
 
   const autoDefaults = {
     status: "",
@@ -566,13 +571,12 @@ export const Events: React.FC<EventsProps> = () => {
 
   return (
     <AppShell.Page>
-      <AppShell.Toolbar darkMode={isDarkMode} variant="extended">
-        <Width>{toolbar}</Width>
+      <AppShell.Toolbar mode={toolbarMode}>
+        {toolbar}
       </AppShell.Toolbar>
 
       <AppShell.Content>
-        <Width>
-          <Card
+        <Card
             header={
               <ActionBar
                 values={autoParams}
@@ -678,7 +682,6 @@ export const Events: React.FC<EventsProps> = () => {
               )}
             </AgGridTheme>
           </Card>
-        </Width>
       </AppShell.Content>
     </AppShell.Page>
   );
