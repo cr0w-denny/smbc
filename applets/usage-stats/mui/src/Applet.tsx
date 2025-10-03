@@ -38,10 +38,12 @@ export const Applet: React.FC<AppletProps> = ({ mountPath: _mountPath }) => {
     autoParams: filters,
     setAutoParams: setFilters,
   } = useHashNavigation<UsageFilters>({
-    start_date: "2025-01-01",
-    end_date: "2025-01-01",
-    group: "UI" as "UI" | "USER" | "EXCEPTION",
-    show_sub: false,
+    autoParams: {
+      start_date: "2025-01-01",
+      end_date: "2025-01-01",
+      group: "UI" as "UI" | "USER" | "EXCEPTION",
+      show_sub: false,
+    }
   });
 
   // Get current environment to force remount when it changes

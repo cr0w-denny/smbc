@@ -11,6 +11,10 @@ export interface ToolbarProps {
  * Fixed positioned toolbar for AppShell-based applications
  * Positioned relative to AppShell's header
  * Automatically communicates its height to following Content elements via CSS custom property
+ *
+ * Respects CSS custom properties:
+ * - `--appshell-header-height`: Top offset (default: 104px)
+ * - `--appshell-left-offset`: Left offset for sidebars (default: 0px)
  */
 export const Toolbar: React.FC<ToolbarProps> = ({
   children,
@@ -38,7 +42,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           sx={{
             position: "fixed",
             top: "var(--appshell-header-height, 104px)",
-            left: 0,
+            left: "var(--appshell-left-offset, 0px)",
             right: 0,
             height: "200px", // Extend below toolbar
             backgroundColor: "#232B2F",
@@ -54,7 +58,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         sx={{
           position: "fixed",
           top: "var(--appshell-header-height, 104px)",
-          left: 0,
+          left: "var(--appshell-left-offset, 0px)",
           right: 0,
           zIndex: 1002, // Above background
           py: 2,

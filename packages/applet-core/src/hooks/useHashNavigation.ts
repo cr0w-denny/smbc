@@ -2,9 +2,14 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { createFieldTransformer } from "@smbc/ui-core";
 
 interface UseHashNavigationOptions {
+  /** Parameters that sync immediately to URL */
+  autoParams?: Record<string, any>;
+  /** Parameters for draft/apply pattern */
+  draftParams?: Record<string, any>;
+  /** Namespace for URL parameters */
   namespace?: string;
+  /** Mount path for scoped navigation */
   mountPath?: string;
-  autoApply?: boolean; // true = immediate sync, false = draft + apply pattern
 }
 
 /**
@@ -108,26 +113,32 @@ function updateHash(
 /**
  * Hash navigation hook with automatic type transformations
  *
- * @param autoDefaults - Parameters that sync immediately to URL (first param)
- * @param draftDefaults - Parameters for draft/apply pattern (second param)
- * @param options - Configuration options
- *
  * @example
  * // Simple usage (auto-sync):
- * const { autoParams, setAutoParams } = useHashNavigation({ filter: "" }, {})
+ * const { autoParams, setAutoParams } = useHashNavigation({
+ *   autoParams: { filter: "" }
+ * })
  *
  * // Draft/apply pattern:
- * const { params, setParams, applyParams } = useHashNavigation({}, { filter: "" })
+ * const { params, setParams, applyParams } = useHashNavigation({
+ *   draftParams: { filter: "" }
+ * })
+ *
+ * // With mountPath:
+ * const { path, navigate } = useHashNavigation({ mountPath: '/hello' })
  */
 export function useHashNavigation<
   TAutoParams extends Record<string, any> = {},
   TDraftParams extends Record<string, any> = {}
 >(
-  autoDefaults: Record<string, any> = {},
-  draftDefaults: Record<string, any> = {},
   options: UseHashNavigationOptions = {}
 ) {
-  const { namespace, mountPath } = options;
+  const {
+    autoParams: autoDefaults = {},
+    draftParams: draftDefaults = {},
+    namespace,
+    mountPath
+  } = options;
 
   // Combine defaults for transformations and parsing
   const allDefaults = useMemo(() => ({ ...autoDefaults, ...draftDefaults }), [autoDefaults, draftDefaults]);

@@ -59,9 +59,7 @@ export default function FilterDemoApplet() {
   const [localFilters, setLocalFilters] = useState(filterSpec.initialValues);
 
   // Use hash navigation for URL synchronization
-  const urlState = useHashNavigation({
-    defaultParams: filterSpec.initialValues,
-  });
+  const urlState = useHashNavigation({ autoParams: filterSpec.initialValues });
 
   // Handle filter changes with controlled pattern
   const handleFiltersChange = useCallback(
@@ -70,11 +68,11 @@ export default function FilterDemoApplet() {
       setLocalFilters(newFilters);
 
       // Update URL to persist filter state
-      if (urlState.setParams) {
-        urlState.setParams((prev) => ({ ...prev, ...newFilters }));
+      if (urlState.setAutoParams) {
+        urlState.setAutoParams((prev) => ({ ...prev, ...newFilters }));
       }
     },
-    [urlState.setParams],
+    [urlState.setAutoParams],
   );
 
   return (

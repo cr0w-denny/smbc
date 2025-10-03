@@ -75,6 +75,10 @@ class ErrorBoundary extends React.Component<
  * Main content area for AppShell-based applications.
  * Handles AppShell spacing offsets and provides error boundary protection.
  * Automatically reads toolbar height from CSS custom property set by AppShell.Toolbar.
+ *
+ * CSS Variables:
+ * - `--appshell-content-offset`: Top offset for content (default: header height)
+ * - `--appshell-toolbar-height`: Toolbar height (auto-calculated)
  */
 export const Content: React.FC<ContentProps> = ({ children, error }) => {
   const content = error ? (
@@ -91,7 +95,7 @@ export const Content: React.FC<ContentProps> = ({ children, error }) => {
       sx={{
         // Account for fixed header and toolbar above using CSS custom properties
         paddingTop:
-          "calc(var(--appshell-header-height, 104px) + var(--appshell-toolbar-height, 0px) + 16px)",
+          "calc(var(--appshell-content-offset, var(--appshell-header-height, 104px)) + var(--appshell-toolbar-height, 0px) + 16px)",
         paddingBottom: 3,
         minHeight: "100%",
       }}

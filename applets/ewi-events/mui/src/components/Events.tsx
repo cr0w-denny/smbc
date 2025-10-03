@@ -268,10 +268,10 @@ export const Events: React.FC<EventsProps> = () => {
     setParams,
     applyParams,
     hasChanges,
-  } = useHashNavigation(
-    autoDefaults, // Filter chips (auto-applied)
-    draftDefaults, // Server filters (draft/apply)
-  );
+  } = useHashNavigation({
+    autoParams: autoDefaults, // Filter chips (auto-applied)
+    draftParams: draftDefaults, // Server filters (draft/apply)
+  });
 
   const [selectedRows, setSelectedRows] = useState<Event[]>([]);
 

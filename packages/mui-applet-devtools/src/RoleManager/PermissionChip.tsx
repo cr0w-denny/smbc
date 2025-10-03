@@ -23,6 +23,7 @@ export function PermissionChip({ permission }: PermissionChipProps) {
         width: "100%",
         fontStyle: isNoPermissions ? "italic" : "normal",
         opacity: isNoPermissions ? 0.7 : 1,
+        transition: "none !important",
         "& .MuiChip-label": {
           textAlign: "center",
           overflow: "hidden",

@@ -385,6 +385,26 @@ function AppWithThemeProvider(props: MuiHostAppProps) {
     );
   }, [isDarkMode]);
 
+  // Set AppShell CSS variables for Toolbar and Content positioning
+  React.useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--appshell-left-offset",
+      `${props.drawerWidth || 240}px`,
+    );
+    // HostAppBar is 64px - Toolbar (position: fixed) positions below it
+    document.documentElement.style.setProperty(
+      "--appshell-header-height",
+      "64px",
+    );
+    // Content offset 0 since MuiAppletRouter already has paddingTop for HostAppBar
+    document.documentElement.style.setProperty(
+      "--appshell-content-offset",
+      "0px",
+    );
+    // Width override - use full width instead of responsive breakpoints
+    document.documentElement.style.setProperty("--width-max", "96%");
+  }, [props.drawerWidth]);
+
   // Create user with calculated permissions
   const userWithPermissions = {
     ...props.demoUser,

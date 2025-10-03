@@ -133,34 +133,34 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
   }, [enableUrlSync, defaultFilters, defaultPagination]);
 
   // Get initial state from URL on mount only
-  const urlState = useHashNavigation({}, stableDefaultParams);
+  const urlState = useHashNavigation({ autoParams: stableDefaultParams });
 
   // Initialize local state from URL params or defaults (mount only)
   const [localFilters, setLocalFilters] = React.useState(() => {
     if (!enableUrlSync) return defaultFilters;
-    const { page, pageSize, ...urlFilters } = urlState.params as any;
+    const { page, pageSize, ...urlFilters } = urlState.autoParams as any;
     return { ...defaultFilters, ...urlFilters };
   });
 
   const [localPagination, setLocalPagination] = React.useState(() => {
     if (!enableUrlSync) return defaultPagination;
-    return { 
-      page: (urlState.params as any).page || defaultPagination.page,
-      pageSize: (urlState.params as any).pageSize || defaultPagination.pageSize 
+    return {
+      page: (urlState.autoParams as any).page || defaultPagination.page,
+      pageSize: (urlState.autoParams as any).pageSize || defaultPagination.pageSize
     };
   });
 
   // Wrap setters to sync state changes TO url (not FROM url)
   const setFiltersWithUrlSync = React.useCallback((filters: any) => {
     setLocalFilters(filters);
-    if (enableUrlSync && urlState.setParams) {
-      urlState.setParams((prev) => ({ ...prev, ...filters }));
+    if (enableUrlSync && urlState.setAutoParams) {
+      urlState.setAutoParams((prev) => ({ ...prev, ...filters }));
     }
-  }, [enableUrlSync, urlState.setParams]);
+  }, [enableUrlSync, urlState.setAutoParams]);
 
   const setPaginationWithUrlSync = React.useCallback((paginationUpdateOrUpdater: any) => {
     let newPagination: any;
-    
+
     if (typeof paginationUpdateOrUpdater === 'function') {
       setLocalPagination((prev) => {
         newPagination = paginationUpdateOrUpdater(prev);
@@ -171,10 +171,10 @@ export function MuiDataViewApplet<T extends Record<string, any>>({
       setLocalPagination(newPagination);
     }
 
-    if (enableUrlSync && urlState.setParams) {
-      urlState.setParams((prev) => ({ ...prev, ...newPagination }));
+    if (enableUrlSync && urlState.setAutoParams) {
+      urlState.setAutoParams((prev) => ({ ...prev, ...newPagination }));
     }
-  }, [enableUrlSync, urlState.setParams]);
+  }, [enableUrlSync, urlState.setAutoParams]);
 
   // State management: local state is source of truth
   const filterState = React.useMemo(() => ({

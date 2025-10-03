@@ -20,7 +20,7 @@ import { useHashNavigation } from "@smbc/applet-core";
 
 function MyFilterApplet() {
   const { params: filters, setParams: setFilters } = useHashNavigation({
-    defaultParams: {
+    draftParams: {
       search: "",
       status: "",
       priority: "",
@@ -86,7 +86,7 @@ function MyFilterApplet() {
 
 const LiveDemo: React.FC = () => {
   const { params: filterValues, setParams: setFilterValues } = useHashNavigation({
-    defaultParams: {
+    draftParams: {
       search: "",
       status: "",
       priority: "",

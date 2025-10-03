@@ -186,7 +186,7 @@ export function UserMenu({
             flex: "none",
             "& .MuiListItemText-primary": {
               fontSize: "13px",
-              color: ui.color.brand.primary(darkMode),
+              color: darkMode ? "#3794F5" : "#1E68B4",
             },
           }}
         />
@@ -224,11 +224,11 @@ export function UserMenu({
               sx={{
                 ml: 1,
                 p: 0.5,
-                border: `1px solid ${ui.color.brand.primary(darkMode)}`,
+                border: `1px solid ${darkMode ? "#3794F5" : "#1163CB"}`,
                 borderRadius: "50%",
                 width: 20,
                 height: 20,
-                color: ui.color.brand.primary(darkMode),
+                color: darkMode ? "#3794F5" : "#1163CB",
                 "& .MuiSvgIcon-root": {
                   fontSize: "0.875rem",
                 },

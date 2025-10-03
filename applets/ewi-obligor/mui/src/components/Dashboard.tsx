@@ -124,10 +124,12 @@ const Dashboard: React.FC = () => {
   // Filter state - using auto-applied params (immediate URL sync)
   const { autoParams: params, setAutoParams: setParams } =
     useHashNavigation<ObligorFilters>({
-      obligorName: "",
-      sunId: "",
-      fromDate: "",
-      toDate: "",
+      autoParams: {
+        obligorName: "",
+        sunId: "",
+        fromDate: "",
+        toDate: "",
+      }
     });
 
   // Filter obligors based on search criteria

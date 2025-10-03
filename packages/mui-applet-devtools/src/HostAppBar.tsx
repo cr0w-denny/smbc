@@ -96,6 +96,7 @@ export function HostAppBar({
   return (
     <AppBar
       position="fixed"
+      color={isDarkMode ? "primary" : "default"}
       sx={{
         width: `calc(100% - ${drawerWidth}px)`,
         ml: `${drawerWidth}px`,

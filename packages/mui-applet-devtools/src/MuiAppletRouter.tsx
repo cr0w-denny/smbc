@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Toolbar } from "@mui/material";
+import { Box } from "@mui/material";
 import {
   useHashNavigation,
   useUser,
@@ -110,9 +110,9 @@ export function MuiAppletRouter({
         position: "relative",
         height: "100vh",
         overflow: "auto",
+        paddingTop: "64px", // Account for fixed HostAppBar
       }}
     >
-      <Toolbar />
       {/* Show subtle loading state on initial load if not on root path */}
       {isInitialLoad && path !== "/" ? (
         <Box

@@ -48,11 +48,10 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   const [eventData, setEventData] = useState<EventData | null>(null);
 
   // Extract event ID from URL parameters - only accept id param, ignore others
-  const { params } = useHashNavigation<{}, { id: string }>(
-    {},
-    { id: "" },
-    { mountPath },
-  );
+  const { params } = useHashNavigation<{}, { id: string }>({
+    draftParams: { id: "" },
+    mountPath,
+  });
   const eventId = params.id;
 
   // Debug logging

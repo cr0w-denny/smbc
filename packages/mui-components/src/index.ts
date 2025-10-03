@@ -95,25 +95,9 @@ export type { TabBarProps, TabBarItem } from "./TabBar";
 export { Button } from "./Button";
 export type { ButtonProps } from "./Button";
 
-// Tooltip
-export { Tooltip } from "./Tooltip";
-export type { TooltipProps } from "./Tooltip";
-
 // Chip
 export { Chip } from "./Chip";
 export type { ChipProps } from "./Chip";
-
-// Text (wrapper for MUI Typography)
-export { Text } from "./Text";
-export type { TextProps } from "./Text";
-
-// TextField
-export { TextField } from "./TextField";
-export type { TextFieldProps } from "./TextField";
-
-// Select
-export { Select } from "./Select";
-export type { SelectProps } from "./Select";
 
 // Card
 export { Card } from "./Card";
@@ -123,20 +107,6 @@ export type { CardProps, CardMenuItem } from "./Card";
 export { KeyValueTable } from "./KeyValueTable";
 export type { KV } from "./KeyValueTable";
 export { Table } from "./Table";
-export {
-  Table as TableBase,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "./TableComponents";
-export type {
-  TableProps as TableBaseProps,
-  TableHeadProps,
-  TableBodyProps,
-  TableRowProps,
-  TableCellProps,
-} from "./TableComponents";
 
 // Chip Toggle Group
 export { ChipToggleGroup } from "./ChipToggleGroup";

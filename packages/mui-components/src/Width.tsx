@@ -1,6 +1,5 @@
 import React from "react";
 import { Box } from "@mui/material";
-import { layout } from "@smbc/ui-core";
 
 interface WidthProps {
   children: React.ReactNode;
@@ -9,22 +8,23 @@ interface WidthProps {
 
 /**
  * Width constraint component that applies consistent responsive width limits.
+ *
+ * CSS Variables:
+ * - `--width-max`: Override to ignore responsive breakpoints (e.g., "100%")
+ * - Falls back to `--layout-maxWidth-*` tokens from ui-core
  */
-export const Width: React.FC<WidthProps> = ({
-  children,
-  max = {
-    xs: layout.maxWidth.xs(),
-    sm: layout.maxWidth.sm(),
-    md: layout.maxWidth.md(),
-    lg: layout.maxWidth.lg(),
-    xl: layout.maxWidth.xl(),
-  },
-}) => (
+export const Width: React.FC<WidthProps> = ({ children }) => (
   <Box
     sx={{
-      maxWidth: max,
-      margin: "0 auto",
       width: "100%",
+      maxWidth: {
+        xs: "var(--width-max, var(--layout-maxWidth-xs))",
+        sm: "var(--width-max, var(--layout-maxWidth-sm))",
+        md: "var(--width-max, var(--layout-maxWidth-md))",
+        lg: "var(--width-max, var(--layout-maxWidth-lg))",
+        xl: "var(--width-max, var(--layout-maxWidth-xl))",
+      },
+      margin: "0 auto",
       height: "100%",
     }}
   >
