@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Box, Typography, ThemeProvider } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { darkScrollbarStyles, lightScrollbarStyles, lightTheme, darkTheme } from "@smbc/mui-components";
+import { darkScrollbarStyles, lightScrollbarStyles, createCssVarTheme } from "@smbc/mui-components";
+
+const lightTheme = createCssVarTheme("light");
+const darkTheme = createCssVarTheme("dark");
 
 const ScrollableContainer = styled(Box)<{ variant: 'light' | 'dark' }>(({ variant }) => ({
   height: '300px',

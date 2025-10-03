@@ -462,7 +462,7 @@ const InteractiveDemo: React.FC = () => {
                       Auto Params:
                     </Typography>
                     <Box
-                      sx={{ p: 1, bgcolor: "grey.100", borderRadius: 1, mb: 2 }}
+                      sx={{ p: 1, bgcolor: "background.paper", borderRadius: 1, mb: 2, border: 1, borderColor: "divider" }}
                     >
                       <pre style={{ margin: 0, fontSize: "12px" }}>
                         {JSON.stringify(autoParams, null, 2)}
@@ -474,7 +474,7 @@ const InteractiveDemo: React.FC = () => {
                       Draft Params:
                     </Typography>
                     <Box
-                      sx={{ p: 1, bgcolor: "grey.100", borderRadius: 1, mb: 2 }}
+                      sx={{ p: 1, bgcolor: "background.paper", borderRadius: 1, mb: 2, border: 1, borderColor: "divider" }}
                     >
                       <pre style={{ margin: 0, fontSize: "12px" }}>
                         {JSON.stringify(
@@ -493,7 +493,7 @@ const InteractiveDemo: React.FC = () => {
                     <Typography variant="subtitle2" gutterBottom>
                       Applied Params:
                     </Typography>
-                    <Box sx={{ p: 1, bgcolor: "grey.100", borderRadius: 1 }}>
+                    <Box sx={{ p: 1, bgcolor: "background.paper", borderRadius: 1, border: 1, borderColor: "divider" }}>
                       <pre style={{ margin: 0, fontSize: "12px" }}>
                         {JSON.stringify(
                           appliedParams,
@@ -681,9 +681,11 @@ const InteractiveDemo: React.FC = () => {
                 fontFamily="monospace"
                 sx={{
                   p: 2,
-                  bgcolor: "grey.50",
+                  bgcolor: "background.paper",
                   borderRadius: 1,
                   wordBreak: "break-all",
+                  border: 1,
+                  borderColor: "divider",
                 }}
               >
                 {testUrl}
@@ -703,7 +705,7 @@ const InteractiveDemo: React.FC = () => {
                   <Typography variant="subtitle2" color="primary" gutterBottom>
                     Auto Params (Quick Filters):
                   </Typography>
-                  <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+                  <Box sx={{ p: 2, bgcolor: "background.paper", borderRadius: 1, border: 1, borderColor: "divider" }}>
                     <pre style={{ margin: 0, fontSize: "14px" }}>
                       {JSON.stringify(autoParams, null, 2)}
                     </pre>
@@ -717,7 +719,7 @@ const InteractiveDemo: React.FC = () => {
                   >
                     Draft Params (Server Filters):
                   </Typography>
-                  <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+                  <Box sx={{ p: 2, bgcolor: "background.paper", borderRadius: 1, border: 1, borderColor: "divider" }}>
                     <pre style={{ margin: 0, fontSize: "14px" }}>
                       {JSON.stringify(
                         params,

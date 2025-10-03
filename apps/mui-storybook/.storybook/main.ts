@@ -57,6 +57,7 @@ const config: StorybookConfig = {
         "../../../packages/mui-applet-devtools/src",
       ),
       "@smbc/dataview": path.resolve(__dirname, "../../../packages/dataview/src"),
+      "@smbc/ui-core/tokens.css": path.resolve(__dirname, "../../../packages/ui-core/tokens.css"),
       "@smbc/ui-core": path.resolve(__dirname, "../../../packages/ui-core/src"),
     };
 

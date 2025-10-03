@@ -1,7 +1,10 @@
 import type { Preview } from "@storybook/react";
 import { ThemeProvider, CssBaseline, Box } from "@mui/material";
-import { lightTheme, darkTheme } from "@smbc/mui-components";
+import { createCssVarTheme } from "@smbc/mui-components";
 import { useEffect } from "react";
+
+const lightTheme = createCssVarTheme("light");
+const darkTheme = createCssVarTheme("dark");
 
 const preview: Preview = {
   parameters: {
