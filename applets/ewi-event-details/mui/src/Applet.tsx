@@ -16,6 +16,7 @@ import {
   ActionMenu,
   ActionMenuItem,
   Button,
+  FormFieldProvider,
 } from "@smbc/mui-components";
 import type { TabBarItem } from "@smbc/mui-components";
 import { EventTab } from "./components/EventTab";
@@ -40,7 +41,7 @@ const tabs: TabBarItem[] = [
 ];
 
 export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
-  const { toolbarMode } = useAppletConfig();
+  const { form, toolbar } = useAppletConfig();
   const [activeTab, setActiveTab] = useState("event");
   const [isEditorMaximized, setIsEditorMaximized] = useState(false);
   const [workflowMenuOpen, setWorkflowMenuOpen] = useState(false);
@@ -128,8 +129,9 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   };
 
   return (
-    <AppShell.Page>
-      <AppShell.Toolbar mode={toolbarMode}>
+    <FormFieldProvider config={form}>
+      <AppShell.Page>
+        <AppShell.Toolbar mode={toolbar?.mode}>
         <Box
           sx={{
             display: "flex",
@@ -219,8 +221,9 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
               />
             </Box>
           </Box>
-      </AppShell.Content>
-    </AppShell.Page>
+        </AppShell.Content>
+      </AppShell.Page>
+    </FormFieldProvider>
   );
 };
 

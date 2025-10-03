@@ -68,6 +68,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         name: "start_date",
         type: "date",
         label: "From",
+        labelMode: "overlap",
       },
       {
         name: "end_date",
@@ -78,6 +79,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         name: "workflow",
         type: "select",
         label: "Status",
+        labelMode: "overlap",
         options: [
           { label: "Any Status", value: "" },
           { label: "Subscribed", value: "Subscribed" },

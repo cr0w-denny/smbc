@@ -5,6 +5,7 @@ import {
   Filter,
   RelatedNews,
   AppShell,
+  FormFieldProvider,
 } from "@smbc/mui-components";
 import type { NewsItem } from "@smbc/mui-components";
 import { useHashNavigation, useAppletConfig } from "@smbc/applet-core";
@@ -120,7 +121,7 @@ interface ObligorFilters {
 }
 
 const Dashboard: React.FC = () => {
-  const { toolbarMode } = useAppletConfig();
+  const { form, toolbar } = useAppletConfig();
   // Filter state - using auto-applied params (immediate URL sync)
   const { autoParams: params, setAutoParams: setParams } =
     useHashNavigation<ObligorFilters>({
@@ -191,16 +192,17 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <AppShell.Page>
-      <AppShell.Toolbar mode={toolbarMode}>
-        <Filter
-          spec={filterSpec}
-          values={params}
-          onFiltersChange={handleFilterChange}
-        />
-      </AppShell.Toolbar>
+    <FormFieldProvider config={form}>
+      <AppShell.Page>
+        <AppShell.Toolbar mode={toolbar?.mode}>
+          <Filter
+            spec={filterSpec}
+            values={params}
+            onFiltersChange={handleFilterChange}
+          />
+        </AppShell.Toolbar>
 
-      <AppShell.Content>
+        <AppShell.Content>
           <Box
             sx={{
               display: "flex",
@@ -246,8 +248,9 @@ const Dashboard: React.FC = () => {
               </Box>
             </Box>
           </Box>
-      </AppShell.Content>
-    </AppShell.Page>
+        </AppShell.Content>
+      </AppShell.Page>
+    </FormFieldProvider>
   );
 };
 

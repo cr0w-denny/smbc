@@ -21,6 +21,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({ children, mode = "light" }) =>
   const theme = useTheme();
   const toolbarRef = useRef<HTMLDivElement>(null);
 
+  // Freeze mode on first render to prevent flickering during unmount
+  const frozenModeRef = useRef(mode);
+  if (!frozenModeRef.current) {
+    frozenModeRef.current = mode;
+  }
+
   // Calculate and set toolbar height as CSS custom property
   useLayoutEffect(() => {
     if (toolbarRef.current) {
@@ -32,7 +38,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ children, mode = "light" }) =>
     }
   });
 
-  const shouldRenderBackdrop = mode === "dark" && theme.palette.mode === "light";
+  const shouldRenderBackdrop = frozenModeRef.current === "dark" && theme.palette.mode === "light";
 
   return (
     <>
@@ -40,7 +46,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ children, mode = "light" }) =>
         <BackgroundEffect
           width="100%"
           height="200px"
-          sx={{
+          style={{
             position: "fixed",
             top: "var(--appshell-header-height, 104px)",
             left: 0,

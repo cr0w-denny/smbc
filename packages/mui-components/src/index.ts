@@ -56,6 +56,10 @@ export * from "./theme/utils";
 // App Shell
 export { AppShell } from "./AppShell";
 
+// Form Field Context
+export { FormFieldProvider, useFormField } from "./FormFieldContext";
+export type { FormFieldConfig } from "./FormFieldContext";
+
 // User Menu
 export { UserMenu } from "./UserMenu";
 export type { UserMenuProps, UserRole } from "./UserMenu";

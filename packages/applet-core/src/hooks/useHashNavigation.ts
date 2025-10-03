@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useSyncExternalStore } from "react";
 import { createFieldTransformer } from "@smbc/ui-core";
 
 interface UseHashNavigationOptions {
@@ -177,7 +177,22 @@ export function useHashNavigation<
     };
   }, [namespace, allDefaults, transformer, mountPath, autoDefaults, draftDefaults]);
 
-  const [currentPath, setCurrentPath] = useState(initialState.path);
+  // Use useSyncExternalStore for path to ensure it updates synchronously
+  const currentPath = useSyncExternalStore(
+    useCallback((callback) => {
+      window.addEventListener("hashchange", callback);
+      return () => window.removeEventListener("hashchange", callback);
+    }, []),
+    useCallback(() => {
+      const { path } = parseHash(namespace, allDefaults);
+      const scopedPath = mountPath && path.startsWith(mountPath)
+        ? path.slice(mountPath.length) || "/"
+        : path;
+      return scopedPath;
+    }, [namespace, allDefaults, mountPath]),
+    () => initialState.path // Server snapshot
+  );
+
   const [autoParams, setAutoParams] = useState(initialState.autoParams);
   const [draftParams, setDraftParams] = useState(initialState.draftParams);
   const [appliedDraftParams, setAppliedDraftParams] = useState(initialState.draftParams);
@@ -190,8 +205,6 @@ export function useHashNavigation<
 
   // Navigation function
   const navigate = useCallback((relativePath: string, options?: { clearParams?: boolean }) => {
-    setCurrentPath(relativePath);
-
     // Separate path from query parameters
     const [pathOnly] = relativePath.split('?');
 
@@ -358,18 +371,11 @@ export function useHashNavigation<
     return false;
   }, [draftParams, appliedDraftParams]);
 
-  // Listen for hash changes
+  // Listen for hash changes to update params
   useEffect(() => {
     const handleHashChange = () => {
-      const { path, params: rawParams } = parseHash(namespace, allDefaults);
+      const { params: rawParams } = parseHash(namespace, allDefaults);
       const transformedParams = transformer.ui(rawParams);
-
-      // Handle scoped navigation for mountPath
-      const scopedPath = mountPath && path.startsWith(mountPath)
-        ? path.slice(mountPath.length) || "/"
-        : path;
-
-      setCurrentPath(scopedPath);
 
       // Separate auto and draft params from URL
       const newAutoParams: Record<string, any> = {};
@@ -390,13 +396,12 @@ export function useHashNavigation<
       if (!isInitialized) {
         setDraftParams(newDraftParams);
         setAppliedDraftParams(newDraftParams);
-        setIsInitialized(true);
       }
     };
 
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [namespace, allDefaults, transformer, mountPath, autoDefaults, draftDefaults]);
+  }, [namespace, allDefaults, transformer, autoDefaults, draftDefaults, isInitialized]);
 
   // Return unified interface with both streams
   return {

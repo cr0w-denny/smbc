@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { ui } from "@smbc/ui-core";
+import { useFormField } from "./FormFieldContext";
 
 const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
   return (
@@ -42,6 +43,8 @@ const CustomDropdownIcon = ({ open }: { open?: boolean }) => {
 export interface CustomSelectProps extends Omit<SelectProps, "children"> {
   /** Label for the select field */
   label?: string;
+  /** Label positioning mode - 'contain' keeps label within border, 'overlap' allows floating label to overlap border */
+  labelMode?: "contain" | "overlap";
   /** Props to pass to FormControl */
   formControlProps?: FormControlProps;
   /** Props to pass to InputLabel */
@@ -52,17 +55,25 @@ export interface CustomSelectProps extends Omit<SelectProps, "children"> {
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
   label,
+  labelMode,
   formControlProps,
   inputLabelProps,
   children,
   ...selectProps
 }) => {
   const [open, setOpen] = React.useState(false);
+  const { labelMode: contextLabelMode } = useFormField();
+
+  // Priority: prop > context > default
+  const effectiveLabelMode = labelMode ?? contextLabelMode ?? "contain";
 
   return (
     <FormControl
       {...formControlProps}
-      sx={{ ...formControlProps?.sx, position: "relative" }}
+      sx={{
+        ...formControlProps?.sx,
+        position: "relative",
+      }}
     >
       {label && (
         <InputLabel
@@ -70,13 +81,17 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           shrink={true}
           sx={{
             ...inputLabelProps?.sx,
-            position: "absolute",
-            top: "8px",
-            left: "20px",
-            fontSize: "12px !important",
-            zIndex: 2,
-            pointerEvents: "none",
-            transform: "none",
+            ...(effectiveLabelMode === "contain"
+              ? {
+                  position: "absolute" as const,
+                  top: "8px",
+                  left: "20px",
+                  fontSize: "12px !important",
+                  zIndex: 2,
+                  pointerEvents: "none" as const,
+                  transform: "none",
+                }
+              : {}),
           }}
         >
           {label}
@@ -90,18 +105,22 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         IconComponent={() => null}
         sx={{
           ...selectProps.sx,
-          height: "57px",
+          ...(effectiveLabelMode === "contain" ? { height: "57px" } : {}),
           "& .MuiSelect-select": {
-            padding: "26px 20px 10px 12px",
-            paddingRight: "50px !important",
-            fontSize: "15px",
-            minHeight: "21px",
-            lineHeight: 1.2,
-            height: "55px",
-            boxSizing: "border-box",
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "flex-start",
+            ...(effectiveLabelMode === "contain"
+              ? {
+                  padding: "26px 20px 10px 12px",
+                  paddingRight: "50px !important",
+                  fontSize: "15px",
+                  minHeight: "21px",
+                  lineHeight: 1.2,
+                  height: "55px",
+                  boxSizing: "border-box" as const,
+                  display: "flex",
+                  alignItems: "flex-start" as const,
+                  justifyContent: "flex-start" as const,
+                }
+              : {}),
           },
         }}
         label={undefined}

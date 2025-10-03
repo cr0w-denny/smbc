@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Typography, styled, useTheme } from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "motion/react";
 import { BackgroundEffect } from "./BackgroundEffect";
 
 export interface TabBarItem {
@@ -63,8 +63,8 @@ const TabItem = styled(Box, {
   }),
 );
 
-const ActivePill = styled(motion.div)(() => ({
-  position: "absolute",
+const activePillStyles = {
+  position: "absolute" as const,
   top: "6px",
   left: "6px",
   bottom: "3px",
@@ -73,7 +73,7 @@ const ActivePill = styled(motion.div)(() => ({
   borderRadius: "24px",
   boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
   zIndex: 0,
-}));
+};
 
 const sizeMap = {
   small: {
@@ -124,10 +124,12 @@ export const TabBar: React.FC<TabBarProps> = ({
       const containerRect = container.getBoundingClientRect();
       const activeRect = activeRef.getBoundingClientRect();
 
-      setPillDimensions({
+      const newDimensions = {
         width: activeRect.width,
         x: activeRect.left - containerRect.left,
-      });
+      };
+
+      setPillDimensions(newDimensions);
     }
   }, [activeIndex, items]);
 
@@ -194,9 +196,9 @@ export const TabBar: React.FC<TabBarProps> = ({
         height="90px"
         blur={50}
         fadeEdges={["right"]}
-        sx={
+        style={
           theme.palette.mode === "dark"
-            ? null
+            ? undefined
             : { backgroundColor: "#232B2FCC" }
         }
       />
@@ -209,23 +211,20 @@ export const TabBar: React.FC<TabBarProps> = ({
           ...sx,
         }}
       >
-        <AnimatePresence>
-          {pillDimensions.width > 0 && (
-            <ActivePill
-              key="active-pill"
-              initial={false}
-              animate={{
-                x: pillDimensions.x,
-                width: pillDimensions.width,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 500,
-                damping: 30,
-              }}
-            />
-          )}
-        </AnimatePresence>
+        {pillDimensions.width > 0 && (
+          <motion.div
+            style={activePillStyles}
+            animate={{
+              x: pillDimensions.x,
+              width: pillDimensions.width,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 700,
+              damping: 30,
+            }}
+          />
+        )}
 
         {items.map((item, index) => (
           <TabItem

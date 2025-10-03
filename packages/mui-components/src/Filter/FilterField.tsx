@@ -99,6 +99,7 @@ export const FilterField: React.FC<FilterFieldProps> = ({
         <Box sx={{ minWidth: field.minWidth }}>
           <CustomSelect
             label={field.label}
+            labelMode={field.labelMode}
             value={isMultiple ? (value || []) : (value === undefined ? "" : value)}
             onChange={(e) => {
               const newValue = e.target.value;

@@ -27,19 +27,19 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
 
   const renderContent = () => {
     if (path === "/introduction" && canAccess(path)) {
-      return <Introduction />;
+      return <Introduction key={path} />;
     }
 
     if (path === "/develop" && canAccess(path)) {
-      return <Develop />;
+      return <Develop key={path} />;
     }
 
     if (path === "/deploy" && canAccess(path)) {
-      return <Deploy />;
+      return <Deploy key={path} />;
     }
 
     if (path === "/integrate" && canAccess(path)) {
-      return <Integrate />;
+      return <Integrate key={path} />;
     }
 
     if (currentRoute && !canAccess(path)) {
@@ -56,7 +56,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
     }
 
     // Default to Introduction page when no specific route is selected
-    return <Introduction />;
+    return <Introduction key="/introduction" />;
   };
 
   return <Box>{renderContent()}</Box>;

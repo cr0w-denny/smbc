@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "motion/react";
 import { NavigationItem } from "../types";
 import { TreeDropdownMenu } from "./TreeDropdownMenu";
 import { UserMenu, UserRole } from "../../UserMenu";
@@ -110,7 +110,9 @@ export const TopNav: React.FC<TopNavProps> = ({
         return true;
       }
       if (item.type === "dropdown" && item.items) {
-        return item.items.some((subItem) => subItem.href && currentPath.startsWith(subItem.href));
+        return item.items.some(
+          (subItem) => subItem.href && currentPath.startsWith(subItem.href),
+        );
       }
       return false;
     });
@@ -123,10 +125,12 @@ export const TopNav: React.FC<TopNavProps> = ({
         const containerRect = container.getBoundingClientRect();
         const activeRect = activeRef.getBoundingClientRect();
 
-        setIndicatorDimensions({
+        const newDimensions = {
           width: activeRect.width,
           x: activeRect.left - containerRect.left,
-        });
+        };
+
+        setIndicatorDimensions(newDimensions);
       }
     } else {
       setIndicatorDimensions(null);
@@ -249,7 +253,8 @@ export const TopNav: React.FC<TopNavProps> = ({
                       },
                     },
                     "& .MuiSvgIcon-root": {
-                      color: theme.palette.mode === "dark" ? "#98A4B9" : "#5A6A7A",
+                      color:
+                        theme.palette.mode === "dark" ? "#98A4B9" : "#5A6A7A",
                     },
                     "& .menu-item-text": {
                       borderRadius: "4px",
@@ -391,36 +396,33 @@ export const TopNav: React.FC<TopNavProps> = ({
               }}
             >
               {centerNavItems.map(renderNavItem)}
-              <AnimatePresence>
-                {indicatorDimensions && (
-                  <Box
-                    component={motion.div}
-                    initial={false}
-                    animate={{
-                      x: indicatorDimensions.x,
-                      width: indicatorDimensions.width,
-                    }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 25,
-                    }}
-                    className="nav-active-indicator"
-                    sx={{
-                      position: "absolute",
-                      bottom: -8,
-                      left: 0,
-                      height: 5,
-                      background:
-                        theme.palette.mode === "dark"
-                          ? "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)"
-                          : "#73ABFB",
-                      borderRadius: "2px 2px 0 0",
-                      pointerEvents: "none",
-                    }}
-                  />
-                )}
-              </AnimatePresence>
+              {indicatorDimensions && (
+                <Box
+                  component={motion.div}
+                  animate={{
+                    x: indicatorDimensions.x,
+                    width: indicatorDimensions.width,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 25,
+                  }}
+                  className="nav-active-indicator"
+                  sx={{
+                    position: "absolute",
+                    bottom: -8,
+                    left: 0,
+                    height: 5,
+                    background:
+                      theme.palette.mode === "dark"
+                        ? "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)"
+                        : "#73ABFB",
+                    borderRadius: "2px 2px 0 0",
+                    pointerEvents: "none",
+                  }}
+                />
+              )}
             </Box>
           </Box>
 
@@ -470,7 +472,9 @@ export const TopNav: React.FC<TopNavProps> = ({
                     fontSize: 32,
                     color: isImpersonating
                       ? color.brand.freshGreen
-                      : theme.palette.mode === "dark" ? "#98A4B9" : "#D0D1D2",
+                      : theme.palette.mode === "dark"
+                      ? "#98A4B9"
+                      : "#D0D1D2",
                   }}
                 />
               )}

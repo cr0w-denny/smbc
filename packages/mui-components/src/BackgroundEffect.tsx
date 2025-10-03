@@ -1,5 +1,4 @@
 import React from "react";
-import { Box } from "@mui/material";
 
 export interface BackgroundEffectProps {
   /** Blur intensity in pixels (0 or undefined = no blur) */
@@ -17,7 +16,7 @@ export interface BackgroundEffectProps {
   /** Show red debug box */
   debug?: boolean;
   /** Additional styles (backgroundColor, etc) */
-  sx?: any;
+  style?: React.CSSProperties;
 }
 
 export const BackgroundEffect: React.FC<BackgroundEffectProps> = ({
@@ -28,7 +27,7 @@ export const BackgroundEffect: React.FC<BackgroundEffectProps> = ({
   fadeStart = 90,
   fadeEnd = 100,
   debug = false,
-  sx,
+  style,
 }) => {
   const hasBlur = blur && blur > 0;
 
@@ -45,8 +44,8 @@ export const BackgroundEffect: React.FC<BackgroundEffectProps> = ({
   const maskGradient = generateMaskGradient();
 
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         position: "absolute",
         top: "50%",
         left: "50%",
@@ -60,7 +59,8 @@ export const BackgroundEffect: React.FC<BackgroundEffectProps> = ({
         maskImage: maskGradient ? maskGradient : undefined,
         zIndex: -1,
         pointerEvents: "none",
-        ...sx,
+        transition: "none",
+        ...style,
       }}
     />
   );

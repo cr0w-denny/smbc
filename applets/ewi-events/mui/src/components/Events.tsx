@@ -8,6 +8,7 @@ import {
   StatusChip,
   ActionMenu,
   ActionMenuItem,
+  FormFieldProvider,
 } from "@smbc/mui-components";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import {
@@ -247,7 +248,7 @@ interface EventsProps {
 
 export const Events: React.FC<EventsProps> = () => {
   const gridRef = React.useRef<AgGridReact>(null);
-  const { toolbarMode } = useAppletConfig();
+  const { form, toolbar } = useAppletConfig();
 
   const autoDefaults = {
     status: "",
@@ -546,19 +547,6 @@ export const Events: React.FC<EventsProps> = () => {
     });
   }, [events, (autoParams as any).categories, (autoParams as any).statuses]);
 
-  const toolbar = (
-    <>
-      <FilterBar
-        values={params}
-        onValuesChange={setParams}
-        onApply={handleApplyFilters}
-        filtersChanged={hasChanges}
-        workflowActions={workflowActions}
-        selectedItems={selectedRows}
-      />
-    </>
-  );
-
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
@@ -570,12 +558,20 @@ export const Events: React.FC<EventsProps> = () => {
   }
 
   return (
-    <AppShell.Page>
-      <AppShell.Toolbar mode={toolbarMode}>
-        {toolbar}
-      </AppShell.Toolbar>
+    <FormFieldProvider config={form}>
+      <AppShell.Page>
+        <AppShell.Toolbar mode={toolbar?.mode}>
+          <FilterBar
+            values={params}
+            onValuesChange={setParams}
+            onApply={handleApplyFilters}
+            filtersChanged={hasChanges}
+            workflowActions={workflowActions}
+            selectedItems={selectedRows}
+          />
+        </AppShell.Toolbar>
 
-      <AppShell.Content>
+        <AppShell.Content>
         <Card
             header={
               <ActionBar
@@ -682,7 +678,8 @@ export const Events: React.FC<EventsProps> = () => {
               )}
             </AgGridTheme>
           </Card>
-      </AppShell.Content>
-    </AppShell.Page>
+        </AppShell.Content>
+      </AppShell.Page>
+    </FormFieldProvider>
   );
 };

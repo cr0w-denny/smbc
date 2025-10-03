@@ -190,6 +190,17 @@ export interface ApiUrlMapping {
   environments?: Array<'development' | 'production' | 'test'>;
 }
 
+// Standard applet UI configuration types (optional, for convenience)
+export interface AppletFormConfig {
+  /** Label positioning mode for form fields */
+  labelMode?: "contain" | "overlap";
+}
+
+export interface AppletToolbarConfig {
+  /** Toolbar appearance mode */
+  mode?: "light" | "dark";
+}
+
 export interface AppletMount {
   id: string;
   label: string;

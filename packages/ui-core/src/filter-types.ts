@@ -26,6 +26,8 @@ export interface FilterFieldConfig {
   fullWidth?: boolean;
   size?: "small" | "medium";
   minWidth?: number | string;
+  /** Label positioning mode - 'contain' keeps label within border, 'overlap' allows floating label to overlap border */
+  labelMode?: "contain" | "overlap";
   // Simple validation properties
   min?: number;
   max?: number;

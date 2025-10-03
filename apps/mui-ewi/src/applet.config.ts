@@ -69,6 +69,12 @@ const apiOverrides = createApiOverrides([
   },
 ]);
 
+// Common UI configurations
+const darkToolbarConfig = {
+  form: { labelMode: "contain" as const },
+  toolbar: { mode: "dark" as const },
+};
+
 // Applet definitions
 const appletDefinitions = [
   {
@@ -79,7 +85,7 @@ const appletDefinitions = [
       path: "/events",
       icon: Dashboard,
       permissions: [ewiEventsApplet.permissions.VIEW_EVENTS],
-      toolbarMode: "dark",
+      ...darkToolbarConfig,
     },
   },
   {
@@ -90,7 +96,7 @@ const appletDefinitions = [
       path: "/events/detail",
       icon: Dashboard,
       permissions: [ewiEventDetailsApplet.permissions.VIEW_EVENT_DETAILS],
-      toolbarMode: "dark",
+      ...darkToolbarConfig,
     },
   },
   {
@@ -101,7 +107,7 @@ const appletDefinitions = [
       path: "/obligors",
       icon: Dashboard,
       permissions: [ewiObligorApplet.permissions.VIEW_OBLIGORS],
-      toolbarMode: "dark",
+      ...darkToolbarConfig,
     },
   },
   {
