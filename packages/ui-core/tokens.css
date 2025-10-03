@@ -328,7 +328,7 @@
   --ui-chip-classes-default-background: var(--color-neutral-gray200);
   --ui-chip-classes-default-color: var(--color-neutral-gray800);
   --ui-navigation-background: #141B1D;
-  --ui-navigation-color: #ffffff;
+  --ui-navigation-color: #000000;
   --ui-navigation-on-hover-background: rgba(255, 255, 255, 0.08);
   --ui-navigation-on-active-background: rgba(255, 255, 255, 0.15);
   --ui-card-background: #ffffff;

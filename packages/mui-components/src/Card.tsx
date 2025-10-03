@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Card as MuiCard,
-  CardContent,
-  Box,
-  Typography,
-} from "@mui/material";
+import { Card as MuiCard, CardContent, Box, Typography } from "@mui/material";
 import { ui } from "@smbc/ui-core";
 import { ActionMenu, ActionMenuItem } from "./ActionMenu";
 
@@ -125,7 +120,7 @@ export const Card: React.FC<CardProps> = ({
                     menuItems={menuItems}
                     onMenuOpen={onMenuOpen}
                     onMenuClose={onMenuClose}
-                    sx={{ mr: "-20px", mt: -0.5 }}
+                    sx={{ mr: "-10px", mt: -0.5 }}
                   />
                 )}
               </Box>
@@ -141,6 +136,7 @@ export const Card: React.FC<CardProps> = ({
       <CardContent
         sx={{
           p: 2,
+          pr: 3,
           pb: 4,
           height: "100%",
           "&:last-child": {

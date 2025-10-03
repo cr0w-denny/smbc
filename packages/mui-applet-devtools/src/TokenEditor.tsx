@@ -994,11 +994,11 @@ const TokenEditor: React.FC = () => {
     extractExistingContexts(),
   );
 
-  // Section expansion states
+  // Section expansion states - only tokens expanded by default
   const [expandedSections, setExpandedSections] = useState({
     tokens: true,
-    contexts: true,
-    palettes: true,
+    contexts: false,
+    palettes: false,
   });
 
   // Get color tokens from ui-core
@@ -1028,10 +1028,12 @@ const TokenEditor: React.FC = () => {
   }, []);
 
   const handleSectionToggle = (section: keyof typeof expandedSections) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
+    setExpandedSections((prev) => {
+      // Close all sections first
+      const allClosed = { tokens: false, contexts: false, palettes: false };
+      // Toggle the clicked section (if it was closed, open it; if open, close it)
+      return { ...allClosed, [section]: !prev[section] };
+    });
   };
 
   // Get available component names from ui namespace
@@ -1395,7 +1397,6 @@ const TokenEditor: React.FC = () => {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            bgcolor: "rgba(0, 0, 0, 0.15)",
           }}
         >
           {/* Search */}
@@ -1723,7 +1724,7 @@ const TokenEditor: React.FC = () => {
                     alignItems: "center",
                     justifyContent: "space-between",
                     px: 2,
-                    py: 1,
+                    py: 1.5,
                   }}
                 >
                   {/* States filter */}

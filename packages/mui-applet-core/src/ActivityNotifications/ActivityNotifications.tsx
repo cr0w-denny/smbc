@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogActions,
   DialogContentText,
+  useTheme,
 } from "@mui/material";
 import {
   Notifications as NotificationsIcon,
@@ -130,6 +131,7 @@ export function ActivityNotifications({
   onNavigate,
   enableTransactions = false,
 }: ActivityNotificationsProps) {
+  const theme = useTheme();
   const { activities, unviewedCount, markAsViewed, clearAll } = useActivity();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [activeTab, setActiveTab] = useState(0);
@@ -217,9 +219,9 @@ export function ActivityNotifications({
   return (
     <>
       <IconButton
-        color="inherit"
         onClick={handleClick}
         aria-label="Activity notifications"
+        sx={{ color: theme.palette.mode === "dark" ? "#98A4B9" : "#D0D1D2" }}
       >
         <Badge badgeContent={totalBadgeCount} color="error">
           <NotificationsIcon />

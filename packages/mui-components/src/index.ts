@@ -95,10 +95,6 @@ export type { TabBarProps, TabBarItem } from "./TabBar";
 export { Button } from "./Button";
 export type { ButtonProps } from "./Button";
 
-// IconButton
-export { IconButton } from "./IconButton";
-export type { IconButtonProps } from "./IconButton";
-
 // Tooltip
 export { Tooltip } from "./Tooltip";
 export type { TooltipProps } from "./Tooltip";

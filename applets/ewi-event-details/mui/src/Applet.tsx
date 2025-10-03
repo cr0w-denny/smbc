@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import {
   Save as SaveIcon,
   ExpandMore as ExpandMoreIcon,
@@ -12,7 +10,14 @@ import {
   AssignmentTurnedIn as AssignmentTurnedInIcon,
 } from "@mui/icons-material";
 import { useHashNavigation, useFeatureFlag } from "@smbc/applet-core";
-import { TabBar, AppShell, Width, ActionMenu, ActionMenuItem, Button } from "@smbc/mui-components";
+import {
+  TabBar,
+  AppShell,
+  Width,
+  ActionMenu,
+  ActionMenuItem,
+  Button,
+} from "@smbc/mui-components";
 import type { TabBarItem } from "@smbc/mui-components";
 import { EventTab } from "./components/EventTab";
 import { TriggerTab } from "./components/TriggerTab";
@@ -126,7 +131,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
 
   return (
     <AppShell.Page>
-      <AppShell.Toolbar darkMode={isDarkMode}>
+      <AppShell.Toolbar darkMode={isDarkMode} variant="extended">
         <Width>
           <Box
             sx={{
@@ -159,11 +164,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
                   <Button
                     variant="contained"
                     endIcon={
-                      workflowMenuOpen ? (
-                        <ExpandLessIcon />
-                      ) : (
-                        <ExpandMoreIcon />
-                      )
+                      workflowMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />
                     }
                   >
                     Workflow

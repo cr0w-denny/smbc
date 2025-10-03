@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Avatar,
   Box,
-  Button,
   Collapse,
   IconButton,
   ListItemText,
@@ -17,6 +16,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import { size, ui } from "@smbc/ui-core";
 import { DarkModeSwitch } from "./DarkModeSwitch";
 import { Divider } from "./Divider";
+import { Button } from "./Button";
 
 export type UserRole = {
   id: string;

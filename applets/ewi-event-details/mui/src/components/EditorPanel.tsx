@@ -124,8 +124,11 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
         sx={{
           borderBottom: 1,
           borderColor: "divider",
+          ml: 1,
+          mr: -1,
           p: 1,
           pt: 0,
+          pr: 0,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",

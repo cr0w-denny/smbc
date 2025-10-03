@@ -11,24 +11,8 @@ declare module "@mui/material/styles" {
 export const createCssVarComponents = (
   theme: Theme,
 ): Components<Omit<Theme, "components">> => {
-  console.log(
-    "DENNY",
-    ui.navigation.background,
-    ui.navigation.background(theme),
-    theme.palette.mode,
-  );
+  return {};
   return {
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          "--Paper-overlay": "none !important",
-          "--Paper-elevation": "none !important",
-          backgroundColor: `${ui.navigation.background(theme)} !important`,
-          borderBottom: "3px solid #02080b",
-          color: `${ui.navigation.color(theme)} !important`,
-        },
-      },
-    },
     MuiFormControl: {
       styleOverrides: {
         root: {
@@ -117,24 +101,8 @@ export const createCssVarComponents = (
         },
       },
     },
-    MuiMenuItem: {
-      styleOverrides: {
-        root: {},
-      },
-    },
     MuiPaper: {
       styleOverrides: {
-        root: {
-          "&.MuiMenu-paper, &.MuiPopover-paper": {
-            "--Paper-overlay": "none !important",
-            "--Paper-elevation": "none !important",
-            backgroundColor: `${ui.color.background.secondary(
-              theme,
-            )} !important`,
-            border: `1px solid ${ui.color.border.primary(theme)}`,
-            color: ui.color.text.primary,
-          },
-        },
         elevation1: {
           boxShadow: shadow.base,
         },
@@ -143,30 +111,6 @@ export const createCssVarComponents = (
         },
         elevation3: {
           boxShadow: shadow.lg,
-        },
-      },
-    },
-    MuiSelect: {
-      styleOverrides: {
-        root: {
-          borderRadius: theme.spacing(3),
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderRadius: theme.spacing(3),
-            borderColor: ui.input.borderColor,
-          },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: ui.input.on.hover.borderColor,
-          },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: ui.input.on.focus.borderColor,
-            borderWidth: 2,
-          },
-          "&.Mui-focused": {
-            backgroundColor: ui.input.on.focus.background,
-          },
-          "& .MuiSvgIcon-root": {
-            color: ui.input.on.focus.borderColor,
-          },
         },
       },
     },
@@ -231,46 +175,6 @@ export const createCssVarComponents = (
   };
 
   return {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          background: ui.button.background,
-          borderRadius: ui.button.borderRadius,
-          padding: "6px 16px",
-          fontSize: "0.875rem",
-          fontWeight: 500,
-          textTransform: "none",
-          boxShadow: "none",
-          "&:hover": {
-            boxShadow: shadow.sm,
-          },
-          "&.Mui-disabled": {
-            backgroundColor: "transparent !important",
-            color: `${ui.color.text.disabled} !important`,
-          },
-        },
-        contained: {
-          background: ui.button.background,
-          border: "1px solid #2C88F3",
-          color: "#ffffff",
-          "&:hover": {
-            background: ui.button.background,
-            border: "1px solid #2472d9",
-            boxShadow: shadow.md,
-          },
-          "&.MuiButton-containedSecondary": {
-            background: ui.button.background,
-            "&:hover": {
-              background: `linear-gradient(180deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`,
-            },
-          },
-          "&.Mui-disabled": {
-            background: `${ui.color.action.disabled} !important`,
-            color: `${ui.color.text.disabled} !important`,
-          },
-        },
-      },
-    },
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -312,40 +216,6 @@ export const createCssVarComponents = (
               color: `${ui.input.on.focus.borderColor} !important`,
             },
           },
-        },
-      },
-    },
-    MuiSelect: {
-      styleOverrides: {
-        root: {
-          borderRadius: theme.spacing(3),
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderRadius: theme.spacing(3),
-            borderColor: ui.input.borderColor,
-          },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: ui.input.on.hover.borderColor,
-          },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: ui.input.on.focus.borderColor,
-            borderWidth: 2,
-          },
-          "&.Mui-focused": {
-            backgroundColor: ui.input.on.focus.background,
-          },
-          "& .MuiSvgIcon-root": {
-            color: ui.input.on.focus.borderColor,
-          },
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: "16px",
-          backgroundColor: `${ui.card.background} !important`,
-          border: `1px solid ${ui.card.borderColor}`,
-          boxShadow: shadow.base,
         },
       },
     },
@@ -499,31 +369,6 @@ export const createCssVarComponents = (
         },
       },
     },
-    MuiTableCell: {
-      styleOverrides: {
-        root: {
-          padding: "8px 16px",
-          fontSize: "0.875rem",
-          borderColor: ui.tableRow.borderColor,
-        },
-        head: {
-          fontWeight: 600,
-          backgroundColor: ui.tableHeader.background,
-          color: ui.tableHeader.color,
-        },
-      },
-    },
-    MuiIconButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          padding: 8,
-          "&:hover": {
-            backgroundColor: ui.color.action.hover,
-          },
-        },
-      },
-    },
     MuiInputLabel: {
       styleOverrides: {
         root: {
@@ -616,6 +461,22 @@ export const createCssVarComponents = (
             backgroundColor: ui.switchThumb.background,
           },
         },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color:
+            theme.palette.mode === "dark"
+              ? "#B8C5D0 !important"
+              : "rgba(0, 0, 0, 0.54) !important",
+          "& .MuiSvgIcon-root": {
+            color:
+              theme.palette.mode === "dark"
+                ? "#B8C5D0 !important"
+                : "rgba(0, 0, 0, 0.54) !important",
+          },
+        }),
       },
     },
     MuiCssBaseline: {

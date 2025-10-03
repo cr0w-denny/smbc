@@ -1,11 +1,24 @@
 import React from "react";
-import { useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery, useTheme, SvgIcon } from "@mui/material";
 import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Card, StatusChip } from "@smbc/mui-components";
 import type { CardMenuItem } from "@smbc/mui-components";
 import { KeyValueTable, type KV } from "@smbc/mui-components";
+
+// Custom error icon with white filled exclamation mark
+const ErrorIconFilled: React.FC<{ sx?: any }> = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    {/* Circle outline */}
+    <path
+      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+      fill="currentColor"
+    />
+    {/* White filled exclamation mark */}
+    <path d="M11 7h2v6h-2zm0 8h2v2h-2z" fill="#FFFFFF" />
+  </SvgIcon>
+);
 
 export const EventDetailsCard: React.FC<{
   items: KV[];
@@ -23,7 +36,7 @@ export const EventDetailsCard: React.FC<{
 
       // Determine icon and variant based on status
       if (status.toLowerCase().includes("past due")) {
-        icon = <ErrorIcon sx={{ fontSize: 16 }} />;
+        icon = <ErrorIconFilled sx={{ fontSize: 16 }} />;
         variant = "error";
       } else if (
         status.toLowerCase().includes("pending") ||

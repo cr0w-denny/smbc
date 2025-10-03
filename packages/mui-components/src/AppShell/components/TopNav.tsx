@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import {
   AppBar,
   Box,
@@ -9,13 +9,15 @@ import {
   Button,
   IconButton,
   Avatar,
+  useTheme,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
+import { motion, AnimatePresence } from "framer-motion";
 import { NavigationItem } from "../types";
 import { TreeDropdownMenu } from "./TreeDropdownMenu";
 import { UserMenu, UserRole } from "../../UserMenu";
-import { color } from "@smbc/ui-core";
+import { ui, color, shadow } from "@smbc/ui-core";
 
 interface TopNavProps {
   logo?: React.ReactNode;
@@ -79,7 +81,14 @@ export const TopNav: React.FC<TopNavProps> = ({
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
+  const [indicatorDimensions, setIndicatorDimensions] = useState<{
+    width: number;
+    x: number;
+  } | null>(null);
+  const theme = useTheme();
   const headerRef = useRef<HTMLDivElement>(null);
+  const navItemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const navContainerRef = useRef<HTMLDivElement>(null);
 
   // Calculate and set header height as CSS custom property
   useLayoutEffect(() => {
@@ -91,6 +100,38 @@ export const TopNav: React.FC<TopNavProps> = ({
       );
     }
   });
+
+  // Calculate indicator position for active nav item
+  useEffect(() => {
+    if (!currentPath) return;
+
+    const activeIndex = navigation.findIndex((item) => {
+      if (item.href && currentPath.startsWith(item.href)) {
+        return true;
+      }
+      if (item.type === "dropdown" && item.items) {
+        return item.items.some((subItem) => subItem.href && currentPath.startsWith(subItem.href));
+      }
+      return false;
+    });
+
+    if (activeIndex !== -1) {
+      const activeRef = navItemRefs.current[activeIndex];
+      const container = navContainerRef.current;
+
+      if (activeRef && container) {
+        const containerRect = container.getBoundingClientRect();
+        const activeRect = activeRef.getBoundingClientRect();
+
+        setIndicatorDimensions({
+          width: activeRect.width,
+          x: activeRect.left - containerRect.left,
+        });
+      }
+    } else {
+      setIndicatorDimensions(null);
+    }
+  }, [currentPath, navigation]);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -113,22 +154,16 @@ export const TopNav: React.FC<TopNavProps> = ({
   };
 
   const renderNavItem = (item: NavigationItem, index: number) => {
-    // Check if item is active or if any dropdown items are active
-    // Support nested paths (e.g., /events should be active for /events/detail)
-    const isActive =
-      item.href === currentPath ||
-      (currentPath &&
-        item.href !== "/" &&
-        currentPath.startsWith(item.href + "/"));
-    const hasActiveChild =
-      item.type === "dropdown" &&
-      item.items?.some((subItem) => subItem.href === currentPath);
-    const showActiveIndicator = isActive || hasActiveChild;
-
     switch (item.type) {
       case "link":
         return (
-          <Box key={index} sx={{ position: "relative", mr: 2 }}>
+          <Box
+            key={index}
+            ref={(el) => {
+              navItemRefs.current[index] = el as HTMLDivElement | null;
+            }}
+            sx={{ position: "relative", mr: 2 }}
+          >
             <Button
               color="inherit"
               size="small"
@@ -140,31 +175,23 @@ export const TopNav: React.FC<TopNavProps> = ({
                 textTransform: "none",
                 fontSize: "17px",
                 fontWeight: 600, // semibold
+                color: theme.palette.mode === "dark" ? "#EBEBEB" : "#FFFFFF",
               }}
             >
               {item.label}
             </Button>
-            {showActiveIndicator && (
-              <Box
-                className="nav-active-indicator"
-                sx={{
-                  position: "absolute",
-                  bottom: -8,
-                  left: 0,
-                  width: "85%",
-                  height: 5,
-                  background:
-                    "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
-                  borderRadius: "2px 2px 0 0",
-                }}
-              />
-            )}
           </Box>
         );
 
       case "dropdown":
         return (
-          <Box key={index} sx={{ position: "relative", mr: 2 }}>
+          <Box
+            key={index}
+            ref={(el) => {
+              navItemRefs.current[index] = el as HTMLDivElement | null;
+            }}
+            sx={{ position: "relative", mr: 2 }}
+          >
             <Button
               onClick={(e) => handleMenuOpen(e, item.label)}
               endIcon={<ArrowDropDownIcon />}
@@ -174,25 +201,11 @@ export const TopNav: React.FC<TopNavProps> = ({
                 textTransform: "none",
                 fontSize: "17px",
                 fontWeight: 600, // semibold
+                color: theme.palette.mode === "dark" ? "#EBEBEB" : "#FFFFFF",
               }}
             >
               {item.label}
             </Button>
-            {showActiveIndicator && (
-              <Box
-                className="nav-active-indicator"
-                sx={{
-                  position: "absolute",
-                  bottom: -8,
-                  left: 0,
-                  width: "85%",
-                  height: 5,
-                  background:
-                    "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)",
-                  borderRadius: "2px 2px 0 0",
-                }}
-              />
-            )}
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl) && activeMenu === item.label}
@@ -201,9 +214,14 @@ export const TopNav: React.FC<TopNavProps> = ({
               transformOrigin={{ vertical: "top", horizontal: "center" }}
               slotProps={{
                 paper: {
+                  elevation: 0,
                   sx: {
                     minWidth: 150,
                     mt: "15px",
+                    boxShadow: shadow.md,
+                    backgroundColor: ui.color.background.secondary(theme),
+                    border: `1px solid ${ui.color.border.primary(theme)}`,
+                    color: ui.color.text.primary,
                     "& .MuiMenuItem-root": { minHeight: "auto" },
                   },
                 },
@@ -220,6 +238,29 @@ export const TopNav: React.FC<TopNavProps> = ({
                     display: "flex",
                     alignItems: "center",
                     gap: 1.5,
+                    color:
+                      theme.palette.mode === "dark" ? "#E6E7E8" : "#1A1A1A",
+                    pr: subItem.icon ? "16px" : 0,
+                    "&:hover": {
+                      backgroundColor: "transparent",
+                      "& .menu-item-text": {
+                        backgroundColor:
+                          theme.palette.mode === "dark" ? "#524747" : "#E8E6E6",
+                      },
+                    },
+                    "& .MuiSvgIcon-root": {
+                      color: theme.palette.mode === "dark" ? "#98A4B9" : "#5A6A7A",
+                    },
+                    "& .menu-item-text": {
+                      borderRadius: "4px",
+                      padding: "2px 6px",
+                      marginLeft: "-6px",
+                      marginRight: subItem.icon ? "-6px" : "10px",
+                      marginTop: "-2px",
+                      marginBottom: "-2px",
+                      display: "block",
+                      flex: 1,
+                    },
                   }}
                 >
                   {subItem.icon && (
@@ -233,7 +274,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                       {subItem.icon}
                     </Box>
                   )}
-                  {subItem.label}
+                  <span className="menu-item-text">{subItem.label}</span>
                 </MenuItem>
               ))}
             </Menu>
@@ -294,6 +335,16 @@ export const TopNav: React.FC<TopNavProps> = ({
         padding: "0 !important",
         height: "104px",
         zIndex: (theme) => theme.zIndex.drawer + 1,
+        "--Paper-overlay": "none !important",
+        "--Paper-elevation": "none !important",
+        backgroundColor: `${ui.navigation.background} !important`,
+        borderBottom: "3px solid #02080b",
+        color: `${ui.navigation.color} !important`,
+        boxShadow: shadow.base,
+        borderRadius: 0,
+        "&::before": {
+          display: "none",
+        },
       }}
     >
       <Toolbar variant="dense" sx={{ height: "100%", p: "0 !important" }}>
@@ -331,8 +382,45 @@ export const TopNav: React.FC<TopNavProps> = ({
               minWidth: 0,
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box
+              ref={navContainerRef}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                position: "relative",
+              }}
+            >
               {centerNavItems.map(renderNavItem)}
+              <AnimatePresence>
+                {indicatorDimensions && (
+                  <Box
+                    component={motion.div}
+                    initial={false}
+                    animate={{
+                      x: indicatorDimensions.x,
+                      width: indicatorDimensions.width,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 25,
+                    }}
+                    className="nav-active-indicator"
+                    sx={{
+                      position: "absolute",
+                      bottom: -8,
+                      left: 0,
+                      height: 5,
+                      background:
+                        theme.palette.mode === "dark"
+                          ? "linear-gradient(90deg, #27A0E4 0%, #7BDEE9 100%)"
+                          : "#73ABFB",
+                      borderRadius: "2px 2px 0 0",
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
+              </AnimatePresence>
             </Box>
           </Box>
 
@@ -350,7 +438,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             <IconButton
               onClick={(e) => setUserMenuAnchor(e.currentTarget)}
               sx={{
-                color: "inherit",
+                color: theme.palette.mode === "dark" ? "#98A4B9" : "#D0D1D2",
                 padding: "8px",
                 "&:hover": {
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -380,9 +468,9 @@ export const TopNav: React.FC<TopNavProps> = ({
                 <AccountCircleOutlined
                   sx={{
                     fontSize: 32,
-                    ...(isImpersonating && {
-                      color: color.brand.freshGreen,
-                    }),
+                    color: isImpersonating
+                      ? color.brand.freshGreen
+                      : theme.palette.mode === "dark" ? "#98A4B9" : "#D0D1D2",
                   }}
                 />
               )}

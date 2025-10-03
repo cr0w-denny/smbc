@@ -144,6 +144,9 @@ const StatusCellRenderer = (params: any) => {
           height: "24px",
           width: "160px",
           transition: "none !important",
+          ".ag-row-hover &": {
+            backgroundColor: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF !important",
+          },
           "& .MuiChip-label": {
             px: 1.5,
             py: 0.5,
@@ -166,6 +169,9 @@ const StatusCellRenderer = (params: any) => {
         height: "24px",
         width: "160px",
         transition: "none !important",
+        ".ag-row-hover &": {
+          backgroundColor: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF !important",
+        },
         "& .MuiChip-label": {
           px: 1.5,
           py: 0.5,

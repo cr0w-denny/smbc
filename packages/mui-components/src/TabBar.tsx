@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, Typography, styled, alpha } from "@mui/material";
+import { Box, Typography, styled, useTheme } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-import { ui } from "@smbc/ui-core";
+import { BackgroundEffect } from "./BackgroundEffect";
 
 export interface TabBarItem {
   value: string;
@@ -23,36 +23,39 @@ const Container = styled(Box)(({ theme }) => ({
   alignItems: "center",
   position: "relative",
   backgroundColor:
-    theme.palette.mode === "light"
-      ? "#353D41"
-      : alpha(theme.palette.action.hover, 0.04),
-  borderRadius: Number(theme.shape.borderRadius) * 2,
-  padding: theme.spacing(0.25),
-  border: `1px solid ${
-    theme.palette.mode === "light"
-      ? "#020D10"
-      : alpha(theme.palette.divider, 0.08)
-  }`,
+    theme.palette.mode === "dark"
+      ? "rgba(15, 24, 37, 0.85)"
+      : "rgba(53, 61, 65, 0.85)",
+  borderRadius: "27px",
+  padding: "0 30px",
+  height: "54px",
+  border:
+    theme.palette.mode === "dark"
+      ? "1.7px solid #1E2A3E"
+      : "1.7px solid #020D10",
+  boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
+  zIndex: 2,
 }));
 
 const TabItem = styled(Box, {
   shouldForwardProp: (prop) => prop !== "isActive" && prop !== "isDisabled",
 })<{ isActive?: boolean; isDisabled?: boolean }>(
-  ({ theme, isActive, isDisabled }) => ({
+  ({ isActive, isDisabled }) => ({
     position: "relative",
-    padding: theme.spacing(0.75, 2),
-    borderRadius: Number(theme.shape.borderRadius) * 1.5,
+    padding: "0 24px",
+    minWidth: "110px",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "24px",
     cursor: isDisabled ? "not-allowed" : "pointer",
     userSelect: "none",
     transition: "opacity 150ms ease",
     zIndex: isActive ? 2 : 1,
-    color: isDisabled
-      ? theme.palette.text.disabled
-      : isActive
-      ? ui.color.brand.primaryContrast
-      : ui.color.text.secondary,
+    color: isDisabled ? "#666666" : isActive ? "#000000" : "#B0B8BF",
     opacity: isDisabled ? 0.5 : isActive ? 1 : 0.7,
-    fontWeight: isActive ? 600 : 500,
+    fontWeight: isActive ? 700 : 500,
 
     "&:hover": {
       opacity: !isDisabled && !isActive ? 1 : undefined,
@@ -60,15 +63,15 @@ const TabItem = styled(Box, {
   }),
 );
 
-const ActivePill = styled(motion.div)(({ theme }) => ({
+const ActivePill = styled(motion.div)(() => ({
   position: "absolute",
-  top: 6,
-  left: 6,
-  right: 6,
-  bottom: 6,
+  top: "6px",
+  left: "6px",
+  bottom: "3px",
+  height: "calc(100% - 9px)",
   backgroundColor: "#9AC2FA",
-  borderRadius: Number(theme.shape.borderRadius) * 1.5,
-  boxShadow: theme.shadows[2],
+  borderRadius: "24px",
+  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
   zIndex: 0,
 }));
 
@@ -79,7 +82,7 @@ const sizeMap = {
     containerPadding: 0.25,
   },
   medium: {
-    fontSize: "0.875rem",
+    fontSize: "17px",
     padding: [0.75, 2],
     containerPadding: 0.25,
   },
@@ -98,6 +101,7 @@ export const TabBar: React.FC<TabBarProps> = ({
   fullWidth = false,
   sx,
 }) => {
+  const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
   const [pillDimensions, setPillDimensions] = useState({ width: 0, x: 0 });
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -184,72 +188,85 @@ export const TabBar: React.FC<TabBarProps> = ({
   };
 
   return (
-    <Container
-      ref={containerRef}
-      role="tablist"
-      sx={{
-        width: fullWidth ? "100%" : "auto",
-        p: sizeConfig.containerPadding,
-        ...sx,
-      }}
-    >
-      <AnimatePresence>
-        {pillDimensions.width > 0 && (
-          <ActivePill
-            key="active-pill"
-            initial={false}
-            animate={{
-              x: pillDimensions.x,
-              width: pillDimensions.width,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 500,
-              damping: 35,
-            }}
-          />
-        )}
-      </AnimatePresence>
+    <Box sx={{ position: "relative", display: "inline-flex" }}>
+      <BackgroundEffect
+        width="80vw"
+        height="90px"
+        blur={50}
+        fadeEdges={["right"]}
+        sx={
+          theme.palette.mode === "dark"
+            ? null
+            : { backgroundColor: "#232B2FCC" }
+        }
+      />
+      <Container
+        ref={containerRef}
+        role="tablist"
+        sx={{
+          width: fullWidth ? "100%" : "auto",
+          p: sizeConfig.containerPadding,
+          ...sx,
+        }}
+      >
+        <AnimatePresence>
+          {pillDimensions.width > 0 && (
+            <ActivePill
+              key="active-pill"
+              initial={false}
+              animate={{
+                x: pillDimensions.x,
+                width: pillDimensions.width,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 30,
+              }}
+            />
+          )}
+        </AnimatePresence>
 
-      {items.map((item, index) => (
-        <TabItem
-          key={item.value}
-          ref={(el) => {
-            itemRefs.current[index] = el as HTMLDivElement | null;
-          }}
-          role="tab"
-          tabIndex={item.value === value ? 0 : -1}
-          aria-selected={item.value === value}
-          aria-disabled={item.disabled}
-          isActive={item.value === value}
-          isDisabled={item.disabled}
-          onClick={() => handleItemClick(item, index)}
-          onKeyDown={(event) => handleKeyDown(event, item, index)}
-          sx={{
-            flex: fullWidth ? 1 : "none",
-            py: sizeConfig.padding[0],
-            px: sizeConfig.padding[1],
-            mr: index === items.length - 1 ? "15px" : 0,
-            outline: "none",
-            "&:focus-visible": {
-              outline: `2px solid currentColor`,
-              outlineOffset: "2px",
-            },
-          }}
-        >
-          <Typography
-            variant="body2"
+        {items.map((item, index) => (
+          <TabItem
+            key={item.value}
+            ref={(el) => {
+              itemRefs.current[index] = el as HTMLDivElement | null;
+            }}
+            role="tab"
+            tabIndex={item.value === value ? 0 : -1}
+            aria-selected={item.value === value}
+            aria-disabled={item.disabled}
+            isActive={item.value === value}
+            isDisabled={item.disabled}
+            onClick={() => handleItemClick(item, index)}
+            onKeyDown={(event) => handleKeyDown(event, item, index)}
             sx={{
-              fontSize: sizeConfig.fontSize,
-              fontWeight: "inherit",
-              color: "inherit",
-              marginLeft: "10px",
+              flex: fullWidth ? 1 : "none",
+              py: sizeConfig.padding[0],
+              px: sizeConfig.padding[1],
+              mr: index === items.length - 1 ? "15px" : 0,
+              outline: "none",
+              "&:focus-visible": {
+                outline: `2px solid currentColor`,
+                outlineOffset: "2px",
+              },
             }}
           >
-            {item.label}
-          </Typography>
-        </TabItem>
-      ))}
-    </Container>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: sizeConfig.fontSize,
+                fontWeight: "inherit",
+                color: "inherit",
+                marginLeft: "10px",
+              }}
+            >
+              {item.label}
+            </Typography>
+          </TabItem>
+        ))}
+      </Container>
+    </Box>
   );
 };

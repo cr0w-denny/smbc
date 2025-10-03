@@ -49,6 +49,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   selectedItems = [],
 }) => {
   const [workflowMenuOpen, setWorkflowMenuOpen] = useState(false);
+  const [workflowButtonEl, setWorkflowButtonEl] = useState<HTMLElement | null>(null);
+
+  // Auto-open workflow menu when 2+ items are selected
+  React.useEffect(() => {
+    if (selectedItems.length >= 2) {
+      setWorkflowMenuOpen(true);
+    } else {
+      setWorkflowMenuOpen(false);
+    }
+  }, [selectedItems.length]);
   const filterSpec: FilterSpec = {
     debounceMs: 0, // Disable debouncing since we have apply button
     fields: [
@@ -134,7 +144,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </Typography>
         <Button
           variant="contained"
-          color="primary"
           size="small"
           onClick={() => onApply()}
           disabled={!filtersChanged}
@@ -150,8 +159,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       </Box>
       {workflowActions.length > 0 && (
         <ActionMenu
+          variant="popover"
+          open={workflowMenuOpen}
+          anchorEl={workflowButtonEl}
           trigger={
             <Button
+              ref={(el: HTMLElement | null) => setWorkflowButtonEl(el)}
               variant="contained"
               startIcon={<WorkflowIcon />}
               endIcon={

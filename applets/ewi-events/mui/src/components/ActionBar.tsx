@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
@@ -43,7 +40,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   statusCounts = {},
   actionMenuItems = [],
 }) => {
-
   // Create chip data for ChipToggleGroup
   const filterChips: ChipToggleItem[] = [
     {
@@ -102,8 +98,12 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     // Update URL params with all selections
     const categoryChips = ["Mandatory", "Discretionary"];
     const statusChips = ["on-course", "past-due", "almost-due"];
-    const activeCategories = newActiveChips.filter(v => categoryChips.includes(v));
-    const activeStatuses = newActiveChips.filter(v => statusChips.includes(v));
+    const activeCategories = newActiveChips.filter((v) =>
+      categoryChips.includes(v),
+    );
+    const activeStatuses = newActiveChips.filter((v) =>
+      statusChips.includes(v),
+    );
 
     const newValues = { ...values };
     newValues.categories = activeCategories;
@@ -138,7 +138,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   }, [values.statuses, values.categories]);
 
   return (
-    <Box sx={{ p: 2, pb: 0 }}>
+    <Box sx={{ pt: 2, px: 3, pb: 0 }}>
       {/* Status Chips */}
       <Box
         sx={{
@@ -149,8 +149,18 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
-          <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: "nowrap" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: 600, whiteSpace: "nowrap" }}
+          >
             Quick Filters:
           </Typography>
           <ChipToggleGroup
@@ -172,7 +182,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           <ActionMenu menuItems={actionMenuItems} />
         </Box>
       </Box>
-
     </Box>
   );
 };

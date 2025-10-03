@@ -49,6 +49,9 @@ export const TableRow: React.FC<TableRowProps> = ({ sx, ...props }) => {
         "&:hover": {
           backgroundColor: ui.tableRow.on.hover.background,
         },
+        "&:focus-within": {
+          backgroundColor: ui.tableRow.on.hover.background,
+        },
         "&.Mui-selected": {
           backgroundColor: ui.tableRow.on.selected.background,
           "&:hover": {

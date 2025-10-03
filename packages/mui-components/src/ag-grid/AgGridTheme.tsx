@@ -88,6 +88,9 @@ export const AgGridTheme: React.FC<AgGridThemeProps> = ({
           "--ag-row-hover-color": ui.tableRow.on.hover.background,
           "--ag-selected-row-background-color":
             ui.tableRow.on.selected.background,
+          // Popup/Menu backgrounds (same as ActionMenu)
+          // "--ag-popup-background-color": ui.color.background.secondary(theme),
+          // "--ag-menu-background-color": ui.color.background.secondary(theme),
           // "--ag-header-row-border-style": "none",
           // "--ag-borders-critical": "none",
           // Additional AG Grid theme variables

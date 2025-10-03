@@ -566,7 +566,7 @@ export const tokens = {
       on: {
         hover: {
           background: {
-            light: "var(--color-neutral-gray100)",
+            light: "#F6F5F5",
             dark: "rgba(255, 255, 255, 0.08)",
           },
         },
@@ -652,7 +652,7 @@ export const tokens = {
         dark: "Montserrat, sans-serif",
       },
       fontWeight: {
-        light: "400",
+        light: "500",
         dark: "500",
       },
       padding: "0 0 16px 0",

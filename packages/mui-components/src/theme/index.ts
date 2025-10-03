@@ -1,5 +1,4 @@
 import { createTheme, TypographyVariantsOptions } from "@mui/material/styles";
-import { createCssVarPalette } from "./palette";
 import { createCssVarComponents } from "./components";
 import { baseTypography, baseSpacing } from "./typography";
 import { shadow, breakpoints } from "@smbc/ui-core";
@@ -11,7 +10,7 @@ export const createCssVarTheme = (mode: "light" | "dark" = "light") => {
     cssVariables: {
       colorSchemeSelector: "[data-theme=%s]",
     },
-    palette: createCssVarPalette(mode),
+    palette: { mode },
     typography: baseTypography as TypographyVariantsOptions,
     spacing: baseSpacing,
     breakpoints: {

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import {
   IconButton,
   Tooltip,
+  useTheme,
 } from "@mui/material";
 import {
   BuildCircle as BuildCircleIcon,
@@ -37,6 +38,7 @@ export const DevConsoleToggle: React.FC<DevConsoleToggleProps> = ({
   theme,
   setTheme
 }) => {
+  const muiTheme = useTheme();
   const [devConsoleOpen, setDevConsoleOpen] = useState(false);
   const isDevelopment = process.env.NODE_ENV === "development";
   const { path } = useHashNavigation();
@@ -97,7 +99,7 @@ export const DevConsoleToggle: React.FC<DevConsoleToggleProps> = ({
     if (devConsoleOpen) {
       return ui.color.brand.primary({ theme: 'dark' });
     }
-    return "inherit"; // Default color
+    return muiTheme.palette.mode === "dark" ? "#98A4B9" : "#D0D1D2";
   };
 
   return (
