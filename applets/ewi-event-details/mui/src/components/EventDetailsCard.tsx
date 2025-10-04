@@ -1,6 +1,5 @@
 import React from "react";
 import { useMediaQuery, useTheme, SvgIcon } from "@mui/material";
-import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Card, StatusChip } from "@smbc/mui-components";

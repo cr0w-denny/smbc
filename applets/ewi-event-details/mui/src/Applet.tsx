@@ -16,7 +16,7 @@ import {
   ActionMenu,
   ActionMenuItem,
   Button,
-  FormFieldProvider,
+  ConfigProvider,
 } from "@smbc/mui-components";
 import type { TabBarItem } from "@smbc/mui-components";
 import { EventTab } from "./components/EventTab";
@@ -129,7 +129,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
   };
 
   return (
-    <FormFieldProvider config={form}>
+    <ConfigProvider config={{ form, toolbar }}>
       <AppShell.Page>
         <AppShell.Toolbar mode={toolbar?.mode}>
         <Box
@@ -223,7 +223,7 @@ export const Applet: React.FC<AppletProps> = ({ mountPath }) => {
           </Box>
         </AppShell.Content>
       </AppShell.Page>
-    </FormFieldProvider>
+    </ConfigProvider>
   );
 };
 

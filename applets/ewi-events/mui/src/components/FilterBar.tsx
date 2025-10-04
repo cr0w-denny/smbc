@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  useTheme,
 } from "@mui/material";
 import {
   Filter,
@@ -49,7 +48,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   workflowActions = [],
   selectedItems = [],
 }) => {
-  const theme = useTheme();
   const [workflowMenuOpen, setWorkflowMenuOpen] = useState(false);
   const [workflowButtonEl, setWorkflowButtonEl] = useState<HTMLElement | null>(null);
 

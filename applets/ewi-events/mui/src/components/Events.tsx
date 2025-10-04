@@ -8,7 +8,7 @@ import {
   StatusChip,
   ActionMenu,
   ActionMenuItem,
-  FormFieldProvider,
+  ConfigProvider,
 } from "@smbc/mui-components";
 import type { ColDef, SelectionChangedEvent } from "ag-grid-community";
 import {
@@ -558,7 +558,7 @@ export const Events: React.FC<EventsProps> = () => {
   }
 
   return (
-    <FormFieldProvider config={form}>
+    <ConfigProvider config={{ form, toolbar }}>
       <AppShell.Page>
         <AppShell.Toolbar mode={toolbar?.mode}>
           <FilterBar
@@ -680,6 +680,6 @@ export const Events: React.FC<EventsProps> = () => {
           </Card>
         </AppShell.Content>
       </AppShell.Page>
-    </FormFieldProvider>
+    </ConfigProvider>
   );
 };

@@ -5,7 +5,7 @@ import {
   Filter,
   RelatedNews,
   AppShell,
-  FormFieldProvider,
+  ConfigProvider,
 } from "@smbc/mui-components";
 import type { NewsItem } from "@smbc/mui-components";
 import { useHashNavigation, useAppletConfig } from "@smbc/applet-core";
@@ -192,7 +192,7 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <FormFieldProvider config={form}>
+    <ConfigProvider config={{ form, toolbar }}>
       <AppShell.Page>
         <AppShell.Toolbar mode={toolbar?.mode}>
           <Filter
@@ -250,7 +250,7 @@ const Dashboard: React.FC = () => {
           </Box>
         </AppShell.Content>
       </AppShell.Page>
-    </FormFieldProvider>
+    </ConfigProvider>
   );
 };
 
